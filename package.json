@@ -1,0 +1,30 @@
+{
+  "name": "japan-omni-ec-erp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Japan Omni-EC Cloud ERP - AI-Driven SaaS for Multi-channel Order Management",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:generate": "turbo run db:generate --filter=@japan-erp/database",
+    "db:migrate": "turbo run db:migrate --filter=@japan-erp/database",
+    "db:seed": "turbo run db:seed --filter=@japan-erp/database"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "packageManager": "npm@10.2.4"
+}
+
