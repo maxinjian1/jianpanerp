@@ -1,4 +1,6 @@
 // Order Management Types - 日本EC市場向け
+import { TaxRate, SizeCode } from './product';
+import { DeliveryTimeSlot } from './logistics';
 
 export interface Order {
   id: string;
@@ -124,32 +126,9 @@ export enum PaymentMethod {
   PAYPAY = 'PAYPAY',
 }
 
-export enum TaxRate {
-  STANDARD = 10,   // 標準税率
-  REDUCED = 8,     // 軽減税率 (食品等)
-  EXEMPT = 0,      // 非課税
-}
-
-export enum SizeCode {
-  SIZE_60 = 60,    // 3辺合計60cm以下
-  SIZE_80 = 80,
-  SIZE_100 = 100,
-  SIZE_120 = 120,
-  SIZE_140 = 140,
-  SIZE_160 = 160,
-  SIZE_180 = 180,  // 大型
-}
-
-// 日本の配送時間帯
-export enum DeliveryTimeSlot {
-  MORNING = '0812',        // 午前中 8-12
-  SLOT_1214 = '1214',      // 12-14時
-  SLOT_1416 = '1416',      // 14-16時
-  SLOT_1618 = '1618',      // 16-18時
-  SLOT_1820 = '1820',      // 18-20時
-  SLOT_1921 = '1921',      // 19-21時
-  ANYTIME = '0000',        // 指定なし
-}
+// TaxRate is imported from product
+// SizeCode is imported from product
+// DeliveryTimeSlot is imported from logistics
 
 // DTOs
 export interface CreateOrderDto {

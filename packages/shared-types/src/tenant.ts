@@ -1,4 +1,5 @@
 // Multi-tenant SaaS Types
+import { CarrierCode } from './logistics';
 
 export interface Tenant {
   id: string;
@@ -46,7 +47,7 @@ export interface TenantSettings {
   enableAutoRouting: boolean;
 }
 
-export type CarrierCode = 'YAMATO' | 'SAGAWA' | 'FUKUYAMA' | 'JAPAN_POST';
+// CarrierCode is imported from logistics
 
 export interface User {
   id: string;

@@ -1,4 +1,5 @@
 // Logistics/TMS Types - 日本物流会社対応
+import { SizeCode } from './product';
 
 export interface Shipment {
   id: string;
@@ -101,15 +102,7 @@ export enum ShipmentStatus {
   RETURNED = 'RETURNED',         // 返送
 }
 
-export enum SizeCode {
-  SIZE_60 = 60,
-  SIZE_80 = 80,
-  SIZE_100 = 100,
-  SIZE_120 = 120,
-  SIZE_140 = 140,
-  SIZE_160 = 160,
-  SIZE_180 = 180,
-}
+// SizeCode is imported from product
 
 export enum DeliveryTimeSlot {
   MORNING = '0812',
