@@ -52,7 +52,8 @@ export default function RegisterPage() {
         localStorage.setItem('accessToken', data.accessToken)
         localStorage.setItem('tenantId', data.user.tenantId)
         toast.success('アカウントを作成しました')
-        router.push('/dashboard')
+        // Force reload to ensure all components pick up the new tenantId
+        window.location.href = '/dashboard'
       } else {
         const errorData = await response.json()
         toast.error(errorData.message || '登録に失敗しました')
@@ -140,6 +141,7 @@ export default function RegisterPage() {
                 required
                 minLength={8}
                 className="input"
+                autoComplete="new-password"
                 placeholder="8文字以上"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}

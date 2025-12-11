@@ -33,7 +33,8 @@ export default function LoginPage() {
         localStorage.setItem('accessToken', data.accessToken)
         localStorage.setItem('tenantId', data.user.tenantId)
         toast.success('ログインしました')
-        router.push('/dashboard')
+        // Force reload to ensure all components pick up the new tenantId
+        window.location.href = '/dashboard'
       } else {
         toast.error('メールアドレスまたはパスワードが正しくありません')
       }
