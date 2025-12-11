@@ -300,14 +300,14 @@ export default function MarketResearchPage() {
         
         {/* Global Market Selector */}
         <div className="relative">
-            <div className="flex items-center gap-2 bg-white dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-lg p-1 pr-3 shadow-sm">
-                <div className="p-2 bg-anet-50 dark:bg-anet-900/30 rounded text-anet-600 dark:text-anet-400">
-                    {selectedMarket === 'AMAZON_JP' && <ShoppingBagIcon className="w-5 h-5" />}
-                    {selectedMarket === 'RAKUTEN' && <span className="w-5 h-5 flex items-center justify-center font-bold text-xs">R</span>}
-                    {selectedMarket === 'YAHOO' && <span className="w-5 h-5 flex items-center justify-center font-bold text-xs">Y</span>}
+            <div className="flex items-center gap-3 bg-white dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl p-2 pr-4 shadow-sm hover:shadow-md transition-shadow">
+                <div className="p-2.5 bg-anet-50 dark:bg-anet-900/30 rounded-lg text-anet-600 dark:text-anet-400">
+                    {selectedMarket === 'AMAZON_JP' && <ShoppingBagIcon className="w-7 h-7" />}
+                    {selectedMarket === 'RAKUTEN' && <span className="w-7 h-7 flex items-center justify-center font-bold text-lg">R</span>}
+                    {selectedMarket === 'YAHOO' && <span className="w-7 h-7 flex items-center justify-center font-bold text-lg">Y</span>}
                 </div>
                 <div className="flex flex-col">
-                    <label className="text-[10px] font-bold text-ink-400 uppercase tracking-wider">分析対象マーケット</label>
+                    <label className="text-xs font-bold text-ink-400 uppercase tracking-wider mb-0.5">分析対象マーケット</label>
                     <select 
                         value={selectedMarket}
                         onChange={(e) => {
@@ -317,7 +317,7 @@ export default function MarketResearchPage() {
                             setSocialResult(null)
                             setProfitResult(null)
                         }}
-                        className="bg-transparent border-none p-0 text-sm font-bold text-ink-900 dark:text-washi-100 focus:ring-0 cursor-pointer min-w-[140px]"
+                        className="bg-transparent border-none p-0 text-lg font-bold text-ink-900 dark:text-washi-100 focus:ring-0 cursor-pointer min-w-[180px]"
                     >
                         <option value="AMAZON_JP">Amazon.co.jp</option>
                         <option value="RAKUTEN">楽天市場</option>
