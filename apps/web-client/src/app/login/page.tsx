@@ -143,7 +143,7 @@ export default function LoginPage() {
           <p className="text-sm text-matcha-700 dark:text-matcha-400 text-center">
             <strong>デモ用アカウント:</strong>
             <br />
-            demo@japan-erp.com / demo1234
+            demo@japan-erp.com / admin123456
           </p>
         </div>
       </motion.div>
