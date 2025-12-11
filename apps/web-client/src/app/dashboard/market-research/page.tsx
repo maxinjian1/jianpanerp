@@ -15,7 +15,6 @@ import {
   NewspaperIcon,
   TagIcon,
   FireIcon,
-  ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import {
