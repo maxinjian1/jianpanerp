@@ -41,14 +41,64 @@ ChartJS.register(
 )
 
 const tabs = [
+  { id: 'amazon-news', name: 'Amazonニュース', icon: NewspaperIcon },
   { id: 'category', name: 'カテゴリ分析', icon: ChartBarIcon },
   { id: 'social', name: 'SNSトレンド', icon: HashtagIcon },
   { id: 'profit', name: '利益シミュレーション', icon: CurrencyYenIcon },
 ]
 
 export default function MarketResearchPage() {
-  const [activeTab, setActiveTab] = useState('category')
+  const [activeTab, setActiveTab] = useState('amazon-news')
   const [isLoading, setIsLoading] = useState(false)
+
+  // Amazon News Data (Mock)
+  const amazonNews = [
+    {
+      id: 1,
+      title: '【重要】2025年FBA配送代行手数料の改定について',
+      category: '手数料',
+      date: '2025-01-15',
+      summary: '2025年4月1日より、FBA配送代行手数料が改定されます。特に大型商品の手数料が見直され、より柔軟なサイズ区分が導入される予定です。',
+      impact: 'HIGH',
+      link: '#'
+    },
+    {
+      id: 2,
+      title: 'Amazonプライムデー2025のエントリー受付開始',
+      category: 'イベント',
+      date: '2025-02-01',
+      summary: '今年のプライムデーに向けたLightning DealsおよびPrime Exclusive Discountsのエントリー受付が開始されました。締め切りは3月31日までです。',
+      impact: 'MEDIUM',
+      link: '#'
+    },
+    {
+      id: 3,
+      title: '商品紹介コンテンツ(A+)に新モジュール追加',
+      category: '機能更新',
+      date: '2025-02-10',
+      summary: 'プレミアムA+コンテンツに、比較表の新しいデザインと、動画を埋め込めるカルーセルモジュールが追加されました。',
+      impact: 'LOW',
+      link: '#'
+    },
+    {
+      id: 4,
+      title: '「在庫パフォーマンス指標(IPI)」の閾値変更のお知らせ',
+      category: '在庫管理',
+      date: '2025-02-12',
+      summary: '在庫保管制限の基準となるIPIスコアの閾値が400から450に変更されます。スコアが低いセラーは保管制限の対象となる可能性があります。',
+      impact: 'HIGH',
+      link: '#'
+    },
+    {
+      id: 5,
+      title: 'ブランド登録セラー向け：新広告分析ツールの提供開始',
+      category: '広告',
+      date: '2025-02-14',
+      summary: 'Amazon Marketing Cloud (AMC) の簡易版ダッシュボードがセラーセントラルに追加され、購買経路の分析が容易になりました。',
+      impact: 'MEDIUM',
+      link: '#'
+    }
+  ]
 
   // Category Analysis State
   const [categoryQuery, setCategoryQuery] = useState('')
@@ -161,6 +211,121 @@ export default function MarketResearchPage() {
 
       {/* Content Area */}
       <div className="min-h-[500px]">
+        {/* ==================== Amazon News Tab ==================== */}
+        {activeTab === 'amazon-news' && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Main News Feed */}
+              <div className="lg:col-span-2 space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-xl font-bold text-ink-900 dark:text-washi-100 flex items-center gap-2">
+                    <FireIcon className="w-6 h-6 text-orange-500" />
+                    最新ニュース & 重要なお知らせ
+                  </h2>
+                  <span className="text-sm text-ink-500">最終更新: 2025-02-15</span>
+                </div>
+
+                {amazonNews.map((news) => (
+                  <div key={news.id} className="card p-6 hover:shadow-md transition-shadow border-l-4 border-l-anet-500">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-3">
+                        <span className={clsx(
+                          "px-2 py-1 rounded text-xs font-bold",
+                          news.category === '手数料' ? 'bg-red-100 text-red-700' :
+                          news.category === 'イベント' ? 'bg-amber-100 text-amber-700' :
+                          news.category === '在庫管理' ? 'bg-purple-100 text-purple-700' :
+                          'bg-blue-100 text-blue-700'
+                        )}>
+                          {news.category}
+                        </span>
+                        <span className="text-sm text-ink-500">{news.date}</span>
+                      </div>
+                      {news.impact === 'HIGH' && (
+                        <span className="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-2 py-1 rounded-full">
+                          <ArrowTrendingUpIcon className="w-3 h-3" />
+                          重要度: 高
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-lg font-bold text-ink-900 dark:text-washi-100 mb-2">
+                      <a href={news.link} className="hover:text-anet-600 transition-colors">
+                        {news.title}
+                      </a>
+                    </h3>
+                    <p className="text-ink-600 dark:text-ink-300 text-sm leading-relaxed">
+                      {news.summary}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Sidebar Widgets */}
+              <div className="space-y-6">
+                {/* Event Calendar Widget */}
+                <div className="card p-5 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-100 dark:border-amber-900">
+                  <h3 className="font-bold text-amber-900 dark:text-amber-100 mb-4 flex items-center gap-2">
+                    <TagIcon className="w-5 h-5" />
+                    開催中のイベント
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="bg-white dark:bg-ink-800 p-3 rounded-lg shadow-sm border border-amber-100 dark:border-amber-900/50">
+                      <div className="text-xs text-amber-600 font-bold mb-1">2/10 - 2/17</div>
+                      <div className="font-medium text-ink-900 dark:text-washi-100">バレンタイン特集</div>
+                    </div>
+                    <div className="bg-white dark:bg-ink-800 p-3 rounded-lg shadow-sm border border-amber-100 dark:border-amber-900/50">
+                      <div className="text-xs text-amber-600 font-bold mb-1">3/1 - 3/5</div>
+                      <div className="font-medium text-ink-900 dark:text-washi-100">Amazon 新生活セール</div>
+                    </div>
+                  </div>
+                  <button className="w-full mt-4 py-2 text-sm text-amber-700 font-bold hover:bg-amber-100 rounded-lg transition-colors">
+                    イベントカレンダーを見る
+                  </button>
+                </div>
+
+                {/* Quick Stats Widget */}
+                <div className="card p-5">
+                  <h3 className="font-bold text-ink-900 dark:text-washi-100 mb-4">
+                    市場トレンド (今週)
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-ink-600">家電・カメラ</span>
+                        <span className="text-green-600 font-bold">↗ +12%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-green-500 h-2 rounded-full" style={{ width: '70%' }}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-ink-600">ホーム＆キッチン</span>
+                        <span className="text-red-500 font-bold">↘ -3%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-gray-400 h-2 rounded-full" style={{ width: '45%' }}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-ink-600">ファッション</span>
+                        <span className="text-green-600 font-bold">↗ +8%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-green-500 h-2 rounded-full" style={{ width: '60%' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* ==================== Category Analysis Tab ==================== */}
         {activeTab === 'category' && (
           <motion.div
