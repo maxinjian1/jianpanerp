@@ -3,6 +3,7 @@
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { CheckIcon } from '@heroicons/react/24/outline'
+import Link from 'next/link'
 
 const plans = [
   {
