@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
@@ -56,10 +57,16 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-anet-400 to-anet-600 flex items-center justify-center">
-                <span className="text-white font-bold text-xl">雲</span>
+              <div className="relative h-12 w-32">
+                <Image
+                  src="/images/anet-logo.png"
+                  alt="ANET Logo"
+                  fill
+                  className="object-contain"
+                />
               </div>
-              <span className="font-bold text-2xl text-ink-900 dark:text-washi-100">
+              <span className="hidden w-px h-8 bg-ink-200 dark:bg-ink-700 mx-1 sm:block"></span>
+              <span className="font-bold text-xl text-ink-900 dark:text-washi-100 hidden sm:block">
                 Japan ERP
               </span>
             </Link>
