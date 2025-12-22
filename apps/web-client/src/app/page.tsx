@@ -53,7 +53,7 @@ const features = [
   },
   {
     name: '高度なレポート・分析',
-    description: 'チャネル別、商品別の利益率を可視化。データに基づいた経営判断をサポート',
+    description: 'データの力で、経営判断を確信に。売上、利益、広告対効果（ROAS）、LTVなど、EC経営に必要な重要指標（KPI）を自動で集計・可視化。チャネル別、商品別の詳細な損益分析（PL）もワンクリックで。',
     icon: PresentationChartLineIcon,
     color: 'from-pink-400 to-pink-600',
     link: '/features/analytics',
