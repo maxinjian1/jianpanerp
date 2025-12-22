@@ -25,7 +25,7 @@ export function SiteFooter() {
               AI駆動型ERPプラットフォーム
             </p>
             <div className="text-sm text-ink-500 mb-4">
-              <p className="font-bold text-ink-400">アネット株式会社</p>
+              <p className="font-bold text-ink-400">アネット株式会社 (ANET CO., LTD.)</p>
               <p>〒739-0025</p>
               <p>広島県東広島市西条中央２丁目１−１４</p>
             </div>

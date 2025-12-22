@@ -26,7 +26,10 @@ export default function CompanyPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
               <div className="text-white">
-                <h2 className="text-2xl font-bold mb-2">アネット株式会社</h2>
+                <h2 className="text-2xl font-bold mb-2 flex flex-col sm:flex-row sm:items-baseline gap-2">
+                  <span>アネット株式会社</span>
+                  <span className="text-lg font-normal opacity-90">ANET CO., LTD.</span>
+                </h2>
                 <p className="text-washi-200">Bridge of the world - 世界への架け橋</p>
               </div>
             </div>
