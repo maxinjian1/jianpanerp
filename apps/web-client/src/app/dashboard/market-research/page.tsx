@@ -17,7 +17,6 @@ import {
   FireIcon,
   XMarkIcon,
   GlobeAltIcon,
-  ShoppingBagIcon,
 } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import {
@@ -302,7 +301,7 @@ export default function MarketResearchPage() {
         <div className="relative">
             <div className="flex items-center gap-3 bg-white dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl p-2 pr-4 shadow-sm hover:shadow-md transition-shadow">
                 <div className="p-2.5 bg-anet-50 dark:bg-anet-900/30 rounded-lg text-anet-600 dark:text-anet-400">
-                    {selectedMarket === 'AMAZON_JP' && <ShoppingBagIcon className="w-7 h-7" />}
+                    {selectedMarket === 'AMAZON_JP' && <GlobeAltIcon className="w-7 h-7" />}
                     {selectedMarket === 'RAKUTEN' && <span className="w-7 h-7 flex items-center justify-center font-bold text-lg">R</span>}
                     {selectedMarket === 'YAHOO' && <span className="w-7 h-7 flex items-center justify-center font-bold text-lg">Y</span>}
                 </div>
