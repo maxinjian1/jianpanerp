@@ -116,7 +116,7 @@ export function FeatureLayout({
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/register" className="btn-primary text-lg px-8 py-4">
-                無料で試す
+                無料で始まる
               </Link>
               <Link href="/contact" className="btn-outline border-white text-white hover:bg-white hover:text-ink-900 dark:border-ink-900 dark:text-ink-900 dark:hover:bg-ink-900 dark:hover:text-white text-lg px-8 py-4">
                 お問い合わせ

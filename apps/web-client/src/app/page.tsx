@@ -208,9 +208,9 @@ export default function LandingPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full sm:flex-1 px-5 py-4 rounded-xl bg-white/20 backdrop-blur border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50"
                 />
-                <button className="w-full sm:w-auto bg-white text-anet-600 px-8 py-4 rounded-xl font-bold hover:bg-anet-50 transition-colors">
-                  無料で始める
-                </button>
+                <Link href="/register" className="w-full sm:w-auto bg-white text-anet-600 px-8 py-4 rounded-xl font-bold hover:bg-anet-50 transition-colors text-center">
+                  無料で始まる
+                </Link>
               </div>
             </div>
           </motion.div>

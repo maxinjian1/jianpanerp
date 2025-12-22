@@ -16,7 +16,8 @@ const plans = [
       'メールサポート',
       'ユーザー数 3名まで',
     ],
-    cta: '無料で試す',
+    cta: '無料で始まる',
+    href: '/register',
     popular: false,
   },
   {
@@ -32,7 +33,8 @@ const plans = [
       'チャットサポート',
       'ユーザー数 10名まで',
     ],
-    cta: '無料で試す',
+    cta: '無料で始まる',
+    href: '/register',
     popular: true,
   },
   {
@@ -49,6 +51,7 @@ const plans = [
       'ユーザー数 無制限',
     ],
     cta: 'お問い合わせ',
+    href: '/contact',
     popular: false,
   },
 ]
@@ -110,15 +113,16 @@ export default function PricingPage() {
                     </li>
                   ))}
                 </ul>
-                <button
-                  className={`w-full py-3 rounded-xl font-bold transition-colors ${
+                <Link
+                  href={plan.href}
+                  className={`w-full py-3 rounded-xl font-bold transition-colors text-center block ${
                     plan.popular
                       ? 'btn-primary'
                       : 'bg-washi-100 dark:bg-ink-800 text-ink-900 dark:text-washi-100 hover:bg-washi-200 dark:hover:bg-ink-700'
                   }`}
                 >
                   {plan.cta}
-                </button>
+                </Link>
               </div>
             ))}
           </div>
