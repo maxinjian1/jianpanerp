@@ -22,7 +22,7 @@ export default function LegalPage() {
               </div>
               <div className="py-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <dt className="text-sm font-medium text-ink-500 dark:text-ink-400">運営統括責任者</dt>
-                <dd className="text-sm text-ink-900 dark:text-washi-100 sm:col-span-2">代表取締役社長</dd>
+                <dd className="text-sm text-ink-900 dark:text-washi-100 sm:col-span-2">代表取締役社長 伍　維誼</dd>
               </div>
               <div className="py-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <dt className="text-sm font-medium text-ink-500 dark:text-ink-400">所在地</dt>
