@@ -168,19 +168,31 @@ export class LogisticsService {
 
     switch (carrier) {
       case CarrierCode.SAGAWA:
-        csvBuffer = this.csvExporter.generateSagawaCsv(orders, shipper);
+        csvBuffer = this.csvExporter.generateSagawaCsv(
+          orders.map((o) => ({ ...o, totalAmount: Number(o.totalAmount) })),
+          shipper,
+        );
         filename = `sagawa_${new Date().toISOString().slice(0, 10)}.csv`;
         break;
       case CarrierCode.YAMATO:
-        csvBuffer = this.csvExporter.generateYamatoCsv(orders, shipper);
+        csvBuffer = this.csvExporter.generateYamatoCsv(
+          orders.map((o) => ({ ...o, totalAmount: Number(o.totalAmount) })),
+          shipper,
+        );
         filename = `yamato_${new Date().toISOString().slice(0, 10)}.csv`;
         break;
       case CarrierCode.FUKUYAMA:
-        csvBuffer = this.csvExporter.generateFukuyamaCsv(orders, shipper);
+        csvBuffer = this.csvExporter.generateFukuyamaCsv(
+          orders.map((o) => ({ ...o, totalAmount: Number(o.totalAmount) })),
+          shipper,
+        );
         filename = `fukuyama_${new Date().toISOString().slice(0, 10)}.csv`;
         break;
       case CarrierCode.JAPAN_POST:
-        csvBuffer = this.csvExporter.generateJapanPostCsv(orders, shipper);
+        csvBuffer = this.csvExporter.generateJapanPostCsv(
+          orders.map((o) => ({ ...o, totalAmount: Number(o.totalAmount) })),
+          shipper,
+        );
         filename = `japanpost_${new Date().toISOString().slice(0, 10)}.csv`;
         break;
       default:

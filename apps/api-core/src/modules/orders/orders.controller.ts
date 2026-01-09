@@ -11,7 +11,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiSecurity } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CreateOrderDto, UpdateOrderStatusDto, OrderFilterDto } from './dto/order.dto';
+import { CreateOrderDto, UpdateOrderStatusDto, UpdateOrderAmountDto, OrderFilterDto } from './dto/order.dto';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -49,6 +49,12 @@ export class OrdersController {
   @ApiOperation({ summary: 'ステータス更新', description: '受注ステータスを更新' })
   async updateStatus(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto) {
     return this.ordersService.updateStatus(id, dto);
+  }
+
+  @Patch(':id/amount')
+  @ApiOperation({ summary: '营业额更新', description: '更新订单金额（营业额）' })
+  async updateAmount(@Param('id') id: string, @Body() dto: UpdateOrderAmountDto) {
+    return this.ordersService.updateAmount(id, dto);
   }
 }
 

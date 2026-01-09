@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japan ERP - 快速登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .status.checking {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .login-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .login-button:active {
+            transform: translateY(0);
+        }
+        
+        .links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border: 1px solid #667eea;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+        
+        .link:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1976d2;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🇯🇵</div>
+        <h1>Japan ERP</h1>
+        <p class="subtitle">AI駆動型ECプラットフォーム</p>
+        
+        <div id="status" class="status checking">
+            <span class="spinner"></span>
+            <span id="statusText">正在检查服务状态...</span>
+        </div>
+        
+        <button id="loginButton" class="login-button" onclick="goToLogin()" disabled>
+            前往登录页面
+        </button>
+        
+        <div class="links">
+            <a href="http://localhost:3000/login" class="link" target="_blank">登录页面</a>
+            <a href="http://localhost:3000/register" class="link" target="_blank">注册账户</a>
+            <a href="http://localhost:4000/docs" class="link" target="_blank">API 文档</a>
+        </div>
+        
+        <div class="info">
+            <p>前端服务: <span id="frontendStatus">检查中...</span></p>
+            <p>后端服务: <span id="backendStatus">检查中...</span></p>
+        </div>
+    </div>
+    
+    <script>
+        const FRONTEND_URL = 'http://localhost:3000';
+        const BACKEND_URL = 'http://localhost:4000';
+        const LOGIN_URL = 'http://localhost:3000/login';
+        
+        // 检查服务状态
+        async function checkServices() {
+            const statusDiv = document.getElementById('status');
+            const statusText = document.getElementById('statusText');
+            const loginButton = document.getElementById('loginButton');
+            const frontendStatus = document.getElementById('frontendStatus');
+            const backendStatus = document.getElementById('backendStatus');
+            
+            let frontendOk = false;
+            let backendOk = false;
+            
+            // 检查前端
+            try {
+                const response = await fetch(FRONTEND_URL, { 
+                    method: 'HEAD',
+                    mode: 'no-cors',
+                    cache: 'no-cache'
+                });
+                frontendOk = true;
+                frontendStatus.textContent = '✓ 运行中';
+                frontendStatus.style.color = '#2e7d32';
+            } catch (error) {
+                frontendStatus.textContent = '✗ 未运行';
+                frontendStatus.style.color = '#c62828';
+            }
+            
+            // 检查后端
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/v1/health`);
+                if (response.ok) {
+                    backendOk = true;
+                    backendStatus.textContent = '✓ 运行中';
+                    backendStatus.style.color = '#2e7d32';
+                }
+            } catch (error) {
+                backendStatus.textContent = '✗ 未运行';
+                backendStatus.style.color = '#c62828';
+            }
+            
+            // 更新状态
+            if (frontendOk) {
+                statusDiv.className = 'status success';
+                statusText.innerHTML = '✓ 服务运行正常，可以登录';
+                loginButton.disabled = false;
+            } else {
+                statusDiv.className = 'status error';
+                statusText.innerHTML = '⚠️ 前端服务未运行，请先启动服务';
+                loginButton.disabled = true;
+            }
+        }
+        
+        // 跳转到登录页面
+        function goToLogin() {
+            window.location.href = LOGIN_URL;
+        }
+        
+        // 页面加载时检查服务
+        window.addEventListener('load', () => {
+            checkServices();
+            // 每 5 秒检查一次
+            setInterval(checkServices, 5000);
+        });
+        
+        // 如果页面加载后 3 秒前端可用，自动跳转（可选）
+        setTimeout(() => {
+            const loginButton = document.getElementById('loginButton');
+            if (!loginButton.disabled) {
+                // 可以选择自动跳转，这里注释掉，让用户手动点击
+                // goToLogin();
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
+

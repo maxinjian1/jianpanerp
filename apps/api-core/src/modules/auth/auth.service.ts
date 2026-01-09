@@ -85,7 +85,7 @@ export class AuthService {
       data: {
         name: dto.companyName,
         schemaName,
-        subscriptionPlan: 'TRIAL',
+        subscriptionPlan: 'STARTER',
         status: 'TRIAL',
         trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days
         settings: {

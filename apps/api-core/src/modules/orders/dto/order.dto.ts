@@ -174,3 +174,40 @@ export class OrderFilterDto {
   limit?: number;
 }
 
+export class UpdateOrderAmountDto {
+  @ApiPropertyOptional({ example: 10000, description: '小计（商品金额总和）' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  subtotal?: number;
+
+  @ApiPropertyOptional({ example: 500, description: '运费' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  shippingFee?: number;
+
+  @ApiPropertyOptional({ example: 500, description: '折扣金额' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  discount?: number;
+
+  @ApiPropertyOptional({ example: 1000, description: '标准税率（10%）税额' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  taxStandard?: number;
+
+  @ApiPropertyOptional({ example: 0, description: '轻减税率（8%）税额' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  taxReduced?: number;
+
+  @ApiPropertyOptional({ example: 11000, description: '总金额（营业额）' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  totalAmount?: number;
+}

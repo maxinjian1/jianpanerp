@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { prisma } from '@japan-erp/database';
-import { CreateOrderDto, UpdateOrderStatusDto, OrderFilterDto } from './dto/order.dto';
+import { CreateOrderDto, UpdateOrderStatusDto, UpdateOrderAmountDto, OrderFilterDto } from './dto/order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -155,6 +155,86 @@ export class OrdersService {
       case 'CANCELLED':
         updateData.cancelledAt = new Date();
         break;
+    }
+
+    return prisma.order.update({
+      where: { id },
+      data: updateData,
+      include: {
+        items: true,
+      },
+    });
+  }
+
+  async updateAmount(id: string, dto: UpdateOrderAmountDto) {
+    const order = await this.findOne(id);
+
+    const updateData: any = {};
+
+    // 如果提供了小计，重新计算税额和总金额
+    if (dto.subtotal !== undefined) {
+      updateData.subtotal = dto.subtotal;
+      
+      // 如果没有提供税额，则根据订单项重新计算
+      if (dto.taxStandard === undefined && dto.taxReduced === undefined) {
+        const items = await prisma.orderItem.findMany({
+          where: { orderId: id },
+        });
+
+        const taxStandard = items
+          .filter((item) => item.taxRate === 10)
+          .reduce((sum, item) => sum + Number(item.unitPrice) * item.quantity * 0.1, 0);
+
+        const taxReduced = items
+          .filter((item) => item.taxRate === 8)
+          .reduce((sum, item) => sum + Number(item.unitPrice) * item.quantity * 0.08, 0);
+
+        updateData.taxStandard = taxStandard;
+        updateData.taxReduced = taxReduced;
+        updateData.taxAmount = taxStandard + taxReduced;
+      }
+    }
+
+    // 如果提供了税额，更新税额
+    if (dto.taxStandard !== undefined) {
+      updateData.taxStandard = dto.taxStandard;
+    }
+    if (dto.taxReduced !== undefined) {
+      updateData.taxReduced = dto.taxReduced;
+    }
+    if (dto.taxStandard !== undefined || dto.taxReduced !== undefined) {
+      const taxStandard = updateData.taxStandard ?? Number(order.taxStandard);
+      const taxReduced = updateData.taxReduced ?? Number(order.taxReduced);
+      updateData.taxAmount = taxStandard + taxReduced;
+    }
+
+    // 更新运费和折扣
+    if (dto.shippingFee !== undefined) {
+      updateData.shippingFee = dto.shippingFee;
+    }
+    if (dto.discount !== undefined) {
+      updateData.discount = dto.discount;
+    }
+
+    // 计算总金额
+    const subtotal = updateData.subtotal !== undefined 
+      ? updateData.subtotal 
+      : Number(order.subtotal);
+    const shippingFee = updateData.shippingFee !== undefined 
+      ? updateData.shippingFee 
+      : Number(order.shippingFee);
+    const discount = updateData.discount !== undefined 
+      ? updateData.discount 
+      : Number(order.discount);
+    const taxAmount = updateData.taxAmount !== undefined 
+      ? updateData.taxAmount 
+      : Number(order.taxAmount);
+
+    // 如果明确提供了总金额，使用提供的值；否则计算
+    if (dto.totalAmount !== undefined) {
+      updateData.totalAmount = dto.totalAmount;
+    } else {
+      updateData.totalAmount = subtotal + shippingFee - discount + taxAmount;
     }
 
     return prisma.order.update({

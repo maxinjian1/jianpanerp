@@ -4,8 +4,15 @@
     "outDir": "dist",
     "rootDir": "src",
     "declaration": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noEmit": false,
+    "module": "commonjs",
+    "target": "ES2021"
   },
   "include": ["src/**/*"]
 }
+
+
+
+
 

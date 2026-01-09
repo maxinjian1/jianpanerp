@@ -22,6 +22,18 @@ export class TenancyMiddleware implements NestMiddleware {
   private readonly logger = new Logger(TenancyMiddleware.name);
 
   async use(req: Request, res: Response, next: NextFunction) {
+    // 0. Skip check for public routes (Auth, Health, Docs)
+    // This is a safety fallback in case app.module.ts exclusions don't match perfectly
+    const path = req.originalUrl || req.url;
+    if (
+      path.includes('/auth/') || 
+      path.includes('/health') || 
+      path.includes('/docs') ||
+      path === '/'
+    ) {
+      return next();
+    }
+
     // 1. Extract Tenant ID from header
     const tenantId = req.headers['x-tenant-id'] as string;
 
