@@ -39,6 +39,7 @@ async function bootstrap() {
     .addTag('products', '商品マスタ (MDM)')
     .addTag('inventory', '在庫管理 (WMS)')
     .addTag('logistics', '物流管理 (TMS)')
+    .addTag('dropship', '直送代行 (卸業者 → 楽天)')
     .addTag('ai', 'AI機能')
     .build();
 

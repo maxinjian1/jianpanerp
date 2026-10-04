@@ -129,6 +129,7 @@ model Product {
   orderItems      OrderItem[]
   inventories     Inventory[]
   bundleComponents BundleComponent[]
+  supplierProducts SupplierProduct[]
 
   @@unique([sku])
   @@index([janCode])
@@ -218,6 +219,7 @@ model Order {
   items       OrderItem[]
   shipments   Shipment[]
   pickingOrder PickingOrder?
+  dropshipPurchases DropshipPurchase[]
 
   @@unique([platform, externalOrderId])
   @@index([status])
@@ -628,6 +630,92 @@ enum PickingItemStatus {
   PICKED
   SHORT
   SKIPPED
+
+  @@schema("tenant")
+}
+
+// --- Dropship / 直送代行 (無在庫販売) ---
+
+// 直送契約を結んだ卸業者 (例: kuajingyifan.com)
+model Supplier {
+  id                String   @id @default(uuid())
+  name              String
+  websiteUrl        String?
+  contactEmail      String?
+  contactPhone      String?
+  // 卸業者の注文フォームに入力する発送元名義 (楽天店舗名)
+  senderName        String?
+  // 匿名配送 / 店舗名義での発送に対応しているか
+  supportsBlindShip Boolean  @default(true)
+  notes             String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  products  SupplierProduct[]
+  purchases DropshipPurchase[]
+
+  @@schema("tenant")
+}
+
+// 自社商品 ⇔ 卸業者の商品ページの紐付け
+model SupplierProduct {
+  id            String    @id @default(uuid())
+  supplierId    String
+  productId     String
+  supplierSku   String?
+  supplierUrl   String
+  // 卸価格 (税込)
+  costPrice     Decimal   @db.Decimal(12, 2)
+  // 卸業者に支払う送料 (税込、1注文あたり)
+  shippingCost  Decimal   @default(0) @db.Decimal(12, 2)
+  // 優先順位 (小さいほど優先)
+  priority      Int       @default(1)
+  isAvailable   Boolean   @default(true)
+  lastCheckedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+  product  Product  @relation(fields: [productId], references: [id])
+
+  @@unique([supplierId, productId])
+  @@index([productId])
+  @@schema("tenant")
+}
+
+// 楽天注文ごとの卸業者への発注記録
+model DropshipPurchase {
+  id                    String                 @id @default(uuid())
+  orderId               String
+  supplierId            String
+  status                DropshipPurchaseStatus @default(PENDING)
+  supplierOrderNo       String?
+  // 実際に卸業者へ支払った金額 (税込、送料込)
+  actualCost            Decimal?               @db.Decimal(12, 2)
+  carrier               CarrierCode?
+  trackingNumber        String?
+  orderedAt             DateTime?
+  shippedAt             DateTime?
+  // 楽天RMSへ発送通知済みか
+  marketplaceNotifiedAt DateTime?
+  notes                 String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+
+  order    Order    @relation(fields: [orderId], references: [id])
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@unique([orderId, supplierId])
+  @@index([status])
+  @@schema("tenant")
+}
+
+enum DropshipPurchaseStatus {
+  PENDING // 卸業者へ未発注
+  ORDERED // 卸業者へ発注済み
+  SHIPPED // 卸業者から発送済み (追跡番号あり)
+  CANCELLED
 
   @@schema("tenant")
 }

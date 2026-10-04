@@ -142,8 +142,8 @@ export interface YamatoCsvRow {
   お届け先電話番号: string;
   お届け先郵便番号: string;
   お届け先住所: string;
-  お届け先会社・部門１: string;
-  お届け先会社・部門２: string;
+  'お届け先会社・部門１': string;
+  'お届け先会社・部門２': string;
   お届け先名: string;
   お届け先名略称カナ: string;
   ご依頼主電話番号: string;

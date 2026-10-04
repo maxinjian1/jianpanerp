@@ -14,6 +14,7 @@ import { RakutenModule } from './modules/rakuten/rakuten.module';
 import { AiModule } from './modules/ai/ai.module';
 import { HealthModule } from './modules/health/health.module';
 import { MarketResearchModule } from './modules/market-research/market-research.module';
+import { DropshipModule } from './modules/dropship/dropship.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { MarketResearchModule } from './modules/market-research/market-research.
     InventoryModule,
     LogisticsModule,
     MarketResearchModule,
+    DropshipModule,
 
     // Marketplace integrations
     AmazonModule,

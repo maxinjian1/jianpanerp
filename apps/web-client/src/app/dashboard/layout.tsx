@@ -16,6 +16,7 @@ import {
   Bars3Icon,
   XMarkIcon,
   BellIcon,
+  ArrowsRightLeftIcon,
   MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
@@ -23,6 +24,7 @@ import clsx from 'clsx'
 const navigation = [
   { name: 'ダッシュボード', href: '/dashboard', icon: HomeIcon },
   { name: '受注管理', href: '/dashboard/orders', icon: ShoppingCartIcon },
+  { name: '直送発注', href: '/dashboard/dropship', icon: ArrowsRightLeftIcon },
   { name: '商品管理', href: '/dashboard/products', icon: CubeIcon },
   { name: '市場分析', href: '/dashboard/market-research', icon: ChartBarIcon },
   { name: '在庫管理', href: '/dashboard/inventory', icon: CubeIcon },
