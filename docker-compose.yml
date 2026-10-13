@@ -1,0 +1,60 @@
+# 本地基础设施（Windows / macOS / Linux 通用）
+# 只跑数据库与队列；Node / Python 应用用 start-windows.ps1 原生启动，便于热重载与调试。
+#   docker compose up -d
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: jianpanerp-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-erp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-erp_local_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-japan_erp}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-erp} -d ${POSTGRES_DB:-japan_erp}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: jianpanerp-redis
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # 可选：本地小模型兜底（需 NVIDIA GPU + Docker GPU 支持）。
+  # 启用：docker compose --profile local-llm up -d
+  ollama:
+    image: ollama/ollama:latest
+    container_name: jianpanerp-ollama
+    restart: always
+    profiles: ["local-llm"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  pgdata:
+  redisdata:
+  ollama:
