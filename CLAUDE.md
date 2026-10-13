@@ -9,21 +9,31 @@ Monorepo：`apps/api-core`(NestJS :4000) · `apps/web-client`(Next :3000) · `ap
 
 设计稿与分析：`docs/架构分析-单机Windows+中国AI.md`（缺口清单 + 6 周计划，优先级 P0→P3）。
 
+## 三层拓扑（2026-10-14 确认，以此为准）
+| 层 | 机器 | 角色 | 数据级别 |
+|---|---|---|---|
+| **展示层** | AWS Lightsail 东京 `13.158.114.4`，域名 **japanerp.com** | 对外官网 + 演示（web-client 的营销页：features/pricing/case-studies/company/register…） | 无客户数据，只有演示租户 |
+| **产品层（交付给客户）** | **ANET V64**（Ubuntu 24.04 + CUDA 12.x，4×Tesla V100 16GB NVLink，64GB HBM2，600W） | 真正的运行主机：ERP Hub + AI Gateway + 本地模型（Qwen3.5-35B-A3B Q8，约 90–130 tok/s）+ Whisper + Open WebUI。**客户从 Mac 远程使用** | 全部客户数据、订单、客服、聊天都在这台机器上 |
+| **开发/模拟层** | 用户的 Windows 电脑 | **模拟 V64** 做开发测试；没有 V100 时本地模型用 Ollama 小模型或假名化+中国 API 代替 | 测试数据 |
+
+V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析》；仓库里的部署脚本以 **Ubuntu 为目标**，Windows 脚本只是开发便利。
+
 ## 核心架构决定（已定，不要重新讨论）
-1. **本地数据在 Windows 电脑**，PostgreSQL/Redis 用 Docker（`docker-compose.yml`），应用原生运行（`start-windows.ps1`）。
-2. **AI 走中国模型 API**（阿里云百炼国际站优先，备用 DeepSeek/Kimi），通过统一 AI Gateway（`modules/llm-gateway`，待实现）。
-3. **顾客个人信息不出境**：Gateway 内假名化（姓名→`<P1>` 等，映射存本地 Redis）→ API → 本地还原。有 GPU 时可选 Ollama+Qwen3-8B 纯本地。
-4. 客服消息 **只能 AI 起草、人工点击发送**（Amazon/楽天规则）。
-5. 通知用 LINE Messaging API / Slack，**不用 LINE Notify**（已停服）。
-6. 单机不上 n8n，调度用 BullMQ。
+1. **AI 两条路**：不重要/非敏感的批量任务（文案、竞品分析、日报、视频脚本）→ **中国模型 API**（百炼国际站优先，备用 DeepSeek/Kimi）；**客服信息、客户聊天、订单明细等不能出海的业务 → V64 本地模型**（vLLM/llama.cpp Volta 构建，Qwen3.5-35B-A3B）。路由在统一 AI Gateway（`modules/llm-gateway`，待实现）内按 `dataClass` 决定。
+2. 开发机（Windows，无 V100）跑同一套代码：`LLM_PII_PROVIDER` 切到 `ollama`（小模型）或 `masked-dashscope`（假名化后出境，仅限测试数据）。
+3. 客服消息 **只能 AI 起草、人工点击发送**（Amazon/楽天规则）。
+4. 通知用 LINE Messaging API / Slack，**不用 LINE Notify**（已停服）。
+5. 调度用 BullMQ（Redis），不上 n8n。
+6. V64 镜像目标：客户不敲命令——全部服务 Docker Compose + Web 管理面板 + 一键更新/恢复；Mac 远程通过 Tailscale（或 SSH 隧道）访问 `http://v64:3000`（ERP）与 `:8080`（Open WebUI）。
 
 ## 环境地图
-| 环境 | 角色 | 怎么连 |
-|---|---|---|
-| 云端 Claude 会话（本仓库容器） | 写代码、提交、推送到 `claude/*` 分支 | 出站只有 HTTPS，**SSH 22 端口被封**，不能直连服务器 |
-| Windows 电脑（`C:\Users\maxinjian\source\...`） | 跑本地数据与应用；也是 **SSH 跳板** | 用户在该目录运行 `claude remote-control`，云端会话用 `send_message` 发任务 |
-| AWS Lightsail（ap-northeast-1 东京） | 云端节点（角色待定：备份/公网入口/部署） | 从 Windows 用内置 OpenSSH：`ssh -i <LightsailDefaultKey-ap-northeast-1.pem> <user>@<IP>`；密钥**不入 git**（`.gitignore` 已含 `*.pem`） |
-| AWS API | 需要 `AWS_ACCESS_KEY_ID/SECRET/DEFAULT_REGION` 放在云环境 Network secrets | 容器自带的 AWS 变量是内部用的，无效 |
+| 环境 | 怎么连 |
+|---|---|
+| 云端 Claude 会话（本仓库容器） | 写代码、提交、推送到 `claude/*` 分支。出站**只有 HTTPS 且走域名白名单**：到 `13.158.114.4` 的 22/80/443/7000/7001 全部被拦（`host_not_allowed`），**不能直连 Lightsail**，需用户把该 IP / japanerp.com 加入云环境 Allowed domains |
+| Windows 电脑（`C:\Users\maxinjian\source\...`） | 用户在该目录运行 `claude remote-control`（会话 `session_0168qwpzHxHPGXq82mzARLLm`），云端会话用 `send_message` 发任务。**也是到 Lightsail / V64 的 SSH 跳板**（Windows 内置 OpenSSH） |
+| AWS Lightsail 东京 `13.158.114.4` | 从 Windows：`ssh -i C:\Users\maxinjian\.ssh\lightsail-tokyo.pem <user>@13.158.114.4`；防火墙已开 22、7000–7001（对全网）。密钥**不入 git**（`.gitignore` 含 `*.pem`） |
+| AWS API | 需要 `AWS_ACCESS_KEY_ID/SECRET/DEFAULT_REGION=ap-northeast-1` 放在云环境 Network secrets；容器自带的 AWS 变量是内部用的，无效 |
+| V64 实机 | 待到手；镜像基于 Ubuntu 24.04，用 `docker-compose.v64.yml`（待建） |
 
 ## 工作流约定
 - 开发分支由会话指定（当前 `claude/brave-dirac-s6orrc`），不直接推 main。
@@ -32,4 +42,5 @@ Monorepo：`apps/api-core`(NestJS :4000) · `apps/web-client`(Next :3000) · `ap
 - 每次会话结束前：把新的决定与进度写进本文件「进度日志」。
 
 ## 进度日志
+- 2026-10-14：确认三层拓扑（Lightsail=japanerp.com 展示，V64=产品实机，Windows=模拟）；收到 V64 规格书。
 - 2026-10-13：完成架构分析；新增 docker-compose.yml、start-windows.ps1、env.example 中国模型配置、docs/Windows部署指南.md；Windows remote-control 会话已建立并下发环境搭建任务；收到 Lightsail 东京密钥（待 IP 与用途）。
