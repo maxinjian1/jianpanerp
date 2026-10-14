@@ -60,3 +60,6 @@ dist/
 logs
 *.log
 
+
+# Local run logs (start-windows / remote session)
+.logs/

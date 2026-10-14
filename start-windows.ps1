@@ -89,7 +89,7 @@ if ($Setup) {
     Step "创建 Python 虚拟环境（ai-service）"
     Push-Location "$Root\apps\ai-service"
     if (-not (Test-Path "venv")) { python -m venv venv }
-    & ".\venv\Scripts\pip.exe" install -r requirements.txt
+    & ".\venv\Scripts\pip.exe" install --only-binary=:all: -r requirements.txt
     Pop-Location
     Ok "首次安装完成"
 }
