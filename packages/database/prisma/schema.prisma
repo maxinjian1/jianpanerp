@@ -762,3 +762,27 @@ enum NotificationType {
   @@schema("tenant")
 }
 
+
+// ============================================
+// LLM Gateway 監査ログ（APPI：どの分類のデータをどこへ送ったか）
+// ============================================
+
+model LlmRequestLog {
+  id               String   @id @default(uuid())
+  tenantId         String?
+  provider         String   // cn / dashscope / local ...
+  model            String
+  locality         String   // local / external
+  dataClass        String   // public / internal / pii
+  taskType         String   // listing_copy / customer_reply / daily_report ...
+  masked           Boolean  @default(false)
+  maskedFields     Json?    // {"NAME":2,"PHONE":1}
+  promptTokens     Int      @default(0)
+  completionTokens Int      @default(0)
+  latencyMs        Int      @default(0)
+  createdAt        DateTime @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([provider, createdAt])
+  @@schema("public")
+}

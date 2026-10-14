@@ -12,6 +12,7 @@ import { LogisticsModule } from './modules/logistics/logistics.module';
 import { AmazonModule } from './modules/amazon/amazon.module';
 import { RakutenModule } from './modules/rakuten/rakuten.module';
 import { AiModule } from './modules/ai/ai.module';
+import { LlmGatewayModule } from './modules/llm-gateway/llm-gateway.module';
 import { HealthModule } from './modules/health/health.module';
 import { MarketResearchModule } from './modules/market-research/market-research.module';
 
@@ -39,8 +40,9 @@ import { MarketResearchModule } from './modules/market-research/market-research.
     AmazonModule,
     RakutenModule,
 
-    // AI module
+    // AI modules
     AiModule,
+    LlmGatewayModule,
   ],
 })
 export class AppModule implements NestModule {

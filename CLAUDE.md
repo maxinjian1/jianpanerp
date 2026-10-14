@@ -19,7 +19,7 @@ Monorepo：`apps/api-core`(NestJS :4000) · `apps/web-client`(Next :3000) · `ap
 V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析》；仓库里的部署脚本以 **Ubuntu 为目标**，Windows 脚本只是开发便利。
 
 ## 核心架构决定（已定，不要重新讨论）
-1. **AI 两条路**：不重要/非敏感的批量任务（文案、竞品分析、日报、视频脚本）→ **中国模型 API**（百炼国际站优先，备用 DeepSeek/Kimi）；**客服信息、客户聊天、订单明细等不能出海的业务 → V64 本地模型**（vLLM/llama.cpp Volta 构建，Qwen3.5-35B-A3B）。路由在统一 AI Gateway（`modules/llm-gateway`，待实现）内按 `dataClass` 决定。
+1. **AI 两条路**：不重要/非敏感的批量任务（文案、竞品分析、日报、视频脚本）→ **中国模型 API**（百炼国际站优先，备用 DeepSeek/Kimi）；**客服信息、客户聊天、订单明细等不能出海的业务 → V64 本地模型**（vLLM/llama.cpp Volta 构建，Qwen3.5-35B-A3B）。路由在统一 AI Gateway（`apps/api-core/src/modules/llm-gateway`，**已实现**）内按 `dataClass` 决定：`public/internal` → `LLM_DEFAULT_PROVIDER`（cn），`pii` → `LLM_PII_PROVIDER`（local；或 `masked-cn` 假名化后出境）。每次调用写 `LlmRequestLog` 审计表。
 2. 开发机（Windows，无 V100）跑同一套代码：`LLM_PII_PROVIDER` 切到 `ollama`（小模型）或 `masked-dashscope`（假名化后出境，仅限测试数据）。
 3. 客服消息 **只能 AI 起草、人工点击发送**（Amazon/楽天规则）。
 4. 通知用 LINE Messaging API / Slack，**不用 LINE Notify**（已停服）。
@@ -32,6 +32,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 | 云端 Claude 会话（本仓库容器） | 写代码、提交、推送到 `claude/*` 分支。出站**只有 HTTPS 且走域名白名单**：到 `13.158.114.4` 的 22/80/443/7000/7001 全部被拦（`host_not_allowed`），**不能直连 Lightsail**，需用户把该 IP / japanerp.com 加入云环境 Allowed domains |
 | Windows 电脑（`C:\Users\maxinjian\source\jianpanerp`，Win11 Enterprise，**RTX 4080 16GB**，64GB RAM，Node 24，Python 3.13，Tailscale IP **100.120.180.90**） | 用户在该目录运行 `claude remote-control`（会话 `session_0168qwpzHxHPGXq82mzARLLm`），云端会话用 `send_message` 发任务。**也是到 Lightsail / V64 的 SSH 跳板**（Windows 内置 OpenSSH） |
 | AWS Lightsail 东京 `13.158.114.4` | 从 Windows：`ssh -i C:\Users\maxinjian\.ssh\lightsail-tokyo.pem <user>@13.158.114.4`；防火墙已开 22、7000–7001（对全网）。密钥**不入 git**（`.gitignore` 含 `*.pem`） |
+| **中国 AI 网关**（用户自建，OpenAI 兼容）| `http://100.82.2.101:8199/v1`，模型 `GLM-5.3-Flash`（1M 上下文、32K 输出、视觉、JSON、`reasoning_effort` low/high/max）。**在 tailnet 内**（100.82.x），云端容器到不了，只能从 Windows/Mac/V64 调。Key 放 `.env` 的 `CN_LLM_API_KEY` |
 | AWS API | 需要 `AWS_ACCESS_KEY_ID/SECRET/DEFAULT_REGION=ap-northeast-1` 放在云环境 Network secrets；容器自带的 AWS 变量是内部用的，无效 |
 | 用户 MacBook Air | Tailscale IP 100.82.52.75（同一 tailnet） |
 | V64 实机 | 待到手；镜像基于 Ubuntu 24.04，用 `docker-compose.v64.yml`（待建） |
@@ -48,6 +49,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 每次会话结束前：把新的决定与进度写进本文件「进度日志」。
 
 ## 进度日志
+- 2026-10-14：实现 llm-gateway 模块（Provider 路由 + PII 假名化 + 审计表 LlmRequestLog + 迁移）；接入用户的中国 GLM 网关；`scripts/test-llm-gateway.mjs` 可在 tailnet 内直接测连通。
 - 2026-10-14：Windows 已装 Tailscale 并登录（100.120.180.90）；Windows 无 Docker、WSL 无发行版、有 RTX 4080 → 模拟 V64 可用 Ollama 跑 Qwen3-14B。
 - 2026-10-14：决定用 Tailscale；已下发 Windows + Lightsail 安装任务给 Windows 会话。
 - 2026-10-14：确认三层拓扑（Lightsail=japanerp.com 展示，V64=产品实机，Windows=模拟）；收到 V64 规格书。
