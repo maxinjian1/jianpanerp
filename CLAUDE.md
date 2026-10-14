@@ -30,10 +30,16 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 | 环境 | 怎么连 |
 |---|---|
 | 云端 Claude 会话（本仓库容器） | 写代码、提交、推送到 `claude/*` 分支。出站**只有 HTTPS 且走域名白名单**：到 `13.158.114.4` 的 22/80/443/7000/7001 全部被拦（`host_not_allowed`），**不能直连 Lightsail**，需用户把该 IP / japanerp.com 加入云环境 Allowed domains |
-| Windows 电脑（`C:\Users\maxinjian\source\...`） | 用户在该目录运行 `claude remote-control`（会话 `session_0168qwpzHxHPGXq82mzARLLm`），云端会话用 `send_message` 发任务。**也是到 Lightsail / V64 的 SSH 跳板**（Windows 内置 OpenSSH） |
+| Windows 电脑（`C:\Users\maxinjian\source\jianpanerp`，Win11 Enterprise，**RTX 4080 16GB**，64GB RAM，Node 24，Python 3.13，Tailscale IP **100.120.180.90**） | 用户在该目录运行 `claude remote-control`（会话 `session_0168qwpzHxHPGXq82mzARLLm`），云端会话用 `send_message` 发任务。**也是到 Lightsail / V64 的 SSH 跳板**（Windows 内置 OpenSSH） |
 | AWS Lightsail 东京 `13.158.114.4` | 从 Windows：`ssh -i C:\Users\maxinjian\.ssh\lightsail-tokyo.pem <user>@13.158.114.4`；防火墙已开 22、7000–7001（对全网）。密钥**不入 git**（`.gitignore` 含 `*.pem`） |
 | AWS API | 需要 `AWS_ACCESS_KEY_ID/SECRET/DEFAULT_REGION=ap-northeast-1` 放在云环境 Network secrets；容器自带的 AWS 变量是内部用的，无效 |
+| 用户 MacBook Air | Tailscale IP 100.82.52.75（同一 tailnet） |
 | V64 实机 | 待到手；镜像基于 Ubuntu 24.04，用 `docker-compose.v64.yml`（待建） |
+
+## Windows remote-control 会话的限制（实测）
+- 它**不能**给云端会话回消息（没有 send_message 工具）→ 云端会话用 `list_events` 读它的 assistant 文本来获取结果。
+- 它的权限分类器会拦：`git clone`（需用户在其提示符前加 `!` 自己跑）、搜索密钥文件、安装需管理员权限的软件（Docker Desktop/WSL 需用户口头批准）。
+- 给它下任务时：一次一件、附带用户需要自己做的命令。
 
 ## 工作流约定
 - 开发分支由会话指定（当前 `claude/brave-dirac-s6orrc`），不直接推 main。
@@ -42,6 +48,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 每次会话结束前：把新的决定与进度写进本文件「进度日志」。
 
 ## 进度日志
+- 2026-10-14：Windows 已装 Tailscale 并登录（100.120.180.90）；Windows 无 Docker、WSL 无发行版、有 RTX 4080 → 模拟 V64 可用 Ollama 跑 Qwen3-14B。
 - 2026-10-14：决定用 Tailscale；已下发 Windows + Lightsail 安装任务给 Windows 会话。
 - 2026-10-14：确认三层拓扑（Lightsail=japanerp.com 展示，V64=产品实机，Windows=模拟）；收到 V64 规格书。
 - 2026-10-13：完成架构分析；新增 docker-compose.yml、start-windows.ps1、env.example 中国模型配置、docs/Windows部署指南.md；Windows remote-control 会话已建立并下发环境搭建任务；收到 Lightsail 东京密钥（待 IP 与用途）。
