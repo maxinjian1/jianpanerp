@@ -31,11 +31,11 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 |---|---|
 | 云端 Claude 会话（本仓库容器） | 写代码、提交、推送到 `claude/*` 分支。出站**只有 HTTPS 且走域名白名单**：到 `13.158.114.4` 的 22/80/443/7000/7001 全部被拦（`host_not_allowed`），**不能直连 Lightsail**，需用户把该 IP / japanerp.com 加入云环境 Allowed domains |
 | Windows 电脑（`C:\Users\maxinjian\source\jianpanerp`，Win11 Enterprise，**RTX 4080 16GB**，64GB RAM，Node 24，Python 3.13，Tailscale IP **100.120.180.90**） | 用户在该目录运行 `claude remote-control`（会话 `session_0168qwpzHxHPGXq82mzARLLm`），云端会话用 `send_message` 发任务。**也是到 Lightsail / V64 的 SSH 跳板**（Windows 内置 OpenSSH） |
-| AWS Lightsail 东京 `13.158.114.4` | 从 Windows：`ssh -i C:\Users\maxinjian\.ssh\lightsail-tokyo.pem <user>@13.158.114.4`；防火墙已开 22、7000–7001（对全网）。密钥**不入 git**（`.gitignore` 含 `*.pem`） |
+| AWS Lightsail 东京 `13.158.114.4` | 从 Windows：`ssh -i C:\Users\maxinjian\.ssh\lightsail-tokyo.pem <user>@13.158.114.4`；防火墙已开 22、7000–7001（对全网；7000/7001 用途不明，用户猜是 frp——SSH 探测时确认）。密钥**不入 git**（`.gitignore` 含 `*.pem`） |
 | **中国 AI 网关**（用户自建，OpenAI 兼容）| `http://100.82.2.101:8199/v1`，模型 `GLM-5.3-Flash`（1M 上下文、32K 输出、视觉、JSON、`reasoning_effort` low/high/max）。**在 tailnet 内**（100.82.x），云端容器到不了，只能从 Windows/Mac/V64 调。Key 放 `.env` 的 `CN_LLM_API_KEY` |
 | AWS API | 需要 `AWS_ACCESS_KEY_ID/SECRET/DEFAULT_REGION=ap-northeast-1` 放在云环境 Network secrets；容器自带的 AWS 变量是内部用的，无效 |
 | 用户 MacBook Air | Tailscale IP 100.82.52.75（同一 tailnet） |
-| V64 实机 | 待到手；镜像基于 Ubuntu 24.04，用 `docker-compose.v64.yml`（待建） |
+| V64 实机 | **暂无，用 Windows 电脑代替**（2026-10-14 用户确认）：本地模型 = Windows 原生 Ollama（RTX 4080，`qwen3:14b`），`LOCAL_LLM_BASE_URL=http://localhost:11434/v1`。真机到手后换 Ubuntu + `docker-compose.v64.yml`（待建） |
 
 ## Windows remote-control 会话的限制（实测）
 - 它**不能**给云端会话回消息（没有 send_message 工具）→ 云端会话用 `list_events` 读它的 assistant 文本来获取结果。

@@ -32,12 +32,20 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned   # 仅第一次
 `powershell -ExecutionPolicy Bypass -File C:\...\jianpanerp\start-windows.ps1`
 Docker 容器已设 `restart: always`，Postgres/Redis 会随 Docker Desktop 自动恢复。
 
-## 5. 本地模型兜底（可选，需 ≥12GB 显存）
+## 5. 本地模型（模拟 V64 的"不出海"推理，RTX 4080 16GB）
+Windows 上直接装原生 Ollama（比 Docker GPU 直通省事）：
 ```powershell
-docker compose --profile local-llm up -d
-docker exec jianpanerp-ollama ollama pull qwen3:8b
+winget install --id Ollama.Ollama -e
+ollama pull qwen3:14b        # 约 9GB，4080 上 40+ tok/s；客服/聊天用
+ollama pull qwen3:8b         # 备用小模型
 ```
-然后把 `.env` 的 `LLM_PII_PROVIDER` 改为 `ollama`。
+Ollama 自带 OpenAI 兼容接口 `http://localhost:11434/v1`，`.env` 保持：
+```
+LOCAL_LLM_BASE_URL="http://localhost:11434/v1"
+LOCAL_LLM_MODEL="qwen3:14b"
+LLM_PII_PROVIDER="local"
+```
+验证：`curl http://localhost:11434/v1/models`。
 
 ## 6. 备份
 ```powershell
