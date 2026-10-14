@@ -80,6 +80,12 @@ if ($Setup) {
     if ($LASTEXITCODE -ne 0) { Pop-Location; throw "prisma migrate 失败，请检查 .env 中 DATABASE_URL" }
     Pop-Location
 
+    Step "编译共享包（database / shared-types）"
+    Push-Location $Root
+    npm run build -w @japan-erp/shared-types -w @japan-erp/database
+    if ($LASTEXITCODE -ne 0) { Pop-Location; throw "共享包编译失败" }
+    Pop-Location
+
     Step "创建 Python 虚拟环境（ai-service）"
     Push-Location "$Root\apps\ai-service"
     if (-not (Test-Path "venv")) { python -m venv venv }
