@@ -31,7 +31,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 |---|---|
 | 云端 Claude 会话（本仓库容器） | 写代码、提交、推送到 `claude/*` 分支。出站**只有 HTTPS 且走域名白名单**：到 `13.158.114.4` 的 22/80/443/7000/7001 全部被拦（`host_not_allowed`），**不能直连 Lightsail**，需用户把该 IP / japanerp.com 加入云环境 Allowed domains |
 | Windows 电脑（`C:\Users\maxinjian\source\jianpanerp`，Win11 Enterprise，**RTX 4080 16GB**，64GB RAM，Node 24，Python 3.13，Tailscale IP **100.120.180.90**） | 用户以**管理员 PowerShell** 运行 `claude --dangerously-skip-permissions` 再 `/remote-control`（当前会话 `session_01CBES587LDLVagpGEm1pgee`，2026-10-14 起；旧会话 `session_0168qw…` 已弃用），云端会话用 `send_message` 发任务，分阶段、措辞平实（一次派太多系统级操作会被云端分类器拦）。**也是到 Lightsail / V64 的 SSH 跳板**（Windows 内置 OpenSSH） |
-| AWS Lightsail 东京 `13.158.114.4` | 从 Windows：`ssh -i C:\Users\maxinjian\.ssh\lightsail-tokyo.pem <user>@13.158.114.4`；防火墙已开 22、7000–7001（对全网；7000/7001 用途不明，用户猜是 frp——SSH 探测时确认）。密钥**不入 git**（`.gitignore` 含 `*.pem`） |
+| AWS Lightsail 东京 `13.158.114.4` | **登录用户 `ubuntu`**，`ssh -i C:\Users\maxinjian\.ssh\lightsail-tokyo.pem ubuntu@13.158.114.4`（pem 已放好）。**规格极小：Ubuntu 24.04，2 vCPU，412 MiB 内存（swap 4G），19 GB 盘已用 63%**——跑不了 Next.js build，部署前需升级套餐或改静态导出。已有服务：**haproxy 占 80/443**、**frps 在 7000**（frp 服务端）、7001 空。Tailscale 已装（2026-10-14，待授权）。密钥**不入 git** |
 | **中国 LLM 服务器**（**别人的机器**，Tailscale 用户 `maxinlong`，OpenAI 兼容）| `http://100.82.2.101:8199/v1`，模型 `GLM-5.3-Flash`（1M 上下文、32K 输出、视觉、JSON、`reasoning_effort`）。**2026-10-14 实测：Mac / Windows / 云端全部不可达**——地址是对方 tailnet 的内网 IP，用户的设备不在那个网络里。**阻塞在对方**：需要对方 Share 该机器给 maxinjian@gmail.com，或提供公网地址。在此之前 `LLM_DEFAULT_PROVIDER=local`（Ollama）。Key 放 `.env` 的 `CN_LLM_API_KEY` |
 | AWS API | 需要 `AWS_ACCESS_KEY_ID/SECRET/DEFAULT_REGION=ap-northeast-1` 放在云环境 Network secrets；容器自带的 AWS 变量是内部用的，无效 |
 | 用户 MacBook Air | Tailscale IP 100.82.52.75（同一 tailnet） |
@@ -49,6 +49,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 每次会话结束前：把新的决定与进度写进本文件「进度日志」。
 
 ## 进度日志
+- 2026-10-14：Windows 三服务全部 200（4000/3000/8000）；WSL Ubuntu 已装；Ollama 0.40.4，qwen3:14b 实测 813 tok/58s（含 thinking，生产应关 thinking）；Lightsail 探明：ubuntu 用户、412MiB 内存、haproxy+frps 已在跑。
 - 2026-10-14：Windows Docker Desktop 4.95 装好（需先 takeown 残留目录）；web-client 已在 :3000 跑通；共享包 tsconfig 修复；用户改用管理员 + skip-permissions 的 remote-control 会话，已派发阶段 A/B 任务。
 - 2026-10-14：确认 100.82.2.101 是别人的服务器，所有设备不可达；AI 暂全走本地 Ollama，等对方共享/公网地址。
 - 2026-10-14：Windows Ollama 0.35 已就绪，`qwen3:14b`(9.3GB) + `qwen2.5:7b` 已拉取，`localhost:11434/v1` 可用；**GLM 网关 100.82.2.101:8199 从 Windows 不通**（不在 tailnet）。
