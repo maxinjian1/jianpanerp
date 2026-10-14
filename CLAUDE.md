@@ -24,7 +24,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 3. 客服消息 **只能 AI 起草、人工点击发送**（Amazon/楽天规则）。
 4. 通知用 LINE Messaging API / Slack，**不用 LINE Notify**（已停服）。
 5. 调度用 BullMQ（Redis），不上 n8n。
-6. V64 镜像目标：客户不敲命令——全部服务 Docker Compose + Web 管理面板 + 一键更新/恢复；Mac 远程通过 Tailscale（或 SSH 隧道）访问 `http://v64:3000`（ERP）与 `:8080`（Open WebUI）。
+6. **远程网络统一用 Tailscale**（2026-10-14 用户决定）：Windows / Lightsail / V64 / 用户 Mac / 客户 Mac 都加入同一 tailnet，不开公网端口；V64 镜像目标：客户不敲命令——全部服务 Docker Compose + Web 管理面板 + 一键更新/恢复；Mac 远程通过 Tailscale 访问 `http://v64:3000`（ERP）与 `:8080`（Open WebUI）。
 
 ## 环境地图
 | 环境 | 怎么连 |
@@ -42,5 +42,6 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 每次会话结束前：把新的决定与进度写进本文件「进度日志」。
 
 ## 进度日志
+- 2026-10-14：决定用 Tailscale；已下发 Windows + Lightsail 安装任务给 Windows 会话。
 - 2026-10-14：确认三层拓扑（Lightsail=japanerp.com 展示，V64=产品实机，Windows=模拟）；收到 V64 规格书。
 - 2026-10-13：完成架构分析；新增 docker-compose.yml、start-windows.ps1、env.example 中国模型配置、docs/Windows部署指南.md；Windows remote-control 会话已建立并下发环境搭建任务；收到 Lightsail 东京密钥（待 IP 与用途）。
