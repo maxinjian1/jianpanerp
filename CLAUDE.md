@@ -49,6 +49,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 每次会话结束前：把新的决定与进度写进本文件「进度日志」。
 
 ## 进度日志
+- 2026-10-14：Lightsail 加入 tailnet（100.73.55.42）；用户确认 Cloudflare 账号是自己的；下一步 nginx 反代 Windows + 防火墙放行 Tailscale 网段。
 - 2026-10-14：Lightsail 调查完成：旧版 japanerp.com 静态站已在线（nginx 容器 + acme.sh 证书 10/24 到期，DNS Cloudflare 代理）；机器兼作 VPN 跳板。
 - 2026-10-14：用户决定官网也在 Windows 跑，Lightsail 仅做反代入口（不升级套餐）。
 - 2026-10-14：Windows 三服务全部 200（4000/3000/8000）；WSL Ubuntu 已装；Ollama 0.40.4，qwen3:14b 实测 813 tok/58s（含 thinking，生产应关 thinking）；Lightsail 探明：ubuntu 用户、412MiB 内存、haproxy+frps 已在跑。
