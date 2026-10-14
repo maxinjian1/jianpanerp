@@ -12,7 +12,7 @@ Monorepo：`apps/api-core`(NestJS :4000) · `apps/web-client`(Next :3000) · `ap
 ## 三层拓扑（2026-10-14 确认，以此为准）
 | 层 | 机器 | 角色 | 数据级别 |
 |---|---|---|---|
-| **展示层** | AWS Lightsail 东京 `13.158.114.4`，域名 **japanerp.com** | 对外官网 + 演示（web-client 的营销页：features/pricing/case-studies/company/register…） | 无客户数据，只有演示租户 |
+| **展示层** | AWS Lightsail 东京 `13.158.114.4`，域名 **japanerp.com** | **只做公网入口**（haproxy/Caddy + TLS），通过 Tailscale 反代到 Windows 的 web-client :3000 / api-core :4000。**Lightsail 上不跑 Node、不编译**（2026-10-14 用户决定：412MiB 内存不升级） | 无数据落在 Lightsail |
 | **产品层（交付给客户）** | **ANET V64**（Ubuntu 24.04 + CUDA 12.x，4×Tesla V100 16GB NVLink，64GB HBM2，600W） | 真正的运行主机：ERP Hub + AI Gateway + 本地模型（Qwen3.5-35B-A3B Q8，约 90–130 tok/s）+ Whisper + Open WebUI。**客户从 Mac 远程使用** | 全部客户数据、订单、客服、聊天都在这台机器上 |
 | **开发/模拟层** | 用户的 Windows 电脑 | **模拟 V64** 做开发测试；没有 V100 时本地模型用 Ollama 小模型或假名化+中国 API 代替 | 测试数据 |
 
@@ -49,6 +49,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 每次会话结束前：把新的决定与进度写进本文件「进度日志」。
 
 ## 进度日志
+- 2026-10-14：用户决定官网也在 Windows 跑，Lightsail 仅做反代入口（不升级套餐）。
 - 2026-10-14：Windows 三服务全部 200（4000/3000/8000）；WSL Ubuntu 已装；Ollama 0.40.4，qwen3:14b 实测 813 tok/58s（含 thinking，生产应关 thinking）；Lightsail 探明：ubuntu 用户、412MiB 内存、haproxy+frps 已在跑。
 - 2026-10-14：Windows Docker Desktop 4.95 装好（需先 takeown 残留目录）；web-client 已在 :3000 跑通；共享包 tsconfig 修复；用户改用管理员 + skip-permissions 的 remote-control 会话，已派发阶段 A/B 任务。
 - 2026-10-14：确认 100.82.2.101 是别人的服务器，所有设备不可达；AI 暂全走本地 Ollama，等对方共享/公网地址。
