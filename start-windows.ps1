@@ -33,6 +33,18 @@ if (-not (Test-Path "$Root\.env")) {
     Copy-Item "$Root\env.example.txt" "$Root\.env"
     Warn ".env 不存在，已从 env.example.txt 复制。请填入各平台 / 中国模型 API 的 Key 后重新运行。"
 }
+# 把根目录 .env 载入当前进程环境变量（Prisma / 子窗口都要用）
+Get-Content "$Root\.env" | ForEach-Object {
+    $line = $_.Trim()
+    if ($line -eq "" -or $line.StartsWith("#")) { return }
+    $i = $line.IndexOf("=")
+    if ($i -lt 1) { return }
+    $k = $line.Substring(0, $i).Trim()
+    $v = $line.Substring($i + 1).Trim()
+    if ($v.Length -ge 2 -and $v.StartsWith('"') -and $v.EndsWith('"')) { $v = $v.Substring(1, $v.Length - 2) }
+    [Environment]::SetEnvironmentVariable($k, $v, "Process")
+}
+Ok ".env 已载入（DATABASE_URL=$($env:DATABASE_URL -replace ':[^:@]+@', ':***@'))"
 
 # ---------- 2. 基础设施（Docker） ----------
 Step "启动 PostgreSQL / Redis（Docker Compose）"
