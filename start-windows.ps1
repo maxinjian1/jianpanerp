@@ -115,13 +115,14 @@ Step "启动应用（各自独立 PowerShell 窗口）"
 $apps = @(
     @{ Name = "api-core (NestJS :4000)";  Dir = "apps\api-core";   Cmd = "npm run dev" },
     @{ Name = "web-client (Next :3000)";  Dir = "apps\web-client"; Cmd = "npm run dev" },
-    @{ Name = "ai-service (FastAPI :8000)"; Dir = "apps\ai-service"; Cmd = ".\venv\Scripts\Activate.ps1; python main.py" }
+    @{ Name = "ai-service (FastAPI :8000)"; Dir = "apps\ai-service"; Cmd = ".\venv\Scripts\python.exe main.py" }
 )
 
 foreach ($app in $apps) {
     $dir = Join-Path $Root $app.Dir
     Start-Process powershell -ArgumentList @(
         "-NoExit",
+        "-ExecutionPolicy", "Bypass",
         "-Command",
         "`$host.UI.RawUI.WindowTitle = '$($app.Name)'; Set-Location '$dir'; $($app.Cmd)"
     )

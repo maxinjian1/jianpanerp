@@ -1,11 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   // rawBody: Shopify webhook の HMAC 検証に必要
-  const app = await NestFactory.create(AppModule, { rawBody: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true });
+  app.useBodyParser('json', { limit: '20mb' });
+  app.useBodyParser('urlencoded', { limit: '20mb', extended: true });
 
   // Global prefix
   app.setGlobalPrefix('api/v1');

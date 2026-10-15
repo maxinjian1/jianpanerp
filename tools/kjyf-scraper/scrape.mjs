@@ -354,8 +354,9 @@ async function postToErp(items) {
   const { api, token, tenantId } = await erpSession();
   let created = 0;
   let updated = 0;
-  for (let i = 0; i < items.length; i += 50) {
-    const batch = items.slice(i, i + 50);
+  const BATCH = Number(opt('batch', 20)); // 旧 api-core は 100KB body 上限（413）→ 小批次更稳
+  for (let i = 0; i < items.length; i += BATCH) {
+    const batch = items.slice(i, i + BATCH);
     const res = await fetch(`${api}/dropship/import`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, 'x-tenant-id': tenantId },
@@ -365,7 +366,7 @@ async function postToErp(items) {
     const r = await res.json();
     created += r.created ?? 0;
     updated += r.updated ?? 0;
-    console.log(`  已推送 ${Math.min(i + 50, items.length)}/${items.length}`);
+    console.log(`  已推送 ${Math.min(i + BATCH, items.length)}/${items.length}`);
   }
   console.log(`ERP 入库：新增 ${created}，更新 ${updated}`);
 }
