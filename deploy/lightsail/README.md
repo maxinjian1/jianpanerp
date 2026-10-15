@@ -17,3 +17,8 @@
 4. `curl -sI https://japanerp.com | head -3`（应无 `X-Served-By: static-fallback`，表示正在反代 Windows）。
 
 升级到 V64 时：只需把 `app.conf` 里两个 upstream 的 IP 换成 V64 的 Tailscale IP。
+
+## 清理（用户批准：只留网站 + frp）
+`scripts/cleanup-lightsail.sh`：备份旧库存数据 → 删 inventory-api/postgres/redis 容器（保留 volume）→ 删 openvpn/shadowsocks/旧备份 → apt 升级。
+执行后 `sudo reboot`，再确认 haproxy / frps / docker / tailscaled / japan-erp-nginx 全部自动恢复。
+Lightsail 防火墙里的 7001 端口在 AWS 控制台手动关闭。
