@@ -48,8 +48,19 @@ Ok ".env 已载入（DATABASE_URL=$($env:DATABASE_URL -replace ':[^:@]+@', ':***
 
 # ---------- 2. 基础设施（Docker） ----------
 Step "启动 PostgreSQL / Redis（Docker Compose）"
+# 开机自启时 Docker Desktop 可能还没起来：没运行就拉起，并最多等 5 分钟
 docker info 2>$null | Out-Null
-if ($LASTEXITCODE -ne 0) { throw "Docker Desktop 未运行，请先启动它" }
+if ($LASTEXITCODE -ne 0) {
+    $dd = "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+    if (Test-Path $dd) { Warn "Docker Desktop 未运行，正在启动…"; Start-Process $dd | Out-Null }
+    $ok = $false
+    for ($i = 0; $i -lt 60; $i++) {
+        Start-Sleep -Seconds 5
+        docker info 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) { $ok = $true; break }
+    }
+    if (-not $ok) { throw "Docker Desktop 5 分钟内未就绪" }
+}
 docker compose -f "$Root\docker-compose.yml" up -d
 if ($LASTEXITCODE -ne 0) { throw "docker compose 启动失败" }
 

@@ -56,7 +56,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
-- 2026-10-15：**中国 LLM（6kpro GLM-5.3-Flash）从 Mac 测通**（200）；Windows 切换 `.env` 到 cn 进行中。
+- 2026-10-15：**中国 LLM 正式接入**：Windows `.env` 已 `LLM_DEFAULT_PROVIDER=cn`、`LLM_PII_PROVIDER=local`，api-core 重启后 providers=[cn,…,local]。6kpro 模型列表：`GLM-5.3-Flash`、`glm53`、`dsv41`（DeepSeek V4.1?）——**无图像模型**，已请用户让 leosma 加 Qwen-Image-Edit。Windows 重启后自启失败（Docker 未就绪）→ start-windows.ps1 加等待；.env 行内注释会被解析进值 → 模板已清理。
 - 2026-10-15：Lightsail 清理与重启**暂缓**（用户要求不搞复杂；Windows 会话也拒绝凭转述在生产机删东西）。
 - 2026-10-15：V64 一键部署就绪：`docker-compose.v64.yml` + `deploy/v64/`（Dockerfile ×3、install-v64.sh、backup.sh、README）；web-client 改 standalone 输出、API 地址走 `API_INTERNAL_URL`；本地验证 next/nest 构建通过（容器内无 docker，镜像构建待 V64/Windows 实测）。
 - 2026-10-15：**japanerp.com 已切到反代 Windows**（nginx app.conf 替换，SNAT 打通，公网 200 且 x-powered-by Next.js）；证书续期成功至 **2027-01-12**，cron 改为 docker run 形式（`/usr/local/sbin/japanerp-cert-renew.sh`，日志 `/var/log/japanerp-cert-renew.log`）；旧 app.conf 备份为 `conf.d/app.conf.bak.1792023038`（含已移除的 VLESS 路径）。清理脚本 `deploy/lightsail/scripts/cleanup-lightsail.sh` 待用户在 Windows 会话下达执行。
