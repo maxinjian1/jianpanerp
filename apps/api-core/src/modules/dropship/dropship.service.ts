@@ -178,15 +178,75 @@ export class DropshipService {
           optionValues: hasOptions ? optionNamesJa.map((_, k) => valuesJa[v.options?.[k] ?? ''] || v.options?.[k] || v.sku || `#${i + 1}`) : undefined,
         })),
       });
+      // 販売チャネル（オンラインストア）へ公開。スコープ不足等で失敗しても出品自体は成功扱い、lastError に残す
+      let channelError: string | null = null;
+      if (status === 'ACTIVE') {
+        try {
+          await this.shopify.publishToOnlineStore(result.productId);
+        } catch (e) {
+          channelError = `channel: ${String(e).slice(0, 300)}`;
+          this.logger.warn(`${fresh.externalId} ${channelError}`);
+        }
+      }
       await prisma.supplierProduct.update({
         where: { id },
-        data: { shopifyProductId: result.productId, shopifyHandle: result.handle, status: 'published', publishedAt: new Date(), lastError: null },
+        data: { shopifyProductId: result.productId, shopifyHandle: result.handle, status: 'published', publishedAt: new Date(), lastError: channelError },
       });
-      return result;
+      return { ...result, channelError };
     } catch (e) {
       await prisma.supplierProduct.update({ where: { id }, data: { status: 'error', lastError: String(e).slice(0, 500) } });
       throw e;
     }
+  }
+
+  /**
+   * 出品済み商品の修復：
+   *  - media: 失敗した画像（FAILED）を削除し、ステージドアップロードで再登録
+   *  - channel: オンラインストアへ公開
+   */
+  async repairPublished(opts: { limit?: number; media?: boolean; channel?: boolean; ids?: string[] } = {}) {
+    const limit = opts.limit ?? 50;
+    const doMedia = opts.media ?? true;
+    const doChannel = opts.channel ?? true;
+    const todo = await prisma.supplierProduct.findMany({
+      where: opts.ids?.length ? { id: { in: opts.ids } } : { status: 'published', shopifyProductId: { not: null } },
+      take: limit,
+      orderBy: { publishedAt: 'asc' },
+    });
+    const out: Array<{ id: string; externalId: string; media?: string; channel?: string }> = [];
+    for (const p of todo) {
+      const row: (typeof out)[number] = { id: p.id, externalId: p.externalId };
+      const pid = p.shopifyProductId!;
+      if (doMedia) {
+        try {
+          const media = await this.shopify.listProductMedia(pid);
+          const failed = media.filter((m) => m.status === 'FAILED').map((m) => m.id);
+          const ready = media.length - failed.length;
+          if (failed.length) await this.shopify.deleteProductMedia(pid, failed);
+          if (ready === 0) {
+            const staged = await this.shopify.stageImages(p.images as string[]);
+            await this.shopify.addProductMedia(pid, staged);
+            row.media = `re-uploaded ${staged.length} (removed ${failed.length} failed)`;
+          } else {
+            row.media = failed.length ? `removed ${failed.length} failed, kept ${ready}` : `ok (${ready})`;
+          }
+        } catch (e) {
+          row.media = `error: ${String(e).slice(0, 200)}`;
+        }
+      }
+      if (doChannel) {
+        try {
+          await this.shopify.publishToOnlineStore(pid);
+          row.channel = 'published';
+        } catch (e) {
+          row.channel = `error: ${String(e).slice(0, 200)}`;
+        }
+      }
+      const err = [row.media, row.channel].filter((s) => s?.startsWith('error')).join(' | ') || null;
+      await prisma.supplierProduct.update({ where: { id: p.id }, data: { lastError: err } });
+      out.push(row);
+    }
+    return out;
   }
 
   /** 一括: 未出品のものを n 件まで翻訳→出品 */

@@ -42,6 +42,17 @@ export class DropshipController {
     return this.svc.publishBatch(Number(limit ?? 10), status ?? 'ACTIVE');
   }
 
+  @Post('repair')
+  @ApiOperation({ summary: '出品済み商品の修復', description: '失敗画像の再アップロード（media）／オンラインストアへ公開（channel）。?limit=50&media=1&channel=1' })
+  repair(@Query('limit') limit?: string, @Query('media') media?: string, @Query('channel') channel?: string, @Body() body?: { ids?: string[] }) {
+    return this.svc.repairPublished({
+      limit: Number(limit ?? 50),
+      media: media === undefined ? true : media !== '0' && media !== 'false',
+      channel: channel === undefined ? true : channel !== '0' && channel !== 'false',
+      ids: body?.ids,
+    });
+  }
+
   @Get('orders')
   @ApiOperation({ summary: '代発注文一覧（確認待ち等）' })
   orders(@Query('status') status?: string) {

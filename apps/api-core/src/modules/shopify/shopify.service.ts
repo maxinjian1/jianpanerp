@@ -82,6 +82,131 @@ export class ShopifyService {
     return a.length === b.length && timingSafeEqual(a, b);
   }
 
+  // ───────────────────────── 画像（staged upload） ─────────────────────────
+
+  /**
+   * 外部 URL の画像を一度こちらで取得し、実際のバイト列から形式を判定して Shopify にステージドアップロードする。
+   * 卸サイト（腾讯云 COS）の画像は拡張子 .jpg でも中身が WebP 等のことがあり、URL をそのまま渡すと
+   * Shopify 側で "file extension/format mismatch" になるため。
+   * 戻り値: productCreate / productCreateMedia の originalSource に渡せる resourceUrl の配列（失敗分は除外）。
+   */
+  async stageImages(urls: string[], max = 12): Promise<string[]> {
+    const out: string[] = [];
+    for (const url of urls.slice(0, max)) {
+      try {
+        out.push(await this.stageOneImage(url));
+      } catch (e) {
+        this.logger.warn(`image skipped ${url}: ${String(e).slice(0, 160)}`);
+      }
+    }
+    return out;
+  }
+
+  private sniffImage(buf: Buffer): { mime: string; ext: string } | null {
+    if (buf.length < 12) return null;
+    if (buf[0] === 0xff && buf[1] === 0xd8) return { mime: 'image/jpeg', ext: 'jpg' };
+    if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return { mime: 'image/png', ext: 'png' };
+    if (buf.subarray(0, 4).toString('ascii') === 'RIFF' && buf.subarray(8, 12).toString('ascii') === 'WEBP') return { mime: 'image/webp', ext: 'webp' };
+    if (buf.subarray(0, 3).toString('ascii') === 'GIF') return { mime: 'image/gif', ext: 'gif' };
+    if (buf.subarray(4, 12).toString('ascii').includes('ftyp') && /avif|heic|heif/.test(buf.subarray(8, 12).toString('ascii'))) return { mime: 'image/avif', ext: 'avif' };
+    return null;
+  }
+
+  private async stageOneImage(url: string): Promise<string> {
+    const res = await fetch(url, { signal: AbortSignal.timeout(30000), headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (!res.ok) throw new Error(`fetch ${res.status}`);
+    const buf = Buffer.from(await res.arrayBuffer());
+    const kind = this.sniffImage(buf);
+    if (!kind) throw new Error('not an image');
+    if (buf.length > 20 * 1024 * 1024) throw new Error('image > 20MB');
+    const base = (url.split('/').pop() ?? 'image').split('?')[0].replace(/\.[a-z0-9]+$/i, '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 60) || 'image';
+    const filename = `${base}.${kind.ext}`;
+
+    const staged = await this.graphql<{
+      stagedUploadsCreate: {
+        stagedTargets: Array<{ url: string; resourceUrl: string; parameters: Array<{ name: string; value: string }> }>;
+        userErrors: Array<{ field: string[]; message: string }>;
+      };
+    }>(
+      `mutation($input: [StagedUploadInput!]!) {
+        stagedUploadsCreate(input: $input) {
+          stagedTargets { url resourceUrl parameters { name value } }
+          userErrors { field message }
+        }
+      }`,
+      { input: [{ resource: 'IMAGE', filename, mimeType: kind.mime, httpMethod: 'POST', fileSize: String(buf.length) }] },
+    );
+    if (staged.stagedUploadsCreate.userErrors.length || !staged.stagedUploadsCreate.stagedTargets[0]) {
+      throw new Error(`stagedUploadsCreate: ${JSON.stringify(staged.stagedUploadsCreate.userErrors)}`);
+    }
+    const target = staged.stagedUploadsCreate.stagedTargets[0];
+    const form = new FormData();
+    for (const p of target.parameters) form.append(p.name, p.value);
+    form.append('file', new Blob([buf], { type: kind.mime }), filename);
+    const up = await fetch(target.url, { method: 'POST', body: form, signal: AbortSignal.timeout(60000) });
+    if (!up.ok) throw new Error(`staged upload HTTP ${up.status} ${(await up.text()).slice(0, 200)}`);
+    return target.resourceUrl;
+  }
+
+  /** 商品のメディア一覧（status / エラー） */
+  async listProductMedia(productId: string) {
+    const r = await this.graphql<{
+      product: { media: { nodes: Array<{ id: string; status: string; mediaErrors: Array<{ message: string }> }> } } | null;
+    }>(
+      `query($id: ID!) { product(id: $id) { media(first: 50) { nodes { id status mediaErrors { message } } } } }`,
+      { id: productId },
+    );
+    return r.product?.media.nodes ?? [];
+  }
+
+  async deleteProductMedia(productId: string, mediaIds: string[]) {
+    if (!mediaIds.length) return;
+    const r = await this.graphql<{ productDeleteMedia: { userErrors: Array<{ message: string }> } }>(
+      `mutation($productId: ID!, $mediaIds: [ID!]!) { productDeleteMedia(productId: $productId, mediaIds: $mediaIds) { userErrors { message } } }`,
+      { productId, mediaIds },
+    );
+    if (r.productDeleteMedia.userErrors.length) throw new Error(JSON.stringify(r.productDeleteMedia.userErrors));
+  }
+
+  async addProductMedia(productId: string, resourceUrls: string[]) {
+    if (!resourceUrls.length) return;
+    const r = await this.graphql<{ productCreateMedia: { userErrors: Array<{ message: string }>; mediaUserErrors?: Array<{ message: string }> } }>(
+      `mutation($productId: ID!, $media: [CreateMediaInput!]!) {
+        productCreateMedia(productId: $productId, media: $media) { mediaUserErrors { message } userErrors { message } }
+      }`,
+      { productId, media: resourceUrls.map((u) => ({ originalSource: u, mediaContentType: 'IMAGE' })) },
+    );
+    const errs = [...(r.productCreateMedia.userErrors ?? []), ...(r.productCreateMedia.mediaUserErrors ?? [])];
+    if (errs.length) throw new Error(`productCreateMedia: ${JSON.stringify(errs)}`);
+  }
+
+  // ───────────────────────── 販売チャネル ─────────────────────────
+
+  private onlineStorePublicationId?: string;
+
+  /** オンラインストアの publication id（read_publications スコープが必要） */
+  async getOnlineStorePublicationId(): Promise<string> {
+    if (this.onlineStorePublicationId) return this.onlineStorePublicationId;
+    const r = await this.graphql<{ publications: { nodes: Array<{ id: string; name: string }> } }>(
+      `{ publications(first: 25) { nodes { id name } } }`,
+    );
+    const nodes = r.publications.nodes;
+    const hit = nodes.find((p) => /online store|オンラインストア/i.test(p.name)) ?? nodes[0];
+    if (!hit) throw new Error('No publications found');
+    this.onlineStorePublicationId = hit.id;
+    return hit.id;
+  }
+
+  /** 商品をオンラインストア（販売チャネル）に公開（write_publications スコープが必要） */
+  async publishToOnlineStore(productId: string) {
+    const publicationId = await this.getOnlineStorePublicationId();
+    const r = await this.graphql<{ publishablePublish: { userErrors: Array<{ message: string }> } }>(
+      `mutation($id: ID!, $input: [PublicationInput!]!) { publishablePublish(id: $id, input: $input) { userErrors { field message } } }`,
+      { id: productId, input: [{ publicationId }] },
+    );
+    if (r.publishablePublish.userErrors.length) throw new Error(`publishablePublish: ${JSON.stringify(r.publishablePublish.userErrors)}`);
+  }
+
   // ───────────────────────── 商品 ─────────────────────────
 
   async createProduct(input: {
@@ -91,11 +216,12 @@ export class ShopifyService {
     productType?: string;
     tags?: string[];
     status?: 'ACTIVE' | 'DRAFT';
-    images: string[];
+    images: string[]; // 外部 URL。内部で stageImages() を通して Shopify にアップロードする
     options?: string[]; // 例 ["カラー","サイズ"]
     variants: Array<{ sku: string; price: number; optionValues?: string[]; barcode?: string }>;
-  }): Promise<{ productId: string; handle: string; variantIds: string[] }> {
+  }): Promise<{ productId: string; handle: string; variantIds: string[]; imageCount: number }> {
     const hasOptions = (input.options?.length ?? 0) > 0;
+    const staged = await this.stageImages(input.images);
     const create = await this.graphql<{
       productCreate: { product: { id: string; handle: string; variants: { nodes: Array<{ id: string }> } } | null; userErrors: Array<{ field: string[]; message: string }> };
     }>(
@@ -122,7 +248,7 @@ export class ShopifyService {
               }
             : {}),
         },
-        media: input.images.slice(0, 20).map((url) => ({ originalSource: url, mediaContentType: 'IMAGE' })),
+        media: staged.map((url) => ({ originalSource: url, mediaContentType: 'IMAGE' })),
       },
     );
     if (create.productCreate.userErrors.length || !create.productCreate.product) {
@@ -186,7 +312,7 @@ export class ShopifyService {
       }
       variantIds = upd.productVariantsBulkUpdate.productVariants.map((x) => x.id);
     }
-    return { productId: product.id, handle: product.handle, variantIds };
+    return { productId: product.id, handle: product.handle, variantIds, imageCount: staged.length };
   }
 
   async setProductStatus(productId: string, status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED') {
