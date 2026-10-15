@@ -25,18 +25,21 @@ body{font-family:${FONT};color:${INK};background:${CREAM}}
 ${extra}</style></head><body><div class="wrap">${body}</div></body></html>`;
 
 // ───────── ヒーロー（PC 1920×800 / スマホ 1080×1350） ─────────
-function hero(w, h, mobile) {
+function hero(w, h, mobile, withText = true) {
   const fs = mobile ? 92 : 104;
-  return base(w, h, `
+  const blobs = `
   <div class="blob" style="width:${h * 1.1}px;height:${h * 1.1}px;right:${mobile ? -h * 0.35 : -h * 0.25}px;top:${mobile ? h * 0.42 : -h * 0.3}px;background:${SAGE}"></div>
   <div class="blob" style="width:${h * 0.55}px;height:${h * 0.55}px;right:${mobile ? w * 0.08 : w * 0.22}px;top:${mobile ? h * 0.58 : h * 0.45}px;background:${ORANGE};opacity:.9"></div>
-  <div class="blob" style="width:${h * 0.28}px;height:${h * 0.28}px;right:${mobile ? w * 0.55 : w * 0.12}px;top:${mobile ? h * 0.78 : h * 0.12}px;background:${NAVY};opacity:.9"></div>
+  <div class="blob" style="width:${h * 0.28}px;height:${h * 0.28}px;right:${mobile ? w * 0.55 : w * 0.12}px;top:${mobile ? h * 0.78 : h * 0.12}px;background:${NAVY};opacity:.9"></div>`;
+  // テーマ側で見出し・ボタンを重ねるため、店頭用は文字なし版（withText=false）を使う
+  const copy = withText ? `
   <div style="position:absolute;left:${mobile ? 72 : 140}px;top:${mobile ? 120 : 150}px;width:${mobile ? w - 144 : w * 0.55}px">
     <div class="brand">ANET</div>
     <div class="h1" style="font-size:${fs}px;margin-top:28px">暮らしを、<br>ちょっと便利に。</div>
     <div class="sub" style="font-size:${mobile ? 40 : 36}px;margin-top:34px">日用品・健康グッズ・スマホ周辺機器・ペット用品まで<br>毎日使える便利アイテムを、日本国内の倉庫から直送。</div>
     <div style="margin-top:40px;font-size:${mobile ? 34 : 30}px"><span class="badge">国内発送</span>&nbsp;&nbsp;<span class="pill">平日12時までのご注文は当日出荷</span></div>
-  </div>`);
+  </div>` : '';
+  return base(w, h, blobs + copy);
 }
 
 // ───────── カテゴリータイル（1200×1200） ─────────
@@ -78,8 +81,10 @@ function story() {
 }
 
 const jobs = [
-  ['hero-desktop.png', 1920, 800, hero(1920, 800, false)],
-  ['hero-mobile.png', 1080, 1350, hero(1080, 1350, true)],
+  ['hero-desktop.png', 1920, 800, hero(1920, 800, false, false)],
+  ['hero-mobile.png', 1080, 1350, hero(1080, 1350, true, false)],
+  ['hero-desktop-text.png', 1920, 800, hero(1920, 800, false, true)],
+  ['hero-mobile-text.png', 1080, 1350, hero(1080, 1350, true, true)],
   ['story.png', 1600, 900, story()],
   ['cat-daily.png', 1200, 1200, tile('日用品雑貨', '毎日のちょっとした不便を、スッと解決。', ICONS.daily, '#EEF3F7')],
   ['cat-health.png', 1200, 1200, tile('健康・ダイエット', 'おうち時間で、からだを整える。', ICONS.health, '#FDF0E6')],
