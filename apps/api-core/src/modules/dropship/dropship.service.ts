@@ -171,12 +171,21 @@ export class DropshipService {
         status,
         images: fresh.images as string[], // 卸サイトの原画像をそのまま使用（ユーザー決定）
         options: hasOptions ? optionNamesJa : undefined,
-        variants: variants.map((v, i) => ({
-          sku: v.sku || `KJYF-${fresh.externalId}-${i + 1}`,
-          price: this.retailPrice(v.wholesalePrice),
-          // 選択肢が欠けている SKU は SKU コードで埋める（Shopify は空のオプション値を拒否）
-          optionValues: hasOptions ? optionNamesJa.map((_, k) => valuesJa[v.options?.[k] ?? ''] || v.options?.[k] || v.sku || `#${i + 1}`) : undefined,
-        })),
+        variants: (() => {
+          const seen = new Map<string, number>();
+          return variants.map((v, i) => {
+            // 選択肢が欠けている SKU は SKU コードで埋める（Shopify は空のオプション値を拒否）
+            let ov = hasOptions ? optionNamesJa.map((_, k) => valuesJa[v.options?.[k] ?? ''] || v.options?.[k] || v.sku || `#${i + 1}`) : undefined;
+            if (ov) {
+              // 卸データに同じ選択肢の SKU が複数ある（"variant already exists"）→ 末尾の値に SKU を付けて一意化
+              const key = ov.join('\u0000');
+              const n = (seen.get(key) ?? 0) + 1;
+              seen.set(key, n);
+              if (n > 1) ov = [...ov.slice(0, -1), `${ov[ov.length - 1]} (${v.sku || i + 1})`];
+            }
+            return { sku: v.sku || `KJYF-${fresh.externalId}-${i + 1}`, price: this.retailPrice(v.wholesalePrice), optionValues: ov };
+          });
+        })(),
       });
       // 販売チャネル（オンラインストア）へ公開。スコープ不足等で失敗しても出品自体は成功扱い、lastError に残す
       let channelError: string | null = null;

@@ -42,6 +42,16 @@ export class DropshipController {
     return this.svc.publishBatch(Number(limit ?? 10), status ?? 'ACTIVE');
   }
 
+  @Post('retry-errors')
+  @ApiOperation({ summary: 'error 状態の商品を scraped に戻す（次の publish-batch で再出品）' })
+  async retryErrors(@Body() body?: { ids?: string[] }) {
+    const r = await prisma.supplierProduct.updateMany({
+      where: body?.ids?.length ? { id: { in: body.ids } } : { status: 'error', shopifyProductId: null },
+      data: { status: 'scraped', lastError: null },
+    });
+    return { reset: r.count };
+  }
+
   @Post('repair')
   @ApiOperation({ summary: '出品済み商品の修復', description: '画像の入れ直し（media：1枚でも失敗/不足なら全差し替え）／オンラインストアへ公開（channel）。?limit=500&offset=0&media=1&channel=1。冪等' })
   repair(
