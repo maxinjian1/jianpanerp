@@ -56,6 +56,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-10-15：**300 商品已入库**（采集 300/300 零失败；首推 413 → api-core body 上限改 20MB）。**Shopify 应用 ANET ERP 已建并装到店**（Dev Dashboard app id 435731169281，版本 anet-erp-1，scopes 六项，embedded=false；新版 Dev Dashboard 无 Distribution 页，用店后台安装链接 `admin.shopify.com/store/0scqav-e7/oauth/install?client_id=…` 安装）。`.env` 已有 STORE_DOMAIN / CLIENT_ID / API_VERSION，**CLIENT_SECRET 待用户亲手填**（Windows 会话被分类器禁止读密钥，符合约定）。Windows 会话沙箱会回收它拉起的子进程树 → 启动服务要用 `dangerouslyDisableSandbox` 的 Start-Process；ai-service 子窗口 Activate.ps1 被执行策略拦 → 直接 `venv\Scripts\python.exe`。
 - 2026-10-15：**批发商站调研完成**（Windows 会话）：kuajingyifan.com = Nuxt 2 SSR 自研站（Vue Storefront 定制，Cloudflare 前置），sitemap `/sitemap/ja-JP.xml` 约 1186 商品，商品页 `/ja-JP/p/{goodId}/{slug}`，**匿名页面的 `window.__NUXT__` 已含 SKU 价格/库存/图片**（显示层要登录，数据层不用）→ 采集器 `tools/kjyf-scraper/scrape.mjs` 零依赖、不用 Playwright；登录只在下单时需要（业务 API `beehole.kuajingyifan.com`，Bearer token，下单机器人阶段再分析）。用户决定：**上架默认直接 ACTIVE 在售，不先看草稿**；品牌/卖家名 ANET。Windows 三个应用服务当时全部不在线（Docker 容器正常），需跑 `start-windows.ps1`。批发商账号已由用户交给 Windows 会话写入 `.env`。
 - 2026-10-15：**中国 LLM 正式接入**：Windows `.env` 已 `LLM_DEFAULT_PROVIDER=cn`、`LLM_PII_PROVIDER=local`，api-core 重启后 providers=[cn,…,local]。6kpro 模型列表：`GLM-5.3-Flash`、`glm53`、`dsv41`（DeepSeek V4.1?）——**无图像模型**，已请用户让 leosma 加 Qwen-Image-Edit。Windows 重启后自启失败（Docker 未就绪）→ start-windows.ps1 加等待；.env 行内注释会被解析进值 → 模板已清理。
 - 2026-10-15：Lightsail 清理与重启**暂缓**（用户要求不搞复杂；Windows 会话也拒绝凭转述在生产机删东西）。
