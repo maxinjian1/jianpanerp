@@ -66,3 +66,5 @@ logs
 
 # Local run logs (start-windows / remote session)
 .logs/
+
+logs/
