@@ -43,10 +43,11 @@ export class DropshipController {
   }
 
   @Post('repair')
-  @ApiOperation({ summary: '出品済み商品の修復', description: '失敗画像の再アップロード（media）／オンラインストアへ公開（channel）。?limit=50&media=1&channel=1' })
-  repair(@Query('limit') limit?: string, @Query('media') media?: string, @Query('channel') channel?: string, @Body() body?: { ids?: string[] }) {
+  @ApiOperation({ summary: '出品済み商品の修復', description: '画像の入れ直し（media：1枚でも失敗/不足なら全差し替え）／オンラインストアへ公開（channel）。?limit=500&offset=0&media=1&channel=1。冪等' })
+  repair(@Query('limit') limit?: string, @Query('offset') offset?: string, @Query('media') media?: string, @Query('channel') channel?: string, @Body() body?: { ids?: string[] }) {
     return this.svc.repairPublished({
-      limit: Number(limit ?? 50),
+      limit: Number(limit ?? 500),
+      offset: Number(offset ?? 0),
       media: media === undefined ? true : media !== '0' && media !== 'false',
       channel: channel === undefined ? true : channel !== '0' && channel !== 'false',
       ids: body?.ids,

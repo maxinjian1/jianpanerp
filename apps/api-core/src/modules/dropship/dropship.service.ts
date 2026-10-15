@@ -204,13 +204,14 @@ export class DropshipService {
    *  - media: 失敗した画像（FAILED）を削除し、ステージドアップロードで再登録
    *  - channel: オンラインストアへ公開
    */
-  async repairPublished(opts: { limit?: number; media?: boolean; channel?: boolean; ids?: string[] } = {}) {
-    const limit = opts.limit ?? 50;
+  async repairPublished(opts: { limit?: number; offset?: number; media?: boolean; channel?: boolean; ids?: string[] } = {}) {
+    const limit = opts.limit ?? 500;
     const doMedia = opts.media ?? true;
     const doChannel = opts.channel ?? true;
     const todo = await prisma.supplierProduct.findMany({
       where: opts.ids?.length ? { id: { in: opts.ids } } : { status: 'published', shopifyProductId: { not: null } },
       take: limit,
+      skip: opts.offset ?? 0,
       orderBy: { publishedAt: 'asc' },
     });
     const out: Array<{ id: string; externalId: string; media?: string; channel?: string }> = [];
@@ -220,15 +221,17 @@ export class DropshipService {
       if (doMedia) {
         try {
           const media = await this.shopify.listProductMedia(pid);
-          const failed = media.filter((m) => m.status === 'FAILED').map((m) => m.id);
+          const failed = media.filter((m) => m.status === 'FAILED');
+          const expected = Math.min((p.images as string[]).length, 12);
           const ready = media.length - failed.length;
-          if (failed.length) await this.shopify.deleteProductMedia(pid, failed);
-          if (ready === 0) {
+          if (failed.length || ready < expected) {
+            // 1 枚でも失敗/不足があれば全部消してステージドアップロードで入れ直す（順序も元通りになる）
+            await this.shopify.deleteProductMedia(pid, media.map((m) => m.id));
             const staged = await this.shopify.stageImages(p.images as string[]);
             await this.shopify.addProductMedia(pid, staged);
-            row.media = `re-uploaded ${staged.length} (removed ${failed.length} failed)`;
+            row.media = `re-uploaded ${staged.length}/${expected} (had ${ready} ok, ${failed.length} failed)`;
           } else {
-            row.media = failed.length ? `removed ${failed.length} failed, kept ${ready}` : `ok (${ready})`;
+            row.media = `ok (${ready})`;
           }
         } catch (e) {
           row.media = `error: ${String(e).slice(0, 200)}`;
