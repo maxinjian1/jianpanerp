@@ -12,7 +12,7 @@ Monorepo：`apps/api-core`(NestJS :4000) · `apps/web-client`(Next :3000) · `ap
 ## 三层拓扑（2026-10-14 确认，以此为准）
 | 层 | 机器 | 角色 | 数据级别 |
 |---|---|---|---|
-| **展示层** | AWS Lightsail 东京 `13.158.114.4`，域名 **japanerp.com** | **只做公网入口**：沿用现有 haproxy→nginx 容器，nginx 改为 `proxy_pass` 到 Windows（Tailscale `100.120.180.90`）:3000/:4000，Windows 不在线时回退到 `web-static/` 静态页。**Lightsail 上不跑 Node、不编译**（2026-10-14 用户决定：412MiB 内存不升级） | 无数据落在 Lightsail |
+| **展示层** | AWS Lightsail 东京 `13.158.114.4`，域名 **japanerp.com** | **只做公网入口（2026-10-15 已上线）**：haproxy→nginx 容器 `proxy_pass` 到 Windows（Tailscale `100.120.180.90`）:3000/:4000，Windows 不在线时回退 `web-static/` 静态页。配置源在 `deploy/lightsail/`。**Lightsail 上不跑 Node、不编译**（2026-10-14 用户决定：412MiB 内存不升级） | 无数据落在 Lightsail |
 | **产品层（交付给客户）** | **ANET V64**（Ubuntu 24.04 + CUDA 12.x，4×Tesla V100 16GB NVLink，64GB HBM2，600W） | 真正的运行主机：ERP Hub + AI Gateway + 本地模型（Qwen3.5-35B-A3B Q8，约 90–130 tok/s）+ Whisper + Open WebUI。**客户从 Mac 远程使用** | 全部客户数据、订单、客服、聊天都在这台机器上 |
 | **开发/模拟层** | 用户的 Windows 电脑 | **模拟 V64** 做开发测试；没有 V100 时本地模型用 Ollama 小模型或假名化+中国 API 代替 | 测试数据 |
 
@@ -49,6 +49,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 每次会话结束前：把新的决定与进度写进本文件「进度日志」。
 
 ## 进度日志
+- 2026-10-15：**japanerp.com 已切到反代 Windows**（nginx app.conf 替换，SNAT 打通，公网 200 且 x-powered-by Next.js）；证书续期成功至 **2027-01-12**，cron 改为 docker run 形式（`/usr/local/sbin/japanerp-cert-renew.sh`，日志 `/var/log/japanerp-cert-renew.log`）；旧 app.conf 备份为 `conf.d/app.conf.bak.1792023038`（含已移除的 VLESS 路径）。清理脚本 `deploy/lightsail/scripts/cleanup-lightsail.sh` 待用户在 Windows 会话下达执行。
 - 2026-10-14：Lightsail 加入 tailnet（100.73.55.42）；用户确认 Cloudflare 账号是自己的；下一步 nginx 反代 Windows + 防火墙放行 Tailscale 网段。
 - 2026-10-14：Lightsail 调查完成：旧版 japanerp.com 静态站已在线（nginx 容器 + acme.sh 证书 10/24 到期，DNS Cloudflare 代理）；机器兼作 VPN 跳板。
 - 2026-10-14：用户决定官网也在 Windows 跑，Lightsail 仅做反代入口（不升级套餐）。
