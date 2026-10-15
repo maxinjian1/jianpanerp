@@ -90,16 +90,52 @@ export class ShopifyService {
    * Shopify 側で "file extension/format mismatch" になるため。
    * 戻り値: productCreate / productCreateMedia の originalSource に渡せる resourceUrl の配列（失敗分は除外）。
    */
-  async stageImages(urls: string[], max = 12): Promise<string[]> {
+  async stageImages(urls: string[], max = 12, opts: { process?: boolean } = {}): Promise<string[]> {
     const out: string[] = [];
+    const doProcess = opts.process ?? this.imageProcessDefault;
     for (const url of urls.slice(0, max)) {
       try {
-        out.push(await this.stageOneImage(url));
+        const src = doProcess ? await this.processImage(url) : url;
+        out.push(await this.stageOneImage(src));
       } catch (e) {
         this.logger.warn(`image skipped ${url}: ${String(e).slice(0, 160)}`);
       }
     }
     return out;
+  }
+
+  // ───────────────────────── 本地画像処理（apps/image-service、GPU） ─────────────────────────
+
+  private get imageServiceUrl(): string {
+    return (process.env.IMAGE_SERVICE_URL ?? '').replace(/\/$/, '');
+  }
+  /** IMAGE_PROCESS=1 で出品時に既定で処理（文字消し・白背景・正方形） */
+  private get imageProcessDefault(): boolean {
+    return Boolean(this.imageServiceUrl) && /^(1|true|yes)$/i.test(process.env.IMAGE_PROCESS ?? '');
+  }
+  private get imageSteps(): string[] {
+    return (process.env.IMAGE_PROCESS_STEPS ?? 'ocr_inpaint,rembg_white,square').split(',').map((s) => s.trim()).filter(Boolean);
+  }
+
+  /** 画像を本地サービスで処理し、処理済み画像の URL（localhost）を返す。サービス未設定/失敗時は元 URL をそのまま返す */
+  async processImage(url: string, steps?: string[]): Promise<string> {
+    const base = this.imageServiceUrl;
+    if (!base) return url;
+    try {
+      const res = await fetch(`${base}/process`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, steps: steps ?? this.imageSteps, size: Number(process.env.IMAGE_SIZE ?? 1200) }),
+        signal: AbortSignal.timeout(120000),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status} ${(await res.text()).slice(0, 200)}`);
+      const data = (await res.json()) as { url: string; text_boxes?: number; ms?: number };
+      this.logger.debug(`image processed ${url} → ${data.url} (text_boxes=${data.text_boxes ?? '-'}, ${data.ms ?? '-'}ms)`);
+      return data.url;
+    } catch (e) {
+      this.logger.warn(`image-service failed for ${url}, using original: ${String(e).slice(0, 160)}`);
+      return url;
+    }
   }
 
   private sniffImage(buf: Buffer): { mime: string; ext: string } | null {

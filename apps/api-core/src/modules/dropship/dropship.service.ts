@@ -204,9 +204,10 @@ export class DropshipService {
    *  - media: 失敗した画像（FAILED）を削除し、ステージドアップロードで再登録
    *  - channel: オンラインストアへ公開
    */
-  async repairPublished(opts: { limit?: number; offset?: number; media?: boolean; channel?: boolean; ids?: string[] } = {}) {
+  async repairPublished(opts: { limit?: number; offset?: number; media?: boolean; channel?: boolean; ids?: string[]; reprocess?: boolean } = {}) {
     const limit = opts.limit ?? 500;
     const doMedia = opts.media ?? true;
+    const reprocess = opts.reprocess ?? false; // true: 画像を本地 image-service で処理し直して全差し替え
     const doChannel = opts.channel ?? true;
     const todo = await prisma.supplierProduct.findMany({
       where: opts.ids?.length ? { id: { in: opts.ids } } : { status: 'published', shopifyProductId: { not: null } },
@@ -224,12 +225,14 @@ export class DropshipService {
           const failed = media.filter((m) => m.status === 'FAILED');
           const expected = Math.min((p.images as string[]).length, 12);
           const ready = media.length - failed.length;
-          if (failed.length || ready < expected) {
-            // 1 枚でも失敗/不足があれば全部消してステージドアップロードで入れ直す（順序も元通りになる）
+          if (reprocess || failed.length || ready < expected) {
+            // 1 枚でも失敗/不足があれば（または reprocess 指定時）全部消してステージドアップロードで入れ直す
+            const staged = await this.shopify.stageImages(p.images as string[], 12, reprocess ? { process: true } : {});
+            if (!staged.length) throw new Error('no image could be staged');
             await this.shopify.deleteProductMedia(pid, media.map((m) => m.id));
-            const staged = await this.shopify.stageImages(p.images as string[]);
             await this.shopify.addProductMedia(pid, staged);
-            row.media = `re-uploaded ${staged.length}/${expected} (had ${ready} ok, ${failed.length} failed)`;
+            await prisma.supplierProduct.update({ where: { id: p.id }, data: { raw: { ...((p.raw as object) ?? {}), imagesProcessed: reprocess } } });
+            row.media = `${reprocess ? 'reprocessed' : 're-uploaded'} ${staged.length}/${expected} (had ${ready} ok, ${failed.length} failed)`;
           } else {
             row.media = `ok (${ready})`;
           }
