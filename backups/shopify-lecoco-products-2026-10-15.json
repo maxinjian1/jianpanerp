@@ -1,0 +1,6658 @@
+{
+ "data": {
+  "products": {
+   "pageInfo": {
+    "hasNextPage": false,
+    "endCursor": "eyJsYXN0X2lkIjoxMDcxNzg0OTk0NDM3NCwibGFzdF92YWx1ZSI6IjEwNzE3ODQ5OTQ0Mzc0In0="
+   },
+   "edges": [
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709224390966",
+      "title": "LECOCO Zipp T3 — 第3世代 機内持込み ベビーカー",
+      "handle": "lecoco-zipp-t3-第3世代-機内持込み-ベビーカー",
+      "status": "ACTIVE",
+      "vendor": "LECOCO",
+      "productType": "ベビーカー",
+      "tags": [
+       "6.8kg",
+       "ANA",
+       "JAL",
+       "LCC",
+       "NEW",
+       "Zipp",
+       "おすすめ",
+       "ギフト",
+       "ベビーカー",
+       "マグネシウム合金",
+       "ワンタッチ",
+       "両対面",
+       "出産祝い",
+       "折りたたみ",
+       "改札",
+       "新生児対応",
+       "機内持込",
+       "海外旅行",
+       "第3世代",
+       "軽量",
+       "都市派",
+       "電車"
+      ],
+      "descriptionHtml": "<h3>イタリア発、第3世代の都市派ベビーカー</h3>\n<p>東京の電車も、海外旅行も、これ一台で。<strong>機内持込みサイズ・両対面・ワンタッチ折りたたみ</strong>。新生児から3歳まで、家族の旅にずっと寄り添うベビーカーです。</p>\n<h4>こんな方におすすめ</h4>\n<ul>\n<li>都市部のマンション住まいで玄関収納したい</li>\n<li>電車・改札・エスカレーターをストレスなく通過したい</li>\n<li>飛行機の機内持込みで旅行したい</li>\n<li>「無印良品」の引き算デザインが好き</li>\n</ul>\n<h4>主な特長</h4>\n<ul>\n<li>\n<strong>機内持込み対応サイズ</strong>(JAL/ANA国内線基準)</li>\n<li>\n<strong>ワンタッチ折りたたみ</strong> — 片手で 3 秒</li>\n<li>\n<strong>両対面シート</strong> — 月齢に合わせて切替</li>\n<li>\n<strong>5点式安全ベルト</strong> + 衝撃吸収サスペンション</li>\n<li>耐荷重 15kg / 対象 0〜36ヶ月</li>\n<li>UPF50+ サンキャノピー</li>\n</ul>\n<h4>スペック</h4>\n<table>\n<tr>\n<th>素材</th>\n<td>アルミ合金フレーム + 通気メッシュ</td>\n</tr>\n<tr>\n<th>重量</th>\n<td>約 6.8 kg</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>15 kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>0〜36ヶ月</td>\n</tr>\n<tr>\n<th>展開サイズ</th>\n<td>W48 × D78 × H102 cm</td>\n</tr>\n<tr>\n<th>折りたたみサイズ</th>\n<td>W48 × D24 × H56 cm</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>CCC / EN1888</td>\n</tr>\n</table>\n<h4>保証</h4><p>メーカー2年保証。30日間返品OK。</p>",
+      "createdAt": "2026-05-12T08:41:54Z",
+      "options": [
+       {
+        "name": "Color",
+        "values": [
+         "White",
+         "Black"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116068876598",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1.png?v=1778575324",
+           "altText": "LECOCO Zipp T3 メイン画像"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116068909366",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_281_29.jpg?v=1778575318",
+           "altText": "Zipp T3 細部"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098081590",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_01.png?v=1778626149",
+           "altText": "T3 1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098114358",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_02.png?v=1778626149",
+           "altText": "T3 2"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098147126",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_03.png?v=1778626149",
+           "altText": "T3 3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098179894",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_04.png?v=1778626149",
+           "altText": "T3 4"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098212662",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_05.png?v=1778626149",
+           "altText": "T3 5"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098245430",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_06.png?v=1778626149",
+           "altText": "T3 6"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098278198",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_07.png?v=1778626149",
+           "altText": "T3 7"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098310966",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_08.png?v=1778626149",
+           "altText": "T3 8"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098343734",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_09.png?v=1778626149",
+           "altText": "T3 9"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098376502",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_10.png?v=1778626150",
+           "altText": "T3 10"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098409270",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_11.png?v=1778626149",
+           "altText": "T3 11"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098442038",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_12.png?v=1778626149",
+           "altText": "T3 12"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098474806",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_13.png?v=1778626149",
+           "altText": "T3 13"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098507574",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_14.png?v=1778626149",
+           "altText": "T3 14"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098540342",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_15.png?v=1778626149",
+           "altText": "T3 15"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098573110",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_16.png?v=1778626150",
+           "altText": "T3 16"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098605878",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_17.png?v=1778626149",
+           "altText": "T3 17"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119098638646",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t3_18.png?v=1778626149",
+           "altText": "T3 18"
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018642936118",
+          "title": "White",
+          "sku": "LECOCO-ZIPP-T3-WHITE",
+          "price": "48000",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 75,
+          "selectedOptions": [
+           {
+            "name": "Color",
+            "value": "White"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54077078405430",
+          "title": "Black",
+          "sku": "LECOCO-ZIPP-T3-BLACK",
+          "price": "48000",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 75,
+          "selectedOptions": [
+           {
+            "name": "Color",
+            "value": "Black"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709224849718",
+      "title": "LECOCO Zipp T2 Max — フルサイズ快適キャビン ベビーカー",
+      "handle": "lecoco-zipp-t2-max-フルサイズ快適キャビン-ベビーカー",
+      "status": "ARCHIVED",
+      "vendor": "LECOCO",
+      "productType": "ベビーカー",
+      "tags": [
+       "7.8kg",
+       "T2 Max",
+       "Zipp",
+       "クッション",
+       "サスペンション",
+       "フルサイズ",
+       "フルレグカバー",
+       "ベビーカー",
+       "リクライニング",
+       "多機能",
+       "大容量バスケット",
+       "対面",
+       "折りたたみ",
+       "採風窓",
+       "新生児対応",
+       "車で移動",
+       "軽量",
+       "都市派"
+      ],
+      "descriptionHtml": "<h3>「快適さを、コンパクトに収める。」</h3><p>長時間のお出かけでも子供がぐずらない、ゆったり座面のフルサイズキャビン。それでいて、ワンタッチで自立収納可能。</p><h4>主な特長</h4><ul>\n<li>\n<strong>フルサイズキャビン</strong> — ゆったり座面で長時間でも快適</li>\n<li>大きな前輪 + サスペンション = 段差や歩道もスムーズ</li>\n<li>\n<strong>大容量バスケット</strong> — おむつバッグもすっぽり</li>\n<li><strong>ワンタッチで自立収納</strong></li>\n<li>リクライニング 4 段階、フルフラットまで対応</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>アルミ合金 + 高密度ファブリック</td>\n</tr>\n<tr>\n<th>重量</th>\n<td>約 7.5 kg</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>15 kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>6〜36ヶ月</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>CCC / EN1888</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:45:08Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088144182",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_281_29_7e59423e-1a5d-4e49-8457-ae54a97ef679.jpg?v=1778576843",
+           "altText": "LECOCO Zipp T2 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088176950",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_281_29.jpg?v=1778576844",
+           "altText": "LECOCO Zipp T2 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088209718",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_281_29.jpg?v=1778576844",
+           "altText": "LECOCO Zipp T2 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088242486",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_89_E5_90_88_E4_B8_80.jpg?v=1778576844",
+           "altText": "LECOCO Zipp T2 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088275254",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1.jpg?v=1778576844",
+           "altText": "LECOCO Zipp T2 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088308022",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2.jpg?v=1778576844",
+           "altText": "LECOCO Zipp T2 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088340790",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3.jpg?v=1778576844",
+           "altText": "LECOCO Zipp T2 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088373558",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4.jpg?v=1778576844",
+           "altText": "LECOCO Zipp T2 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088406326",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5.jpg?v=1778576844",
+           "altText": "LECOCO Zipp T2 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119087890742",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t2max_01.png?v=1778625818",
+           "altText": "T2 Max 1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119087923510",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t2max_02.png?v=1778625817",
+           "altText": "T2 Max 2"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119087956278",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t2max_03.png?v=1778625817",
+           "altText": "T2 Max 3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119087989046",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t2max_04.png?v=1778625818",
+           "altText": "T2 Max 4"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119088021814",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t2max_05.png?v=1778625817",
+           "altText": "T2 Max 5"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119088054582",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t2max_06.png?v=1778625817",
+           "altText": "T2 Max 6"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119088087350",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t2max_07.png?v=1778625817",
+           "altText": "T2 Max 7"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119088120118",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t2max_08.png?v=1778625818",
+           "altText": "T2 Max 8"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119088152886",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t2max_09.png?v=1778625817",
+           "altText": "T2 Max 9"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119088185654",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t2max_10.png?v=1778625817",
+           "altText": "T2 Max 10"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119088218422",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/zipp_t2max_11.png?v=1778625817",
+           "altText": "T2 Max 11"
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018646606134",
+          "title": "Default Title",
+          "sku": "LECOCO-ZIPP-T2MAX",
+          "price": "38000",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709224882486",
+      "title": "LECOCO Walker S3 Max — 5段階成長対応 ファミリートライシクル",
+      "handle": "lecoco-walker-s3-max-5段階成長対応-ファミリートライシクル",
+      "status": "ACTIVE",
+      "vendor": "LECOCO",
+      "productType": "トライク",
+      "tags": [
+       "1歳",
+       "2歳",
+       "3歳",
+       "4歳",
+       "5歳",
+       "5段階変形",
+       "EVAタイヤ",
+       "S3 Max",
+       "Walker",
+       "ギフト",
+       "サンシェード",
+       "トライク",
+       "トライシクル",
+       "ハンドル付き",
+       "ファミリー",
+       "ベストセラー",
+       "三輪車",
+       "両対面ハンドル",
+       "公園",
+       "出産祝い",
+       "成長対応",
+       "静音"
+      ],
+      "descriptionHtml": "<h3>「1歳から5歳まで、一台が育つ。」</h3><p>5段階に変形する、家族で長く使えるトライシクル。押し車から自分でこぐ三輪車まで、子供の成長にずっと寄り添います。</p><h4>主な特長</h4><ul>\n<li>\n<strong>5段階変形</strong> — 押し車 → ハンドル付き三輪車 → ペダル付き → 折りたたみ</li>\n<li>\n<strong>両対面ハンドル</strong> — 親子で目線を合わせて</li>\n<li><strong>取り外し可能なキャノピー &amp; 日除け</strong></li>\n<li>\n<strong>ペダル収納機能</strong> — 漕ぐ準備までロック</li>\n<li>\n<strong>皮革グリップ</strong> — 高級感ある手触り</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>アルミ合金 + PP樹脂</td>\n</tr>\n<tr>\n<th>重量</th>\n<td>約 8.2 kg</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>25 kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>18ヶ月〜5歳</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>CCC / EN71</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:45:17Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088439094",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_281_29_eed4417e-acd3-47fe-bc64-a6013c230245.jpg?v=1778576847",
+           "altText": "LECOCO Walker S3 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088471862",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_281_29_84110300-1397-4ed1-a3e8-f6e00825fed9.jpg?v=1778576847",
+           "altText": "LECOCO Walker S3 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088504630",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_281_29_9e7e3739-d40f-4c19-8615-b6e66a2800aa.jpg?v=1778576847",
+           "altText": "LECOCO Walker S3 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088537398",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_89_E5_90_88_E4_B8_80_b049227c-5b70-49a0-b145-b92ac8e2335c.jpg?v=1778576847",
+           "altText": "LECOCO Walker S3 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088570166",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_5e13a71f-63a1-42ea-9e9a-ba972aaf1abd.jpg?v=1778576847",
+           "altText": "LECOCO Walker S3 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088602934",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_e28f9d9e-e77e-4dae-868b-2ccccabb7fd1.jpg?v=1778576848",
+           "altText": "LECOCO Walker S3 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088635702",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_b85b8688-6404-4c79-8b4d-97d2aaa723d2.jpg?v=1778576848",
+           "altText": "LECOCO Walker S3 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088668470",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_0638925a-e49d-44c4-911b-5333ffd95249.jpg?v=1778576847",
+           "altText": "LECOCO Walker S3 Max"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088701238",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_c4e35068-a1d8-44ce-89b7-bb69f381f58d.jpg?v=1778576847",
+           "altText": "LECOCO Walker S3 Max"
+          }
+         }
+        },
+        {
+         "node": {}
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119078551862",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s3max_01.png?v=1778625490",
+           "altText": "S3 Max 1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119078584630",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s3max_02.png?v=1778625490",
+           "altText": "S3 Max 2"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119078617398",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s3max_03.png?v=1778625490",
+           "altText": "S3 Max 3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119078650166",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s3max_04.png?v=1778625490",
+           "altText": "S3 Max 4"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119078682934",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s3max_05.png?v=1778625490",
+           "altText": "S3 Max 5"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119078715702",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s3max_06.png?v=1778625490",
+           "altText": "S3 Max 6"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119078748470",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s3max_07.png?v=1778625490",
+           "altText": "S3 Max 7"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119078781238",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s3max_08.png?v=1778625490",
+           "altText": "S3 Max 8"
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018646638902",
+          "title": "Default Title",
+          "sku": "LECOCO-WALKER-S3MAX",
+          "price": "28000",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 30,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709224915254",
+      "title": "LECOCO Walker S3 — 5段階ペアレントアシスト トライシクル",
+      "handle": "lecoco-walker-s3-5段階ペアレントアシスト-トライシクル",
+      "status": "ARCHIVED",
+      "vendor": "LECOCO",
+      "productType": "トライク",
+      "tags": [
+       "1歳",
+       "2歳",
+       "3歳",
+       "4歳",
+       "5歳",
+       "5段階変形",
+       "Walker S3",
+       "コンパクト",
+       "シンプル",
+       "トライク",
+       "トライシクル",
+       "ハンドル付き",
+       "三輪車",
+       "入門",
+       "公園",
+       "折りたたみ",
+       "軽量"
+      ],
+      "descriptionHtml": "<h3>「一つの設計で、五つの段階を。」</h3><p>コンパクトながら 5段階に変形する、入門〜本格まで対応できるトライシクル。クルマのトランクに収納できる折りたたみ性。</p><h4>主な特長</h4><ul>\n<li>\n<strong>5段階モード変形</strong> — 月齢に合わせて</li>\n<li>\n<strong>親アシストハンドル</strong> で安全な押し歩き</li>\n<li><strong>ヘッドレスト付きシート</strong></li>\n<li>\n<strong>クッション性のあるタイヤ</strong> — 静音設計</li>\n<li>折りたたみ収納でトランクに</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>アルミ合金</td>\n</tr>\n<tr>\n<th>重量</th>\n<td>約 7.5 kg</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>25 kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>1〜5歳</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>CCC / EN71</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:45:24Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088799542",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_281_29_8630cef2-39c0-451e-ba6a-b7c02aa7f322.jpg?v=1778576856",
+           "altText": "LECOCO Walker S3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088832310",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_281_29_cc7de171-4b84-4a51-aa1d-34c134705da7.jpg?v=1778576856",
+           "altText": "LECOCO Walker S3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088865078",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_281_29_ecff1c6c-e714-47c9-8fbe-cb74c6be051e.jpg?v=1778576856",
+           "altText": "LECOCO Walker S3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088897846",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_89_E5_90_88_E4_B8_80_270fa8b2-e013-4149-bf1a-4f3fcd88c455.jpg?v=1778576856",
+           "altText": "LECOCO Walker S3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088930614",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_290dba28-5a7e-4ed8-8554-b9941bdeb1e9.jpg?v=1778576856",
+           "altText": "LECOCO Walker S3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088963382",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_9c911445-acf9-4f84-afe4-40c85c0750c9.jpg?v=1778576856",
+           "altText": "LECOCO Walker S3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116088996150",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3__281_29.jpg?v=1778576857",
+           "altText": "LECOCO Walker S3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089028918",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_b48ecc21-9e3f-44df-aef5-dd833c1847c9.jpg?v=1778576857",
+           "altText": "LECOCO Walker S3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089061686",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_413e93db-2296-4426-96ff-e5a4b61c5ef2.jpg?v=1778576856",
+           "altText": "LECOCO Walker S3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119072293174",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s3_01.png?v=1778625319",
+           "altText": "Walker S3 main"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119072325942",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s3_02.png?v=1778625318",
+           "altText": "Walker S3 detail 1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119072358710",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s3_03.png?v=1778625318",
+           "altText": "Walker S3 detail 2"
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018646671670",
+          "title": "Default Title",
+          "sku": "LECOCO-WALKER-S3",
+          "price": "24000",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709224980790",
+      "title": "LECOCO Walker S1 Plus — 3-in-1 変形 バランス&ライドトライク",
+      "handle": "lecoco-walker-s1-plus-3-in-1-変形-バランス-ライドトライク",
+      "status": "ARCHIVED",
+      "vendor": "LECOCO",
+      "productType": "トライク",
+      "tags": [
+       "1.8kg",
+       "1歳",
+       "1歳半",
+       "2歳",
+       "3-IN-1",
+       "3歳",
+       "S1 Plus",
+       "Walker",
+       "をしぐるみ",
+       "キャノピー",
+       "ギフト向き",
+       "トライク",
+       "バランスバイク",
+       "公園",
+       "出産",
+       "出産祝い",
+       "変形",
+       "室内",
+       "超軽量",
+       "静音タイヤ"
+      ],
+      "descriptionHtml": "<h3>「最初の三輪、最初の自由。」</h3><p>1歳半〜3歳のお子様の初めての乗り物。室内・公園どちらでも使える、ギフトに最適な軽量モデル。</p><h4>主な特長</h4><ul>\n<li>\n<strong>3-in-1 変形</strong> — 押し車 → 三輪車 → バランスバイク</li>\n<li><strong>1.8kg の超軽量フレーム</strong></li>\n<li>\n<strong>静音タイヤ</strong> で室内 OK</li>\n<li>キャノピー &amp; 安全ベルト付き</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>アルミ合金</td>\n</tr>\n<tr>\n<th>重量</th>\n<td>約 5.8 kg</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>25 kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>18〜36ヶ月</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>CCC / EN71</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:45:30Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089618742",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_281_29_1ffc5567-abdc-4064-ba0c-42e988b7ba47.jpg?v=1778576865",
+           "altText": "LECOCO Walker S1 Plus"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089651510",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_281_29_1b7b6afb-ef90-4bda-91ad-8cd93eb537e3.jpg?v=1778576865",
+           "altText": "LECOCO Walker S1 Plus"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089684278",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_281_29_f645576f-7aae-44e2-a80d-989d9fbbc4a6.jpg?v=1778576865",
+           "altText": "LECOCO Walker S1 Plus"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089717046",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_BA_8C_E5_90_88_E4_B8_80.jpg?v=1778576865",
+           "altText": "LECOCO Walker S1 Plus"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089749814",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_3792462b-9a6c-4f2f-973a-a95c2226119d.jpg?v=1778576866",
+           "altText": "LECOCO Walker S1 Plus"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089782582",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_e323a885-b0e1-4cbd-85f4-28a0f5a936ce.jpg?v=1778576865",
+           "altText": "LECOCO Walker S1 Plus"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089815350",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_10bc510c-4edb-4e4c-816c-0a421fdf9c9c.jpg?v=1778576865",
+           "altText": "LECOCO Walker S1 Plus"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089848118",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_2572f490-a60d-4fdf-bb89-66d46009dcb5.jpg?v=1778576865",
+           "altText": "LECOCO Walker S1 Plus"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089880886",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_72827112-ae39-4d3f-a93b-b111afd7c5c4.jpg?v=1778576866",
+           "altText": "LECOCO Walker S1 Plus"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119069114678",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s1plus_01.png?v=1778625153",
+           "altText": "LECOCO Walker S1 Plus - JP detail image"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48119072260406",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/walker_s1plus_02.png?v=1778625315",
+           "altText": "Walker S1 Plus detail 2"
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018646802742",
+          "title": "Default Title",
+          "sku": "LECOCO-WALKER-S1PLUS",
+          "price": "19800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709225013558",
+      "title": "LECOCO C-Run X1 — 超軽量 镁合金 トレーニングバランスバイク",
+      "handle": "lecoco-c-run-x1-超軽量-镁合金-トレーニングバランスバイク",
+      "status": "ARCHIVED",
+      "vendor": "LECOCO",
+      "productType": "バランスバイク",
+      "tags": [
+       "2歳",
+       "3kg",
+       "3歳",
+       "4歳",
+       "5歳",
+       "C-Run",
+       "Strider",
+       "Woom",
+       "X1",
+       "エアロタイヤ",
+       "ギフト",
+       "シームレス溶接",
+       "トレーニング",
+       "バランスバイク",
+       "ベストセラー",
+       "マグネシウム合金",
+       "出産祝い",
+       "自転車デビュー",
+       "補助輪なし",
+       "超軽量",
+       "镁合金"
+      ],
+      "descriptionHtml": "<h3>「自分で運べる、3kg の自由。」</h3><p>2〜5歳の補助輪なし自転車デビュー前のお子様に。镁合金フレームでたった 3kg、Strider・Woom と並ぶ高品質。</p><h4>主な特長</h4><ul>\n<li>\n<strong>镁合金フレーム</strong> — たった 3kg、子供が自分で運べる</li>\n<li>\n<strong>シームレス溶接</strong> — 美しい一体感</li>\n<li>\n<strong>エアロタイヤ</strong> — クッション + 静音</li>\n<li>\n<strong>シート高さ無段階調整</strong>(30〜44cm)</li>\n<li>\n<strong>液体グロス塗装</strong> — 傷つきにくい上質仕上げ</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>マグネシウム-アルミニウム合金</td>\n</tr>\n<tr>\n<th>重量</th>\n<td>約 3.0 kg</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>30 kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>2〜5歳</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>CCC / EN71</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:45:39Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089913654",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_281_29_bde290b9-e911-45d4-97cc-cb867d501761.jpg?v=1778576872",
+           "altText": "LECOCO C-Run X1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089946422",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_281_29_4c14d80b-488a-4081-9821-f249f8a18d05.jpg?v=1778576872",
+           "altText": "LECOCO C-Run X1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116089979190",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_281_29_c9fa228b-06ce-4f45-a7d4-b680ddcfa743.jpg?v=1778576872",
+           "altText": "LECOCO C-Run X1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090011958",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_BA_8C_E5_90_88_E4_B8_80_297cf116-c793-4f3e-b298-a98c59c0ed79.jpg?v=1778576872",
+           "altText": "LECOCO C-Run X1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090044726",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_45472862-1359-4e62-bcf3-9072d1bc14fe.jpg?v=1778576873",
+           "altText": "LECOCO C-Run X1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090077494",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_08476456-4696-4779-9c06-340d84fbdc26.jpg?v=1778576872",
+           "altText": "LECOCO C-Run X1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090110262",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_827e61f6-79b6-4b0e-a71c-74923df5581e.jpg?v=1778576873",
+           "altText": "LECOCO C-Run X1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090143030",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_30357fc2-51c5-4309-8945-b1539c8b9a69.jpg?v=1778576872",
+           "altText": "LECOCO C-Run X1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090175798",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_fb30b785-05bc-4a29-8beb-e9f60d7a7b87.jpg?v=1778576872",
+           "altText": "LECOCO C-Run X1"
+          }
+         }
+        },
+        {
+         "node": {}
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018646868278",
+          "title": "Default Title",
+          "sku": "LECOCO-CRUN-X1",
+          "price": "16800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709225046326",
+      "title": "LECOCO X1 Pro — 4WAY バランスバイク",
+      "handle": "lecoco-x1-pro-4way-バランスバイク",
+      "status": "ACTIVE",
+      "vendor": "LECOCO",
+      "productType": "バランスバイク",
+      "tags": [
+       "1歳",
+       "2歳",
+       "3歳",
+       "4.2kg",
+       "4WAY",
+       "4歳",
+       "5歳",
+       "6歳",
+       "X1 Pro",
+       "ギフト",
+       "スクーター",
+       "バランスバイク",
+       "ベストセラー",
+       "ポッチリック",
+       "マグネシウム合金",
+       "三輪車",
+       "出産祝い",
+       "変形",
+       "多機能",
+       "新作",
+       "镁合金",
+       "長期使用"
+      ],
+      "descriptionHtml": "<h3>「育つ、変わる、遊ぶ、走る。」</h3><p>押し車 / バランスバイク / 三輪車 / ペダル車 — 4 形態に変形する、镁合金フレームの最上位グレード。</p><h4>主な特長</h4><ul>\n<li>\n<strong>4WAY 変形</strong> — 全モード工具不要で 1 分</li>\n<li><strong>镁合金フレーム最上位グレード</strong></li>\n<li>長く使える成長対応設計</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>マグネシウム-アルミニウム合金</td>\n</tr>\n<tr>\n<th>重量</th>\n<td>約 4.2 kg</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>30 kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>1〜5歳</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>CCC / EN71</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:45:45Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092666166",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_281_29_adb74882-80a3-479a-b2fa-057fadaa98b6.jpg?v=1778576951",
+           "altText": "LECOCO X1 Pro"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092698934",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_281_29_0d82df47-8a91-4503-8f93-78196578f5b2.jpg?v=1778576951",
+           "altText": "LECOCO X1 Pro"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092731702",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_281_29_6184f12a-ea74-4486-b70c-b43c5363603f.jpg?v=1778576951",
+           "altText": "LECOCO X1 Pro"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092764470",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_BA_8C_E5_90_88_E4_B8_80_d3d95df2-1405-431f-8422-7887e27254e5.jpg?v=1778576950",
+           "altText": "LECOCO X1 Pro"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092797238",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_cc745901-6dd0-47b9-b02f-b5c152ea167a.jpg?v=1778576950",
+           "altText": "LECOCO X1 Pro"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092830006",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_7007f642-b30b-41f6-9e40-1b5f5548700b.jpg?v=1778576951",
+           "altText": "LECOCO X1 Pro"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092862774",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_7d4cac35-697e-438a-9ff0-5b7f9161e6fb.jpg?v=1778576951",
+           "altText": "LECOCO X1 Pro"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092895542",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_32e8cde0-2e38-4dc1-9006-0ea4e1ffb1fa.jpg?v=1778576951",
+           "altText": "LECOCO X1 Pro"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092928310",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_b4e995e1-623e-4ebc-a1f0-ed2639cc35ca.jpg?v=1778576951",
+           "altText": "LECOCO X1 Pro"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123461927222",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/x1_pro_01.png?v=1778679526",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123461959990",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/x1_pro_02.png?v=1778679526",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123461992758",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/x1_pro_03.png?v=1778679526",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123462025526",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/x1_pro_04.png?v=1778679526",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123462058294",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/x1_pro_05.png?v=1778679526",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123462091062",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/x1_pro_06.png?v=1778679526",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123462123830",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/x1_pro_07.png?v=1778679526",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123462156598",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/x1_pro_08.png?v=1778679527",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123462189366",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/x1_pro_09.png?v=1778679526",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123462222134",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/x1_pro_10.png?v=1778679526",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123462254902",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/x1_pro_11.png?v=1778679526",
+           "altText": ""
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018646901046",
+          "title": "Default Title",
+          "sku": "LECOCO-X1-PRO",
+          "price": "22800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 30,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709225144630",
+      "title": "LECOCO C-Bike MT16 — 镁合金ダブルディスクブレーキ自転車",
+      "handle": "lecoco-c-bike-mt16-镁合金ダブルディスクブレーキ自転車",
+      "status": "ARCHIVED",
+      "vendor": "LECOCO",
+      "productType": "自転車",
+      "tags": [
+       "16インチ",
+       "4-9歳",
+       "4歳",
+       "5歳",
+       "6歳",
+       "7歳",
+       "8歳",
+       "9歳",
+       "C-Bike",
+       "MT16",
+       "エアロタイヤ",
+       "サスペンション",
+       "ディスクブレーキ",
+       "マグネシウム合金",
+       "公園",
+       "安全",
+       "本格デビュー",
+       "自転車",
+       "補助輪",
+       "補助輪なし",
+       "镁合金",
+       "雨の日"
+      ],
+      "descriptionHtml": "<h3>「子供の本格デビュー、安全装備で。」</h3><p>補助輪が外れたお子様の最初の本格自転車。雨の日も確実に止まるダブルディスクブレーキ搭載。</p><h4>主な特長</h4><ul>\n<li>\n<strong>镁アルミ合金フレーム</strong> — 軽量&amp;耐久性両立</li>\n<li>\n<strong>ダブルディスクブレーキ</strong> — 雨の日も確実な制動</li>\n<li><strong>エアロタイヤ + 衝撃吸収フォーク</strong></li>\n<li>\n<strong>可動式ハンドル &amp; シート</strong> — 成長期に長く対応</li>\n<li>リフレクター標準装備</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>マグネシウム-アルミニウム合金</td>\n</tr>\n<tr>\n<th>タイヤサイズ</th>\n<td>16 インチ</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>50 kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>4〜9歳</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>CCC / EN14765</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:46:04Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090241334",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_281_29_dde96ba6-37db-48cd-a283-cf5eb8c0d60b.jpg?v=1778576882",
+           "altText": "LECOCO C-Bike MT16"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090274102",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_281_29_314f64b8-a5ce-4c89-b3b6-b0ecbae891c6.jpg?v=1778576882",
+           "altText": "LECOCO C-Bike MT16"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090306870",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_281_29_2175f074-e826-450d-8773-7256b1ecb519.jpg?v=1778576882",
+           "altText": "LECOCO C-Bike MT16"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090339638",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_89_E5_90_88_E4_B8_80_26e2bea8-fd5b-43ec-a50d-c51782d650cb.jpg?v=1778576885",
+           "altText": "LECOCO C-Bike MT16"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090372406",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_7cdfc5c6-9b3e-4c97-bc5a-7de865a3f008.jpg?v=1778576881",
+           "altText": "LECOCO C-Bike MT16"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090405174",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_31bd7fae-0702-4532-8e59-edf61ade3e73.jpg?v=1778576881",
+           "altText": "LECOCO C-Bike MT16"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090437942",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_396c6095-9031-46ad-ac8c-7a4cd6654240.jpg?v=1778576881",
+           "altText": "LECOCO C-Bike MT16"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090470710",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_3892141a-3671-44a9-af8d-167a2818a36c.jpg?v=1778576881",
+           "altText": "LECOCO C-Bike MT16"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090503478",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_c292be7b-6a94-4964-99f5-ed82d2a21afc.jpg?v=1778576880",
+           "altText": "LECOCO C-Bike MT16"
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018647261494",
+          "title": "Default Title",
+          "sku": "LECOCO-CBIKE-MT16",
+          "price": "34800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709225341238",
+      "title": "LECOCO Vita V1 — フルアジャスタブル ストリームライン スクーター",
+      "handle": "lecoco-vita-v1-フルアジャスタブル-ストリームライン-スクーター",
+      "status": "ARCHIVED",
+      "vendor": "LECOCO",
+      "productType": "スクーター",
+      "tags": [
+       "10歳",
+       "14歳まで",
+       "3歳",
+       "4歳",
+       "4段階調節",
+       "5歳",
+       "6歳",
+       "8歳",
+       "LED",
+       "Vita V1",
+       "アルミ合金",
+       "キックスケーター",
+       "スクーター",
+       "リーズナブル",
+       "入園ギフト",
+       "入門",
+       "折りたたみ"
+      ],
+      "descriptionHtml": "<h3>「公園の主役は、3歳から。」</h3><p>ハンドル4段階調整 + ワンステップ折りたたみ。3歳〜14歳までずっと使えるスクーター。</p><h4>主な特長</h4><ul>\n<li>\n<strong>アルミ合金 + PP プラスチック</strong>の堅牢構造</li>\n<li>\n<strong>ハンドル高さ 4段階調整</strong> — 3歳〜14歳まで</li>\n<li><strong>ワンステップ折りたたみ</strong></li>\n<li>\n<strong>後輪ブレーキ</strong> + LED 発光ホイール</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>アルミ合金 + PP</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>50 kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>3〜14歳</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>CCC</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:46:11Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090569014",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_281_29_33c0331a-191f-46e5-a7b9-1c51ab06524c.jpg?v=1778576901",
+           "altText": "LECOCO Vita V1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090601782",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_281_29_868df454-7a0a-4594-87e8-ee985a6922cc.jpg?v=1778576902",
+           "altText": "LECOCO Vita V1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090634550",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_281_29_01096a7c-6796-479a-84a8-79a5927c544b.jpg?v=1778576901",
+           "altText": "LECOCO Vita V1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090667318",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_BA_8C_E5_90_88_E4_B8_80_49676718-434b-4098-8b30-a96133117b4f.jpg?v=1778576901",
+           "altText": "LECOCO Vita V1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090700086",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_43154027-a3ff-4c09-8479-09066315057c.jpg?v=1778576901",
+           "altText": "LECOCO Vita V1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090732854",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_d8bdb32f-81e7-4c91-9ef8-0bf7198d07fe.jpg?v=1778576901",
+           "altText": "LECOCO Vita V1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090765622",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_ae2a1bce-4466-4049-9879-2255297bd8df.jpg?v=1778576901",
+           "altText": "LECOCO Vita V1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090798390",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_b6e8c5d5-1f53-4103-9c80-ba4551167d13.jpg?v=1778576901",
+           "altText": "LECOCO Vita V1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116090831158",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_5348937f-6c02-47c2-8265-e475de00f45d.jpg?v=1778576901",
+           "altText": "LECOCO Vita V1"
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018650603830",
+          "title": "Default Title",
+          "sku": "LECOCO-VITA-V1",
+          "price": "14800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709225570614",
+      "title": "LECOCO Vita LV3 / LV4 — 3WAY 成長対応スクーター",
+      "handle": "lecoco-vita-lv3-lv4-3way-成長対応スクーター",
+      "status": "ARCHIVED",
+      "vendor": "LECOCO",
+      "productType": "スクーター",
+      "tags": [
+       "10歳",
+       "14歳まで",
+       "1歳",
+       "2歳",
+       "3WAY",
+       "3歳",
+       "6歳",
+       "PUホイール",
+       "Vita LV3",
+       "Vita LV4",
+       "キックスケーター",
+       "シート取り外し",
+       "スクーター",
+       "三輪スクーター",
+       "室内",
+       "成長対応"
+      ],
+      "descriptionHtml": "<h3>「座る、立つ、滑る — 三つの成長段階。」</h3><p>1歳から14歳まで、座って → 立って → 本格スクーターへ。家族でずっと使える 3WAY 設計。</p><h4>主な特長</h4><ul>\n<li>\n<strong>3WAY 変形</strong> — 1歳座乗 → 3歳立乗 → 6歳本格スクーター</li>\n<li><strong>取り外し可能シート</strong></li>\n<li>\n<strong>静音 PU ホイール</strong> — 室内も OK</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>アルミ合金 + PP</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>座乗 20kg / 立乗 50kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>座乗 1〜3歳 / 立乗 3〜14歳</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>CCC</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:46:17Z",
+      "options": [
+       {
+        "name": "モデル",
+        "values": [
+         "LV3",
+         "LV4"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091060534",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_281_29_a7f6ed34-1a00-429b-bc4a-a348cf38d8d3.jpg?v=1778576907",
+           "altText": "LECOCO Vita LV3/LV4"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091093302",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_07cc75a1-4b1e-4508-bfa7-490071bb0307.jpg?v=1778576907",
+           "altText": "LECOCO Vita LV3/LV4"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091126070",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_b4927911-7376-4a2b-9fa8-6f574328c50f.jpg?v=1778576908",
+           "altText": "LECOCO Vita LV3/LV4"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091158838",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_89_E5_90_88_E4_B8_80_de45d502-adc6-4443-8d35-e552ccb0ba10.jpg?v=1778576907",
+           "altText": "LECOCO Vita LV3/LV4"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091191606",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_056acb2e-ca93-4830-9bc0-642d4751dc35.jpg?v=1778576908",
+           "altText": "LECOCO Vita LV3/LV4"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091224374",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_48806679-85eb-40fd-ac9e-90bade3e670a.jpg?v=1778576907",
+           "altText": "LECOCO Vita LV3/LV4"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091257142",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_6429564b-2a84-4e51-840b-51d2c7fa6152.jpg?v=1778576907",
+           "altText": "LECOCO Vita LV3/LV4"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091289910",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_8dfa51ad-f0c6-4dba-949b-042d3ffe52c5.jpg?v=1778576908",
+           "altText": "LECOCO Vita LV3/LV4"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091322678",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_06888b34-f026-4528-b0a8-947da527aa23.jpg?v=1778576908",
+           "altText": "LECOCO Vita LV3/LV4"
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018650833206",
+          "title": "LV3",
+          "sku": "LECOCO-VITA-LV3",
+          "price": "18800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "モデル",
+            "value": "LV3"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018650865974",
+          "title": "LV4",
+          "sku": "LECOCO-VITA-LV4",
+          "price": "19800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "モデル",
+            "value": "LV4"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709225865526",
+      "title": "LECOCO C-Box B3 — 3-in-1 変形 ライドオン・スーツケース",
+      "handle": "lecoco-c-box-b3-3-in-1-変形-ライドオン-スーツケース",
+      "status": "ACTIVE",
+      "vendor": "LECOCO",
+      "productType": "トラベル",
+      "tags": [
+       "3-IN-1",
+       "C-Box B3",
+       "NEW",
+       "ギフト向き",
+       "スーツケース",
+       "トラベル",
+       "パパとママ",
+       "ベストセラー",
+       "ライドオン",
+       "乗れるスーツケース",
+       "出産祝い",
+       "新生児",
+       "旅行",
+       "機内持込",
+       "空港",
+       "都市派",
+       "長期使用",
+       "革面"
+      ],
+      "descriptionHtml": "<h3>「子供が乗れる、荷物が入る、家族の旅の発明。」</h3><p>空港での移動が一気に楽しくなる、革新的なライドオン・スーツケース。子供が乗れて、機内持込み対応サイズ。</p><h4>こんな方におすすめ</h4><ul>\n<li>空港での移動が多い家族</li>\n<li>ベビーカーを持ち込めないシーンが多い旅行スタイル</li>\n<li>ギフトとしてインパクトのある一品を探している方</li>\n</ul><h4>主な特長</h4><ul>\n<li>\n<strong>3-in-1 変形</strong> — スーツケース / ライドオン / プッシュカー</li>\n<li>\n<strong>機内持込み対応サイズ</strong>(国際線/国内線 基準クリア)</li>\n<li><strong>TSA ロック付き</strong></li>\n<li>\n<strong>静音ホイール</strong> + 静音ハンドル</li>\n<li>最大耐荷重 30kg</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>PC + ABS ハードシェル</td>\n</tr>\n<tr>\n<th>重量</th>\n<td>約 3.8 kg</td>\n</tr>\n<tr>\n<th>容量</th>\n<td>28L</td>\n</tr>\n<tr>\n<th>機内持込</th>\n<td>対応</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>18〜60ヶ月</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:46:27Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091355446",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_281_29_f7dd6eef-3abc-4d21-a0d8-fd6439ee719f.jpg?v=1778576916",
+           "altText": "LECOCO C-Box B3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091388214",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_281_29_b8b9a621-f6fc-4ed1-b6d2-6c1cb010c7cd.jpg?v=1778576917",
+           "altText": "LECOCO C-Box B3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091420982",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_281_29_79d50595-36a4-4df4-bb1f-bcc8aa28ee6a.jpg?v=1778576917",
+           "altText": "LECOCO C-Box B3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091453750",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_89_E5_90_88_E4_B8_80_29d83a45-655a-4fb4-be90-d7626780960b.jpg?v=1778576917",
+           "altText": "LECOCO C-Box B3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091486518",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_687fa3c7-d9cc-4b71-adc3-9905369bc7de.jpg?v=1778576917",
+           "altText": "LECOCO C-Box B3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091519286",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_026868f4-744a-4224-ae2f-0d46c234c8e4.jpg?v=1778576917",
+           "altText": "LECOCO C-Box B3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091552054",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_4b1549ae-ef7c-46e4-ac2e-d388f5b5639b.jpg?v=1778576917",
+           "altText": "LECOCO C-Box B3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091584822",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_6fb4254b-3b65-4a5f-8d50-0d3bffb6d359.jpg?v=1778576917",
+           "altText": "LECOCO C-Box B3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091617590",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_5632c978-9fef-4154-9f21-412b66acce67.jpg?v=1778576917",
+           "altText": "LECOCO C-Box B3"
+          }
+         }
+        },
+        {
+         "node": {}
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018651160886",
+          "title": "Default Title",
+          "sku": "LECOCO-CBOX-B3",
+          "price": "22800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 40,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709226062134",
+      "title": "LECOCO Figg F1 — 親子インタラクティブ スイングカー",
+      "handle": "lecoco-figg-f1-親子インタラクティブ-スイングカー",
+      "status": "ARCHIVED",
+      "vendor": "LECOCO",
+      "productType": "スイングカー",
+      "tags": [
+       "110kg耐荷重",
+       "2歳",
+       "3歳",
+       "4歳",
+       "5歳",
+       "Figg F1",
+       "PPプラスチック",
+       "スイングカー",
+       "マンション",
+       "リビング",
+       "子供部屋",
+       "室内",
+       "親子",
+       "誕生日ギフト",
+       "雨の日",
+       "静音"
+      ],
+      "descriptionHtml": "<h3>「Side by Side — 親子で並んで。」</h3><p>2歳から、室内で安心して遊べるスイングカー。最大耐荷重 110kg、パパも一緒に楽しめます。</p><h4>主な特長</h4><ul>\n<li>\n<strong>110kg 耐荷重</strong> — 大人も乗れる</li>\n<li>\n<strong>PP プラスチック</strong> — 軽量で安全</li>\n<li>\n<strong>静音設計</strong> — マンションでも OK</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>ポリプロピレン (PP)</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>110 kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>2歳以上</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>CCC</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:46:33Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091650358",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_9b9c0fd8-e007-4b7b-b9e0-6e5fb9749db2.jpg?v=1778576927",
+           "altText": "LECOCO Figg F1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091683126",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_6f732bf7-d216-49fb-9b0a-47667ad87595.jpg?v=1778576927",
+           "altText": "LECOCO Figg F1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091715894",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_27532ca9-4ccf-42f6-8b55-d1f1756084fd.jpg?v=1778576926",
+           "altText": "LECOCO Figg F1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091748662",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_89_E8_89_B2_E5_90_88_E4_B8_80.jpg?v=1778576927",
+           "altText": "LECOCO Figg F1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091781430",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_281_29_ddda788e-31fc-4683-b7a9-2f4ad10172b0.jpg?v=1778576926",
+           "altText": "LECOCO Figg F1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091814198",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_281_29_577923c7-a4ef-4b42-aac5-afdf2d01f073.jpg?v=1778576927",
+           "altText": "LECOCO Figg F1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091846966",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_281_29_a7b54570-df51-4208-a4df-d208e1ea504d.jpg?v=1778576927",
+           "altText": "LECOCO Figg F1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091879734",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_a036df03-309c-4cdd-9972-32f4d69b59ad.jpg?v=1778576926",
+           "altText": "LECOCO Figg F1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091912502",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_314e4009-f98d-4c65-b33e-6141d8a8f275.jpg?v=1778576926",
+           "altText": "LECOCO Figg F1"
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018651357494",
+          "title": "Default Title",
+          "sku": "LECOCO-FIGG-F1",
+          "price": "7800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709226225974",
+      "title": "LECOCO Figg F2 — LED 発光 スイングカー",
+      "handle": "lecoco-figg-f2-led-発光-スイングカー",
+      "status": "ARCHIVED",
+      "vendor": "LECOCO",
+      "productType": "スイングカー",
+      "tags": [
+       "110kg耐荷重",
+       "2歳",
+       "3歳",
+       "4歳",
+       "5歳",
+       "Figg F2",
+       "LED",
+       "PPプラスチック",
+       "スイングカー",
+       "マンション",
+       "リビング",
+       "光る",
+       "子供部屋",
+       "室内",
+       "親子",
+       "誕生日ギフト",
+       "雨の日",
+       "静音"
+      ],
+      "descriptionHtml": "<h3>「雨の日のリビングを、小さな冒険に。」</h3><p>動きで光る LED 発光ホイール搭載。室内でも安全に遊べる、親子で楽しいスイングカー。</p><h4>主な特長</h4><ul>\n<li>\n<strong>LED 発光ホイール</strong> — 動きで光るギミック</li>\n<li><strong>親も乗れる 110kg 耐荷重</strong></li>\n<li>\n<strong>PP プラスチック</strong> — 軽量で安全</li>\n<li>\n<strong>静音設計</strong> — マンションでも OK</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>ポリプロピレン (PP)</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>110 kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>2歳以上</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>CCC</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:46:38Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116091978038",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_BB_E5_9B_BE1.jpg?v=1778576937",
+           "altText": "LECOCO Figg F2"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092010806",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_BB_E5_9B_BE2.jpg?v=1778576936",
+           "altText": "LECOCO Figg F2"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092043574",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_BB_E5_9B_BE3.jpg?v=1778576937",
+           "altText": "LECOCO Figg F2"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092076342",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/F2_E4_B8_89_E5_90_88_E4_B8_80.jpg?v=1778576936",
+           "altText": "LECOCO Figg F2"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092109110",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_106b37f7-37ba-4f56-83ff-562b4ff5ceb9.jpg?v=1778576937",
+           "altText": "LECOCO Figg F2"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092141878",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_ca955510-c091-469f-8122-3a7106d0f804.jpg?v=1778576937",
+           "altText": "LECOCO Figg F2"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092174646",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_7cd93c79-454c-4e74-915a-2bec9eb90339.jpg?v=1778576936",
+           "altText": "LECOCO Figg F2"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092207414",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_f2c6ba5a-bc21-48fc-90f8-1192882f7191.jpg?v=1778576936",
+           "altText": "LECOCO Figg F2"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092240182",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_81cd9901-242c-4f68-8d3c-b6787739aa93.jpg?v=1778576936",
+           "altText": "LECOCO Figg F2"
+          }
+         }
+        },
+        {
+         "node": {}
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123355660598",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2_01.png?v=1778678707",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123355693366",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2_02.png?v=1778678707",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123355726134",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2_03.png?v=1778678708",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123355758902",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2_04.png?v=1778678707",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123355791670",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2_05.png?v=1778678707",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123355824438",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2_06.png?v=1778678707",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123355857206",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2_07.png?v=1778678708",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123355889974",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2_08.png?v=1778678707",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123355922742",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2_09.png?v=1778678708",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123355955510",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2_10.png?v=1778678708",
+           "altText": ""
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018651521334",
+          "title": "Default Title",
+          "sku": "LECOCO-FIGG-F2",
+          "price": "9800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709226520886",
+      "title": "LECOCO Figg F2-T — LED スイングカー + トレーラーセット",
+      "handle": "lecoco-figg-f2-t-led-スイングカー-トレーラーセット",
+      "status": "ARCHIVED",
+      "vendor": "LECOCO",
+      "productType": "スイングカー",
+      "tags": [
+       "110kg耐荷重",
+       "2歳",
+       "3歳",
+       "4歳",
+       "5歳",
+       "Figg F2-T",
+       "LED",
+       "PPプラスチック",
+       "スイングカー",
+       "セット",
+       "トレーラー",
+       "マンション",
+       "兄弟",
+       "光る",
+       "姉妹",
+       "室内",
+       "親子",
+       "誕生日ギフト",
+       "雨の日"
+      ],
+      "descriptionHtml": "<h3>「並走の楽しさを、もう一つ。」</h3><p>F2 にトレーラーを連結。お友達やぬいぐるみと一緒に「お出かけごっこ」。室内遊びをもっと豊かに。</p><h4>主な特長</h4><ul>\n<li>\n<strong>LED 発光ホイール</strong> 標準装備</li>\n<li>\n<strong>トレーラー連結式</strong> — 取り外し可能</li>\n<li>110kg 耐荷重・PP 素材</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>素材</th>\n<td>ポリプロピレン (PP)</td>\n</tr>\n<tr>\n<th>耐荷重</th>\n<td>110 kg</td>\n</tr>\n<tr>\n<th>対象年齢</th>\n<td>2歳以上</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:46:57Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092338486",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_BB_E5_9B_BE1_e7dd6c31-df01-47bf-9c48-aa825d7032f0.jpg?v=1778576941",
+           "altText": "LECOCO Figg F2-T"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092371254",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_BB_E5_9B_BE2_5f95871b-b2c9-4942-ad23-d6b8e3770083.jpg?v=1778576941",
+           "altText": "LECOCO Figg F2-T"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092404022",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_BB_E5_9B_BE3_60935961-f383-47b1-bee8-17d08f9782b9.jpg?v=1778576940",
+           "altText": "LECOCO Figg F2-T"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092436790",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_248b88c1-b994-499a-8643-716fc379f05e.jpg?v=1778576941",
+           "altText": "LECOCO Figg F2-T"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092469558",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_5c2ca3fb-402c-459d-a796-8f2eae94255f.jpg?v=1778576942",
+           "altText": "LECOCO Figg F2-T"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092502326",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_d63a7d8f-cfbd-4f98-8c5f-c01dac8a5ffa.jpg?v=1778576941",
+           "altText": "LECOCO Figg F2-T"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092535094",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_1849eefd-643f-4035-8f65-558a7cdfc14b.jpg?v=1778576941",
+           "altText": "LECOCO Figg F2-T"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48116092567862",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_97a37f61-2bd2-4171-8cad-9ad009bf6fbb.jpg?v=1778576940",
+           "altText": "LECOCO Figg F2-T"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123381481782",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2t_01.png?v=1778679127",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123381514550",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2t_02.png?v=1778679128",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123381547318",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2t_03.png?v=1778679128",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123381580086",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2t_04.png?v=1778679127",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123381612854",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2t_05.png?v=1778679128",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123381645622",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2t_06.png?v=1778679127",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123381678390",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2t_07.png?v=1778679128",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123381711158",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2t_08.png?v=1778679130",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123381743926",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2t_09.png?v=1778679127",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123381776694",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2t_10.png?v=1778679127",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123381809462",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2t_11.png?v=1778679127",
+           "altText": ""
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48123381842230",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/figg_f2t_12.png?v=1778679128",
+           "altText": ""
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018656829750",
+          "title": "Default Title",
+          "sku": "LECOCO-FIGG-F2T",
+          "price": "12800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709226684726",
+      "title": "LECOCO ヘルメット HK01 — キッズプロテクション",
+      "handle": "lecoco-ヘルメット-hk01-キッズプロテクション",
+      "status": "ACTIVE",
+      "vendor": "LECOCO",
+      "productType": "ヘルメット",
+      "tags": [
+       "EN1078",
+       "HK01",
+       "キッズプロテクション",
+       "スクーターヘルメット",
+       "バランスバイクヘルメット",
+       "ヘルメット",
+       "マグネットバックル",
+       "子供ヘルメット",
+       "安全装備",
+       "自転車ヘルメット"
+      ],
+      "descriptionHtml": "<h3>「最初の一台に、最初の一つを。」</h3><p>EN1078 認証取得。バランスバイク・自転車デビューに必須の安全装備。</p><h4>主な特長</h4><ul>\n<li>\n<strong>EN1078 認証</strong> — ヨーロッパ安全基準</li>\n<li>\n<strong>EPS フォーム</strong>で衝撃吸収</li>\n<li>\n<strong>18 通気口</strong> — 蒸れにくい設計</li>\n<li>\n<strong>マグネット式バックル</strong> — 子供でもワンタッチ装着</li>\n<li>\n<strong>ダイヤル調整</strong> — 頭周りにフィット</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>対象年齢</th>\n<td>3〜8歳</td>\n</tr>\n<tr>\n<th>頭周</th>\n<td>50〜56 cm</td>\n</tr>\n<tr>\n<th>重量</th>\n<td>約 280 g</td>\n</tr>\n<tr>\n<th>認証</th>\n<td>EN1078</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:47:05Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "アイボリー",
+         "ブラック"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018660270390",
+          "title": "アイボリー",
+          "sku": "LECOCO-HK01-IVORY",
+          "price": "4800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 200,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "アイボリー"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018660303158",
+          "title": "ブラック",
+          "sku": "LECOCO-HK01-BLACK",
+          "price": "4800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ブラック"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10709226914102",
+      "title": "LECOCO ヘルメット H01 — ライトモデル",
+      "handle": "lecoco-ヘルメット-h01-ライトモデル",
+      "status": "ARCHIVED",
+      "vendor": "LECOCO",
+      "productType": "ヘルメット",
+      "tags": [
+       "220g",
+       "EN1078",
+       "H01",
+       "キッズヘルメット",
+       "トッドラーヘルメット",
+       "ヘルメット",
+       "ベビーヘルメット",
+       "ライトモデル",
+       "入門",
+       "安全装備",
+       "超軽量ヘルメット"
+      ],
+      "descriptionHtml": "<h3>「軽さ、約 220g。」</h3><p>1歳半からのバランス遊びに。EN1078 認証取得、超軽量の入門モデル。</p><h4>主な特長</h4><ul>\n<li><strong>EN1078 認証</strong></li>\n<li><strong>軽量 220g</strong></li>\n<li>12 通気口</li>\n<li>ダイヤル調整 + あご紐ロック</li>\n</ul><h4>スペック</h4><table>\n<tr>\n<th>対象年齢</th>\n<td>1.5〜5歳</td>\n</tr>\n<tr>\n<th>頭周</th>\n<td>46〜52 cm</td>\n</tr>\n<tr>\n<th>重量</th>\n<td>約 220 g</td>\n</tr>\n</table>",
+      "createdAt": "2026-05-12T08:47:11Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "キャラメル",
+         "アイボリー"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018660598070",
+          "title": "キャラメル",
+          "sku": "LECOCO-H01-CARAMEL",
+          "price": "3800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "キャラメル"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54018660630838",
+          "title": "アイボリー",
+          "sku": "LECOCO-H01-IVORY",
+          "price": "3800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 20,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "アイボリー"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711303717174",
+      "title": "オーガニックコットン 新生児ロンパース",
+      "handle": "オーガニックコットン-新生児ロンパース",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "ロンパース",
+      "tags": [
+       "baby",
+       "new",
+       "人気"
+      ],
+      "descriptionHtml": "<p>赤ちゃんの肌にふれるものだから、やわらかな肌ざわりにこだわりました。前開きで着替えも簡単、毎日のお洗濯にも耐える丈夫な作り。</p>",
+      "createdAt": "2026-05-13T12:49:03Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "生成り",
+         "ピンク",
+         "ブルー"
+        ]
+       },
+       {
+        "name": "サイズ",
+        "values": [
+         "50",
+         "60",
+         "70"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022304497974",
+          "title": "生成り / 50",
+          "sku": null,
+          "price": "3300",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           },
+           {
+            "name": "サイズ",
+            "value": "50"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022304530742",
+          "title": "生成り / 60",
+          "sku": null,
+          "price": "3300",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           },
+           {
+            "name": "サイズ",
+            "value": "60"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022304563510",
+          "title": "生成り / 70",
+          "sku": null,
+          "price": "3300",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           },
+           {
+            "name": "サイズ",
+            "value": "70"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022304596278",
+          "title": "ピンク / 50",
+          "sku": null,
+          "price": "3300",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "50"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022304629046",
+          "title": "ピンク / 60",
+          "sku": null,
+          "price": "3300",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "60"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022304661814",
+          "title": "ピンク / 70",
+          "sku": null,
+          "price": "3300",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "70"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022304694582",
+          "title": "ブルー / 50",
+          "sku": null,
+          "price": "3300",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "50"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022304727350",
+          "title": "ブルー / 60",
+          "sku": null,
+          "price": "3300",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "60"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022304760118",
+          "title": "ブルー / 70",
+          "sku": null,
+          "price": "3300",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "70"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711303815478",
+      "title": "ふわふわ ガーゼ よだれかけ 3 枚セット",
+      "handle": "ふわふわ-ガーゼ-よだれかけ-3-枚セット",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "スタイ",
+      "tags": [
+       "baby",
+       "new",
+       "人気"
+      ],
+      "descriptionHtml": "<p>洗うほどふわふわになる 4 重ガーゼ。よだれや吐き戻しもしっかり吸収します。</p>",
+      "createdAt": "2026-05-13T12:49:05Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "生成り",
+         "ピンク",
+         "イエロー"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022304858422",
+          "title": "生成り",
+          "sku": null,
+          "price": "1980",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022304891190",
+          "title": "ピンク",
+          "sku": null,
+          "price": "1980",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022304923958",
+          "title": "イエロー",
+          "sku": null,
+          "price": "1980",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "イエロー"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711303881014",
+      "title": "コットンパイル 子供パジャマ",
+      "handle": "コットンパイル-子供パジャマ",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "パジャマ",
+      "tags": [
+       "kids",
+       "new"
+      ],
+      "descriptionHtml": "<p>タオル地のような優しい肌ざわりで、寝返りの多いお子さまも快適。</p>",
+      "createdAt": "2026-05-13T12:49:06Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "ライトブルー",
+         "ピンク"
+        ]
+       },
+       {
+        "name": "サイズ",
+        "values": [
+         "80",
+         "90",
+         "100",
+         "110"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305022262",
+          "title": "ライトブルー / 80",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ライトブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "80"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305055030",
+          "title": "ライトブルー / 90",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ライトブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305087798",
+          "title": "ライトブルー / 100",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ライトブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305120566",
+          "title": "ライトブルー / 110",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ライトブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305153334",
+          "title": "ピンク / 80",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "80"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305186102",
+          "title": "ピンク / 90",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305218870",
+          "title": "ピンク / 100",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305251638",
+          "title": "ピンク / 110",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711303979318",
+      "title": "通園リュック（A4 サイズ収納）",
+      "handle": "通園リュックa4-サイズ収納",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "通園バッグ",
+      "tags": [
+       "new",
+       "school",
+       "人気"
+      ],
+      "descriptionHtml": "<p>A4 サイズが入る容量で、入園から小学校低学年まで長く使えます。リフレクター付きで暗い道も安心。</p>",
+      "createdAt": "2026-05-13T12:49:08Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "ネイビー",
+         "イエロー",
+         "レッド"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305317174",
+          "title": "ネイビー",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ネイビー"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305349942",
+          "title": "イエロー",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "イエロー"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305382710",
+          "title": "レッド",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "レッド"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711304077622",
+      "title": "ステンレスマグボトル（こども用 350ml）",
+      "handle": "ステンレスマグボトルこども用-350ml",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "水筒",
+      "tags": [
+       "new",
+       "school"
+      ],
+      "descriptionHtml": "<p>軽量で持ちやすく、保冷・保温対応。こども用にちょうどいい 350ml。</p>",
+      "createdAt": "2026-05-13T12:49:10Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "ピンク",
+         "ブルー",
+         "グリーン"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305481014",
+          "title": "ピンク",
+          "sku": null,
+          "price": "2750",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305513782",
+          "title": "ブルー",
+          "sku": null,
+          "price": "2750",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ブルー"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305546550",
+          "title": "グリーン",
+          "sku": null,
+          "price": "2750",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "グリーン"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711304241462",
+      "title": "ファーストバースデー ギフトボックス",
+      "handle": "ファーストバースデー-ギフトボックス",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "ギフトセット",
+      "tags": [
+       "gift",
+       "new",
+       "人気"
+      ],
+      "descriptionHtml": "<p>1 歳のお誕生日に。手形足形カード、木製おもちゃ、お名前入りビブを上品な箱にお入れします。</p>",
+      "createdAt": "2026-05-13T12:49:13Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "桜",
+         "若葉"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305710390",
+          "title": "桜",
+          "sku": null,
+          "price": "9900",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "桜"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305743158",
+          "title": "若葉",
+          "sku": null,
+          "price": "9900",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "若葉"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711304339766",
+      "title": "入園準備 7 点セット",
+      "handle": "入園準備-7-点セット",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "通園グッズセット",
+      "tags": [
+       "sale",
+       "school",
+       "新生活"
+      ],
+      "descriptionHtml": "<p>通園バッグ、上履き入れ、コップ袋、お弁当袋、ランチョンマット、ハンカチ、ポーチの 7 点が揃った入園準備セット。</p>",
+      "createdAt": "2026-05-13T12:49:14Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "くまさん",
+         "うさぎ"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305841462",
+          "title": "くまさん",
+          "sku": null,
+          "price": "8800",
+          "compareAtPrice": "11000",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "くまさん"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305874230",
+          "title": "うさぎ",
+          "sku": null,
+          "price": "8800",
+          "compareAtPrice": "11000",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "うさぎ"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711304405302",
+      "title": "兄妹リンクコーデ T シャツ",
+      "handle": "兄妹リンクコーデ-t-シャツ",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "Tシャツ",
+      "tags": [
+       "baby",
+       "kids"
+      ],
+      "descriptionHtml": "<p>兄弟・姉妹でおそろいできるシンプルな T シャツ。サイズ展開が幅広く、家族で楽しめます。</p>",
+      "createdAt": "2026-05-13T12:49:16Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "生成り",
+         "ボーダー",
+         "イエロー"
+        ]
+       },
+       {
+        "name": "サイズ",
+        "values": [
+         "80",
+         "90",
+         "100",
+         "110",
+         "120"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305939766",
+          "title": "生成り / 80",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           },
+           {
+            "name": "サイズ",
+            "value": "80"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022305972534",
+          "title": "生成り / 90",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306005302",
+          "title": "生成り / 100",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306038070",
+          "title": "生成り / 110",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306070838",
+          "title": "生成り / 120",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           },
+           {
+            "name": "サイズ",
+            "value": "120"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306103606",
+          "title": "ボーダー / 80",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ボーダー"
+           },
+           {
+            "name": "サイズ",
+            "value": "80"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306136374",
+          "title": "ボーダー / 90",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ボーダー"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306169142",
+          "title": "ボーダー / 100",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ボーダー"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306201910",
+          "title": "ボーダー / 110",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ボーダー"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306234678",
+          "title": "ボーダー / 120",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ボーダー"
+           },
+           {
+            "name": "サイズ",
+            "value": "120"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306267446",
+          "title": "イエロー / 80",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "イエロー"
+           },
+           {
+            "name": "サイズ",
+            "value": "80"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306300214",
+          "title": "イエロー / 90",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "イエロー"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306332982",
+          "title": "イエロー / 100",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "イエロー"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306365750",
+          "title": "イエロー / 110",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "イエロー"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306398518",
+          "title": "イエロー / 120",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "イエロー"
+           },
+           {
+            "name": "サイズ",
+            "value": "120"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711304503606",
+      "title": "ベビーブランケット（オーガニックコットン）",
+      "handle": "ベビーブランケットオーガニックコットン",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "ブランケット",
+      "tags": [
+       "baby",
+       "gift",
+       "人気"
+      ],
+      "descriptionHtml": "<p>使うほど肌に馴染む、上質なオーガニックコットンのブランケット。お昼寝にもおでかけにも。</p>",
+      "createdAt": "2026-05-13T12:49:18Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "生成り",
+         "グレージュ"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306496822",
+          "title": "生成り",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306529590",
+          "title": "グレージュ",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "グレージュ"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711304667446",
+      "title": "二重ガーゼ おくるみ",
+      "handle": "二重ガーゼ-おくるみ",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "おくるみ",
+      "tags": [
+       "baby",
+       "gift"
+      ],
+      "descriptionHtml": "<p>軽くて通気性のよい二重ガーゼ。おくるみとしてだけでなく、ブランケット代わりにも。</p>",
+      "createdAt": "2026-05-13T12:49:20Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "スター",
+         "クラウド"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306726198",
+          "title": "スター",
+          "sku": null,
+          "price": "3850",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "スター"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306758966",
+          "title": "クラウド",
+          "sku": null,
+          "price": "3850",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "クラウド"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711304732982",
+      "title": "ファーストシューズ（本革）",
+      "handle": "ファーストシューズ本革",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "靴",
+      "tags": [
+       "baby",
+       "gift"
+      ],
+      "descriptionHtml": "<p>初めての一歩を支える、柔らかい本革のファーストシューズ。記念に残るギフトに。</p>",
+      "createdAt": "2026-05-13T12:49:22Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "キャメル",
+         "ホワイト"
+        ]
+       },
+       {
+        "name": "サイズ",
+        "values": [
+         "11cm",
+         "12cm",
+         "13cm"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306857270",
+          "title": "キャメル / 11cm",
+          "sku": null,
+          "price": "7700",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "キャメル"
+           },
+           {
+            "name": "サイズ",
+            "value": "11cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306890038",
+          "title": "キャメル / 12cm",
+          "sku": null,
+          "price": "7700",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "キャメル"
+           },
+           {
+            "name": "サイズ",
+            "value": "12cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306922806",
+          "title": "キャメル / 13cm",
+          "sku": null,
+          "price": "7700",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "キャメル"
+           },
+           {
+            "name": "サイズ",
+            "value": "13cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306955574",
+          "title": "ホワイト / 11cm",
+          "sku": null,
+          "price": "7700",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ホワイト"
+           },
+           {
+            "name": "サイズ",
+            "value": "11cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022306988342",
+          "title": "ホワイト / 12cm",
+          "sku": null,
+          "price": "7700",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ホワイト"
+           },
+           {
+            "name": "サイズ",
+            "value": "12cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307021110",
+          "title": "ホワイト / 13cm",
+          "sku": null,
+          "price": "7700",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ホワイト"
+           },
+           {
+            "name": "サイズ",
+            "value": "13cm"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711304864054",
+      "title": "綿 100% フード付きバスタオル",
+      "handle": "綿-100-フード付きバスタオル",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "バスタオル",
+      "tags": [
+       "baby",
+       "gift"
+      ],
+      "descriptionHtml": "<p>お風呂上がりにくるんで使えるフード付き。今治の上質なやわらかさ。</p>",
+      "createdAt": "2026-05-13T12:49:23Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "くま",
+         "うさぎ"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307119414",
+          "title": "くま",
+          "sku": null,
+          "price": "3300",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "くま"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307152182",
+          "title": "うさぎ",
+          "sku": null,
+          "price": "3300",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "うさぎ"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711304995126",
+      "title": "1 歳 誕生日 紙吹雪リュック",
+      "handle": "1-歳-誕生日-紙吹雪リュック",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "ギフト",
+      "tags": [
+       "gift",
+       "kids"
+      ],
+      "descriptionHtml": "<p>1 歳のファーストバースデー向け、お祝いデザインのリュック。記念写真にも。</p>",
+      "createdAt": "2026-05-13T12:49:25Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "シルバー",
+         "ピンク"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307250486",
+          "title": "シルバー",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "シルバー"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307283254",
+          "title": "ピンク",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711305093430",
+      "title": "シンプル レギンス（90-130）",
+      "handle": "シンプル-レギンス90-130",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "ボトムス",
+      "tags": [
+       "kids",
+       "sale"
+      ],
+      "descriptionHtml": "<p>毎日の通園・通学にちょうどいいシンプルなレギンス。コーデの基礎に。</p>",
+      "createdAt": "2026-05-13T12:49:27Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "ブラック",
+         "ネイビー",
+         "グレー"
+        ]
+       },
+       {
+        "name": "サイズ",
+        "values": [
+         "90",
+         "100",
+         "110",
+         "120",
+         "130"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307414326",
+          "title": "ブラック / 90",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ブラック"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307447094",
+          "title": "ブラック / 100",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ブラック"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307479862",
+          "title": "ブラック / 110",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ブラック"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307512630",
+          "title": "ブラック / 120",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ブラック"
+           },
+           {
+            "name": "サイズ",
+            "value": "120"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307545398",
+          "title": "ブラック / 130",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ブラック"
+           },
+           {
+            "name": "サイズ",
+            "value": "130"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307578166",
+          "title": "ネイビー / 90",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ネイビー"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307610934",
+          "title": "ネイビー / 100",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ネイビー"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307643702",
+          "title": "ネイビー / 110",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ネイビー"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307676470",
+          "title": "ネイビー / 120",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ネイビー"
+           },
+           {
+            "name": "サイズ",
+            "value": "120"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307709238",
+          "title": "ネイビー / 130",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ネイビー"
+           },
+           {
+            "name": "サイズ",
+            "value": "130"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307742006",
+          "title": "グレー / 90",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "グレー"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307774774",
+          "title": "グレー / 100",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "グレー"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307807542",
+          "title": "グレー / 110",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "グレー"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307840310",
+          "title": "グレー / 120",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "グレー"
+           },
+           {
+            "name": "サイズ",
+            "value": "120"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022307873078",
+          "title": "グレー / 130",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": "2200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "グレー"
+           },
+           {
+            "name": "サイズ",
+            "value": "130"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711311352118",
+      "title": "うさぎモチーフ ニットボンネット",
+      "handle": "うさぎモチーフ-ニットボンネット",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "帽子",
+      "tags": [
+       "baby",
+       "gift"
+      ],
+      "descriptionHtml": "<p>くるんと耳が立ったかわいいボンネット。フォトジェニックな出産祝いに人気。</p>",
+      "createdAt": "2026-05-13T12:53:09Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "生成り",
+         "ピンク"
+        ]
+       },
+       {
+        "name": "サイズ",
+        "values": [
+         "40cm",
+         "44cm"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022318784822",
+          "title": "生成り / 40cm",
+          "sku": null,
+          "price": "2530",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           },
+           {
+            "name": "サイズ",
+            "value": "40cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022318817590",
+          "title": "生成り / 44cm",
+          "sku": null,
+          "price": "2530",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           },
+           {
+            "name": "サイズ",
+            "value": "44cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022318850358",
+          "title": "ピンク / 40cm",
+          "sku": null,
+          "price": "2530",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "40cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022318883126",
+          "title": "ピンク / 44cm",
+          "sku": null,
+          "price": "2530",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "44cm"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711311450422",
+      "title": "通学リュック（小学生用）",
+      "handle": "通学リュック小学生用",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "リュック",
+      "tags": [
+       "new",
+       "school"
+      ],
+      "descriptionHtml": "<p>A4 ファイル対応、教科書がたくさん入る容量。リフレクターと胸ベルトで安心。</p>",
+      "createdAt": "2026-05-13T12:53:11Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "ネイビー",
+         "サクラ",
+         "オリーブ"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022318981430",
+          "title": "ネイビー",
+          "sku": null,
+          "price": "9900",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ネイビー"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319014198",
+          "title": "サクラ",
+          "sku": null,
+          "price": "9900",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "サクラ"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319046966",
+          "title": "オリーブ",
+          "sku": null,
+          "price": "9900",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "オリーブ"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711311515958",
+      "title": "オーガニックコットン 肌着 2 枚組",
+      "handle": "オーガニックコットン-肌着-2-枚組",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "肌着",
+      "tags": [
+       "baby",
+       "new"
+      ],
+      "descriptionHtml": "<p>新生児の肌に直接ふれるからこそ、素材にこだわった肌着。前開きで着替えも楽。</p>",
+      "createdAt": "2026-05-13T12:53:13Z",
+      "options": [
+       {
+        "name": "サイズ",
+        "values": [
+         "50-60",
+         "70",
+         "80"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319112502",
+          "title": "50-60",
+          "sku": null,
+          "price": "2750",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "サイズ",
+            "value": "50-60"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319145270",
+          "title": "70",
+          "sku": null,
+          "price": "2750",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "サイズ",
+            "value": "70"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319178038",
+          "title": "80",
+          "sku": null,
+          "price": "2750",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "サイズ",
+            "value": "80"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711311581494",
+      "title": "ベビースタイ（よだれかけ）名入れ対応",
+      "handle": "ベビースタイよだれかけ名入れ対応",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "スタイ",
+      "tags": [
+       "baby",
+       "gift"
+      ],
+      "descriptionHtml": "<p>お名前刺繍を承ります（ご注文時にご指定ください）。記念に残る出産祝いに。</p>",
+      "createdAt": "2026-05-13T12:53:14Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "スター",
+         "ハート",
+         "クラウド"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319243574",
+          "title": "スター",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "スター"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319276342",
+          "title": "ハート",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ハート"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319309110",
+          "title": "クラウド",
+          "sku": null,
+          "price": "2200",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "クラウド"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711311679798",
+      "title": "保育園 お昼寝布団セット",
+      "handle": "保育園-お昼寝布団セット",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "寝具",
+      "tags": [
+       "sale",
+       "school"
+      ],
+      "descriptionHtml": "<p>保育園のお昼寝に必要なお布団 5 点セット。専用バッグ付きで持ち運びも便利。</p>",
+      "createdAt": "2026-05-13T12:53:17Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "くま",
+         "ぞう"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319407414",
+          "title": "くま",
+          "sku": null,
+          "price": "11000",
+          "compareAtPrice": "13200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "くま"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319440182",
+          "title": "ぞう",
+          "sku": null,
+          "price": "11000",
+          "compareAtPrice": "13200",
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ぞう"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711311745334",
+      "title": "出産祝い ギフトセット（3 点）",
+      "handle": "出産祝い-ギフトセット3-点",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "ギフトセット",
+      "tags": [
+       "baby",
+       "gift",
+       "人気"
+      ],
+      "descriptionHtml": "<p>スタイ・タオル・おくるみのギフトセット。気持ちを込めたラッピングでお届けします。</p>",
+      "createdAt": "2026-05-13T12:53:19Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "桜",
+         "若葉",
+         "そら"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319538486",
+          "title": "桜",
+          "sku": null,
+          "price": "6600",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "桜"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319571254",
+          "title": "若葉",
+          "sku": null,
+          "price": "6600",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "若葉"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319604022",
+          "title": "そら",
+          "sku": null,
+          "price": "6600",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "そら"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711311810870",
+      "title": "キッズ ふんわり ワンピース",
+      "handle": "キッズ-ふんわり-ワンピース",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "ワンピース",
+      "tags": [
+       "kids",
+       "new"
+      ],
+      "descriptionHtml": "<p>軽やかなコットン素材で、お出かけにも普段使いにも。サイズ展開が豊富。</p>",
+      "createdAt": "2026-05-13T12:53:21Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "白",
+         "ピンク",
+         "ライトブルー"
+        ]
+       },
+       {
+        "name": "サイズ",
+        "values": [
+         "90",
+         "100",
+         "110",
+         "120"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319669558",
+          "title": "白 / 90",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "白"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319702326",
+          "title": "白 / 100",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "白"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319735094",
+          "title": "白 / 110",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "白"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319767862",
+          "title": "白 / 120",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "白"
+           },
+           {
+            "name": "サイズ",
+            "value": "120"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319800630",
+          "title": "ピンク / 90",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319833398",
+          "title": "ピンク / 100",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319866166",
+          "title": "ピンク / 110",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319898934",
+          "title": "ピンク / 120",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "120"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319931702",
+          "title": "ライトブルー / 90",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ライトブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319964470",
+          "title": "ライトブルー / 100",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ライトブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022319997238",
+          "title": "ライトブルー / 110",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ライトブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320030006",
+          "title": "ライトブルー / 120",
+          "sku": null,
+          "price": "4400",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ライトブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "120"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711311876406",
+      "title": "キッズ デニムオーバーオール",
+      "handle": "キッズ-デニムオーバーオール",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "ボトムス",
+      "tags": [
+       "kids",
+       "new"
+      ],
+      "descriptionHtml": "<p>動きやすいやわらかデニム。コーデのアクセントに 1 枚。</p>",
+      "createdAt": "2026-05-13T12:53:22Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "インディゴ",
+         "ライトブルー"
+        ]
+       },
+       {
+        "name": "サイズ",
+        "values": [
+         "90",
+         "100",
+         "110",
+         "120"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320095542",
+          "title": "インディゴ / 90",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "インディゴ"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320128310",
+          "title": "インディゴ / 100",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "インディゴ"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320161078",
+          "title": "インディゴ / 110",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "インディゴ"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320193846",
+          "title": "インディゴ / 120",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "インディゴ"
+           },
+           {
+            "name": "サイズ",
+            "value": "120"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320226614",
+          "title": "ライトブルー / 90",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ライトブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "90"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320259382",
+          "title": "ライトブルー / 100",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ライトブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "100"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320292150",
+          "title": "ライトブルー / 110",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ライトブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "110"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320324918",
+          "title": "ライトブルー / 120",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ライトブルー"
+           },
+           {
+            "name": "サイズ",
+            "value": "120"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711311941942",
+      "title": "シリコン お食事スタイ",
+      "handle": "シリコン-お食事スタイ",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "スタイ",
+      "tags": [
+       "baby",
+       "new"
+      ],
+      "descriptionHtml": "<p>食べこぼしをキャッチするポケット付き。さっと洗えて衛生的。</p>",
+      "createdAt": "2026-05-13T12:53:24Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "くま",
+         "うさぎ",
+         "ぞう"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320390454",
+          "title": "くま",
+          "sku": null,
+          "price": "1980",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "くま"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320423222",
+          "title": "うさぎ",
+          "sku": null,
+          "price": "1980",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "うさぎ"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320455990",
+          "title": "ぞう",
+          "sku": null,
+          "price": "1980",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ぞう"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711312007478",
+      "title": "幼児 食事用エプロン",
+      "handle": "幼児-食事用エプロン",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "エプロン",
+      "tags": [
+       "baby",
+       "school"
+      ],
+      "descriptionHtml": "<p>毎日の食事タイムに。撥水加工で汚れもさっと落ちます。</p>",
+      "createdAt": "2026-05-13T12:53:26Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "スター",
+         "ハート"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320554294",
+          "title": "スター",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "スター"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320587062",
+          "title": "ハート",
+          "sku": null,
+          "price": "1650",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ハート"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711312204086",
+      "title": "通学帽（つば付き、UV カット）",
+      "handle": "通学帽つば付きuv-カット",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "帽子",
+      "tags": [
+       "new",
+       "school"
+      ],
+      "descriptionHtml": "<p>登下校に欠かせないつば付き帽子。UV カット加工で日差しから守ります。</p>",
+      "createdAt": "2026-05-13T12:53:30Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "ベージュ",
+         "ネイビー"
+        ]
+       },
+       {
+        "name": "サイズ",
+        "values": [
+         "52cm",
+         "54cm",
+         "56cm"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320750902",
+          "title": "ベージュ / 52cm",
+          "sku": null,
+          "price": "2750",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ベージュ"
+           },
+           {
+            "name": "サイズ",
+            "value": "52cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320783670",
+          "title": "ベージュ / 54cm",
+          "sku": null,
+          "price": "2750",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ベージュ"
+           },
+           {
+            "name": "サイズ",
+            "value": "54cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320816438",
+          "title": "ベージュ / 56cm",
+          "sku": null,
+          "price": "2750",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ベージュ"
+           },
+           {
+            "name": "サイズ",
+            "value": "56cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320849206",
+          "title": "ネイビー / 52cm",
+          "sku": null,
+          "price": "2750",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ネイビー"
+           },
+           {
+            "name": "サイズ",
+            "value": "52cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320881974",
+          "title": "ネイビー / 54cm",
+          "sku": null,
+          "price": "2750",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ネイビー"
+           },
+           {
+            "name": "サイズ",
+            "value": "54cm"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320914742",
+          "title": "ネイビー / 56cm",
+          "sku": null,
+          "price": "2750",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ネイビー"
+           },
+           {
+            "name": "サイズ",
+            "value": "56cm"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711312269622",
+      "title": "オーガニックコットン マタニティパジャマ",
+      "handle": "オーガニックコットン-マタニティパジャマ",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "パジャマ",
+      "tags": [
+       "gift"
+      ],
+      "descriptionHtml": "<p>マタニティ期から授乳期まで使える前開きパジャマ。プレママへのギフトに。</p>",
+      "createdAt": "2026-05-13T12:53:32Z",
+      "options": [
+       {
+        "name": "カラー",
+        "values": [
+         "生成り",
+         "ピンク"
+        ]
+       },
+       {
+        "name": "サイズ",
+        "values": [
+         "M",
+         "L"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022320980278",
+          "title": "生成り / M",
+          "sku": null,
+          "price": "6600",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           },
+           {
+            "name": "サイズ",
+            "value": "M"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022321013046",
+          "title": "生成り / L",
+          "sku": null,
+          "price": "6600",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "生成り"
+           },
+           {
+            "name": "サイズ",
+            "value": "L"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022321045814",
+          "title": "ピンク / M",
+          "sku": null,
+          "price": "6600",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "M"
+           }
+          ]
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022321078582",
+          "title": "ピンク / L",
+          "sku": null,
+          "price": "6600",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "カラー",
+            "value": "ピンク"
+           },
+           {
+            "name": "サイズ",
+            "value": "L"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711313973558",
+      "title": "木製つみき（白木 50 ピース）",
+      "handle": "木製つみき白木-50-ピース",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "おもちゃ",
+      "tags": [
+       "toy",
+       "人気"
+      ],
+      "descriptionHtml": "<p>無塗装の自然なブナ材。手に取った瞬間の温もりと、積み上げる楽しさを長く味わえます。</p>",
+      "createdAt": "2026-05-13T12:54:32Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022323470646",
+          "title": "Default Title",
+          "sku": null,
+          "price": "6600",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711314071862",
+      "title": "木製レインボー積み木",
+      "handle": "木製レインボー積み木",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "おもちゃ",
+      "tags": [
+       "gift",
+       "toy",
+       "人気"
+      ],
+      "descriptionHtml": "<p>大小 7 枚のレインボーアーチ。積む、並べる、ごっこ遊びと長く楽しめます。</p>",
+      "createdAt": "2026-05-13T12:54:39Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022323601718",
+          "title": "Default Title",
+          "sku": null,
+          "price": "5500",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711314235702",
+      "title": "歩行器 木製プッシュカー",
+      "handle": "歩行器-木製プッシュカー",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "おもちゃ",
+      "tags": [
+       "gift",
+       "toy"
+      ],
+      "descriptionHtml": "<p>はじめての歩行をサポート。お部屋のインテリアにも馴染むナチュラルデザイン。</p>",
+      "createdAt": "2026-05-13T12:54:43Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022323798326",
+          "title": "Default Title",
+          "sku": null,
+          "price": "8800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10711314334006",
+      "title": "電車おもちゃ（木製レール 32 ピース）",
+      "handle": "電車おもちゃ木製レール-32-ピース",
+      "status": "DRAFT",
+      "vendor": "Kodomori",
+      "productType": "おもちゃ",
+      "tags": [
+       "toy"
+      ],
+      "descriptionHtml": "<p>つなげて広げられる電車レールセット。想像力をはぐくむ知育おもちゃ。</p>",
+      "createdAt": "2026-05-13T12:54:45Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": []
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54022323896630",
+          "title": "Default Title",
+          "sku": null,
+          "price": "6600",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 0,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "node": {
+      "id": "gid://shopify/Product/10717849944374",
+      "title": "LECOCO C-Bike X3 Plus — 5段階成長対応 ベルトドライブ多機能自転車",
+      "handle": "lecoco-c-bike-x3-plus-5段階成長対応-ベルトドライブ多機能自転車",
+      "status": "ACTIVE",
+      "vendor": "LECOCO",
+      "productType": "自転車",
+      "tags": [
+       "3-8歳",
+       "3歳",
+       "4歳",
+       "5歳",
+       "5段階成長対応",
+       "6歳",
+       "7歳",
+       "8歳",
+       "CCC",
+       "I-fold",
+       "X3 Plus",
+       "アルミ合金",
+       "ベルトドライブ",
+       "マンション玄関収納",
+       "多機能自転車",
+       "工具不要",
+       "成長対応",
+       "折りたたみ",
+       "新作",
+       "自転車",
+       "補助輪なしデビュー",
+       "都市部",
+       "長期使用",
+       "静音"
+      ],
+      "descriptionHtml": "<p><strong>1 台で 3 歳から 8 歳まで、5 つの成長段階に変形する自転車。</strong></p>\n\n<p>子供が乗り物を覚える時期は、年に何度もサイズが変わります。LECOCO C-Bike X3 Plus は、その「ずっと買い替えなくていい」を本気で設計した一台。3 歳でデビューして、ペダルを覚え、補助輪が外れ、自分のスピードで走る — そのすべての段階を、同じフレームで支えます。</p>\n\n<h3>こんな方におすすめ</h3>\n<ul>\n<li>3 歳前後のお子様の初めての自転車を探している</li>\n<li>「何回も買い替えるのは嫌、長く使えるものを」と考えている</li>\n<li>静音で住宅街でも気を遣わない自転車がいい</li>\n<li>マンション住まいで、玄関に置けるコンパクトさが必須</li>\n</ul>\n\n<h3>5 つの主な特長</h3>\n<ol>\n<li>\n<strong>5 段階成長対応</strong> — 工具不要で、お子様の身長に合わせて 1 分で調整</li>\n<li>\n<strong>ベルトドライブ伝動</strong> — チェーンと違って、油も汚れもサビもない静音設計。ロードバイク級の技術を子供用に</li>\n<li>\n<strong>I-fold 特許折りたたみ</strong> — マンションの玄関にも収まるコンパクト収納</li>\n<li>\n<strong>軽量アルミ合金フレーム</strong> — お子様自身が押し歩けて、ママも持ち上げやすい</li>\n<li>\n<strong>触っても安全な仕上げ</strong> — 角の処理、表面塗装、すべて素肌が触れる前提で設計</li>\n</ol>\n\n<h3>スペック</h3>\n<ul>\n<li>ブランド:LECOCO(イタリア・ボローニャ)</li>\n<li>モデル:C-Bike X3 Plus</li>\n<li>対象年齢:3〜8 歳</li>\n<li>最大耐荷重:40 kg</li>\n<li>本体材質:アルミニウム合金</li>\n<li>伝動方式:ベルトドライブ(静音・メンテナンスフリー)</li>\n<li>認証:CCC(中国強制認証)</li>\n<li>適応シーン:都市部 / 公園 / 短距離通園</li>\n</ul>\n\n<h3>お手入れ</h3>\n<p>普段は柔らかい湿った布で拭いてください。アルコール系・漂白剤・工業用洗剤は塗装と樹脂を傷めるため避けてください。金属部分は乾燥した場所で保管。可動部(ホイール軸など)は半年〜1 年に一度、自転車用グリスを薄く塗ると長持ちします。</p>\n\n<h3>保証 ・ 配送</h3>\n<p>メーカー 2 年保証 ・ 30 日返品保証(未使用・未開封) ・ 全国送料無料 ¥10,000 以上(税込)。ご質問は <a href=\"https://lin.ee/rsvKryR\">LINE 公式アカウント</a> で平日 10-17 時に承ります。</p>",
+      "createdAt": "2026-05-18T14:09:26Z",
+      "options": [
+       {
+        "name": "Title",
+        "values": [
+         "Default Title"
+        ]
+       }
+      ],
+      "media": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48163413983542",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_d5cd51b1-34d9-4901-90d5-cd9fc1d79d2f.jpg?v=1779113370",
+           "altText": "LECOCO C-Bike X3 Plus 5段階成長対応 ベルトドライブ多機能自転車 メイン"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48163414016310",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_7941416c-8c80-4fc8-8814-9d6339dfaa57.jpg?v=1779113370",
+           "altText": "LECOCO C-Bike X3 Plus 横アングル ベルトドライブ"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48163414049078",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_934d7022-2db1-41ae-a68a-ef76f122d1bc.jpg?v=1779113370",
+           "altText": "LECOCO C-Bike X3 Plus 背面"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48163414081846",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/E4_B8_89_E5_90_88_E4_B8_80_c3809c89-b7fc-49b1-ac71-2754d6068ef5.jpg?v=1779113371",
+           "altText": "LECOCO C-Bike X3 Plus 3 in 1 変形モード"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48163414114614",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1_070683ff-45a9-47d5-adc5-993b66a00f91.jpg?v=1779113373",
+           "altText": "LECOCO C-Bike X3 Plus 詳細 1"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48163414147382",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2_0f268bdd-1f3d-40f2-9d5f-4ec0cf269aea.jpg?v=1779113370",
+           "altText": "LECOCO C-Bike X3 Plus 詳細 2"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48163414180150",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/3_914dc744-686f-42d5-8893-f5d37082b392.jpg?v=1779113370",
+           "altText": "LECOCO C-Bike X3 Plus 詳細 3"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48163414212918",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/4_64194750-dd21-4357-9973-eca36bf4d280.jpg?v=1779113370",
+           "altText": "LECOCO C-Bike X3 Plus 折りたたみ"
+          }
+         }
+        },
+        {
+         "node": {
+          "id": "gid://shopify/MediaImage/48163414245686",
+          "image": {
+           "url": "https://cdn.shopify.com/s/files/1/0983/3326/2134/files/5_b9f6e613-0bfd-4220-8e15-5ff50fab7a38.jpg?v=1779113370",
+           "altText": "LECOCO C-Bike X3 Plus 5段階調整"
+          }
+         }
+        }
+       ]
+      },
+      "variants": {
+       "edges": [
+        {
+         "node": {
+          "id": "gid://shopify/ProductVariant/54037216231734",
+          "title": "Default Title",
+          "sku": "LECOCO-CBIKE-X3PLUS",
+          "price": "44800",
+          "compareAtPrice": null,
+          "barcode": null,
+          "inventoryQuantity": 200,
+          "selectedOptions": [
+           {
+            "name": "Title",
+            "value": "Default Title"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    }
+   ]
+  }
+ }
+}
