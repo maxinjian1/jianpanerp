@@ -167,11 +167,97 @@ function optionNames(sku) {
   return undefined;
 }
 
+/**
+ * 2026-10-15 实测结构（Windows 会话 dump）：
+ *   state.ssrRefs["useProduct-products-{goodId}"].list[0] = 商品对象
+ *   商品：title(已是日文) subTitle note desc(HTML) imageUrl imageUrl1..9 catTree[{name}] skuProps[{propId,propName,values[{valueId,propValue}]}] skus[]
+ *   SKU： skuId outId price originalPrice stockNum barcode skuImage propsIds("propId:valueId" 多规格用分隔符连接)
+ */
+function parseKnown(state, goodId, url) {
+  const ref = state?.ssrRefs?.[`useProduct-products-${goodId}`];
+  const p = ref?.list?.[0];
+  if (!p || !Array.isArray(p.skus) || !p.skus.length) return null;
+
+  // 规格表：propId → {name, values: valueId → propValue}
+  const props = new Map();
+  for (const sp of p.skuProps ?? []) {
+    props.set(String(sp.propId), {
+      name: String(sp.propName ?? '').trim(),
+      values: new Map((sp.values ?? []).map((v) => [String(v.valueId), String(v.propValue ?? '').trim()])),
+    });
+  }
+  const propOrder = [...props.keys()];
+  const optionNames = propOrder.map((id) => props.get(id).name).filter(Boolean);
+
+  const decodeProps = (propsIds) => {
+    const vals = new Array(propOrder.length).fill(undefined);
+    for (const pair of String(propsIds ?? '').split(/[;,|&\s]+/)) {
+      const [pid, vid] = pair.split(':');
+      const idx = propOrder.indexOf(String(pid));
+      if (idx >= 0) vals[idx] = props.get(String(pid)).values.get(String(vid)) ?? vid;
+    }
+    return vals.map((v) => v ?? '');
+  };
+
+  const images = [];
+  const seen = new Set();
+  const push = (u) => {
+    if (typeof u === 'string' && /^https?:\/\//.test(u) && !seen.has(u)) {
+      seen.add(u);
+      images.push(u);
+    }
+  };
+  push(p.imageUrl);
+  for (let i = 1; i <= 9; i++) push(p[`imageUrl${i}`]);
+  for (const s of p.skus) push(s.skuImage);
+
+  const variants = p.skus.map((s, i) => {
+    const options = optionNames.length ? decodeProps(s.propsIds) : [];
+    return {
+      name: options.filter(Boolean).join(' / ') || undefined,
+      sku: (s.outId && String(s.outId).trim()) || `KJYF-${goodId}-${i + 1}`,
+      wholesalePrice: Number(s.price) || 0,
+      stock: Number.isFinite(Number(s.stockNum)) ? Number(s.stockNum) : undefined,
+      options: options.length ? options : undefined,
+      barcode: s.barcode ? String(s.barcode) : undefined,
+    };
+  });
+
+  const category = (p.catTree ?? []).map((c) => c?.name).filter(Boolean).join(' > ') || undefined;
+  return {
+    externalId: goodId,
+    sourceUrl: url,
+    titleZh: String(p.title ?? '').replace(/\s+/g, ' ').trim() || `商品 ${goodId}`,
+    descriptionZh: typeof p.desc === 'string' && p.desc.trim() ? p.desc : undefined,
+    category,
+    images: images.slice(0, 30),
+    variants,
+    optionNames: optionNames.length ? optionNames : undefined,
+    raw: {
+      goodId,
+      lang: 'ja', // ja-JP 站点，标题/描述本身已是日文
+      subTitle: p.subTitle ?? null,
+      note: p.note ?? null, // 发货说明（埼玉仓等）
+      shippingPeriod: p.shippingPeriod ?? null,
+      keywords: p.keywords ?? null,
+      videoUrl: p.videoUrl ?? null,
+      skuIds: p.skus.map((s) => s.skuId),
+      originalPrices: p.skus.map((s) => s.originalPrice ?? null),
+      taxRates: p.skus.map((s) => s.taxRate ?? null),
+      skuImages: p.skus.map((s) => s.skuImage ?? null),
+      propsIds: p.skus.map((s) => s.propsIds ?? null),
+    },
+  };
+}
+
 function parseProduct(html, url) {
   const goodId = url.match(/\/p\/(\d+)/)[1];
   const state = extractNuxtState(html);
 
-  // 找到"包含 SKU 数组"的对象，优先 id/goodId == URL 的那个
+  const known = parseKnown(state, goodId, url);
+  if (known) return known;
+
+  // ───── 退路：站点结构变了时的通用启发式解析 ─────
   let product;
   let skuList = [];
   const candidates = [];
@@ -288,6 +374,13 @@ async function postToErp(items) {
 async function main() {
   mkdirSync(OUT_DIR, { recursive: true });
   const outFile = join(OUT_DIR, 'products.json');
+
+  // --file x.html --ids 39522：离线解析一个已保存的商品页（调试字段映射用）
+  if (opt('file')) {
+    const html = readFileSync(opt('file'), 'utf8');
+    console.log(JSON.stringify(parseProduct(html, `${BASE}/${LOCALE}/p/${IDS[0] ?? '0'}/-`), null, 2));
+    return;
+  }
 
   if (POST_ONLY) {
     const items = JSON.parse(readFileSync(outFile, 'utf8'));

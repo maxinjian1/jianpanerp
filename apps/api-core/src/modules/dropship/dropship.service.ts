@@ -69,7 +69,7 @@ export class DropshipService {
         wholesalePrice: minWholesale,
         retailPrice: this.retailPrice(minWholesale),
         stock,
-        raw: (it.raw ?? { optionNames: it.optionNames }) as object,
+        raw: { ...((it.raw as object) ?? {}), optionNames: it.optionNames ?? [] } as object,
       };
       const existing = await prisma.supplierProduct.findUnique({ where: { supplier_externalId: { supplier, externalId: it.externalId } } });
       if (existing) {
@@ -103,16 +103,17 @@ export class DropshipService {
         {
           role: 'system',
           content:
-            'あなたは日本の EC（Shopify）向け商品ページのプロのコピーライターです。中国語の商品情報を自然な日本語の商品ページに書き換えます。' +
+            'あなたは日本の EC（Shopify）向け商品ページのプロのコピーライターです。卸サイトの商品情報（中国語または機械翻訳調の日本語）を、自然で読みやすい日本語の商品ページに書き換えます。' +
+            'タイトルはキーワードの羅列ではなく商品名＋主要特長に整理し、型番（例 YB-05）は末尾に残す。卸元の社名・倉庫名・発送案内・価格は本文に入れない。' +
             '景品表示法・薬機法に触れる表現（最高、No.1、治る、痩せる、など）は使わない。出力は JSON のみ。',
         },
         {
           role: 'user',
           content: JSON.stringify({
             instruction:
-              '次の商品情報から JSON を返してください: {"title": 60字以内の日本語タイトル, "description_html": 商品説明HTML（<p><ul><li>のみ, 300-600字）, "bullets": 日本語の特長5点, "tags": 日本語タグ8-12個, "option_names": オプション名の日本語配列, "option_values": {中国語の選択肢: 日本語}}',
-            title_zh: p.titleZh,
-            description_zh: p.descriptionZh ?? '',
+              '次の商品情報から JSON を返してください: {"title": 60字以内の日本語タイトル, "description_html": 商品説明HTML（<p><ul><li>のみ, 300-600字）, "bullets": 日本語の特長5点, "tags": 日本語タグ8-12個, "option_names": オプション名の日本語配列（例 COLOR→カラー, SIZE→サイズ）, "option_values": {元の選択肢: 日本語（既に日本語ならそのまま）}}',
+            source_title: p.titleZh,
+            source_description_html: (p.descriptionZh ?? '').replace(/<img[^>]*>/gi, '').slice(0, 6000),
             category: p.category ?? '',
             option_names_zh: optionNames,
             option_values_zh: optionValues,
@@ -173,7 +174,8 @@ export class DropshipService {
         variants: variants.map((v, i) => ({
           sku: v.sku || `KJYF-${fresh.externalId}-${i + 1}`,
           price: this.retailPrice(v.wholesalePrice),
-          optionValues: hasOptions ? (v.options ?? []).map((o) => valuesJa[o] ?? o) : undefined,
+          // 選択肢が欠けている SKU は SKU コードで埋める（Shopify は空のオプション値を拒否）
+          optionValues: hasOptions ? optionNamesJa.map((_, k) => valuesJa[v.options?.[k] ?? ''] || v.options?.[k] || v.sku || `#${i + 1}`) : undefined,
         })),
       });
       await prisma.supplierProduct.update({

@@ -61,8 +61,12 @@ if ($LASTEXITCODE -ne 0) {
     }
     if (-not $ok) { throw "Docker Desktop 5 分钟内未就绪" }
 }
-docker compose -f "$Root\docker-compose.yml" up -d
-if ($LASTEXITCODE -ne 0) { throw "docker compose 启动失败" }
+# docker compose 把进度写到 stderr，非交互运行时会被 $ErrorActionPreference=Stop 当成错误 → 合并输出再看退出码
+$ErrorActionPreference = "Continue"
+& cmd /c "docker compose -f `"$Root\docker-compose.yml`" up -d 2>&1"
+$composeExit = $LASTEXITCODE
+$ErrorActionPreference = "Stop"
+if ($composeExit -ne 0) { throw "docker compose 启动失败（退出码 $composeExit）" }
 
 # 等待 Postgres 就绪
 $ready = $false

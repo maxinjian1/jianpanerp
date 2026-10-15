@@ -22,6 +22,12 @@ curl -X POST "http://localhost:4000/api/v1/dropship/publish-batch?limit=10" -H "
 ```
 token / tenantId 从 `POST /api/v1/auth/login`（ERP_EMAIL / ERP_PASSWORD）拿。
 
+## 页面数据结构（2026-10-15 实测）
+商品对象在 `__NUXT__.ssrRefs["useProduct-products-{goodId}"].list[0]`：
+`title`（已是日文）`subTitle` `note`（发货说明）`desc`（HTML）`imageUrl`,`imageUrl1..9` `catTree[].name` `skuProps[]` `skus[]`。
+SKU：`skuId outId price originalPrice stockNum barcode skuImage propsIds("propId:valueId")`，规格文本要用 `skuProps` 反查。
+站点结构变了时脚本自动退回通用启发式解析（找含 skuId+price 的数组）。
+
 ## 输出格式（= api-core `ScrapedProduct`）
 ```json
 { "externalId": "39522", "sourceUrl": "...", "titleZh": "瑜伽垫 YB-05", "images": ["https://..."],
