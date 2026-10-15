@@ -19,7 +19,7 @@ Monorepo：`apps/api-core`(NestJS :4000) · `apps/web-client`(Next :3000) · `ap
 V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析》；仓库里的部署脚本以 **Ubuntu 为目标**，Windows 脚本只是开发便利。
 
 ## 核心架构决定（已定，不要重新讨论）
-1. **AI 两条路**：不重要/非敏感的批量任务（文案、竞品分析、日报、视频脚本）→ **中国模型 API**（百炼国际站优先，备用 DeepSeek/Kimi）；**客服信息、客户聊天、订单明细等不能出海的业务 → V64 本地模型**（vLLM/llama.cpp Volta 构建，Qwen3.5-35B-A3B）。路由在统一 AI Gateway（`apps/api-core/src/modules/llm-gateway`，**已实现**）内按 `dataClass` 决定：`public/internal` → `LLM_DEFAULT_PROVIDER`（cn），`pii` → `LLM_PII_PROVIDER`（local；或 `masked-cn` 假名化后出境）。每次调用写 `LlmRequestLog` 审计表。
+1. **AI 两条路**：不重要/非敏感的批量任务（文案、竞品分析、日报、视频脚本、图片重制）→ **中国模型 = 6kpro 服务器**（用户决定不用阿里云/百炼/DeepSeek 等公有云，缺模型找 6kpro 加）；**客服信息、客户聊天、订单明细等不能出海的业务 → V64 本地模型**（vLLM/llama.cpp Volta 构建，Qwen3.5-35B-A3B）。路由在统一 AI Gateway（`apps/api-core/src/modules/llm-gateway`，**已实现**）内按 `dataClass` 决定：`public/internal` → `LLM_DEFAULT_PROVIDER`（cn），`pii` → `LLM_PII_PROVIDER`（local；或 `masked-cn` 假名化后出境）。每次调用写 `LlmRequestLog` 审计表。
 2. 开发机（Windows，无 V100）跑同一套代码：`LLM_PII_PROVIDER` 切到 `ollama`（小模型）或 `masked-dashscope`（假名化后出境，仅限测试数据）。
 3. 客服消息 **只能 AI 起草、人工点击发送**（Amazon/楽天规则）。
 4. 通知用 LINE Messaging API / Slack，**不用 LINE Notify**（已停服）。
@@ -52,7 +52,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - Shopify 店：LECOCO ITALY = **`0scqav-e7.myshopify.com`**（anetmc.com，47 商品；完整备份在 `backups/shopify-lecoco-products-2026-10-15.json`，归档操作待用户确认）。
 - **Shopify API 接入方式（2026 起）**：后台已不能建旧式自定义应用。走 **Dev Dashboard** 建 App → scopes `read_products, write_products, read_orders, write_orders, write_fulfillments` → 发布版本 → 安装到店 → 得 Client ID / Client secret（无固定 token）。运行时用 client_credentials 换 token（约 24h 有效）：`POST https://0scqav-e7.myshopify.com/admin/oauth/access_token`，body `grant_type=client_credentials&client_id=…&client_secret=…`。`.env`：`SHOPIFY_STORE_DOMAIN` / `SHOPIFY_CLIENT_ID` / `SHOPIFY_CLIENT_SECRET`（secret 由用户亲手填，不经聊天）。
 - 批发商 kuajingyifan.com（用户有账号，已授权采集）；云端白名单不含该域，采集/下单都在 Windows 用 Playwright。
-- 图片重制需图像模型（GLM-5.3-Flash 不能生图）——待定 6kpro / 百炼万相。
+- 图片重制需图像模型（GLM-5.3-Flash 不能生图）。**用户决定：不用阿里云/百炼；缺模型让 6kpro（leosma）加**，首选 Qwen-Image-Edit-2509（OpenAI 兼容 `/v1/images/edits`），备选 FLUX.1 Kontext。所有中国侧 AI 只走 6kpro。
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
