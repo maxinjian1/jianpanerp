@@ -22,6 +22,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# 采集器输出
+tools/kjyf-scraper/out/
+
 # Local env files
 .env
 .env.local

@@ -33,13 +33,13 @@ export class DropshipController {
   @Post('products/:id/publish')
   @ApiOperation({ summary: 'Shopify 出品（卸価格×1.15）' })
   publish(@Param('id') id: string, @Query('status') status?: 'ACTIVE' | 'DRAFT') {
-    return this.svc.publish(id, status ?? 'DRAFT');
+    return this.svc.publish(id, status ?? 'ACTIVE');
   }
 
   @Post('publish-batch')
-  @ApiOperation({ summary: '一括出品', description: '未出品を limit 件まで翻訳→出品' })
+  @ApiOperation({ summary: '一括出品', description: '未出品を limit 件まで翻訳→出品（既定 ACTIVE＝即販売、?status=DRAFT で下書き）' })
   publishBatch(@Query('limit') limit?: string, @Query('status') status?: 'ACTIVE' | 'DRAFT') {
-    return this.svc.publishBatch(Number(limit ?? 10), status ?? 'DRAFT');
+    return this.svc.publishBatch(Number(limit ?? 10), status ?? 'ACTIVE');
   }
 
   @Get('orders')

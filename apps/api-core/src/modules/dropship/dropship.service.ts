@@ -145,7 +145,7 @@ export class DropshipService {
 
   // ───────────────────────── 3. Shopify 出品 ─────────────────────────
 
-  async publish(id: string, status: 'ACTIVE' | 'DRAFT' = 'DRAFT') {
+  async publish(id: string, status: 'ACTIVE' | 'DRAFT' = 'ACTIVE') {
     const p = await prisma.supplierProduct.findUnique({ where: { id } });
     if (!p) throw new NotFoundException(id);
     if (!p.titleJa) await this.translate(id);
@@ -188,7 +188,7 @@ export class DropshipService {
   }
 
   /** 一括: 未出品のものを n 件まで翻訳→出品 */
-  async publishBatch(limit = 10, status: 'ACTIVE' | 'DRAFT' = 'DRAFT') {
+  async publishBatch(limit = 10, status: 'ACTIVE' | 'DRAFT' = 'ACTIVE') {
     const todo = await prisma.supplierProduct.findMany({ where: { status: { in: ['scraped', 'translated'] } }, take: limit, orderBy: { scrapedAt: 'asc' } });
     const out: Array<{ id: string; ok: boolean; error?: string }> = [];
     for (const p of todo) {
