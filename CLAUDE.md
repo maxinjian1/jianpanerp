@@ -49,7 +49,8 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 每次会话结束前：把新的决定与进度写进本文件「进度日志」。
 
 ## 新业务线：批发商 → Shopify 代发闭环（2026-10-15 立项，需求见 `docs/需求-Shopify代发闭环.md`）
-- Shopify 已连接店：LECOCO ITALY（anetmc.com，47 商品）；用户后台链接 store `0scqav-e7`，是否同一家待确认。
+- Shopify 店：LECOCO ITALY = **`0scqav-e7.myshopify.com`**（anetmc.com，47 商品；完整备份在 `backups/shopify-lecoco-products-2026-10-15.json`，归档操作待用户确认）。
+- **Shopify API 接入方式（2026 起）**：后台已不能建旧式自定义应用。走 **Dev Dashboard** 建 App → scopes `read_products, write_products, read_orders, write_orders, write_fulfillments` → 发布版本 → 安装到店 → 得 Client ID / Client secret（无固定 token）。运行时用 client_credentials 换 token（约 24h 有效）：`POST https://0scqav-e7.myshopify.com/admin/oauth/access_token`，body `grant_type=client_credentials&client_id=…&client_secret=…`。`.env`：`SHOPIFY_STORE_DOMAIN` / `SHOPIFY_CLIENT_ID` / `SHOPIFY_CLIENT_SECRET`（secret 由用户亲手填，不经聊天）。
 - 批发商 kuajingyifan.com（用户有账号，已授权采集）；云端白名单不含该域，采集/下单都在 Windows 用 Playwright。
 - 图片重制需图像模型（GLM-5.3-Flash 不能生图）——待定 6kpro / 百炼万相。
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
