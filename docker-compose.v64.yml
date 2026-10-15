@@ -1,0 +1,148 @@
+# ANET V64 一键部署（Ubuntu 24.04 + NVIDIA 驱动 + Docker + nvidia-container-toolkit）
+#
+#   cp env.example.txt .env   # 填 Key；V64 上 LLM_DEFAULT_PROVIDER / LLM_PII_PROVIDER 都可用 local
+#   docker compose -f docker-compose.v64.yml up -d --build
+#   docker compose -f docker-compose.v64.yml exec ollama ollama pull ${LOCAL_LLM_MODEL:-qwen3:30b-a3b}
+#
+# 对外端口（仅 Tailscale 内网访问）：3000 ERP 前端 · 4000 API · 8080 Open WebUI · 11434 Ollama
+# 升级：git pull && docker compose -f docker-compose.v64.yml up -d --build
+# 备份：deploy/v64/backup.sh（pg_dump + volumes）
+
+x-logging: &logging
+  logging:
+    driver: json-file
+    options: { max-size: "20m", max-file: "5" }
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: v64-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-erp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-erp_local_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-japan_erp}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-erp} -d ${POSTGRES_DB:-japan_erp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    <<: *logging
+
+  redis:
+    image: redis:7-alpine
+    container_name: v64-redis
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    <<: *logging
+
+  # ── 本地模型（4×V100 16GB，NVLink）──────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: v64-ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: "24h"       # 常驻显存，避免每次冷启动
+      OLLAMA_NUM_PARALLEL: "4"       # 多人同时用
+      OLLAMA_FLASH_ATTENTION: "1"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    <<: *logging
+
+  # 客户直接聊天 / 文档问答界面（可选但推荐，V64 卖点之一）
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: v64-open-webui
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      WEBUI_AUTH: "true"
+      DEFAULT_LOCALE: ja
+    volumes:
+      - openwebui:/app/backend/data
+    depends_on: [ollama]
+    <<: *logging
+
+  # ── ERP ──────────────────────────────────────────────────────────────────
+  api-core:
+    build:
+      context: .
+      dockerfile: deploy/v64/Dockerfile.api-core
+    container_name: v64-api-core
+    restart: always
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-erp}:${POSTGRES_PASSWORD:-erp_local_pass}@postgres:5432/${POSTGRES_DB:-japan_erp}
+      REDIS_URL: redis://redis:6379
+      AI_SERVICE_URL: http://ai-service:8000
+      LOCAL_LLM_BASE_URL: http://ollama:11434/v1
+      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-qwen3:30b-a3b}
+      API_PORT: "4000"
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:4000/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    <<: *logging
+
+  web-client:
+    build:
+      context: .
+      dockerfile: deploy/v64/Dockerfile.web-client
+      args:
+        API_INTERNAL_URL: http://api-core:4000
+    container_name: v64-web-client
+    restart: always
+    environment:
+      API_INTERNAL_URL: http://api-core:4000
+    ports:
+      - "3000:3000"
+    depends_on: [api-core]
+    <<: *logging
+
+  ai-service:
+    build:
+      context: ./apps/ai-service
+      dockerfile: ../../deploy/v64/Dockerfile.ai-service
+    container_name: v64-ai-service
+    restart: always
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-erp}:${POSTGRES_PASSWORD:-erp_local_pass}@postgres:5432/${POSTGRES_DB:-japan_erp}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres: { condition: service_healthy }
+    <<: *logging
+
+volumes:
+  pgdata:
+  redisdata:
+  ollama:
+  openwebui:

@@ -1,0 +1,18 @@
+# web-client (Next.js standalone) — 构建上下文 = 仓库根
+FROM node:20-bookworm-slim AS build
+WORKDIR /app
+COPY . .
+ARG API_INTERNAL_URL=http://api-core:4000
+ENV API_INTERNAL_URL=$API_INTERNAL_URL NEXT_TELEMETRY_DISABLED=1
+RUN npm ci --no-audit --no-fund \
+ && npm run build -w @japan-erp/shared-types \
+ && npm run build -w @japan-erp/web-client
+
+FROM node:20-bookworm-slim
+WORKDIR /app
+ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1
+COPY --from=build /app/apps/web-client/.next/standalone ./
+COPY --from=build /app/apps/web-client/.next/static ./apps/web-client/.next/static
+COPY --from=build /app/apps/web-client/public ./apps/web-client/public
+EXPOSE 3000
+CMD ["node", "apps/web-client/server.js"]

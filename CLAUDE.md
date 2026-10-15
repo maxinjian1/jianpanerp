@@ -35,7 +35,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 | **中国 LLM 服务器**（**别人的机器**，Tailscale 用户 `maxinlong`，OpenAI 兼容）| `http://100.82.2.101:8199/v1`，模型 `GLM-5.3-Flash`（1M 上下文、32K 输出、视觉、JSON、`reasoning_effort`）。**2026-10-14 实测：Mac / Windows / 云端全部不可达**——地址是对方 tailnet 的内网 IP，用户的设备不在那个网络里。**阻塞在对方**：需要对方 Share 该机器给 maxinjian@gmail.com，或提供公网地址。在此之前 `LLM_DEFAULT_PROVIDER=local`（Ollama）。Key 放 `.env` 的 `CN_LLM_API_KEY` |
 | AWS API | 需要 `AWS_ACCESS_KEY_ID/SECRET/DEFAULT_REGION=ap-northeast-1` 放在云环境 Network secrets；容器自带的 AWS 变量是内部用的，无效 |
 | 用户 MacBook Air | Tailscale IP 100.82.52.75（同一 tailnet） |
-| V64 实机 | **暂无，用 Windows 电脑代替**（2026-10-14 用户确认）：本地模型 = Windows 原生 Ollama（RTX 4080，`qwen3:14b`），`LOCAL_LLM_BASE_URL=http://localhost:11434/v1`。真机到手后换 Ubuntu + `docker-compose.v64.yml`（待建） |
+| V64 实机 | **暂无，用 Windows 电脑代替**（2026-10-14 用户确认）：本地模型 = Windows 原生 Ollama（RTX 4080，`qwen3:14b`），`LOCAL_LLM_BASE_URL=http://localhost:11434/v1`。真机到手后：Ubuntu 24.04 上 `curl … deploy/v64/install-v64.sh \| sudo bash`（驱动/Docker/toolkit/Tailscale/代码/`docker-compose.v64.yml` 全套 + Ollama `qwen3:30b-a3b` + Open WebUI）。说明见 `deploy/v64/README.md` |
 
 ## Windows remote-control 会话的限制（实测）
 - 它**不能**给云端会话回消息（没有 send_message 工具）→ 云端会话用 `list_events` 读它的 assistant 文本来获取结果。
@@ -49,6 +49,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 每次会话结束前：把新的决定与进度写进本文件「进度日志」。
 
 ## 进度日志
+- 2026-10-15：V64 一键部署就绪：`docker-compose.v64.yml` + `deploy/v64/`（Dockerfile ×3、install-v64.sh、backup.sh、README）；web-client 改 standalone 输出、API 地址走 `API_INTERNAL_URL`；本地验证 next/nest 构建通过（容器内无 docker，镜像构建待 V64/Windows 实测）。
 - 2026-10-15：**japanerp.com 已切到反代 Windows**（nginx app.conf 替换，SNAT 打通，公网 200 且 x-powered-by Next.js）；证书续期成功至 **2027-01-12**，cron 改为 docker run 形式（`/usr/local/sbin/japanerp-cert-renew.sh`，日志 `/var/log/japanerp-cert-renew.log`）；旧 app.conf 备份为 `conf.d/app.conf.bak.1792023038`（含已移除的 VLESS 路径）。清理脚本 `deploy/lightsail/scripts/cleanup-lightsail.sh` 待用户在 Windows 会话下达执行。
 - 2026-10-14：Lightsail 加入 tailnet（100.73.55.42）；用户确认 Cloudflare 账号是自己的；下一步 nginx 反代 Windows + 防火墙放行 Tailscale 网段。
 - 2026-10-14：Lightsail 调查完成：旧版 japanerp.com 静态站已在线（nginx 容器 + acme.sh 证书 10/24 到期，DNS Cloudflare 代理）；机器兼作 VPN 跳板。
