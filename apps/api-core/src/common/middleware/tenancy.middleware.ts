@@ -28,6 +28,7 @@ export class TenancyMiddleware implements NestMiddleware {
     if (
       path.includes('/auth/') || 
       path.includes('/health') || 
+      path.includes('/webhooks/') || 
       path.includes('/docs') ||
       path === '/'
     ) {

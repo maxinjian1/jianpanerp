@@ -786,3 +786,62 @@ model LlmRequestLog {
   @@index([provider, createdAt])
   @@schema("public")
 }
+
+// ============================================
+// 代発（ドロップシッピング）: 卸サイト → Shopify
+// ============================================
+
+model SupplierProduct {
+  id               String   @id @default(uuid())
+  supplier         String   @default("kjyf")      // kuajingyifan.com
+  externalId       String                          // 卸サイト側の商品ID / URL slug
+  sourceUrl        String
+  titleZh          String
+  titleJa          String?
+  descriptionZh    String?
+  descriptionJa    String?                         // HTML
+  bulletsJa        Json?                           // string[]
+  tags             Json?                           // string[]
+  images           Json                            // string[] 原图 URL（直接使用）
+  variants         Json                            // [{ name, sku, wholesalePrice, stock, options }]
+  wholesalePrice   Decimal  @db.Decimal(12, 2)     // 最低卸価格（JPY）
+  retailPrice      Decimal? @db.Decimal(12, 2)     // 計算後の販売価格
+  stock            Int      @default(0)
+  category         String?
+  raw              Json?                           // 採集した生データ
+  shopifyProductId String?
+  shopifyHandle    String?
+  status           String   @default("scraped")    // scraped / translated / published / error / delisted
+  lastError        String?
+  scrapedAt        DateTime @default(now())
+  publishedAt      DateTime?
+  updatedAt        DateTime @updatedAt
+
+  @@unique([supplier, externalId])
+  @@index([status])
+  @@schema("public")
+}
+
+model DropshipOrder {
+  id               String   @id @default(uuid())
+  shopifyOrderId   String   @unique
+  shopifyOrderName String                          // #1001
+  totalPrice       Decimal  @db.Decimal(12, 2)
+  currency         String   @default("JPY")
+  lineItems        Json                            // [{ sku, title, qty, price, supplierExternalId }]
+  shipping         Json                            // 顧客の配送先（本地のみ、外部APIに送らない）
+  status           String   @default("pending_confirm") // pending_confirm / placing / placed / paid / shipped / failed / cancelled
+  supplierOrderNo  String?
+  trackingNumber   String?
+  trackingCarrier  String?
+  log              Json?                           // [{ at, step, message }]
+  confirmedBy      String?
+  confirmedAt      DateTime?
+  placedAt         DateTime?
+  shippedAt        DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([status])
+  @@schema("public")
+}

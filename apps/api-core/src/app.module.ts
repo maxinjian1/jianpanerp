@@ -13,6 +13,8 @@ import { AmazonModule } from './modules/amazon/amazon.module';
 import { RakutenModule } from './modules/rakuten/rakuten.module';
 import { AiModule } from './modules/ai/ai.module';
 import { LlmGatewayModule } from './modules/llm-gateway/llm-gateway.module';
+import { ShopifyModule } from './modules/shopify/shopify.module';
+import { DropshipModule } from './modules/dropship/dropship.module';
 import { HealthModule } from './modules/health/health.module';
 import { MarketResearchModule } from './modules/market-research/market-research.module';
 
@@ -43,6 +45,10 @@ import { MarketResearchModule } from './modules/market-research/market-research.
     // AI modules
     AiModule,
     LlmGatewayModule,
+
+    // 卸 → Shopify 代発
+    ShopifyModule,
+    DropshipModule,
   ],
 })
 export class AppModule implements NestModule {
@@ -50,7 +56,7 @@ export class AppModule implements NestModule {
     // Apply tenancy middleware to all routes except auth and health
     consumer
       .apply(TenancyMiddleware)
-      .exclude('api/v1/auth/(.*)', 'api/v1/health', 'docs(.*)')
+      .exclude('api/v1/auth/(.*)', 'api/v1/health', 'api/v1/webhooks/(.*)', 'docs(.*)')
       .forRoutes('*');
   }
 }
