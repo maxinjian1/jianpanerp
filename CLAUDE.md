@@ -48,6 +48,12 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 密钥只放 `.env` / Windows 凭据管理器 / 云环境 secrets，聊天里不贴。
 - 每次会话结束前：把新的决定与进度写进本文件「进度日志」。
 
+## 新业务线：批发商 → Shopify 代发闭环（2026-10-15 立项，需求见 `docs/需求-Shopify代发闭环.md`）
+- Shopify 已连接店：LECOCO ITALY（anetmc.com，47 商品）；用户后台链接 store `0scqav-e7`，是否同一家待确认。
+- 批发商 kuajingyifan.com（用户有账号，已授权采集）；云端白名单不含该域，采集/下单都在 Windows 用 Playwright。
+- 图片重制需图像模型（GLM-5.3-Flash 不能生图）——待定 6kpro / 百炼万相。
+- 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
+
 ## 进度日志
 - 2026-10-15：**中国 LLM（6kpro GLM-5.3-Flash）从 Mac 测通**（200）；Windows 切换 `.env` 到 cn 进行中。
 - 2026-10-15：Lightsail 清理与重启**暂缓**（用户要求不搞复杂；Windows 会话也拒绝凭转述在生产机删东西）。
