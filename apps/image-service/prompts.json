@@ -1,0 +1,68 @@
+[
+  {
+    "name": "hero-desktop",
+    "width": 1920,
+    "height": 800,
+    "prompt": "wide cinematic shot of a sunlit Japanese living room with light oak table, a few everyday convenience goods neatly arranged (wireless charger, foldable storage box, ceramic mug, small plant), large empty space on the left third for headline text, morning light through sheer curtains"
+  },
+  {
+    "name": "hero-mobile",
+    "width": 1080,
+    "height": 1350,
+    "prompt": "vertical shot of a sunlit Japanese living room corner with light oak shelf, a few everyday convenience goods neatly arranged (wireless charger, foldable storage box, ceramic mug, small plant), generous empty space in the upper half for headline text, soft morning light"
+  },
+  {
+    "name": "cat-daily",
+    "width": 1200,
+    "height": 1200,
+    "prompt": "top-down flat lay of Japanese household daily goods on a cream linen cloth: compact kitchen organizer, silicone sponge, folding tote, bamboo tray, soft pastel colors"
+  },
+  {
+    "name": "cat-health",
+    "width": 1200,
+    "height": 1200,
+    "prompt": "calm home wellness scene: yoga mat rolled on light wood floor, massage ball, resistance band, glass water bottle, morning light from a window, plant in background"
+  },
+  {
+    "name": "cat-phone",
+    "width": 1200,
+    "height": 1200,
+    "prompt": "clean desk setup from above: smartphone on a magnetic stand, braided USB-C cable, compact power bank, wireless earbuds case, light wood desk, white wall"
+  },
+  {
+    "name": "cat-furniture",
+    "width": 1200,
+    "height": 1200,
+    "prompt": "cozy Japanese apartment corner: low oak side table, fabric storage boxes, linen cushion, small floor lamp giving warm light, neutral tones"
+  },
+  {
+    "name": "cat-camp",
+    "width": 1200,
+    "height": 1200,
+    "prompt": "camping gear arranged on a wooden deck at golden hour: folding chair, enamel mug, compact LED lantern, packing cubes, green forest softly blurred behind"
+  },
+  {
+    "name": "cat-pet",
+    "width": 1200,
+    "height": 1200,
+    "prompt": "a small fluffy dog resting on a beige pet bed beside a ceramic food bowl and a rope toy, light wood floor, soft window light, Japanese home"
+  },
+  {
+    "name": "cat-baby",
+    "width": 1200,
+    "height": 1200,
+    "prompt": "gentle nursery still life: folded cotton baby blanket, wooden rattle, silicone bib, soft plush toy on a white crib sheet, pastel light, no faces"
+  },
+  {
+    "name": "cat-fashion",
+    "width": 1200,
+    "height": 1200,
+    "prompt": "minimal fashion flat lay: linen shirt, canvas tote bag, simple gold-tone accessories, leather card case on a light stone surface, soft shadows"
+  },
+  {
+    "name": "story",
+    "width": 1200,
+    "height": 1200,
+    "prompt": "bright Japanese small warehouse shelf with neatly packed cardboard boxes and kraft paper, a wooden desk with packing tape and a notebook, clean and organized, warm daylight"
+  }
+]
