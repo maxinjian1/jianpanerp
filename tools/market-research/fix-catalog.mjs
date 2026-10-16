@@ -23,7 +23,9 @@ const CANON = ['日用品雑貨', '健康・ダイエット', 'スマートフ�
 const BAD_TYPES = new Set(['🎉 サプライズセール🎉', '分类', '📦仓库耗材📦', '', null, undefined]);
 const DIRECT_MAP = { 'ファッション・鞄': '衣類 ·アクセサリー ·ジュエリー' };
 // 模板型号：只删这些明确的模式，真实型号（DSHJ-S-2128-JP、R1004 等）保留
-const TEMPLATE_CODE = /(?:\s*[（(]?\s*(?:YB-05|[A-Z]-\d{2}|[A-Z]B-02|WBGHS-01-[A-Z]+|GYS-01-[A-Z]+|TEMU-\d{3,4}(?:-[A-Z])?|sg\d{3}(?:-[a-z])?|ny\d{3}|de\d{3}|zk\d{3}|sl\d{3})\s*[)）]?)+\s*$/;
+// 左边界 (?<![A-Za-z0-9]) 防止把 GYSLG-01 截成 GYSL；1–6 位大写字母-两位数(-字母) 覆盖批发商拼音首字母模板码（AB-03、DJDGH-04、GYSQHJ-01）
+// 真实型号不受影响：WRTA-BR-479 / DSHJ-S-2128-JP（3–4 位数字组）、R1004（无连字符）、4K-60（边界）
+const TEMPLATE_CODE = /(?:\s*[（(]?\s*(?<![A-Za-z0-9])(?:YB-05|[A-Z]{1,6}-\d{2}(?:-[A-Z]+)?|TEMU-\d{3,4}(?:-[A-Z])?|sg\d{3}(?:-[a-z])?|ny\d{3}|de\d{3}|zk\d{3}|sl\d{3})\s*[)）]?)+\s*$/;
 
 let token;
 async function getToken() { if (token) return token; const r = await fetch(`https://${SHOP}/admin/oauth/access_token`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'client_credentials', client_id: CID, client_secret: SECRET }) }); if (!r.ok) throw new Error(`token ${r.status}`); token = (await r.json()).access_token; return token; }
@@ -44,6 +46,7 @@ async function rollback(file) {
 
 async function main() {
   if (args.rollback) return rollback(args.rollback);
+  if (args['from-changes']) return applyFromChanges();
   const all = []; let cursor = null;
   for (;;) { const d = await gql(`query($c:String){products(first:250,after:$c,query:"vendor:ANET"){pageInfo{hasNextPage endCursor} nodes{id title productType handle status}}}`, { c: cursor }); all.push(...d.products.nodes); if (!d.products.pageInfo.hasNextPage) break; cursor = d.products.pageInfo.endCursor; }
   console.log(`products=${all.length}`);
@@ -74,4 +77,32 @@ async function main() {
   }
   console.log(`done ${n}; backup ${backupPath}`);
 }
+// --from-changes：复用 dry 产出的 catalog-changes.json 里的分类结果，只用新正则重算标题，直接写 Shopify（省掉 1 小时 LLM 归类）
+async function applyFromChanges() {
+  const prev = JSON.parse(fs.readFileSync(path.join(OUT, 'catalog-changes.json'), 'utf8'));
+  const typeById = new Map(prev.map((c) => [c.id, c.newType]));
+  const all = []; let cursor = null;
+  for (;;) { const d = await gql(`query($c:String){products(first:250,after:$c,query:"vendor:ANET"){pageInfo{hasNextPage endCursor} nodes{id title productType handle status}}}`, { c: cursor }); all.push(...d.products.nodes); if (!d.products.pageInfo.hasNextPage) break; cursor = d.products.pageInfo.endCursor; }
+  const changes = [];
+  for (const p of all) {
+    const newTitle = p.title.replace(TEMPLATE_CODE, '').replace(/\s+/g, ' ').trim() || p.title;
+    const newType = typeById.get(p.id) ?? (DIRECT_MAP[p.productType] ?? p.productType);
+    if (newTitle !== p.title || newType !== p.productType) changes.push({ id: p.id, handle: p.handle, title: p.title, productType: p.productType, newTitle, newType });
+  }
+  const frag = changes.filter((c) => c.newTitle !== c.title && !/^[\s（(]/.test(c.title.slice(c.newTitle.length)));
+  console.log(`products=${all.length} title changes=${changes.filter((c) => c.newTitle !== c.title).length} type changes=${changes.filter((c) => c.newType !== c.productType).length} fragments=${frag.length}`);
+  if (frag.length) { console.error('发现截断碎片，停止：', frag.slice(0, 5).map((c) => `${c.title} => ${c.newTitle}`)); process.exit(2); }
+  fs.writeFileSync(path.join(OUT, 'catalog-changes.json'), JSON.stringify(changes, null, 1));
+  if (args.dry) { changes.slice(0, 30).forEach((c) => console.log(`${c.title}  =>  ${c.newTitle}  [${c.productType} => ${c.newType}]`)); return; }
+  const backupPath = path.join(OUT, 'catalog-backup.json');
+  fs.writeFileSync(backupPath, JSON.stringify(changes.map((c) => ({ id: c.id, title: c.title, productType: c.productType })), null, 1));
+  let n = 0;
+  for (const c of changes) {
+    const d = await gql(`mutation($i:ProductInput!){productUpdate(input:$i){userErrors{field message}}}`, { i: { id: c.id, title: c.newTitle, productType: c.newType } });
+    if (d.productUpdate.userErrors?.length) console.error(c.handle, d.productUpdate.userErrors);
+    n++; if (n % 50 === 0) console.log(`${n}/${changes.length}`); await sleep(400);
+  }
+  console.log(`done ${n}; backup ${backupPath}`);
+}
+
 main().catch((e) => { console.error(e); process.exit(1); });
