@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "安い",
+    "slug": "yasui",
+    "scheme": "yasui",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "primaryColor": "#BF0000",
+    "locales": { "ja": "./locales/ja.json" },
+    "splash": { "image": "./assets/splash-icon.png", "resizeMode": "contain", "backgroundColor": "#ffffff", "imageWidth": 200 },
+    "ios": {
+      "bundleIdentifier": "com.anetmc.yasui",
+      "buildNumber": "1",
+      "supportsTablet": false,
+      "infoPlist": {
+        "CFBundleDisplayName": "安い",
+        "CFBundleDevelopmentRegion": "ja",
+        "CFBundleLocalizations": ["ja"],
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAppTransportSecurity": { "NSAllowsArbitraryLoads": false }
+      },
+      "associatedDomains": ["applinks:anetmc.com"]
+    },
+    "android": {
+      "package": "com.anetmc.yasui",
+      "versionCode": 1,
+      "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#BF0000" },
+      "predictiveBackGestureEnabled": true,
+      "intentFilters": [
+        { "action": "VIEW", "autoVerify": true, "data": [{ "scheme": "https", "host": "anetmc.com", "pathPrefix": "/products" }, { "scheme": "https", "host": "anetmc.com", "pathPrefix": "/collections" }], "category": ["BROWSABLE", "DEFAULT"] }
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      ["expo-splash-screen", { "image": "./assets/splash-icon.png", "imageWidth": 200, "resizeMode": "contain", "backgroundColor": "#ffffff" }],
+      "expo-web-browser"
+    ],
+    "experiments": { "typedRoutes": true },
+    "extra": { "eas": { "projectId": "" } }
+  }
+}
