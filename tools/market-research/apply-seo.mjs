@@ -64,12 +64,13 @@ async function main() {
   let n = 0;
   for (const r of todo) {
     const p = gidByHandle.get(r.handle);
-    const seoTitle = r.seo_title.slice(0, 60);
+    const title = r.seo_title.trim(); // 商品标题用全长（≤70，过滤已保证），只有 SEO meta title 截到 60，避免标题中途截断
+    const seoTitle = title.slice(0, 60);
     const seoDesc = `${r.hook ?? ''}。${(r.keywords ?? []).slice(0, 3).join('・')}。全国送料無料・平日12時までのご注文は当日出荷。`.slice(0, 155);
     const tags = Array.from(new Set([...(p.tags ?? []), ...(r.keywords ?? []).slice(0, 5)]));
-    if (args.dry) { if (n < 20) console.log(`\n[${p.handle}]\n  旧: ${p.title}\n  新: ${seoTitle}\n  SEO: ${seoDesc}`); n++; continue; }
+    if (args.dry) { if (n < 20) console.log(`\n[${p.handle}]\n  旧: ${p.title}\n  新: ${title}\n  SEO: ${seoDesc}`); n++; continue; }
     backup.push({ gid: p.id, handle: p.handle, title: p.title, seo: p.seo, tags: p.tags });
-    const d = await gql(`mutation($input: ProductInput!){ productUpdate(input:$input){ product{ id } userErrors{ field message } } }`, { input: { id: p.id, title: seoTitle, seo: { title: seoTitle, description: seoDesc }, tags } });
+    const d = await gql(`mutation($input: ProductInput!){ productUpdate(input:$input){ product{ id } userErrors{ field message } } }`, { input: { id: p.id, title, seo: { title: seoTitle, description: seoDesc }, tags } });
     const ue = d.productUpdate.userErrors; if (ue?.length) console.error(p.handle, ue);
     n++; if (n % 25 === 0) { fs.writeFileSync(backupPath, JSON.stringify(backup, null, 1)); console.log(`${n}/${todo.length}`); }
     await sleep(500);
