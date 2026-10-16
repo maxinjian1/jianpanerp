@@ -14,6 +14,10 @@ if (-not $Start) {
   & ".\venv\Scripts\python.exe" -m pip install --upgrade pip
   & ".\venv\Scripts\pip.exe" install torch torchvision --index-url https://download.pytorch.org/whl/cu124
   & ".\venv\Scripts\pip.exe" install -r requirements.txt
+  # iopaint は古い Pillow を固定しているため依存なしで入れる（依存は requirements.txt に列挙済み）
+  & ".\venv\Scripts\pip.exe" install --no-deps iopaint
+  # LaMa 重み（約 196MB）を先に取得しないと ModelManager が "Unsupported model: lama" になる
+  & ".\venv\Scripts\python.exe" -m iopaint download --model lama
   # モデルを先に落としておく（初回リクエストの待ちを無くす）
   & ".\venv\Scripts\python.exe" -c "from rembg import new_session; new_session('isnet-general-use'); print('rembg ok')"
   & ".\venv\Scripts\python.exe" -c "from iopaint.model_manager import ModelManager; ModelManager(name='lama', device='cuda'); print('lama ok')"
