@@ -27,7 +27,7 @@
     "name": "cat-phone",
     "width": 1200,
     "height": 1200,
-    "prompt": "clean desk setup from above: smartphone on a magnetic stand, braided USB-C cable, compact power bank, wireless earbuds case, light wood desk, white wall"
+    "prompt": "minimal desk still life from above: a smartphone lying face down on a round fabric wireless charging pad, a neatly coiled braided USB-C cable, a small matte power bank with no markings, wireless earbuds in an open matte case, light wood desk, soft window light, no text, no logos"
   },
   {
     "name": "cat-furniture",
@@ -63,6 +63,6 @@
     "name": "story",
     "width": 1200,
     "height": 1200,
-    "prompt": "bright Japanese small warehouse shelf with neatly packed cardboard boxes and kraft paper, a wooden desk with packing tape and a notebook, clean and organized, warm daylight"
+    "prompt": "bright small Japanese warehouse corner, neat rows of plain unlabeled kraft cardboard boxes on light metal shelves, no labels, no stickers, no printed text on boxes, a light wood packing desk in front with a roll of kraft tape and folded tissue paper, clean, warm daylight"
   }
 ]
