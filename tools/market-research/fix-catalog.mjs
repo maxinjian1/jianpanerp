@@ -85,11 +85,11 @@ async function applyFromChanges() {
   for (;;) { const d = await gql(`query($c:String){products(first:250,after:$c,query:"vendor:ANET"){pageInfo{hasNextPage endCursor} nodes{id title productType handle status}}}`, { c: cursor }); all.push(...d.products.nodes); if (!d.products.pageInfo.hasNextPage) break; cursor = d.products.pageInfo.endCursor; }
   const changes = [];
   for (const p of all) {
-    const newTitle = p.title.replace(TEMPLATE_CODE, '').replace(/\s+/g, ' ').trim() || p.title;
+    const newTitle = p.title.replace(/・\s*[A-Z]{1,6}-\d{2}\s*）$/, '）').replace(TEMPLATE_CODE, '').replace(/\s+/g, ' ').trim() || p.title;
     const newType = typeById.get(p.id) ?? (DIRECT_MAP[p.productType] ?? p.productType);
     if (newTitle !== p.title || newType !== p.productType) changes.push({ id: p.id, handle: p.handle, title: p.title, productType: p.productType, newTitle, newType });
   }
-  const frag = changes.filter((c) => c.newTitle !== c.title && !/^[\s（(]/.test(c.title.slice(c.newTitle.length)));
+  const frag = changes.filter((c) => c.newTitle !== c.title && c.title.startsWith(c.newTitle) && !/^[\s（(]/.test(c.title.slice(c.newTitle.length)) && !/[\s（()）]/.test(c.title[c.newTitle.length - 1] ?? ' '));
   console.log(`products=${all.length} title changes=${changes.filter((c) => c.newTitle !== c.title).length} type changes=${changes.filter((c) => c.newType !== c.productType).length} fragments=${frag.length}`);
   if (frag.length) { console.error('发现截断碎片，停止：', frag.slice(0, 5).map((c) => `${c.title} => ${c.newTitle}`)); process.exit(2); }
   fs.writeFileSync(path.join(OUT, 'catalog-changes.json'), JSON.stringify(changes, null, 1));
