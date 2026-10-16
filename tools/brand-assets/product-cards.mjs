@@ -89,7 +89,7 @@ shots['04-scene'] = sceneFile ? page(`
   <div style="position:absolute;inset:0;background:radial-gradient(120% 80% at 70% 20%, #FFFFFF 0%, ${T.bg} 60%)"></div>
   <div style="position:absolute;left:${SIZE * 0.07}px;top:${SIZE * 0.1}px;width:${SIZE * 0.47}px">
     <div class="chip" style="font-size:28px">${spec.sceneTag}</div>
-    <div class="h" style="font-size:56px;margin-top:22px;color:${T.ink}">${spec.sceneCopy}</div>
+    <div class="h" style="font-size:50px;margin-top:22px;color:${T.ink};letter-spacing:.01em">${spec.sceneCopy}</div>
     <div class="rule" style="margin-top:22px"></div>
     <div class="small" style="font-size:28px;margin-top:22px">${spec.sceneSub}</div>
   </div>
@@ -97,7 +97,7 @@ shots['04-scene'] = sceneFile ? page(`
 // 5. 寸法図（寸法線は商品の実描画範囲に自動で合わせる）
 const d = spec.dimensions ?? {};
 const hasDims = ['w', 'h', 'd'].some((k) => d[k] && !/^[—\-－]?$/.test(String(d[k]).trim()));
-const specRows = (spec.specs ?? []).filter((s) => s && s.k && s.v && !/^[—\-－]?$/.test(String(s.v).trim())).slice(0, 6);
+const specRows = (spec.specs ?? []).filter((s) => s && s.k && s.v && !/^[—\-－]?$/.test(String(s.v).trim()) && !/価格|値段|税込|送料/.test(String(s.k))).slice(0, 6);
 if (!hasDims) {
   useTheme('05-dimensions');
   shots['05-dimensions'] = page(`
