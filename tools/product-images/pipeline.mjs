@@ -129,7 +129,9 @@ const SPEC_SYS = `あなたは日本の EC（楽天市場・Amazon.co.jp）専�
  "trustTitle":"安心してお買い物いただくために"}`;
 async function spec(p) {
   const f = path.join(OUT, p.handle, 'spec.json'); if (fs.existsSync(f)) return;
-  const cls = JSON.parse(fs.readFileSync(path.join(OUT, p.handle, 'classify.json'), 'utf8'));
+  const cf = path.join(OUT, p.handle, 'classify.json');
+  if (!fs.existsSync(cf)) { if (args['ready-only']) return; throw new Error('classify.json missing'); }
+  const cls = JSON.parse(fs.readFileSync(cf, 'utf8'));
   const usable = (cls.images ?? []).filter((x) => ['detail', 'scene', 'package', 'main'].includes(x.kind) && !x.hasBrandLogo && !x.hasPerson).map((x) => ({ n: x.n, kind: x.kind, caption: x.caption, hasText: x.hasText }));
   const price = Math.min(...p.variants.nodes.map((v) => Number(v.price)));
   const user = `商品名: ${p.title}\nカテゴリ: ${p.productType}\n価格(税込): ¥${price}\nオプション: ${JSON.stringify(p.options)}\nバリエーション: ${p.variants.nodes.map((v) => v.title).join(' / ')}\n説明文:\n${p.description.slice(0, 3000)}\n\n利用可能な画像（番号・種類・内容）:\n${JSON.stringify(usable)}`;
@@ -157,6 +159,7 @@ async function spec(p) {
 // ========== render ==========
 function render(p) {
   const final = path.join(OUT, p.handle, 'final'); if (fs.existsSync(path.join(final, '08-trust.png')) && !args.force) return;
+  if (!fs.existsSync(path.join(OUT, p.handle, 'spec.json')) || !fs.existsSync(path.join(OUT, p.handle, 'work', 'cutout.png'))) { if (args['ready-only']) return; throw new Error('spec/cutout missing'); }
   const r = spawnSync(process.execPath, [path.join(ROOT, 'tools/brand-assets/product-cards.mjs'), '--spec', path.join(OUT, p.handle, 'spec.json'), '--style', args.style ?? 'MIX', '--out', final], { encoding: 'utf8', cwd: ROOT, env: process.env });
   if (r.status !== 0) throw new Error(`render failed: ${r.stderr.slice(-400)}`);
   for (const f of fs.readdirSync(final)) if (f.endsWith('.html')) fs.unlinkSync(path.join(final, f));
@@ -208,9 +211,11 @@ async function rollback(p) {
 const run = {
   fetch: fetchStage,
   classify: async () => pool(loadProducts(), CONC, classify),
-  cutout: async () => { const ps = loadProducts(); for (const p of ps) if (!fs.existsSync(path.join(OUT, p.handle, 'classify.json'))) await classify(p); const jobs = ps.map(cutoutJobs).filter(Boolean); log('cutout jobs', jobs.length); if (jobs.length) py('cutout', jobs); },
+  cutout: async () => { let ps = loadProducts(); if (args['ready-only']) ps = ps.filter((p) => fs.existsSync(path.join(OUT, p.handle, 'classify.json'))); else for (const p of ps) if (!fs.existsSync(path.join(OUT, p.handle, 'classify.json'))) await classify(p); const jobs = ps.map(cutoutJobs).filter(Boolean); log('cutout jobs', jobs.length); if (jobs.length) py('cutout', jobs); },
+  // follow：主进程 classify 跑着的时候，并行把已分类的商品推进到成品（cutout→spec→render→preview），循环直到全部完成
+  follow: async () => { for (;;) { await run.cutout(); await run.spec(); await run.render(); await run.preview(); const ps = loadProducts(); const done = ps.filter((p) => fs.existsSync(path.join(OUT, p.handle, 'final', '08-trust.png'))).length; log(`follow: final ${done}/${ps.length}`); if (done >= ps.length) break; await sleep(Number(args.interval ?? 600) * 1000); } },
   spec: async () => pool(loadProducts(), CONC, spec),
-  render: async () => { for (const p of loadProducts()) { try { render(p); } catch (e) { log('ERR render', p.handle, e.message); } } },
+  render: async () => { for (const p of loadProducts()) { try { render(p); } catch (e) { log('ERR render', p.handle, e.message); fs.appendFileSync(path.join(OUT, 'errors.log'), `${new Date().toISOString()} render ${p.handle} ${e.message}\n`); } } },
   preview: async () => { const jobs = previewJobs(loadProducts()); log('preview jobs', jobs.length); if (jobs.length) py('sheet', jobs); },
   publish: async () => pool(loadProducts(), 2, publish),
   rollback: async () => { for (const p of loadProducts()) await rollback(p); },

@@ -23,3 +23,10 @@ node tools/product-images/pipeline.mjs rollback --handle <handle>             # 
 - 出力：`out/<handle>/final/01-main-amazon.png … 08-trust.png`（1600×1600）。01 は Amazon 主画像規約（純白・文字なし）、02 は楽天主画像規約（文字 20% 未満・枠線なし）。
 - 所要時間の目安：classify 約 20〜30 秒/品（画像 8〜10 枚を 1 リクエスト）、cutout 約 1〜2 秒/品、spec 約 20〜30 秒/品、render 約 6 秒/品 → 1184 件で 6kpro 3 並列なら約 6〜8 時間。
 - 楽天・Amazon への出品時は `final/` をそのまま使う（Amazon は 01 を主画像、08 は送料無料の文言を含むため使わない or `--amazon 1` で再レンダリング）。
+
+## 並行モード（全量実行中に成品を先に出す）
+主プロセス `all` が classify を回している間に、別プロセスで
+```powershell
+node tools/product-images/pipeline.mjs follow --ready-only --concurrency 2 --interval 600
+```
+を常駐させると、classify 済みの商品から順に cutout → spec → render → preview を 10 分ごとに進める（未分類はスキップ、全件 final が揃うと自動終了）。6kpro への負荷は spec の 2 並列分だけ増える。
