@@ -100,11 +100,12 @@ async function classify(p) {
   const content = [{ type: 'text', text: `商品名: ${p.title}\n画像は ${files.length} 枚、番号順です。` }];
   files.forEach((n, i) => { content.push({ type: 'text', text: `画像 ${i + 1}:` }); content.push({ type: 'image_url', image_url: { url: b64(path.join(th, n)) } }); });
   const j = await chatJson([{ role: 'system', content: CLASSIFY_SYS }, { role: 'user', content }], { maxTokens: 3000 });
+  if (!Array.isArray(j.images) || !j.images.length) throw new Error(`classify: images not array: ${JSON.stringify(j).slice(0, 120)}`); // 模型偶尔输出错位引号的坏 JSON，不落盘，留给下一轮重分类
   fs.writeFileSync(f, JSON.stringify(j, null, 1)); log('classified', p.handle, j.images?.length);
 }
 
 // ========== cutout ==========
-function pickMain(cls, n) { const imgs = cls.images ?? []; const cands = imgs.filter((x) => x.kind === 'main' && !x.hasBrandLogo).sort((a, b) => Number(a.hasText) - Number(b.hasText) || a.n - b.n); return cands[0] ?? imgs.find((x) => x.mainBox) ?? { n: 1, mainBox: null }; }
+function pickMain(cls, n) { const imgs = Array.isArray(cls.images) ? cls.images : []; const cands = imgs.filter((x) => x.kind === 'main' && !x.hasBrandLogo).sort((a, b) => Number(a.hasText) - Number(b.hasText) || a.n - b.n); return cands[0] ?? imgs.find((x) => x.mainBox) ?? { n: 1, mainBox: null }; }
 function cutoutJobs(p) {
   const cls = JSON.parse(fs.readFileSync(path.join(OUT, p.handle, 'classify.json'), 'utf8')); const m = pickMain(cls, p.media.length);
   const out = path.join(dir(p, 'work'), 'cutout.png'); if (fs.existsSync(out)) return null;
