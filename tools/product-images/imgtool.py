@@ -30,6 +30,10 @@ def sheet(jobs):
         im.save(j['out'], quality=85)
 
 def cutout(jobs):
+    try:  # onnxruntime-gpu 1.31 需要 CUDA 13 运行库（pip 的 onnxruntime-gpu[cuda,cudnn]），必须先 preload 否则静默回退 CPU（7s/张 vs GPU 约 0.5s）
+        import onnxruntime as ort; ort.preload_dlls()
+    except Exception as e:
+        print('onnxruntime preload_dlls failed, CPU fallback:', e, file=sys.stderr)
     from rembg import remove, new_session
     try:
         s = new_session('birefnet-general')
