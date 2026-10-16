@@ -41,17 +41,22 @@ h1,h2,.h{font-family:${T.head};font-weight:${T.headWeight};line-height:1.25;lett
 ${extra}</style></head><body><div class="wrap">${body}</div></body></html>`;
 
 const cutout = spec.cutout && existsSync(resolve(base, spec.cutout)) ? img(spec.cutout) : null;
-const productImg = (w, extraStyle = '') => cutout
-  ? `<img src="${cutout}" style="width:${w}px;height:${w}px;object-fit:contain;${extraStyle}">`
-  : `<div style="width:${w}px;height:${w}px;border-radius:24px;background:repeating-linear-gradient(45deg,#ddd 0 20px,#eee 20px 40px);display:flex;align-items:center;justify-content:center;color:#888;font-size:40px;${extraStyle}">商品切り抜き（準備中）</div>`;
+// PNG IHDR から実寸を読む（寸法線を商品の実際の描画範囲に合わせるため）
+function pngSize(p) { const b = readFileSync(p); return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) }; }
+const cut = cutout ? pngSize(resolve(base, spec.cutout)) : { w: 1, h: 1 };
+/** 枠 (bw×bh) に contain で収めたときの実描画サイズ */
+const fit = (bw, bh) => { const r = Math.min(bw / cut.w, bh / cut.h); return { w: cut.w * r, h: cut.h * r }; };
+const productImg = (w, h = w, extraStyle = '') => cutout
+  ? `<img src="${cutout}" style="width:${w}px;height:${h}px;object-fit:contain;${extraStyle}">`
+  : `<div style="width:${w}px;height:${h}px;border-radius:24px;background:repeating-linear-gradient(45deg,#ddd 0 20px,#eee 20px 40px);display:flex;align-items:center;justify-content:center;color:#888;font-size:40px;${extraStyle}">商品切り抜き（準備中）</div>`;
 
 // ---- 8 枚のテンプレート ----
 const shots = {};
 // 1. Amazon 主画像：純白・文字なし・商品 85%
-shots['01-main-amazon'] = page(`<div style="width:${SIZE}px;height:${SIZE}px;background:#fff;display:flex;align-items:center;justify-content:center">${productImg(Math.round(SIZE * 0.86))}</div>`, 'body{background:#fff}');
+shots['01-main-amazon'] = page(`<div style="width:${SIZE}px;height:${SIZE}px;background:#fff;display:flex;align-items:center;justify-content:center">${productImg(Math.round(SIZE * 0.86), Math.round(SIZE * 0.86))}</div>`, 'body{background:#fff}');
 // 2. 楽天主画像：文字面積 20% 未満（下帯 14%）・枠線なし
 shots['02-main-rakuten'] = page(`
-  <div style="position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-top:${SIZE * 0.05}px">${productImg(Math.round(SIZE * 0.76))}</div>
+  <div style="position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-top:${SIZE * 0.05}px">${productImg(Math.round(SIZE * 0.9), Math.round(SIZE * 0.76))}</div>
   <div style="position:absolute;left:0;right:0;bottom:0;height:${SIZE * 0.14}px;padding:0 ${SIZE * 0.05}px;display:flex;align-items:center;justify-content:space-between;background:${STYLE === 'B' ? '#fff' : 'transparent'}">
     <div><div class="h" style="font-size:56px">${spec.shortTitle}</div><div class="small" style="font-size:30px;margin-top:6px">${spec.catch}</div></div>
     <div style="text-align:right"><div class="num" style="font-size:72px;line-height:1">${spec.price}</div><div class="small" style="font-size:24px">税込・送料無料</div></div>
@@ -63,42 +68,46 @@ shots['03-features'] = page(`
     <h1 style="font-size:70px;margin-top:22px">${spec.headline}</h1>
     <div class="rule" style="margin-top:22px"></div>
   </div>
-  <div style="position:absolute;left:${SIZE * 0.06}px;top:${SIZE * 0.34}px;width:${SIZE * 0.4}px;height:${SIZE * 0.6}px;display:flex;align-items:center;justify-content:center">${productImg(Math.round(SIZE * 0.4))}</div>
+  <div style="position:absolute;left:${SIZE * 0.06}px;top:${SIZE * 0.34}px;width:${SIZE * 0.4}px;height:${SIZE * 0.6}px;display:flex;align-items:center;justify-content:center">${productImg(Math.round(SIZE * 0.4), Math.round(SIZE * 0.6))}</div>
   <div style="position:absolute;right:${SIZE * 0.06}px;top:${SIZE * 0.32}px;width:${SIZE * 0.46}px;display:grid;gap:22px">
     ${spec.features.map((f, i) => `<div class="panel" style="padding:30px 34px;display:flex;gap:26px;align-items:center"><div class="num" style="font-size:64px;min-width:70px;line-height:1">${String(i + 1).padStart(2, '0')}</div><div><div class="h" style="font-size:38px">${f.t}</div><div class="small" style="font-size:25px;margin-top:4px">${f.d}</div></div></div>`).join('')}
   </div>`);
 // 4. シーン（原図 + キャプション）
 shots['04-scene'] = page(`
-  <img src="${img(spec.scene)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+  <img src="${img(spec.scene)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:${spec.scenePos ?? '50% 50%'};transform:scale(${spec.sceneZoom ?? 1.2});transform-origin:50% 100%">
   <div style="position:absolute;left:0;right:0;bottom:0;padding:${SIZE * 0.05}px;background:linear-gradient(transparent,rgba(${STYLE === 'B' ? '0,0,0,.72' : '43,43,43,.66'}))">
     <div class="chip" style="font-size:28px">${spec.sceneTag}</div>
     <div class="h" style="font-size:66px;color:#fff;margin-top:18px;text-shadow:0 2px 12px rgba(0,0,0,.3)">${spec.sceneCopy}</div>
     <div style="font-size:28px;color:#fff;opacity:.9;margin-top:10px">${spec.sceneSub}</div>
   </div>`);
-// 5. 寸法図
+// 5. 寸法図（寸法線は商品の実描画範囲に自動で合わせる）
 const d = spec.dimensions;
-shots['05-dimensions'] = page(`
+{
+  const boxW = SIZE * 0.56, boxH = SIZE * 0.56, boxL = SIZE * 0.22, boxT = SIZE * 0.26;
+  const f = fit(boxW, boxH); const L = boxL + (boxW - f.w) / 2, Tt = boxT + (boxH - f.h) / 2, R = L + f.w, B = Tt + f.h;
+  const gap = 28, tick = 28, lw = 3;
+  shots['05-dimensions'] = page(`
   <div style="padding:${SIZE * 0.06}px"><div class="chip o" style="font-size:30px">SIZE</div><h1 style="font-size:64px;margin-top:20px">${d.title}</h1></div>
-  <div style="position:absolute;left:${SIZE * 0.22}px;top:${SIZE * 0.26}px;width:${SIZE * 0.56}px;height:${SIZE * 0.56}px;display:flex;align-items:center;justify-content:center">${productImg(Math.round(SIZE * 0.56))}</div>
-  <!-- 寸法線 -->
-  <div style="position:absolute;left:${SIZE * 0.22}px;right:${SIZE * 0.22}px;top:${SIZE * 0.845}px;height:3px;background:${T.ink}"></div>
-  <div style="position:absolute;left:${SIZE * 0.22}px;top:${SIZE * 0.83}px;width:3px;height:32px;background:${T.ink}"></div><div style="position:absolute;right:${SIZE * 0.22}px;top:${SIZE * 0.83}px;width:3px;height:32px;background:${T.ink}"></div>
-  <div style="position:absolute;left:0;right:0;top:${SIZE * 0.865}px;text-align:center;font-size:40px;font-weight:700">幅 <span class="num" style="font-size:56px">${d.w}</span></div>
-  <div style="position:absolute;left:${SIZE * 0.13}px;top:${SIZE * 0.26}px;bottom:${SIZE * 0.18}px;width:3px;background:${T.ink}"></div>
-  <div style="position:absolute;left:${SIZE * 0.115}px;top:${SIZE * 0.26}px;width:32px;height:3px;background:${T.ink}"></div><div style="position:absolute;left:${SIZE * 0.115}px;bottom:${SIZE * 0.18}px;width:32px;height:3px;background:${T.ink}"></div>
-  <div style="position:absolute;left:${SIZE * 0.035}px;top:${SIZE * 0.5}px;transform:translateY(-50%);font-size:36px;font-weight:700;line-height:1.3">高さ<br><span class="num" style="font-size:52px">${d.h}</span></div>
-  <div style="position:absolute;right:${SIZE * 0.05}px;top:${SIZE * 0.5}px;transform:translateY(-50%);text-align:right;font-size:36px;font-weight:700;line-height:1.3">奥行<br><span class="num" style="font-size:52px">${d.d}</span></div>
+  <div style="position:absolute;left:${boxL}px;top:${boxT}px;width:${boxW}px;height:${boxH}px;display:flex;align-items:center;justify-content:center">${productImg(Math.round(boxW), Math.round(boxH))}</div>
+  <div style="position:absolute;left:${L}px;width:${f.w}px;top:${B + gap}px;height:${lw}px;background:${T.ink}"></div>
+  <div style="position:absolute;left:${L}px;top:${B + gap - tick / 2}px;width:${lw}px;height:${tick}px;background:${T.ink}"></div><div style="position:absolute;left:${R - lw}px;top:${B + gap - tick / 2}px;width:${lw}px;height:${tick}px;background:${T.ink}"></div>
+  <div style="position:absolute;left:${L - 200}px;width:${f.w + 400}px;top:${B + gap + 24}px;text-align:center;font-size:40px;font-weight:700">幅 <span class="num" style="font-size:56px">${d.w}</span></div>
+  <div style="position:absolute;left:${L - gap}px;top:${Tt}px;height:${f.h}px;width:${lw}px;background:${T.ink}"></div>
+  <div style="position:absolute;left:${L - gap - tick / 2}px;top:${Tt}px;width:${tick}px;height:${lw}px;background:${T.ink}"></div><div style="position:absolute;left:${L - gap - tick / 2}px;top:${B - lw}px;width:${tick}px;height:${lw}px;background:${T.ink}"></div>
+  <div style="position:absolute;right:${SIZE - L + gap + 30}px;top:${(Tt + B) / 2}px;transform:translateY(-50%);text-align:right;font-size:36px;font-weight:700;line-height:1.3">高さ<br><span class="num" style="font-size:52px">${d.h}</span></div>
+  <div style="position:absolute;left:${R + gap + 30}px;top:${(Tt + B) / 2}px;transform:translateY(-50%);font-size:36px;font-weight:700;line-height:1.3">奥行<br><span class="num" style="font-size:52px">${d.d}</span></div>
   <div style="position:absolute;left:0;right:0;bottom:${SIZE * 0.04}px;text-align:center" class="small">${d.note}</div>`);
+}
 // 6. ディテール 2×2
 shots['06-details'] = page(`
   <div style="padding:${SIZE * 0.05}px ${SIZE * 0.05}px 0;display:flex;align-items:center;gap:26px"><div class="rule" style="width:16px;height:60px"></div><h1 style="font-size:60px">${spec.detailsTitle}</h1></div>
   <div style="position:absolute;left:${SIZE * 0.05}px;right:${SIZE * 0.05}px;top:${SIZE * 0.17}px;bottom:${SIZE * 0.05}px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:26px">
-    ${spec.details.map((x) => `<div class="panel" style="overflow:hidden;position:relative;border-radius:${T.radius}px"><img src="${img(x.img)}" style="width:100%;height:100%;object-fit:cover"><div style="position:absolute;left:0;right:0;bottom:0;padding:18px 24px;background:rgba(255,255,255,.92);display:flex;align-items:center;gap:14px"><span class="chip" style="font-size:22px;padding:.2em .7em">${x.tag}</span><span style="font-size:28px;font-weight:700">${x.cap}</span></div></div>`).join('')}
+    ${spec.details.map((x) => `<div class="panel" style="overflow:hidden;position:relative;border-radius:${T.radius}px"><img src="${img(x.img)}" style="width:100%;height:100%;object-fit:cover;object-position:${x.pos ?? '50% 50%'};transform:scale(${x.zoom ?? 1.15})"><div style="position:absolute;left:0;right:0;bottom:0;padding:18px 24px;background:rgba(255,255,255,.92);display:flex;align-items:center;gap:14px"><span class="chip" style="font-size:22px;padding:.2em .7em">${x.tag}</span><span style="font-size:28px;font-weight:700">${x.cap}</span></div></div>`).join('')}
   </div>`);
 // 7. カラー / セット内容
 shots['07-variants'] = page(`
   <div style="padding:${SIZE * 0.06}px"><div class="chip o" style="font-size:30px">COLOR / SET</div><h1 style="font-size:64px;margin-top:20px">${spec.variantsTitle}</h1></div>
-  <div style="position:absolute;left:${SIZE * 0.06}px;top:${SIZE * 0.28}px;width:${SIZE * 0.46}px;height:${SIZE * 0.5}px;display:flex;align-items:center;justify-content:center">${productImg(Math.round(SIZE * 0.46))}</div>
+  <div style="position:absolute;left:${SIZE * 0.06}px;top:${SIZE * 0.28}px;width:${SIZE * 0.46}px;height:${SIZE * 0.5}px;display:flex;align-items:center;justify-content:center">${productImg(Math.round(SIZE * 0.46), Math.round(SIZE * 0.5))}</div>
   <div style="position:absolute;right:${SIZE * 0.06}px;top:${SIZE * 0.3}px;width:${SIZE * 0.38}px;display:grid;gap:20px">
     ${spec.colors.map((c) => `<div class="panel" style="padding:24px 28px;display:flex;align-items:center;gap:22px"><div style="width:64px;height:64px;border-radius:${T.chip === 'round' ? 999 : 6}px;background:${c.hex};border:3px solid #fff;box-shadow:0 0 0 2px #ddd"></div><div class="h" style="font-size:40px">${c.name}</div></div>`).join('')}
     <div class="panel" style="padding:24px 28px;margin-top:10px"><div class="small" style="font-size:24px;font-weight:700;color:${T.ink}">セット内容</div>${spec.setContents.map((s) => `<div style="font-size:30px;margin-top:8px">・${s}</div>`).join('')}</div>
