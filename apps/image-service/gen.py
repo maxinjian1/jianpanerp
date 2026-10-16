@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import json
 import time
 from pathlib import Path
@@ -22,7 +23,8 @@ from diffusers import FluxPipeline
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_OUT = HERE.parent / "web-client" / "public" / "brand" / "gen"
-MODEL = "black-forest-labs/FLUX.1-schnell"
+# 官方仓库 2026 起需 HF 登录（gated）；unsloth/FLUX.1-schnell 是同一权重的无门槛镜像（Apache-2.0）
+MODEL = os.environ.get("FLUX_MODEL", "black-forest-labs/FLUX.1-schnell")
 
 # 统一风格：日系明亮生活感、自然光、留白、无文字无人脸特写（避免肖像权/文字乱码）
 STYLE = (
