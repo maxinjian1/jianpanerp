@@ -24,8 +24,8 @@ const img = (p) => pathToFileURL(resolve(base, p)).href;
 
 // ---- スタイル定義 ----
 const THEMES = {
-  B: { name: 'B 量販専門店風', bg: '#FFFFFF', panel: '#F4F4F4', ink: '#111111', sub: '#555555', accent: '#BF0000', accent2: '#111111', radius: 4, font: `"Noto Sans JP","IPAPGothic",sans-serif`, head: `"Noto Sans JP","IPAPGothic",sans-serif`, headWeight: 900, rule: 6, shadow: 'none', chip: 'square' },
-  A: { name: 'A 生活雑貨風', bg: '#F7F3EC', panel: '#FFFFFF', ink: '#2B2B2B', sub: '#6B6B6B', accent: '#F28C28', accent2: '#0F2A44', radius: 28, font: `"Noto Sans JP","IPAPGothic",sans-serif`, head: `"Zen Kaku Gothic New","Noto Sans JP",sans-serif`, headWeight: 700, rule: 3, shadow: '0 18px 40px rgba(43,43,43,.10)', chip: 'round' },
+  B: { name: 'B 量販専門店風', bg: '#FFFFFF', panel: '#F4F4F4', ink: '#111111', sub: '#555555', accent: '#BF0000', accent2: '#111111', line: '#E5E5E5', radius: 4, font: `"Noto Sans JP","IPAPGothic",sans-serif`, head: `"Noto Sans JP","IPAPGothic",sans-serif`, headWeight: 900, rule: 6, shadow: 'none', chip: 'square' },
+  A: { name: 'A 生活雑貨風', bg: '#F7F3EC', panel: '#FFFFFF', ink: '#2B2B2B', sub: '#6B6B6B', accent: '#F28C28', accent2: '#0F2A44', line: '#E8E1D6', radius: 28, font: `"Noto Sans JP","IPAPGothic",sans-serif`, head: `"Zen Kaku Gothic New","Noto Sans JP",sans-serif`, headWeight: 700, rule: 3, shadow: '0 18px 40px rgba(43,43,43,.10)', chip: 'round' },
 };
 // MIX：主画像・特長・寸法・ディテール・カラー・安心 = B（量販店風）、シーン = A（生活雑貨風）
 const themeFor = (shot) => STYLE === 'MIX' ? (shot === '04-scene' ? THEMES.A : THEMES.B) : (THEMES[STYLE] ?? THEMES.B);
@@ -77,16 +77,37 @@ useTheme('03-features'); shots['03-features'] = page(`
     ${spec.features.map((f, i) => `<div class="panel" style="padding:30px 34px;display:flex;gap:26px;align-items:center"><div class="num" style="font-size:64px;min-width:70px;line-height:1">${String(i + 1).padStart(2, '0')}</div><div><div class="h" style="font-size:38px">${f.t}</div><div class="small" style="font-size:25px;margin-top:4px">${f.d}</div></div></div>`).join('')}
   </div>`);
 // 4. シーン（原図 + キャプション）
-useTheme('04-scene'); shots['04-scene'] = page(`
-  <img src="${img(spec.scene)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:${spec.scenePos ?? '50% 50%'};transform:scale(${spec.sceneZoom ?? 1.2});transform-origin:50% 100%">
-  <div style="position:absolute;left:0;right:0;bottom:0;padding:${SIZE * 0.05}px;background:linear-gradient(transparent,rgba(${STYLE === 'B' ? '0,0,0,.72' : '43,43,43,.66'}))">
+useTheme('04-scene');
+const sceneFile = spec.scene && existsSync(resolve(base, spec.scene)) ? img(spec.scene) : null;
+shots['04-scene'] = sceneFile ? page(`
+  <img src="${sceneFile}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:${spec.scenePos ?? '50% 50%'};transform:scale(${spec.sceneZoom ?? 1.2});transform-origin:50% 100%">
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:${SIZE * 0.05}px;background:linear-gradient(transparent,rgba(43,43,43,.66))">
     <div class="chip" style="font-size:28px">${spec.sceneTag}</div>
     <div class="h" style="font-size:66px;color:#fff;margin-top:18px;text-shadow:0 2px 12px rgba(0,0,0,.3)">${spec.sceneCopy}</div>
     <div style="font-size:28px;color:#fff;opacity:.9;margin-top:10px">${spec.sceneSub}</div>
-  </div>`);
+  </div>`) : page(`
+  <div style="position:absolute;inset:0;background:radial-gradient(120% 80% at 70% 20%, #FFFFFF 0%, ${T.bg} 60%)"></div>
+  <div style="position:absolute;left:${SIZE * 0.07}px;top:${SIZE * 0.1}px;width:${SIZE * 0.47}px">
+    <div class="chip" style="font-size:28px">${spec.sceneTag}</div>
+    <div class="h" style="font-size:56px;margin-top:22px;color:${T.ink}">${spec.sceneCopy}</div>
+    <div class="rule" style="margin-top:22px"></div>
+    <div class="small" style="font-size:28px;margin-top:22px">${spec.sceneSub}</div>
+  </div>
+  <div style="position:absolute;right:${SIZE * 0.06}px;top:${SIZE * 0.14}px;width:${SIZE * 0.38}px;height:${SIZE * 0.72}px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 30px 40px rgba(43,43,43,.18))">${productImg(Math.round(SIZE * 0.42), Math.round(SIZE * 0.72))}</div>`);
 // 5. 寸法図（寸法線は商品の実描画範囲に自動で合わせる）
-const d = spec.dimensions;
-{ useTheme('05-dimensions');
+const d = spec.dimensions ?? {};
+const hasDims = ['w', 'h', 'd'].some((k) => d[k] && !/^[—\-－]?$/.test(String(d[k]).trim()));
+const specRows = (spec.specs ?? []).filter((s) => s && s.k && s.v && !/^[—\-－]?$/.test(String(s.v).trim())).slice(0, 6);
+if (!hasDims) {
+  useTheme('05-dimensions');
+  shots['05-dimensions'] = page(`
+  <div style="padding:${SIZE * 0.06}px"><div class="chip o" style="font-size:30px">SPEC</div><h1 style="font-size:64px;margin-top:20px">仕様</h1></div>
+  <div style="position:absolute;left:${SIZE * 0.06}px;top:${SIZE * 0.26}px;width:${SIZE * 0.4}px;height:${SIZE * 0.6}px;display:flex;align-items:center;justify-content:center">${productImg(Math.round(SIZE * 0.4), Math.round(SIZE * 0.6))}</div>
+  <div style="position:absolute;right:${SIZE * 0.06}px;top:${SIZE * 0.27}px;width:${SIZE * 0.46}px">
+    ${(specRows.length ? specRows : [{ k: '商品名', v: spec.shortTitle ?? spec.title ?? '' }]).map((s) => `<div style="display:flex;gap:24px;padding:22px 0;border-bottom:2px solid ${T.line ?? '#E5E5E5'}"><div style="min-width:170px;font-size:28px;color:${T.sub};font-weight:700">${s.k}</div><div style="font-size:30px;font-weight:700;color:${T.ink};line-height:1.4">${s.v}</div></div>`).join('')}
+    <div class="small" style="margin-top:22px">${d.note ?? ''}</div>
+  </div>`);
+} else { useTheme('05-dimensions');
   const boxW = SIZE * 0.56, boxH = SIZE * 0.56, boxL = SIZE * 0.22, boxT = SIZE * 0.26;
   const f = fit(boxW, boxH); const L = boxL + (boxW - f.w) / 2, Tt = boxT + (boxH - f.h) / 2, R = L + f.w, B = Tt + f.h;
   const gap = 28, tick = 28, lw = 3;
@@ -103,17 +124,22 @@ const d = spec.dimensions;
   <div style="position:absolute;left:0;right:0;bottom:${SIZE * 0.04}px;text-align:center" class="small">${d.note}</div>`);
 }
 // 6. ディテール 2×2
-useTheme('06-details'); shots['06-details'] = page(`
+useTheme('06-details');
+const detailItems = (spec.details ?? []).filter((x) => x && x.img && existsSync(resolve(base, x.img)));
+while (detailItems.length < 2 && cutout) detailItems.push({ cutout: true, tag: 'POINT', cap: spec.features?.[detailItems.length]?.t ?? spec.shortTitle ?? '' });
+const gridCss = detailItems.length <= 1 ? 'grid-template-columns:1fr;grid-template-rows:1fr' : detailItems.length === 2 ? 'grid-template-columns:1fr 1fr;grid-template-rows:1fr' : detailItems.length === 3 ? 'grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr' : 'grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr';
+shots['06-details'] = page(`
   <div style="padding:${SIZE * 0.05}px ${SIZE * 0.05}px 0;display:flex;align-items:center;gap:26px"><div class="rule" style="width:16px;height:60px"></div><h1 style="font-size:60px">${spec.detailsTitle}</h1></div>
-  <div style="position:absolute;left:${SIZE * 0.05}px;right:${SIZE * 0.05}px;top:${SIZE * 0.17}px;bottom:${SIZE * 0.05}px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:26px">
-    ${spec.details.map((x) => `<div class="panel" style="overflow:hidden;position:relative;border-radius:${T.radius}px"><img src="${img(x.img)}" style="width:100%;height:100%;object-fit:cover;object-position:${x.pos ?? '50% 50%'};transform:scale(${x.zoom ?? 1.15})"><div style="position:absolute;left:0;right:0;bottom:0;padding:18px 24px;background:rgba(255,255,255,.92);display:flex;align-items:center;gap:14px"><span class="chip" style="font-size:22px;padding:.2em .7em">${x.tag}</span><span style="font-size:28px;font-weight:700">${x.cap}</span></div></div>`).join('')}
+  <div style="position:absolute;left:${SIZE * 0.05}px;right:${SIZE * 0.05}px;top:${SIZE * 0.17}px;bottom:${SIZE * 0.05}px;display:grid;${gridCss};gap:26px">
+    ${detailItems.map((x, i) => `<div class="panel" style="overflow:hidden;position:relative;border-radius:${T.radius}px;${detailItems.length === 3 && i === 0 ? 'grid-column:1 / span 2;' : ''}${x.cutout ? 'display:flex;align-items:center;justify-content:center;padding:40px' : ''}">${x.cutout ? productImg(Math.round(SIZE * 0.36), Math.round(SIZE * 0.3)) : `<img src="${img(x.img)}" style="width:100%;height:100%;object-fit:cover;object-position:${x.pos ?? '50% 50%'};transform:scale(${x.zoom ?? 1.15})">`}<div style="position:absolute;left:0;right:0;bottom:0;padding:18px 24px;background:rgba(255,255,255,.92);display:flex;align-items:center;gap:14px"><span class="chip" style="font-size:22px;padding:.2em .7em">${x.tag}</span><span style="font-size:28px;font-weight:700">${x.cap}</span></div></div>`).join('')}
   </div>`);
 // 7. カラー / セット内容
 useTheme('07-variants'); shots['07-variants'] = page(`
   <div style="padding:${SIZE * 0.06}px"><div class="chip o" style="font-size:30px">COLOR / SET</div><h1 style="font-size:64px;margin-top:20px">${spec.variantsTitle}</h1></div>
   <div style="position:absolute;left:${SIZE * 0.06}px;top:${SIZE * 0.28}px;width:${SIZE * 0.46}px;height:${SIZE * 0.5}px;display:flex;align-items:center;justify-content:center">${productImg(Math.round(SIZE * 0.46), Math.round(SIZE * 0.5))}</div>
   <div style="position:absolute;right:${SIZE * 0.06}px;top:${SIZE * 0.3}px;width:${SIZE * 0.38}px;display:grid;gap:20px">
-    ${spec.colors.map((c) => `<div class="panel" style="padding:24px 28px;display:flex;align-items:center;gap:22px"><div style="width:64px;height:64px;border-radius:${T.chip === 'round' ? 999 : 6}px;background:${c.hex};border:3px solid #fff;box-shadow:0 0 0 2px #ddd"></div><div class="h" style="font-size:40px">${c.name}</div></div>`).join('')}
+    ${(spec.colors ?? []).map((c) => `<div class="panel" style="padding:24px 28px;display:flex;align-items:center;gap:22px">${c.hex ? `<div style="width:64px;height:64px;border-radius:${T.chip === 'round' ? 999 : 6}px;background:${c.hex};border:3px solid #fff;box-shadow:0 0 0 2px #ddd"></div>` : `<div class="chip o" style="font-size:24px;padding:.2em .8em">選択</div>`}<div class="h" style="font-size:38px">${c.name}</div></div>`).join('')}
+    ${!(spec.colors ?? []).length && specRows.length ? specRows.slice(0, 4).map((s) => `<div class="panel" style="padding:20px 28px;display:flex;gap:20px"><div style="min-width:150px;font-size:26px;color:${T.sub};font-weight:700">${s.k}</div><div style="font-size:28px;font-weight:700">${s.v}</div></div>`).join('') : ''}
     <div class="panel" style="padding:24px 28px;margin-top:10px"><div class="small" style="font-size:24px;font-weight:700;color:${T.ink}">セット内容</div>${spec.setContents.map((s) => `<div style="font-size:30px;margin-top:8px">・${s}</div>`).join('')}</div>
   </div>
   <div style="position:absolute;left:${SIZE * 0.06}px;right:${SIZE * 0.06}px;bottom:${SIZE * 0.05}px" class="small">${spec.variantsNote ?? ''}</div>`);

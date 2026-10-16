@@ -124,7 +124,8 @@ const SPEC_SYS = `あなたは日本の EC（楽天市場・Amazon.co.jp）専�
  "sceneTag":"使用シーン 12字以内","sceneCopy":"シーン画像の見出し <br> で2行、各行14字以内","sceneSub":"補足 30字以内",
  "dimensions":{"title":"サイズ","w":"幅 例: 約26cm か —","h":"高さ か —","d":"奥行 か —","note":"計測の注意・素材など 40字以内"},
  "detailsTitle":"ディテール","details":[{"n":画像番号,"tag":"2〜3字","cap":"14字以内"} ×最大4（kind が detail/scene/package の画像から選ぶ。infographic は不可）],
- "variantsTitle":"カラー/セットの見出し 12字以内","colors":[{"name":"色名","hex":"#RRGGBB の推定色"}],"setContents":["セット内容（不明なら 商品本体 ×1）"],"variantsNote":"注意書き 40字以内",
+ "specs":[{"k":"項目 6字以内","v":"値 16字以内"} ×3〜6（内容量・素材・サイズ展開・重量・対応機種・原産国など、本文にあるものだけ）],
+ "variantsTitle":"カラー/セットの見出し 12字以内","colors":[{"name":"色名","hex":"#RRGGBB の推定色"}]（色のバリエーションがある場合のみ。サイズ・容量・型番など色ではない選択肢は colors に入れず "variants":["5kg","10kg"] として別に出す）,"setContents":["セット内容（不明なら 商品本体 ×1）"],"variantsNote":"注意書き 40字以内",
  "trustTitle":"安心してお買い物いただくために"}`;
 async function spec(p) {
   const f = path.join(OUT, p.handle, 'spec.json'); if (fs.existsSync(f)) return;
@@ -136,12 +137,19 @@ async function spec(p) {
   // 画像の実ファイル割り当て：scene/detail は cleanBox でトリミングしたものを使う
   const work = dir(p, 'work'); const crops = []; const byN = Object.fromEntries((cls.images ?? []).map((x) => [x.n, x]));
   const cropFor = (n) => { const x = byN[n]; const src = path.join(OUT, p.handle, 'src', `${String(n).padStart(2, '0')}.jpg`); if (!x?.cleanBox || (x.cleanBox[2] - x.cleanBox[0] > 0.97 && x.cleanBox[3] - x.cleanBox[1] > 0.97)) return src; const out = path.join(work, `crop-${n}.jpg`); if (!fs.existsSync(out)) crops.push({ src, out, box: x.cleanBox }); return out; };
-  const sceneImg = (cls.images ?? []).filter((x) => x.kind === 'scene' && !x.hasPerson && !x.hasBrandLogo).sort((a, b) => Number(a.hasText) - Number(b.hasText))[0] ?? (cls.images ?? []).find((x) => x.kind === 'detail') ?? { n: 1 };
+  // シーン画像：実写の scene があればそれ、無ければ null（レンダラーが切り抜き+背景のカードに切り替える）
+  const sceneImg = (cls.images ?? []).filter((x) => x.kind === 'scene' && !x.hasPerson && !x.hasBrandLogo).sort((a, b) => Number(a.hasText) - Number(b.hasText))[0] ?? null;
   const details = (j.details ?? []).filter((d) => byN[d.n]).slice(0, 4).map((d) => ({ img: path.relative(path.join(OUT, p.handle), cropFor(d.n)), tag: d.tag, cap: d.cap }));
   while (details.length < 4 && usable.length) { const u = usable.find((x) => !details.some((d) => d.img.includes(`-${x.n}.jpg`) || d.img.endsWith(`${String(x.n).padStart(2, '0')}.jpg`))); if (!u) break; details.push({ img: path.relative(path.join(OUT, p.handle), cropFor(u.n)), tag: 'POINT', cap: u.caption ?? '' }); }
   if (crops.length) py('crop', crops);
-  const full = { handle: p.handle, title: p.title, price: `¥${price.toLocaleString('ja-JP')}`, cutout: 'work/cutout.png', scene: path.relative(path.join(OUT, p.handle), cropFor(sceneImg.n)), ...j, details,
-    colors: (j.colors?.length ? j.colors : (p.options.find((o) => /色|カラー|Color/i.test(o.name))?.values ?? []).map((v) => ({ name: v, hex: '#DDDDDD' }))).slice(0, 6),
+  const COLORISH = /色|カラー|colou?r/i;
+  const colorOpt = p.options.find((o) => COLORISH.test(o.name));
+  let colors = (j.colors ?? []).filter((c) => c && c.name && String(c.name).trim().length >= 2 && /^#[0-9a-fA-F]{6}$/.test(c.hex ?? ''));
+  if (!colorOpt && !colors.length) colors = [];
+  const variants = (j.variants ?? []).filter((v) => typeof v === 'string' && v.trim() && v !== 'Default Title').map((v) => ({ name: v, hex: null }));
+  if (!colors.length && !variants.length) { const nonColor = p.options.filter((o) => !COLORISH.test(o.name) && !(o.values.length === 1 && o.values[0] === 'Default Title')); for (const o of nonColor) for (const v of o.values.slice(0, 6)) variants.push({ name: v, hex: null }); }
+  const full = { handle: p.handle, title: p.title, price: `¥${price.toLocaleString('ja-JP')}`, cutout: 'work/cutout.png', scene: sceneImg ? path.relative(path.join(OUT, p.handle), cropFor(sceneImg.n)) : null, ...j, details,
+    colors: [...colors, ...(colors.length ? [] : variants)].slice(0, 6),
     trust: [{ icon: '¥0', t: '全国送料無料', d: '追加料金はかかりません' }, { icon: '12:00', t: '平日12時まで当日出荷', d: '12時までのご注文・土日祝を除く' }, { icon: '7日', t: '到着後7日以内 交換・返金', d: '初期不良・誤配送の場合' }, { icon: 'JP', t: '日本国内の倉庫から直送', d: '海外発送ではありません' }] };
   fs.writeFileSync(f, JSON.stringify(full, null, 1)); log('spec', p.handle);
 }
@@ -157,7 +165,7 @@ function render(p) {
 
 // ========== preview（git に入れる軽量コンタクトシート）==========
 const PREVIEW = path.resolve(__dirname, 'out-preview');
-function previewJobs(ps) { fs.mkdirSync(PREVIEW, { recursive: true }); return ps.map((p) => { const final = path.join(OUT, p.handle, 'final'); const files = fs.existsSync(final) ? fs.readdirSync(final).filter((f) => f.endsWith('.png')).sort().map((f) => path.join(final, f)) : []; const out = path.join(PREVIEW, `${p.handle}.jpg`); return files.length === 8 && !fs.existsSync(out) ? { files, out } : null; }).filter(Boolean); }
+function previewJobs(ps) { fs.mkdirSync(PREVIEW, { recursive: true }); return ps.map((p) => { const final = path.join(OUT, p.handle, 'final'); const files = fs.existsSync(final) ? fs.readdirSync(final).filter((f) => f.endsWith('.png')).sort().map((f) => path.join(final, f)) : []; const out = path.join(PREVIEW, `${p.handle}.jpg`); return files.length === 8 && (!fs.existsSync(out) || args.force) ? { files, out } : null; }).filter(Boolean); }
 
 // ========== publish（Shopify の画像を置き換え）==========
 async function publish(p) {
