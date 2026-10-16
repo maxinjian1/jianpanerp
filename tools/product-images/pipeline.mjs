@@ -69,7 +69,7 @@ async function fetchStage() {
   const all = []; let cursor = null;
   for (;;) {
     const d = await gql(`query($c:String){ products(first:100, after:$c, query:"vendor:ANET status:active"){ pageInfo{hasNextPage endCursor} nodes{ id handle title descriptionHtml description productType tags options{ name values } variants(first:20){ nodes{ id title price compareAtPrice selectedOptions{ name value } } } media(first:20){ nodes{ id mediaContentType ... on MediaImage { image{ url width height } } } } } } }`, { c: cursor });
-    for (const p of d.products.nodes) all.push({ ...p, media: p.media.nodes.filter((m) => m.mediaContentType === 'IMAGE').map((m) => ({ id: m.id, url: m.image.url, w: m.image.width, h: m.image.height })) });
+    for (const p of d.products.nodes) all.push({ ...p, media: p.media.nodes.filter((m) => m.mediaContentType === 'IMAGE' && m.image?.url).map((m) => ({ id: m.id, url: m.image.url, w: m.image.width, h: m.image.height })) });
     log(`fetched ${all.length}`); if (!d.products.pageInfo.hasNextPage) break; cursor = d.products.pageInfo.endCursor;
   }
   fs.writeFileSync(PRODUCTS, JSON.stringify(all, null, 1)); log(`products.json ${all.length}`);
