@@ -2,6 +2,7 @@
   "expo": {
     "name": "安い",
     "slug": "yasui",
+    "owner": "anetmc",
     "scheme": "yasui",
     "version": "1.0.0",
     "orientation": "portrait",
