@@ -134,7 +134,8 @@ function cutoutJobs(p) {
     const prev = fs.existsSync(metaF) ? fs.readFileSync(metaF, 'utf8') : legacyPick(cls);
     if (prev === sig) { if (!fs.existsSync(metaF)) fs.writeFileSync(metaF, sig); return null; }
     // 選択が変わった → 切り抜き直し。成品とプレビューを消して render/preview に再生成させる
-    rmrf(path.join(OUT, p.handle, 'final')); rmrf(path.join(PREVIEW, `${p.handle}.jpg`)); log('recut', p.handle, `${prev} -> ${sig}`);
+    // 旧 cutout.png も消す：消さないと並走中の render-loop が新しい切り抜きが出来る前に旧画像で成品を作ってしまう（2026-10-17 に 8 件発生）
+    rmrf(out); rmrf(metaF); rmrf(path.join(OUT, p.handle, 'final')); rmrf(path.join(PREVIEW, `${p.handle}.jpg`)); log('recut', p.handle, `${prev} -> ${sig}`);
   }
   fs.writeFileSync(metaF, sig);
   return { src: path.join(OUT, p.handle, 'src', `${String(m.n).padStart(2, '0')}.jpg`), out, box };
@@ -187,8 +188,10 @@ async function spec(p) {
 
 // ========== render ==========
 function render(p) {
-  const final = path.join(OUT, p.handle, 'final'); if (fs.existsSync(path.join(final, '08-trust.png')) && !args.force) return;
-  if (!fs.existsSync(path.join(OUT, p.handle, 'spec.json')) || !fs.existsSync(path.join(OUT, p.handle, 'work', 'cutout.png'))) { if (args['ready-only']) return; throw new Error('spec/cutout missing'); }
+  const final = path.join(OUT, p.handle, 'final'); const specF = path.join(OUT, p.handle, 'spec.json'); const cutF = path.join(OUT, p.handle, 'work', 'cutout.png');
+  if (!fs.existsSync(specF) || !fs.existsSync(cutF)) { if (args['ready-only']) return; throw new Error('spec/cutout missing'); }
+  // 成品が cutout/spec より古ければ作り直す（recut と並走した render が旧素材で作った成品の救済）
+  if (fs.existsSync(path.join(final, '08-trust.png')) && !args.force && newerThan(path.join(final, '08-trust.png'), cutF, specF)) return;
   const r = spawnSync(process.execPath, [path.join(ROOT, 'tools/brand-assets/product-cards.mjs'), '--spec', path.join(OUT, p.handle, 'spec.json'), '--style', args.style ?? 'MIX', '--out', final], { encoding: 'utf8', cwd: ROOT, env: process.env });
   if (r.status !== 0) throw new Error(`render failed: ${r.stderr.slice(-400)}`);
   for (const f of fs.readdirSync(final)) if (f.endsWith('.html')) fs.unlinkSync(path.join(final, f));
@@ -196,7 +199,9 @@ function render(p) {
 }
 
 // ========== preview（git に入れる軽量コンタクトシート）==========
-function previewJobs(ps) { fs.mkdirSync(PREVIEW, { recursive: true }); return ps.map((p) => { const final = path.join(OUT, p.handle, 'final'); const files = fs.existsSync(final) ? fs.readdirSync(final).filter((f) => f.endsWith('.png')).sort().map((f) => path.join(final, f)) : []; const out = path.join(PREVIEW, `${p.handle}.jpg`); return files.length === 8 && (!fs.existsSync(out) || args.force) ? { files, out } : null; }).filter(Boolean); }
+// a が b... の全部より新しい（同時刻は新しい扱い）か
+const newerThan = (a, ...bs) => { const t = fs.statSync(a).mtimeMs; return bs.every((b) => !fs.existsSync(b) || fs.statSync(b).mtimeMs <= t + 1000); };
+function previewJobs(ps) { fs.mkdirSync(PREVIEW, { recursive: true }); return ps.map((p) => { const final = path.join(OUT, p.handle, 'final'); const files = fs.existsSync(final) ? fs.readdirSync(final).filter((f) => f.endsWith('.png')).sort().map((f) => path.join(final, f)) : []; const out = path.join(PREVIEW, `${p.handle}.jpg`); return files.length === 8 && (!fs.existsSync(out) || args.force || !newerThan(out, ...files)) ? { files, out } : null; }).filter(Boolean); }
 
 // ========== publish（Shopify の画像を置き換え）==========
 async function publish(p) {
