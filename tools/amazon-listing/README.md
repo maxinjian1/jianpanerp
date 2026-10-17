@@ -34,3 +34,15 @@ node tools/amazon-listing/build-inventory-file.mjs build                        
 | コンディション | New、原産国 CN（`--origin`） |
 
 `check` の「要確認ワード」（治る・効く・美白 など薬機法／景表法）は手で直す。Amazon 用に 6kpro で文案を再生成しない：すでに楽天／Amazon 向けに書いた spec.json を再利用する。顧客情報は一切扱わない。
+
+## 既存出品（SARADEMUNT レディースインナー）の最適化 — `optimize/`
+売上上位 10 ASIN は凍結し、残り全部のタイトル／箇条書き／説明／検索キーワード／サブ画像を直す。メイン画像（実人着用）は触らない。
+入力は Seller Central から落とす 2 本のレポート（`in/active-listings.txt`、`in/business-report-90d.csv`、git 管理外）。
+```
+node tools/amazon-listing/optimize/optimize.mjs rank      # 凍結 10 件・対象・セグメント → out/opt/plan.md
+node tools/amazon-listing/optimize/optimize.mjs fetch     # 自社商品ページから現状を取得（Windows、CDP 9222 のブラウザ）
+node tools/amazon-listing/optimize/optimize.mjs write     # 6kpro で新文案（skill sarademunt-jp-ad-video のルール内蔵）
+node tools/amazon-listing/optimize/optimize.mjs cards     # サブ画像 4 枚（サイズ表／素材／プライバシー梱包／選ばれる理由）
+node tools/amazon-listing/optimize/optimize.mjs build     # PartialUpdate TSV（テキスト・画像）+ review.md
+```
+画像は `apps/web-client/public/brand/amazon/<asin>/` に置き japanerp.com 経由の URL を出品ファイルに書く。
