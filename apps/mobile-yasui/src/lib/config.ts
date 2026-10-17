@@ -1,6 +1,8 @@
-export const SHOP_DOMAIN = process.env.EXPO_PUBLIC_SHOPIFY_DOMAIN ?? '0scqav-e7.myshopify.com';
-export const STOREFRONT_TOKEN = process.env.EXPO_PUBLIC_STOREFRONT_TOKEN ?? '';
-export const API_VERSION = process.env.EXPO_PUBLIC_STOREFRONT_API_VERSION ?? '2026-10';
+const env = process.env;
+// 両方の変数名を受け付ける（Headless チャネルの案内に合わせた EXPO_PUBLIC_SHOPIFY_* 系と、.env.example の EXPO_PUBLIC_STOREFRONT_* 系）
+export const SHOP_DOMAIN = env.EXPO_PUBLIC_SHOPIFY_DOMAIN ?? env.EXPO_PUBLIC_SHOPIFY_STORE_DOMAIN ?? '0scqav-e7.myshopify.com';
+export const STOREFRONT_TOKEN = env.EXPO_PUBLIC_STOREFRONT_TOKEN ?? env.EXPO_PUBLIC_SHOPIFY_STOREFRONT_TOKEN ?? '';
+export const API_VERSION = env.EXPO_PUBLIC_STOREFRONT_API_VERSION ?? env.EXPO_PUBLIC_SHOPIFY_API_VERSION ?? '2026-10';
 export const STORE_URL = process.env.EXPO_PUBLIC_STORE_URL ?? 'https://anetmc.com';
 
 /** ホームの「ジャンル」タブと一致させる。handle は Shopify のコレクション handle。 */
