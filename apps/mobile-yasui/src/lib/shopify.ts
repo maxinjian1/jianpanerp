@@ -27,7 +27,7 @@ export type ProductCard = {
   priceRange: { minVariantPrice: Money };
   compareAtPriceRange: { minVariantPrice: Money };
 };
-export type Variant = { id: string; title: string; availableForSale: boolean; quantityAvailable: number | null; price: Money; compareAtPrice: Money | null; image: Img | null; selectedOptions: { name: string; value: string }[] };
+export type Variant = { id: string; title: string; availableForSale: boolean; quantityAvailable?: number | null; price: Money; compareAtPrice: Money | null; image: Img | null; selectedOptions: { name: string; value: string }[] };
 export type Product = ProductCard & {
   descriptionHtml: string; description: string; productType: string; tags: string[];
   images: { nodes: Img[] };
@@ -56,7 +56,7 @@ export async function newArrivals(first = 10) {
 
 export async function productByHandle(handle: string) {
   const d = await sf<{ product: Product | null }>(
-    `${CARD} query($h:String!){ product(handle:$h){ ...Card descriptionHtml description productType tags images(first:12){ nodes{ url(transform:{maxWidth:1200,maxHeight:1200}) altText width height } } options{ name values } variants(first:50){ nodes{ id title availableForSale quantityAvailable price{amount currencyCode} compareAtPrice{amount currencyCode} image{ url(transform:{maxWidth:600,maxHeight:600}) altText } selectedOptions{ name value } } } } }`,
+    `${CARD} query($h:String!){ product(handle:$h){ ...Card descriptionHtml description productType tags images(first:12){ nodes{ url(transform:{maxWidth:1200,maxHeight:1200}) altText width height } } options{ name values } variants(first:50){ nodes{ id title availableForSale price{amount currencyCode} compareAtPrice{amount currencyCode} image{ url(transform:{maxWidth:600,maxHeight:600}) altText } selectedOptions{ name value } } } } }`,
     { h: handle },
   );
   return d.product;
