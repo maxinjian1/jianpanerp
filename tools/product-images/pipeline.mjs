@@ -21,6 +21,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
 const OUT = path.resolve(__dirname, 'out'); fs.mkdirSync(OUT, { recursive: true });
+const PREVIEW = path.resolve(__dirname, 'out-preview');
 const args = Object.fromEntries(process.argv.slice(3).map((a, i, arr) => a.startsWith('--') ? [a.slice(2), arr[i + 1] && !arr[i + 1].startsWith('--') ? arr[i + 1] : '1'] : []).filter(Boolean));
 const stage = process.argv[2];
 const env = Object.fromEntries((fs.existsSync(path.join(ROOT, '.env')) ? fs.readFileSync(path.join(ROOT, '.env'), 'utf8') : '').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#') && l.includes('=')).map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^"|"$/g, '')]; }));
@@ -91,8 +92,8 @@ async function download(p) {
 const CLASSIFY_SYS = `あなたは EC 商品画像の検品担当です。与えられた各画像について JSON で判定してください。日本の楽天・Amazon の画像規約に沿って判断します。
 出力: {"images":[{"n":1,"kind":"main|scene|detail|infographic|size|package|other","hasText":bool,"hasPerson":bool,"hasBrandLogo":bool,"hasWatermark":bool,"background":"white|plain|room|other","mainBox":[x0,y0,x1,y1],"cleanBox":[x0,y0,x1,y1],"caption":"写っている内容を日本語で15字以内"}]}
 - kind: main=商品単体（白/無地背景）, scene=部屋など使用シーン, detail=部分アップ, infographic=文字説明中心, size=寸法図, package=梱包/セット内容
-- mainBox: 画像中の「主要な商品1個」だけを囲む枠（0〜1 の割合）。装飾小物・重複した同商品・ブランド品は含めない。無ければ null
-- cleanBox: 文字・吹き出し・キャラクター・ロゴを含まない、実写部分だけの最大の矩形（0〜1）。全面に文字が重なっていれば null
+- mainBox: 画像中の「主要な商品1個」だけを囲む枠（0〜1 の割合）。装飾小物・重複した同商品・ブランド品・はめ込み小画像（拡大インセット、別カット）・文字ステッカーは含めない。無ければ null
+- cleanBox: 文字・吹き出し・キャラクター・ロゴ・はめ込み小画像を含まない、実写部分だけの最大の矩形（0〜1）。全面に文字が重なっていれば null
 - hasBrandLogo: 他社ブランド（GUCCI, Nike 等）のロゴや商品が写っていれば true`;
 async function classify(p) {
   const f = path.join(OUT, p.handle, 'classify.json'); if (fs.existsSync(f)) return;
@@ -105,11 +106,33 @@ async function classify(p) {
 }
 
 // ========== cutout ==========
-function pickMain(cls, n) { const imgs = Array.isArray(cls.images) ? cls.images : []; const cands = imgs.filter((x) => x.kind === 'main' && !x.hasBrandLogo).sort((a, b) => Number(a.hasText) - Number(b.hasText) || a.n - b.n); return cands[0] ?? imgs.find((x) => x.mainBox) ?? { n: 1, mainBox: null }; }
+// 主画像の選択：文字入り・人物入り・他社ロゴ入りを避け、文字が残る場合は mainBox ∩ cleanBox で切る（ステッカー/拡大インセットの混入対策）
+function pickMain(cls) {
+  const imgs = Array.isArray(cls.images) ? cls.images : [];
+  const rank = (x) => ({ main: 0, package: 1, detail: 2 }[x.kind] ?? 3) * 10 + (x.hasText ? 5 : 0) + (x.mainBox ? 0 : 1);
+  const cands = imgs.filter((x) => !x.hasBrandLogo && !x.hasPerson && (x.kind === 'main' || x.mainBox)).sort((a, b) => rank(a) - rank(b) || a.n - b.n);
+  return cands[0] ?? imgs.find((x) => x.kind === 'main' && !x.hasBrandLogo) ?? imgs.find((x) => x.mainBox) ?? { n: 1, mainBox: null };
+}
+const okBox = (b) => Array.isArray(b) && b.length === 4 && b.every((v) => typeof v === 'number') && b[2] > b[0] && b[3] > b[1];
+function mainBox(m) {
+  let b = okBox(m.mainBox) ? [...m.mainBox] : null;
+  if (m.hasText && okBox(m.cleanBox)) { const c = m.cleanBox; const i = b ? [Math.max(b[0], c[0]), Math.max(b[1], c[1]), Math.min(b[2], c[2]), Math.min(b[3], c[3])] : c; if (i[2] - i[0] > 0.3 && i[3] - i[1] > 0.3) b = i; }
+  if (!b || (b[2] - b[0] >= 0.97 && b[3] - b[1] >= 0.97)) return null;
+  return b;
+}
+// 旧ロジック（2026-10-17 以前に作った cutout がどの画像から出来たか推定するためだけに残す）
+function legacyPick(cls) { const imgs = Array.isArray(cls.images) ? cls.images : []; const c = imgs.filter((x) => x.kind === 'main' && !x.hasBrandLogo).sort((a, b) => Number(a.hasText) - Number(b.hasText) || a.n - b.n)[0] ?? imgs.find((x) => x.mainBox) ?? { n: 1, mainBox: null }; return JSON.stringify({ n: c.n, box: c.mainBox && c.mainBox[2] - c.mainBox[0] < 0.95 ? c.mainBox : null }); }
 function cutoutJobs(p) {
-  const cls = JSON.parse(fs.readFileSync(path.join(OUT, p.handle, 'classify.json'), 'utf8')); const m = pickMain(cls, p.media.length);
-  const out = path.join(dir(p, 'work'), 'cutout.png'); if (fs.existsSync(out)) return null;
-  return { src: path.join(OUT, p.handle, 'src', `${String(m.n).padStart(2, '0')}.jpg`), out, box: m.mainBox && m.mainBox[2] - m.mainBox[0] < 0.95 ? m.mainBox : null };
+  const cls = JSON.parse(fs.readFileSync(path.join(OUT, p.handle, 'classify.json'), 'utf8')); const m = pickMain(cls); const box = mainBox(m);
+  const work = dir(p, 'work'); const out = path.join(work, 'cutout.png'); const metaF = path.join(work, 'cutout.json'); const sig = JSON.stringify({ n: m.n, box });
+  if (fs.existsSync(out) && !args.force) {
+    const prev = fs.existsSync(metaF) ? fs.readFileSync(metaF, 'utf8') : legacyPick(cls);
+    if (prev === sig) { if (!fs.existsSync(metaF)) fs.writeFileSync(metaF, sig); return null; }
+    // 選択が変わった → 切り抜き直し。成品とプレビューを消して render/preview に再生成させる
+    fs.rmSync(path.join(OUT, p.handle, 'final'), { recursive: true, force: true }); fs.rmSync(path.join(PREVIEW, `${p.handle}.jpg`), { force: true }); log('recut', p.handle, `${prev} -> ${sig}`);
+  }
+  fs.writeFileSync(metaF, sig);
+  return { src: path.join(OUT, p.handle, 'src', `${String(m.n).padStart(2, '0')}.jpg`), out, box };
 }
 
 // ========== spec ==========
@@ -168,7 +191,6 @@ function render(p) {
 }
 
 // ========== preview（git に入れる軽量コンタクトシート）==========
-const PREVIEW = path.resolve(__dirname, 'out-preview');
 function previewJobs(ps) { fs.mkdirSync(PREVIEW, { recursive: true }); return ps.map((p) => { const final = path.join(OUT, p.handle, 'final'); const files = fs.existsSync(final) ? fs.readdirSync(final).filter((f) => f.endsWith('.png')).sort().map((f) => path.join(final, f)) : []; const out = path.join(PREVIEW, `${p.handle}.jpg`); return files.length === 8 && (!fs.existsSync(out) || args.force) ? { files, out } : null; }).filter(Boolean); }
 
 // ========== publish（Shopify の画像を置き換え）==========
