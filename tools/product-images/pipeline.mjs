@@ -122,6 +122,8 @@ function mainBox(m) {
 }
 // 旧ロジック（2026-10-17 以前に作った cutout がどの画像から出来たか推定するためだけに残す）
 function legacyPick(cls) { const imgs = Array.isArray(cls.images) ? cls.images : []; const c = imgs.filter((x) => x.kind === 'main' && !x.hasBrandLogo).sort((a, b) => Number(a.hasText) - Number(b.hasText) || a.n - b.n)[0] ?? imgs.find((x) => x.mainBox) ?? { n: 1, mainBox: null }; return JSON.stringify({ n: c.n, box: c.mainBox && c.mainBox[2] - c.mainBox[0] < 0.95 ? c.mainBox : null }); }
+// Node 24.13 (Windows) の fs.rmSync({recursive:true}) は非 ASCII パスでネイティブクラッシュ（0xC0000409、JS 例外なし）するので JS 実装で消す
+function rmrf(t) { if (!fs.existsSync(t)) return; if (fs.statSync(t).isDirectory()) { for (const e of fs.readdirSync(t)) rmrf(path.join(t, e)); fs.rmdirSync(t); } else fs.unlinkSync(t); }
 function cutoutJobs(p) {
   const cls = JSON.parse(fs.readFileSync(path.join(OUT, p.handle, 'classify.json'), 'utf8')); const m = pickMain(cls); const box = mainBox(m);
   const work = dir(p, 'work'); const out = path.join(work, 'cutout.png'); const metaF = path.join(work, 'cutout.json'); const sig = JSON.stringify({ n: m.n, box });
@@ -129,7 +131,7 @@ function cutoutJobs(p) {
     const prev = fs.existsSync(metaF) ? fs.readFileSync(metaF, 'utf8') : legacyPick(cls);
     if (prev === sig) { if (!fs.existsSync(metaF)) fs.writeFileSync(metaF, sig); return null; }
     // 選択が変わった → 切り抜き直し。成品とプレビューを消して render/preview に再生成させる
-    fs.rmSync(path.join(OUT, p.handle, 'final'), { recursive: true, force: true }); fs.rmSync(path.join(PREVIEW, `${p.handle}.jpg`), { force: true }); log('recut', p.handle, `${prev} -> ${sig}`);
+    rmrf(path.join(OUT, p.handle, 'final')); rmrf(path.join(PREVIEW, `${p.handle}.jpg`)); log('recut', p.handle, `${prev} -> ${sig}`);
   }
   fs.writeFileSync(metaF, sig);
   return { src: path.join(OUT, p.handle, 'src', `${String(m.n).padStart(2, '0')}.jpg`), out, box };
