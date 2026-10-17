@@ -1,0 +1,134 @@
+{
+  "_doc": "Shopify productType（8 正式分类）→ Amazon.co.jp 在庫ファイルの feed_product_type。approval=true は出品許可申請が必要な可能性が高いカテゴリ。keywords で商品名からサブカテゴリを上書き（上から順に最初に一致したもの）。feed_product_type の正確な値はダウンロードしたテンプレートの「データ定義」シートで確認し、必要なら values を直す。",
+  "byType": {
+    "日用品雑貨": {
+      "feed_product_type": "Home",
+      "approval": false,
+      "note": "キッチン/収納/掃除。Kitchen テンプレートの方が合う物は keywords で振り分け"
+    },
+    "健康・ダイエット": {
+      "feed_product_type": "HealthAndPersonalCare",
+      "approval": true,
+      "note": "ドラッグストア系は申請が要る場合あり。薬機法 NG ワード注意"
+    },
+    "スマートフォン・パソコン・周辺機器": {
+      "feed_product_type": "ConsumerElectronics",
+      "approval": false,
+      "note": "電源に繋ぐ物は PSE 表示。モバイルバッテリーは PSE 必須"
+    },
+    "家具・インテリア": {
+      "feed_product_type": "HomeFurnitureAndDecor",
+      "approval": false,
+      "note": "寸法・耐荷重・組立要否を bullet に"
+    },
+    "旅行・キャンプ用品": {
+      "feed_product_type": "SportingGoods",
+      "approval": false,
+      "note": "スーツケース/バッグは Luggage"
+    },
+    "ペット用品": {
+      "feed_product_type": "PetSupplies",
+      "approval": false,
+      "note": ""
+    },
+    "ベビー・マタニティ": {
+      "feed_product_type": "Baby",
+      "approval": true,
+      "note": "ベビー用品は申請＋安全基準の確認が要る"
+    },
+    "衣類・アクセサリー": {
+      "feed_product_type": "Clothing",
+      "approval": false,
+      "note": "サイズ/カラーのバリエーション必須。アクセサリーは Jewelry（申請）"
+    }
+  },
+  "keywords": [
+    {
+      "re": "化粧|コスメ|美容液|クリーム|洗顔|スキンケア|香水|マスカラ|つけまつげ|リップ|ネイル",
+      "feed_product_type": "Beauty",
+      "approval": true
+    },
+    {
+      "re": "米|食品|お菓子|コーヒー|茶|調味料|サプリ",
+      "feed_product_type": "Grocery",
+      "approval": true
+    },
+    {
+      "re": "腕時計|ウォッチ",
+      "feed_product_type": "Watch",
+      "approval": true
+    },
+    {
+      "re": "ブレスレット|ネックレス|ピアス|イヤリング|指輪|リング|天然石|パワーストーン",
+      "feed_product_type": "Jewelry",
+      "approval": true
+    },
+    {
+      "re": "おもちゃ|知育|ぬいぐるみ|バランスバイク|ジャンパー",
+      "feed_product_type": "Toys",
+      "approval": false
+    },
+    {
+      "re": "スーツケース|キャリー|トートバッグ|リュック|ポーチ|バッグ",
+      "feed_product_type": "Luggage",
+      "approval": false
+    },
+    {
+      "re": "鍋|フライパン|包丁|まな板|タンブラー|水筒|弁当|食器|キッチン|シンク|調理",
+      "feed_product_type": "Kitchen",
+      "approval": false
+    },
+    {
+      "re": "LED|ライト|照明|ランプ",
+      "feed_product_type": "Lighting",
+      "approval": false
+    },
+    {
+      "re": "工具|ドリル|プレス|電動|草刈|ブロワー",
+      "feed_product_type": "ToolsAndHomeImprovement",
+      "approval": false
+    },
+    {
+      "re": "車|カー用品|ドライブレコーダー",
+      "feed_product_type": "Automotive",
+      "approval": false
+    },
+    {
+      "re": "ブラジャー|タンクトップ|インナー|パーカー|Tシャツ|ワンピース|スカート|制服|パンツ|靴下",
+      "feed_product_type": "Clothing",
+      "approval": false
+    },
+    {
+      "re": "サポーター|ベルト.*(腰|骨盤|膝)|マッサージ|体重計|血圧",
+      "feed_product_type": "HealthAndPersonalCare",
+      "approval": true
+    },
+    {
+      "re": "ポータブル電源|バッテリー|充電器|USB|ケーブル|SDカード|USBメモリ|イヤホン|スピーカー",
+      "feed_product_type": "ConsumerElectronics",
+      "approval": false
+    }
+  ],
+  "fallback": "Home",
+  "browseNodes": {
+    "_doc": "feed_product_type → 推奨ブラウズノード ID（Amazon.co.jp）。テンプレートの「有効な値」シート/ブラウズツリーガイド(BTG)で確認して埋める。空のままだとアップロード時にエラーになる",
+    "Home": "",
+    "Kitchen": "",
+    "HealthAndPersonalCare": "",
+    "Beauty": "",
+    "Grocery": "",
+    "ConsumerElectronics": "",
+    "HomeFurnitureAndDecor": "",
+    "SportingGoods": "",
+    "PetSupplies": "",
+    "Baby": "",
+    "Clothing": "",
+    "Jewelry": "",
+    "Watch": "",
+    "Toys": "",
+    "Luggage": "",
+    "Lighting": "",
+    "ToolsAndHomeImprovement": "",
+    "Automotive": ""
+  }
+}
