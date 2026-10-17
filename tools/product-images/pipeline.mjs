@@ -218,11 +218,26 @@ async function publish(p) {
   if (cm.productCreateMedia.mediaUserErrors.length) throw new Error(cm.productCreateMedia.mediaUserErrors[0].message);
   const newIds = cm.productCreateMedia.media.map((m) => m.id);
   // 3) 処理完了待ち → 並べ替え → 旧画像削除
-  for (let i = 0; i < 20; i++) { await sleep(1500); const d = await gql(`query($id:ID!){ product(id:$id){ media(first:40){ nodes{ id status } } } }`, { id: p.id }); const mine = d.product.media.nodes.filter((m) => newIds.includes(m.id)); if (mine.every((m) => m.status === 'READY')) break; if (mine.some((m) => m.status === 'FAILED')) throw new Error('media processing failed'); }
-  fs.writeFileSync(bak, JSON.stringify({ productId: p.id, old: p.media, new: newIds, at: new Date().toISOString() }, null, 1));
+  let live = [];
+  for (let i = 0; i < 20; i++) { await sleep(1500); const d = await gql(`query($id:ID!){ product(id:$id){ media(first:60){ nodes{ id status } } } }`, { id: p.id }); live = d.product.media.nodes.map((m) => m.id); const mine = d.product.media.nodes.filter((m) => newIds.includes(m.id)); if (mine.every((m) => m.status === 'READY')) break; if (mine.some((m) => m.status === 'FAILED')) throw new Error('media processing failed'); }
+  // --force 再発行時：old は初回バックアップの元画像（ロールバック用）を引き継ぎ、削除対象は「今 Shopify にある画像 − 新画像」（前回生成分も含む）
+  const prev = fs.existsSync(bak) ? JSON.parse(fs.readFileSync(bak, 'utf8')) : null;
+  fs.writeFileSync(bak, JSON.stringify({ productId: p.id, old: prev?.old ?? p.media, prevNew: prev?.new, new: newIds, at: new Date().toISOString() }, null, 1));
   await gql(`mutation($id:ID!,$m:[MoveInput!]!){ productReorderMedia(id:$id, moves:$m){ userErrors{ message } } }`, { id: p.id, m: newIds.map((id, i) => ({ id, newPosition: String(i) })) });
-  if (!args['keep-old']) { const del = await gql(`mutation($id:ID!,$m:[ID!]!){ productDeleteMedia(productId:$id, mediaIds:$m){ deletedMediaIds mediaUserErrors{ message } } }`, { id: p.id, m: p.media.map((m) => m.id) }); if (del.productDeleteMedia.mediaUserErrors.length) log('warn delete', p.handle, del.productDeleteMedia.mediaUserErrors[0].message); }
+  if (!args['keep-old']) { const stale = live.filter((id) => !newIds.includes(id)); if (stale.length) { const del = await gql(`mutation($id:ID!,$m:[ID!]!){ productDeleteMedia(productId:$id, mediaIds:$m){ deletedMediaIds mediaUserErrors{ message } } }`, { id: p.id, m: stale }); if (del.productDeleteMedia.mediaUserErrors.length) log('warn delete', p.handle, del.productDeleteMedia.mediaUserErrors[0].message); } }
   log('published', p.handle, newIds.length, 'images');
+}
+// 発行済み商品の Shopify 画像を media-backup.json の new 以外すべて削除（--force 再発行で残った旧生成分の掃除）
+async function prune(p) {
+  const bak = path.join(OUT, p.handle, 'media-backup.json'); if (!fs.existsSync(bak)) { log('not published', p.handle); return; }
+  const keep = JSON.parse(fs.readFileSync(bak, 'utf8')).new;
+  const d = await gql(`query($id:ID!){ product(id:$id){ media(first:60){ nodes{ id } } } }`, { id: p.id });
+  const stale = d.product.media.nodes.map((m) => m.id).filter((id) => !keep.includes(id));
+  if (!stale.length) { log('prune: clean', p.handle, keep.length); return; }
+  if (args.dry) { log('[dry] prune would delete', stale.length, 'of', p.handle); return; }
+  const del = await gql(`mutation($id:ID!,$m:[ID!]!){ productDeleteMedia(productId:$id, mediaIds:$m){ deletedMediaIds mediaUserErrors{ message } } }`, { id: p.id, m: stale });
+  if (del.productDeleteMedia.mediaUserErrors.length) throw new Error(del.productDeleteMedia.mediaUserErrors[0].message);
+  log('pruned', p.handle, del.productDeleteMedia.deletedMediaIds.length, 'stale, kept', keep.length);
 }
 async function rollback(p) {
   const bak = JSON.parse(fs.readFileSync(path.join(OUT, p.handle, 'media-backup.json'), 'utf8'));
@@ -245,6 +260,7 @@ const run = {
   render: async () => { for (const p of loadProducts()) { try { render(p); } catch (e) { log('ERR render', p.handle, e.message); fs.appendFileSync(path.join(OUT, 'errors.log'), `${new Date().toISOString()} render ${p.handle} ${e.message}\n`); } } },
   preview: async () => { const jobs = previewJobs(loadProducts()); log('preview jobs', jobs.length); if (jobs.length) py('sheet', jobs); },
   publish: async () => pool(loadProducts(), 2, publish),
+  prune: async () => { for (const p of loadProducts()) { try { await prune(p); } catch (e) { log('ERR prune', p.handle, e.message); } } },
   rollback: async () => { for (const p of loadProducts()) await rollback(p); },
   all: async () => { await run.classify(); await run.cutout(); await run.spec(); await run.render(); await run.preview(); },
 };
