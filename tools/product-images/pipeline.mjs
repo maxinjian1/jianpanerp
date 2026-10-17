@@ -10,7 +10,7 @@
  *   node tools/product-images/pipeline.mjs render    [--limit 20]      # 8 枚レンダリング（MIX: B 主体 + A シーン）
  *   node tools/product-images/pipeline.mjs all       [--limit 20]      # 上記を順に
  *   node tools/product-images/pipeline.mjs publish   [--limit 20] [--dry]  # Shopify の商品画像を置き換え（旧画像はバックアップ、--rollback 可）
- *   node tools/product-images/pipeline.mjs rollback  --handle <handle>
+ *   node tools/product-images/pipeline.mjs rollback  [--handle <handle>] [--dry] [--concurrency 2]   # 改図前の元画像に戻す（全件可・再実行で続きから）
  * すべてファイル存在で再開可能（冪等）。
  */
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -209,6 +209,7 @@ async function publish(p) {
   if (!files.every((f) => fs.existsSync(f))) throw new Error('final images missing');
   const bak = path.join(OUT, p.handle, 'media-backup.json');
   if (fs.existsSync(bak) && !args.force) { log('already published', p.handle); return; }
+  if (fs.existsSync(path.join(OUT, p.handle, 'media-backup.rolledback.json')) && !args.force) { log('rolled back earlier (skip publish; use --force)', p.handle); return; }
   if (args.dry) { log('[dry] would replace', p.media.length, 'images of', p.handle); return; }
   // 1) staged upload
   const st = await gql(`mutation($i:[StagedUploadInput!]!){ stagedUploadsCreate(input:$i){ stagedTargets{ url resourceUrl parameters{ name value } } userErrors{ message } } }`, { i: files.map((f) => ({ filename: path.basename(f), mimeType: 'image/png', resource: 'IMAGE', httpMethod: 'POST', fileSize: String(fs.statSync(f).size) })) });
@@ -245,14 +246,36 @@ async function prune(p) {
   if (del.productDeleteMedia.mediaUserErrors.length) throw new Error(del.productDeleteMedia.mediaUserErrors[0].message);
   log('pruned', p.handle, del.productDeleteMedia.deletedMediaIds.length, 'stale, kept', keep.length);
 }
+// ========== rollback：改図前の元画像に戻す ==========
+// 元画像は download() が保存した out/<handle>/src/NN.jpg（元の並び順）を優先して再アップロード。無ければ旧 CDN URL。
+// 復元後「今 Shopify にある画像 − 復元画像」を全部削除し、復元画像を元の順に並べる。完了したら media-backup.rolledback.json に改名（再実行で skip）。
+const sniff = (b) => b[0] === 0x89 && b[1] === 0x50 ? 'image/png' : b[0] === 0xff && b[1] === 0xd8 ? 'image/jpeg' : b.slice(8, 12).toString() === 'WEBP' ? 'image/webp' : b.slice(0, 3).toString() === 'GIF' ? 'image/gif' : 'image/jpeg';
 async function rollback(p) {
-  const bak = JSON.parse(fs.readFileSync(path.join(OUT, p.handle, 'media-backup.json'), 'utf8'));
-  // 旧画像は CDN URL から再登録（削除済みのため）、新画像は削除
-  const cm = await gql(`mutation($id:ID!,$m:[CreateMediaInput!]!){ productCreateMedia(productId:$id, media:$m){ media{ id } mediaUserErrors{ message } } }`, { id: p.id, m: bak.old.map((o) => ({ originalSource: o.url, mediaContentType: 'IMAGE' })) });
+  const bf = path.join(OUT, p.handle, 'media-backup.json'); if (!fs.existsSync(bf)) { log('no backup (skip)', p.handle); return; }
+  const bak = JSON.parse(fs.readFileSync(bf, 'utf8')); const pid = bak.productId ?? p.id; const old = bak.old ?? [];
+  if (!old.length) throw new Error('backup has no old images');
+  if (args.dry) { log('[dry] would restore', old.length, 'images of', p.handle); return; }
+  // 1) 復元元：ローカル src → staged upload、無ければ CDN URL
+  const srcs = old.map((o, i) => { const f = path.join(OUT, p.handle, 'src', `${String(i + 1).padStart(2, '0')}.jpg`); return fs.existsSync(f) && fs.statSync(f).size > 1000 ? { file: f } : { url: o.url }; });
+  const locals = srcs.filter((x) => x.file);
+  if (locals.length) {
+    const st = await gql(`mutation($i:[StagedUploadInput!]!){ stagedUploadsCreate(input:$i){ stagedTargets{ url resourceUrl parameters{ name value } } userErrors{ message } } }`, { i: locals.map((x) => { const b = fs.readFileSync(x.file); x.mime = sniff(b); x.name = path.basename(x.file).replace(/\.jpg$/, { 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif' }[x.mime] ?? '.jpg'); return { filename: x.name, mimeType: x.mime, resource: 'IMAGE', httpMethod: 'POST', fileSize: String(b.length) }; }) });
+    if (st.stagedUploadsCreate.userErrors.length) throw new Error(st.stagedUploadsCreate.userErrors[0].message);
+    for (const [i, t] of st.stagedUploadsCreate.stagedTargets.entries()) { const x = locals[i]; const fd = new FormData(); for (const q of t.parameters) fd.append(q.name, q.value); fd.append('file', new Blob([fs.readFileSync(x.file)], { type: x.mime }), x.name); const r = await fetch(t.url, { method: 'POST', body: fd }); if (!r.ok) throw new Error(`upload ${r.status}`); x.url = t.resourceUrl; }
+  }
+  // 2) 追加
+  const cm = await gql(`mutation($id:ID!,$m:[CreateMediaInput!]!){ productCreateMedia(productId:$id, media:$m){ media{ id } mediaUserErrors{ message } } }`, { id: pid, m: srcs.map((x) => ({ originalSource: x.url, mediaContentType: 'IMAGE', alt: p.title })) });
   if (cm.productCreateMedia.mediaUserErrors.length) throw new Error(cm.productCreateMedia.mediaUserErrors[0].message);
-  await sleep(4000);
-  await gql(`mutation($id:ID!,$m:[ID!]!){ productDeleteMedia(productId:$id, mediaIds:$m){ deletedMediaIds mediaUserErrors{ message } } }`, { id: p.id, m: bak.new });
-  fs.renameSync(path.join(OUT, p.handle, 'media-backup.json'), path.join(OUT, p.handle, 'media-backup.rolledback.json')); log('rolled back', p.handle);
+  const ids = cm.productCreateMedia.media.map((m) => m.id);
+  // 3) 処理待ち（失敗した画像があれば新画像は消さずに止める）
+  let live = [];
+  for (let i = 0; i < 30; i++) { await sleep(2000); const d = await gql(`query($id:ID!){ product(id:$id){ media(first:80){ nodes{ id status } } } }`, { id: pid }); live = d.product.media.nodes.map((m) => m.id); const mine = d.product.media.nodes.filter((m) => ids.includes(m.id)); if (mine.some((m) => m.status === 'FAILED')) throw new Error(`restore media FAILED (${mine.filter((m) => m.status === 'FAILED').length}/${ids.length}); new images kept`); if (mine.length === ids.length && mine.every((m) => m.status === 'READY')) break; }
+  // 4) 並べ替え → それ以外（改図後の画像など）を削除
+  await gql(`mutation($id:ID!,$m:[MoveInput!]!){ productReorderMedia(id:$id, moves:$m){ userErrors{ message } } }`, { id: pid, m: ids.map((id, i) => ({ id, newPosition: String(i) })) });
+  const stale = live.filter((id) => !ids.includes(id));
+  if (stale.length) { const del = await gql(`mutation($id:ID!,$m:[ID!]!){ productDeleteMedia(productId:$id, mediaIds:$m){ deletedMediaIds mediaUserErrors{ message } } }`, { id: pid, m: stale }); if (del.productDeleteMedia.mediaUserErrors.length) log('warn delete', p.handle, del.productDeleteMedia.mediaUserErrors[0].message); }
+  fs.renameSync(bf, path.join(OUT, p.handle, 'media-backup.rolledback.json'));
+  log('rolled back', p.handle, `${ids.length} restored (${locals.length} local / ${ids.length - locals.length} cdn), ${stale.length} removed`);
 }
 
 // ========== main ==========
@@ -267,7 +290,7 @@ const run = {
   preview: async () => { const jobs = previewJobs(loadProducts()); log('preview jobs', jobs.length); if (jobs.length) py('sheet', jobs); },
   publish: async () => pool(loadProducts(), 2, publish),
   prune: async () => { for (const p of loadProducts()) { try { await prune(p); } catch (e) { log('ERR prune', p.handle, e.message); } } },
-  rollback: async () => { for (const p of loadProducts()) await rollback(p); },
+  rollback: async () => { const ps = loadProducts().filter((p) => fs.existsSync(path.join(OUT, p.handle, 'media-backup.json'))); log('rollback targets', ps.length); await pool(ps, Number(args.concurrency ?? 2), rollback); },
   all: async () => { await run.classify(); await run.cutout(); await run.spec(); await run.render(); await run.preview(); },
 };
 if (!run[stage]) { console.error('stage?', Object.keys(run).join('|')); process.exit(1); }

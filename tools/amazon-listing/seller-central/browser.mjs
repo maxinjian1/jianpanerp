@@ -15,17 +15,20 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-const PROFILE = path.join(process.env.LOCALAPPDATA || os.homedir(), 'anet-seller-central');
+// 汎用化：--profile <name> --url <start> --port <cdp>（例：1688 用 = --profile anet-1688 --url https://www.1688.com --port 9223）
+const args = Object.fromEntries(process.argv.slice(2).map((a, i, arr) => a.startsWith('--') ? [a.slice(2), arr[i + 1] && !arr[i + 1].startsWith('--') ? arr[i + 1] : '1'] : []).filter(Boolean));
+const PROFILE = path.join(process.env.LOCALAPPDATA || os.homedir(), args.profile ?? 'anet-seller-central');
 const SHOTS = path.resolve(import.meta.dirname, '../out/sc-shots'); fs.mkdirSync(SHOTS, { recursive: true });
-const HOME = 'https://sellercentral-japan.amazon.com/home';
-const cmd = process.argv[2] ?? 'start';
+const HOME = args.url ?? 'https://sellercentral-japan.amazon.com/home';
+const PORT = Number(args.port ?? 9222);
+const cmd = process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : 'start';
 
 if (cmd === 'status') {
   try {
-    const b = await chromium.connectOverCDP('http://127.0.0.1:9222');
+    const b = await chromium.connectOverCDP(`http://127.0.0.1:${PORT}`);
     const ctx = b.contexts()[0]; const pg = ctx?.pages()[0];
     const url = pg?.url() ?? '(no page)';
-    const loggedIn = !!pg && !/\/ap\/signin|\/ap\/mfa|\/ap\/cvf/.test(url) && /sellercentral/.test(url);
+    const loggedIn = !!pg && !/\/ap\/signin|\/ap\/mfa|\/ap\/cvf|login\.1688|login\.taobao|passport/.test(url) && new URL(HOME).hostname.split('.').slice(-2).join('.') === new URL(url).hostname.split('.').slice(-2).join('.');
     console.log(JSON.stringify({ running: true, url, loggedIn }));
     if (pg) await pg.screenshot({ path: path.join(SHOTS, `status-${Date.now()}.png`) });
     await b.close();
@@ -35,9 +38,9 @@ if (cmd === 'status') {
 
 const ctx = await chromium.launchPersistentContext(PROFILE, {
   headless: false, channel: 'chrome', viewport: null, locale: 'ja-JP', timezoneId: 'Asia/Tokyo',
-  args: ['--remote-debugging-port=9222', '--start-maximized'],
+  args: [`--remote-debugging-port=${PORT}`, '--start-maximized'],
 });
 const page = ctx.pages()[0] ?? (await ctx.newPage());
 await page.goto(HOME, { waitUntil: 'domcontentloaded' });
-console.log(`ブラウザを開きました。ログイン画面が出たらユーザー本人がログインしてください。\nプロファイル: ${PROFILE}\nCDP: http://127.0.0.1:9222\nこのウィンドウは閉じないでください。終了は Ctrl+C。`);
+console.log(`ブラウザを開きました。ログイン画面が出たらユーザー本人がログインしてください。\nプロファイル: ${PROFILE}\nCDP: http://127.0.0.1:${PORT}\nこのウィンドウは閉じないでください。終了は Ctrl+C。`);
 await new Promise((r) => ctx.on('close', r));

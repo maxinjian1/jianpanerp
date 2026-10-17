@@ -2,6 +2,8 @@
  * Amazon.co.jp 既存出品（SARADEMUNT）のリスティング最適化 — 売上上位 10 ASIN は凍結、それ以外を全部直す
  *
  *   node tools/amazon-listing/optimize/optimize.mjs rank                 # 在庫レポート + ビジネスレポートから凍結 10 件と対象リストを作る → out/opt/plan.md, targets.json
+ *   node tools/amazon-listing/optimize/optimize.mjs fetch [--all] [--limit N]  # --all は凍結 10 件も取得（監査用）
+ *   node tools/amazon-listing/optimize/optimize.mjs audit [--limit N] / audit-report   # 読み取り専用の深掘り診断 → docs/amazon-audit-report.md
  *   node tools/amazon-listing/optimize/optimize.mjs fetch [--limit N]    # 商品ページ（自社 ASIN）から現在の title/bullets/説明/画像を取得（Windows, CDP 9222 のブラウザを使う）
  *   node tools/amazon-listing/optimize/optimize.mjs write [--limit N]    # 6kpro で新 title / bullets / 説明 / 検索キーワード / サブ画像ブリーフを生成 → out/opt/<asin>/listing.json
  *   node tools/amazon-listing/optimize/optimize.mjs cards [--limit N]    # サブ画像（サイズ表・素材・安心梱包・4つの約束）を Chromium で描画 → out/opt/<asin>/cards/*.png
@@ -52,7 +54,7 @@ function table(f, delim) { const rows = parseDelimited(readText(f), delim); cons
 const col = (obj, re) => { const k = Object.keys(obj).find((k) => re.test(k)); return k ? obj[k] : ''; };
 const num = (s) => Number(String(s ?? '').replace(/[,%￥¥\s]/g, '')) || 0;
 const TARGETS = path.join(OUT, 'targets.json');
-const loadTargets = () => { let t = JSON.parse(fs.readFileSync(TARGETS, 'utf8')); if (args.asin) t = t.filter((x) => x.asin === args.asin); if (args.limit) t = t.slice(0, Number(args.limit)); return t; };
+const loadTargets = () => { let t = JSON.parse(fs.readFileSync(TARGETS, 'utf8')); if (args.all && fs.existsSync(path.join(OUT, 'frozen-top10.json'))) t = [...JSON.parse(fs.readFileSync(path.join(OUT, 'frozen-top10.json'), 'utf8')), ...t]; if (args.asin) t = t.filter((x) => x.asin === args.asin); if (args.limit) t = t.slice(0, Number(args.limit)); return t; };
 const dirOf = (asin) => { const d = path.join(OUT, asin); fs.mkdirSync(d, { recursive: true }); return d; };
 
 // ---------- 6kpro ----------
@@ -176,5 +178,33 @@ const run = {
   },
   report() { run.build(); console.log(fs.readFileSync(path.join(OUT, 'review.md'), 'utf8').slice(0, 6000)); },
 };
-if (!run[stage]) { console.error('usage: rank | fetch | write | cards | build | report'); process.exit(2); }
+
+// ---------- 監査（読み取り専用：変更はしない。ユーザー向けレポートを作る） ----------
+const AUDIT_SYSTEM = `あなたは Amazon.co.jp レディースインナー（ブランド SARADEMUNT）のリスティング監査員です。与えられた商品ページの現状と 90 日実績を見て、日本の女性客の目線で「売れない原因」と「直し方」を具体的に指摘してください。
+評価軸：title（検索語・長さ・ブランド順序・記号）、bullets（本数・見出し・不安解消：サイズ/透け/ひびき/梱包）、description（構成・敬体・情報量）、images（枚数・メイン画像の規約：実人着用/白背景/文字なし、サブ画像にサイズ表/素材/梱包があるか。画像は URL とファイル名から推測できる範囲で）、keywords（検索語の網羅：表記ゆれ・産後/大きいサイズ/楽/締め付けない）、price（同種商品との整合は不明なら触れない）、compliance（最強/No.1/絶対/バストアップ/痩せる 等の NG、性的示唆）、reviews（評価と件数から見た信頼シグナル）。
+出力は JSON のみ：{"score":0-100,"verdict":"一言","top_fixes":["最優先の直し 3 つ以内、日本語"],"issues":[{"area":"title|bullets|description|images|keywords|price|compliance|reviews","severity":"high|mid|low","finding":"何が問題か（具体）","fix":"どう直すか（具体、文例があれば）"}]}`;
+run.audit = async function () {
+  const all = [...JSON.parse(fs.readFileSync(path.join(OUT, 'frozen-top10.json'), 'utf8')).map((t) => ({ ...t, frozen: true })), ...JSON.parse(fs.readFileSync(TARGETS, 'utf8'))];
+  const ts = args.asin ? all.filter((t) => t.asin === args.asin) : args.limit ? all.slice(0, Number(args.limit)) : all; let n = 0;
+  for (const t of ts) {
+    const d = dirOf(t.asin); const f = path.join(d, 'audit.json'); if (fs.existsSync(f) && !args.force) continue;
+    const cf = path.join(d, 'current.json'); const cur = fs.existsSync(cf) ? JSON.parse(fs.readFileSync(cf, 'utf8')) : { title: t.title, bullets: [], description: t.desc ?? '', images: t.image ? [t.image] : [], sizes: [], colors: [], detail: {}, rating: '', reviews: '' };
+    const user = `ASIN: ${t.asin}（${t.frozen ? '売上上位：変更しない前提で診断のみ' : t.segment}）\nタイトル: ${cur.title}\n価格: ${cur.price || '¥' + t.price}\n評価: ${cur.rating || '不明'} / ${cur.reviews || 'レビュー数不明'}\n箇条書き:\n${cur.bullets.map((b) => '- ' + b).join('\n') || '(なし)'}\n説明文:\n${String(cur.description).slice(0, 2000) || '(なし)'}\n画像 ${cur.images.length} 枚: ${cur.images.slice(0, 9).map((u) => u.split('/').pop()).join(', ')}\nサイズ: ${cur.sizes.join('/') || '不明'}　カラー: ${cur.colors.join('/') || '不明'}\n商品詳細: ${JSON.stringify(cur.detail).slice(0, 1200)}\n90 日実績: セッション ${t.sessions90 ?? 0}、注文 ${t.units90 ?? 0}、CVR ${t.cvr90 ?? 0}%、売上 ¥${t.sales90 ?? 0}`;
+    try { const j = await chatJson([{ role: 'system', content: AUDIT_SYSTEM }, { role: 'user', content: user }], { maxTokens: 2500 }); j.asin = t.asin; j.frozen = !!t.frozen; j.auditedAt = new Date().toISOString(); fs.writeFileSync(f, JSON.stringify(j, null, 1)); n++; log('audited', t.asin, j.score, j.verdict); }
+    catch (e) { log('ERR audit', t.asin, e.message); fs.appendFileSync(path.join(OUT, 'errors.log'), `${new Date().toISOString()} audit ${t.asin} ${e.message}\n`); }
+  }
+  log('audited', n);
+};
+run['audit-report'] = function () {
+  const all = [...JSON.parse(fs.readFileSync(path.join(OUT, 'frozen-top10.json'), 'utf8')).map((t) => ({ ...t, frozen: true })), ...JSON.parse(fs.readFileSync(TARGETS, 'utf8'))];
+  const rows = all.map((t) => { const f = path.join(OUT, t.asin, 'audit.json'); return fs.existsSync(f) ? { t, a: JSON.parse(fs.readFileSync(f, 'utf8')) } : null; }).filter(Boolean);
+  const sev = { high: 0, mid: 0, low: 0 }; const byArea = {}; for (const { a } of rows) for (const i of a.issues ?? []) { sev[i.severity] = (sev[i.severity] ?? 0) + 1; byArea[i.area] = (byArea[i.area] ?? 0) + 1; }
+  const md = ['# Amazon 店铺深度审计报告（SARADEMUNT，只读诊断）', '', `审计日期：${new Date().toISOString().slice(0, 10)}　商品数：${rows.length}（其中销量 Top ${rows.filter((r) => r.t.frozen).length} 为「不改动」，仅诊断）`, '', `问题统计：high ${sev.high} / mid ${sev.mid} / low ${sev.low}`, '', '| 领域 | 问题数 |', '|---|---|', ...Object.entries(byArea).sort((a, b) => b[1] - a[1]).map(([k, v]) => `| ${k} | ${v} |`), '', '## 总览（按得分从低到高）', '', '| ASIN | 得分 | 90日会话 | 订单 | CVR | 状态 | 一句话结论 | 最优先修改 |', '|---|---|---|---|---|---|---|---|'];
+  rows.sort((p, q) => (p.a.score ?? 0) - (q.a.score ?? 0));
+  for (const { t, a } of rows) md.push(`| ${t.asin} | ${a.score ?? '-'} | ${t.sessions90 ?? 0} | ${t.units90 ?? 0} | ${t.cvr90 ?? 0}% | ${t.frozen ? '**不改动**' : t.segment} | ${a.verdict ?? ''} | ${(a.top_fixes ?? []).join('；')} |`);
+  md.push('', '## 逐产品明细', '');
+  for (const { t, a } of rows) { md.push(`### ${t.asin}　${(t.title ?? '').slice(0, 50)}`, '', `得分 ${a.score}　${t.frozen ? '（销量 Top，不改动，仅供参考）' : ''}`, '', '| 领域 | 严重度 | 问题 | 修改建议 |', '|---|---|---|---|'); for (const i of a.issues ?? []) md.push(`| ${i.area} | ${i.severity} | ${String(i.finding).replace(/\|/g, '／')} | ${String(i.fix).replace(/\|/g, '／')} |`); md.push(''); }
+  const out = path.join(ROOT, 'docs/amazon-audit-report.md'); fs.writeFileSync(out, md.join('\n')); console.log(md.slice(0, 30).join('\n')); log('report →', path.relative(ROOT, out));
+};
+if (!run[stage]) { console.error('usage: rank | fetch | audit | audit-report | write | cards | build | report'); process.exit(2); }
 Promise.resolve(run[stage]()).then(() => log('done', stage)).catch((e) => { console.error(e); process.exit(1); });
