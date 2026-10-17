@@ -8,10 +8,8 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "primaryColor": "#BF0000",
     "locales": { "ja": "./locales/ja.json" },
-    "splash": { "image": "./assets/splash-icon.png", "resizeMode": "contain", "backgroundColor": "#ffffff", "imageWidth": 200 },
     "ios": {
       "bundleIdentifier": "com.anetmc.yasui",
       "buildNumber": "1",

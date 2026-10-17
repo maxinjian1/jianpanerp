@@ -4,7 +4,7 @@ import { ProductCard } from './ProductCard';
 import type { ProductCard as P } from '@/lib/shopify';
 import { C } from '@/theme';
 
-export function ProductGrid({ items, ranked, onEnd, loadingMore, header, empty }: { items: P[]; ranked?: boolean; onEnd?: () => void; loadingMore?: boolean; header?: React.ReactElement; empty?: string }) {
+export function ProductGrid({ items, ranked, onEnd, loadingMore, header, empty }: { items: P[]; ranked?: boolean; onEnd?: () => void; loadingMore?: boolean; header?: React.ComponentProps<typeof FlatList>['ListHeaderComponent']; empty?: string }) {
   const { width } = useWindowDimensions();
   const cols = width >= 700 ? 4 : 2, gap = 10, w = (width - gap * (cols + 1)) / cols;
   return (
