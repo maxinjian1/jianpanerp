@@ -54,11 +54,23 @@ export async function newArrivals(first = 10) {
   return d.products.nodes;
 }
 
+// 在庫数（quantityAvailable）は Storefront トークンに unauthenticated_read_product_inventory が必要。
+// 権限が無いトークンでも商品ページが落ちないよう、拒否されたら在庫数なしで再取得する。
+const PRODUCT_Q = `${CARD} query($h:String!){ product(handle:$h){ ...Card descriptionHtml description productType tags images(first:12){ nodes{ url(transform:{maxWidth:1200,maxHeight:1200}) altText width height } } options{ name values } variants(first:50){ nodes{ id title availableForSale price{amount currencyCode} compareAtPrice{amount currencyCode} image{ url(transform:{maxWidth:600,maxHeight:600}) altText } selectedOptions{ name value } } } } }`;
+const PRODUCT_Q_INV = `${CARD} query($h:String!){ product(handle:$h){ ...Card descriptionHtml description productType tags images(first:12){ nodes{ url(transform:{maxWidth:1200,maxHeight:1200}) altText width height } } options{ name values } variants(first:50){ nodes{ id title availableForSale quantityAvailable price{amount currencyCode} compareAtPrice{amount currencyCode} image{ url(transform:{maxWidth:600,maxHeight:600}) altText } selectedOptions{ name value } } } } }`;
+let inventoryScope: boolean | null = null;
 export async function productByHandle(handle: string) {
-  const d = await sf<{ product: Product | null }>(
-    `${CARD} query($h:String!){ product(handle:$h){ ...Card descriptionHtml description productType tags images(first:12){ nodes{ url(transform:{maxWidth:1200,maxHeight:1200}) altText width height } } options{ name values } variants(first:50){ nodes{ id title availableForSale price{amount currencyCode} compareAtPrice{amount currencyCode} image{ url(transform:{maxWidth:600,maxHeight:600}) altText } selectedOptions{ name value } } } } }`,
-    { h: handle },
-  );
+  if (inventoryScope !== false) {
+    try {
+      const d = await sf<{ product: Product | null }>(PRODUCT_Q_INV, { h: handle });
+      inventoryScope = true;
+      return d.product;
+    } catch (e) {
+      if (!/quantityAvailable|read_product_inventory/i.test(String(e))) throw e;
+      inventoryScope = false;
+    }
+  }
+  const d = await sf<{ product: Product | null }>(PRODUCT_Q, { h: handle });
   return d.product;
 }
 
