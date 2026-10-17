@@ -4,7 +4,7 @@
 
 ## 前提（Seller Central で先に済ませる — ユーザー操作）
 1. 配送設定 → 配送パターン「**全国送料無料**」（出荷リードタイム 1 日、平日12時までの注文は当日出荷）。名前がスクリプトの `--shipping` と一致していること。
-2. ブランド登録なしの **GTIN 免除申請**：ブランド名 `ANET`、カテゴリごとに申請（商品名＋商品画像で可）。承認後に `external_product_id` 空欄で登録できる。
+2. ブランド登録なしの **GTIN 免除申請**：ブランド名 `SARADEMUNT`（ANET は不可）、カテゴリごとに申請（商品名＋商品画像で可）。承認後に `external_product_id` 空欄で登録できる。
 3. **出品許可申請**：`classify` が出す `out/category-report.md` の「要申請」カテゴリ（Beauty / Grocery / Watch / Jewelry / HealthAndPersonalCare / Baby）を申請。
 4. 各カテゴリの在庫ファイルテンプレート（在庫 → アップロードによる一括商品登録 → 在庫ファイルのダウンロード）を取り、`テンプレート` シートの先頭 3 行を TSV でコピーして `tools/amazon-listing/templates/<feed_product_type>.headers.tsv` に保存（例 `Home.headers.tsv`）。`データ定義`／`有効な値` シートから `feed_product_type` の正式値と推奨ブラウズノード ID を `category-map.json` の `browseNodes` に反映。
 
@@ -22,7 +22,7 @@ node tools/amazon-listing/build-inventory-file.mjs build                        
 | 項目 | 値 |
 |---|---|
 | item_sku | 単品 `ANET-V<ShopifyVariantId>`、親 `ANET-P<ProductId>`（SP-API 移行後も同じ SKU を使う） |
-| brand / manufacturer | ANET |
+| brand / manufacturer | SARADEMUNT（ANET は Amazon 上で既存ブランドと衝突、2026-10-17 に SARADEMUNT へ決定） |
 | external_product_id | 空（GTIN 免除） |
 | item_name | Shopify タイトルから「送料無料・最安・【】・記号」を除去し 65 字に切る |
 | bullet_point1-5 | spec.json の features 4 本＋寸法／セット内容 |

@@ -30,7 +30,7 @@ const args = Object.fromEntries(process.argv.slice(3).map((a, i, arr) => a.start
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const MAP = JSON.parse(fs.readFileSync(path.join(__dirname, 'category-map.json'), 'utf8'));
 
-const BRAND = args.brand ?? 'ANET';
+const BRAND = args.brand ?? 'SARADEMUNT'; // 2026-10-17 決定：Amazon では ANET が既存ブランドと衝突 → ユーザー保有の SARADEMUNT を使う（GTIN 免除が即時承認）
 const QTY = Number(args.qty ?? 50);                 // 代発なので在庫は見込み値。売れたら pipeline 側で同期する
 const LATENCY = Number(args.latency ?? 1);          // 平日12時までのご注文は当日出荷 → 1 日
 const SHIPPING = args.shipping ?? '全国送料無料';    // Seller Central の配送パターン名と一致させる
