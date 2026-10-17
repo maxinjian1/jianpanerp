@@ -210,6 +210,9 @@ async function publish(p) {
   const bak = path.join(OUT, p.handle, 'media-backup.json');
   if (fs.existsSync(bak) && !args.force) { log('already published', p.handle); return; }
   if (fs.existsSync(path.join(OUT, p.handle, 'media-backup.rolledback.json')) && !args.force) { log('rolled back earlier (skip publish; use --force)', p.handle); return; }
+  // 2026-10-18 用户决定：改图必须逐款审核。只发布 tools/product-images/approved.txt（每行一个 handle，用户审核通过）里的商品
+  const APPROVED = path.join(__dirname, 'approved.txt'); const ok = fs.existsSync(APPROVED) ? new Set(fs.readFileSync(APPROVED, 'utf8').split(/\r?\n/).map((x) => x.trim()).filter(Boolean)) : new Set();
+  if (!ok.has(p.handle)) { log('not approved by user (skip publish)', p.handle); return; }
   if (args.dry) { log('[dry] would replace', p.media.length, 'images of', p.handle); return; }
   // 1) staged upload
   const st = await gql(`mutation($i:[StagedUploadInput!]!){ stagedUploadsCreate(input:$i){ stagedTargets{ url resourceUrl parameters{ name value } } userErrors{ message } } }`, { i: files.map((f) => ({ filename: path.basename(f), mimeType: 'image/png', resource: 'IMAGE', httpMethod: 'POST', fileSize: String(fs.statSync(f).size) })) });
