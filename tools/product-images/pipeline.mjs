@@ -26,7 +26,7 @@ const args = Object.fromEntries(process.argv.slice(3).map((a, i, arr) => a.start
 const stage = process.argv[2];
 const env = Object.fromEntries((fs.existsSync(path.join(ROOT, '.env')) ? fs.readFileSync(path.join(ROOT, '.env'), 'utf8') : '').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#') && l.includes('=')).map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^"|"$/g, '')]; }));
 const SHOP = env.SHOPIFY_STORE_DOMAIN, CID = env.SHOPIFY_CLIENT_ID, SECRET = env.SHOPIFY_CLIENT_SECRET, VER = env.SHOPIFY_API_VERSION || '2026-10';
-const LLM = (env.CN_LLM_BASE_URL || 'http://100.82.2.101:8199/v1').replace(/\/$/, ''), MODEL = env.CN_LLM_MODEL || 'GLM-5.3-Flash';
+const LLM = (env.CN_LLM_BASE_URL || 'http://100.82.2.101:8199/v1').replace(/\/$/, ''), MODEL = env.CN_LLM_MODEL || 'GLM-5.3-Flash', VISION_MODEL = env.CN_LLM_VISION_MODEL || MODEL;
 const PY = env.IMAGE_PY || (process.platform === 'win32' ? path.join(ROOT, 'apps/image-service/venv/Scripts/python.exe') : 'python3');
 const CONC = Number(args.concurrency ?? 3);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -38,10 +38,10 @@ async function getToken() { if (token) return token; const r = await fetch(`http
 async function gql(query, variables = {}) { const r = await fetch(`https://${SHOP}/admin/api/${VER}/graphql.json`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-shopify-access-token': await getToken() }, body: JSON.stringify({ query, variables }) }); const j = await r.json(); if (j.errors) throw new Error(JSON.stringify(j.errors)); return j.data; }
 
 // ---------- 6kpro（OpenAI 互換）----------
-async function chatJson(messages, { maxTokens = 4000, retries = 3 } = {}) {
+async function chatJson(messages, { maxTokens = 4000, retries = 3, model = MODEL } = {}) {
   for (let i = 0; i < retries; i++) {
     try {
-      const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, temperature: 0.2, max_tokens: maxTokens, response_format: { type: 'json_object' }, messages }) });
+      const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model, temperature: 0.2, max_tokens: maxTokens, response_format: { type: 'json_object' }, messages }) });
       const j = await r.json(); const c = j.choices?.[0]?.message?.content;
       if (!c) throw new Error(`empty content: ${JSON.stringify(j).slice(0, 300)}`);
       const m = c.match(/\{[\s\S]*\}/);
@@ -101,7 +101,7 @@ async function classify(p) {
   const files = await download(p); const th = path.join(OUT, p.handle, 'thumbs');
   const content = [{ type: 'text', text: `商品名: ${p.title}\n画像は ${files.length} 枚、番号順です。` }];
   files.forEach((n, i) => { content.push({ type: 'text', text: `画像 ${i + 1}:` }); content.push({ type: 'image_url', image_url: { url: b64(path.join(th, n)) } }); });
-  const j = await chatJson([{ role: 'system', content: CLASSIFY_SYS }, { role: 'user', content }], { maxTokens: 3000 });
+  const j = await chatJson([{ role: 'system', content: CLASSIFY_SYS }, { role: 'user', content }], { maxTokens: 3000, model: VISION_MODEL });
   if (!Array.isArray(j.images) || !j.images.length) throw new Error(`classify: images not array: ${JSON.stringify(j).slice(0, 120)}`); // 模型偶尔输出错位引号的坏 JSON，不落盘，留给下一轮重分类
   fs.writeFileSync(f, JSON.stringify(j, null, 1)); log('classified', p.handle, j.images?.length);
 }

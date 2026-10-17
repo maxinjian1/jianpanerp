@@ -25,7 +25,7 @@ const args = Object.fromEntries(process.argv.slice(3).map((a, i, arr) => a.start
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const jitter = (a = 2500, b = 6000) => sleep(a + Math.random() * (b - a));
 const env = Object.fromEntries((fs.existsSync(path.join(ROOT, '.env')) ? fs.readFileSync(path.join(ROOT, '.env'), 'utf8') : '').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#') && l.includes('=')).map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^"|"$/g, '')]; }));
-const LLM = (env.CN_LLM_BASE_URL || 'http://100.82.2.101:8199/v1').replace(/\/$/, ''), MODEL = env.CN_LLM_MODEL || 'GLM-5.3-Flash';
+const LLM = (env.CN_LLM_BASE_URL || 'http://100.82.2.101:8199/v1').replace(/\/$/, ''), MODEL = env.CN_LLM_MODEL || 'GLM-5.3-Flash', VISION_MODEL = env.CN_LLM_VISION_MODEL || MODEL;
 const CDP = args.cdp ?? 'http://127.0.0.1:9223';
 const WECHAT = env.SOURCING_WECHAT || '215914546'; // 用户 2026-10-18 给出的联系方式
 const COMPANY = env.SOURCING_COMPANY || 'アネット株式会社（ANET，日本）';
@@ -33,9 +33,9 @@ const QUEUE = path.join(OUT, 'outreach-queue.json');
 const dirOf = (asin) => { const d = path.join(OUT, asin); fs.mkdirSync(d, { recursive: true }); return d; };
 const loadIn = () => { if (!args.in) throw new Error('--in <sourcing.json> を指定'); let a = JSON.parse(fs.readFileSync(path.resolve(ROOT, args.in), 'utf8')); if (args.asin) a = a.filter((x) => x.asin === args.asin); if (args.limit) a = a.slice(0, Number(args.limit)); return a; };
 
-async function chat(messages, { json = true, maxTokens = 2500, retries = 3 } = {}) {
+async function chat(messages, { json = true, maxTokens = 2500, retries = 3, model = MODEL } = {}) {
   for (let i = 0; i < retries; i++) {
-    try { const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, temperature: 0.2, max_tokens: maxTokens, ...(json ? { response_format: { type: 'json_object' } } : {}), messages }) }); const j = await r.json(); const c = j.choices?.[0]?.message?.content; if (!c) throw new Error('empty'); if (!json) return c; const m = c.match(/\{[\s\S]*\}/); return JSON.parse(m ? m[0] : c); }
+    try { const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model, temperature: 0.2, max_tokens: maxTokens, ...(json ? { response_format: { type: 'json_object' } } : {}), messages }) }); const j = await r.json(); const c = j.choices?.[0]?.message?.content; if (!c) throw new Error('empty'); if (!json) return c; const m = c.match(/\{[\s\S]*\}/); return JSON.parse(m ? m[0] : c); }
     catch (e) { if (i === retries - 1) throw e; await sleep(1500 * (i + 1)); }
   }
 }
@@ -83,7 +83,7 @@ const run = {
       const content = [{ type: 'text', text: `Amazon 商品：${O.title}　价格 ${O.price_jpy}　目标采购价 ${O.target_cost_cny}\n1688 货品：\n${O.offers.slice(0, 20).map((o, i) => `${i + 1}. offerId=${o.offerId} | ${o.title} | ¥${o.price} | ${o.moq} | ${o.sold} | ${o.supplier} | ${o.years}年 | 回头率${o.repurchase} | ${o.badges.join('/')}`).join('\n')}` }];
       if (O.image) content.push({ type: 'text', text: 'Amazon 主图：' }, { type: 'image_url', image_url: { url: O.image } });
       for (const o of O.offers.slice(0, 8)) if (o.image) content.push({ type: 'text', text: `1688 offerId=${o.offerId} 图：` }, { type: 'image_url', image_url: { url: o.image.startsWith('//') ? 'https:' + o.image : o.image } });
-      try { const j = await chat([{ role: 'system', content: SYS }, { role: 'user', content }], { maxTokens: 3000 }); fs.writeFileSync(out, JSON.stringify({ asin: it.asin, ...j }, null, 1)); log('matched', it.asin, (j.best ?? []).length); }
+      try { const j = await chat([{ role: 'system', content: SYS }, { role: 'user', content }], { maxTokens: 3000, model: VISION_MODEL }); fs.writeFileSync(out, JSON.stringify({ asin: it.asin, ...j }, null, 1)); log('matched', it.asin, (j.best ?? []).length); }
       catch (e) { log('ERR match', it.asin, e.message); }
     }
   },
