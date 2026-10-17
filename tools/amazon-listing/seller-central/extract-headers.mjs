@@ -10,8 +10,8 @@ const rows = XLSX.utils.sheet_to_json(wb.Sheets[tplName], { header: 1, raw: fals
 const name = nameArg ?? path.basename(file).replace(/\.[^.]+$/, '');
 const outDir = path.resolve(import.meta.dirname, '../templates'); fs.mkdirSync(outDir, { recursive: true });
 const out = path.join(outDir, `${name}.headers.tsv`);
-fs.writeFileSync(out, rows.slice(0, 3).map((r) => r.map((c) => String(c ?? '').replace(/[\t\r\n]+/g, ' ')).join('\t')).join('\r\n') + '\r\n');
-console.log('headers →', out, '| sheet:', tplName, '| fields:', rows[2]?.length);
+fs.writeFileSync(out, rows.slice(0, 5).map((r) => r.map((c) => String(c ?? '').replace(/[\t\r\n]+/g, ' ')).join('\t')).join('\r\n') + '\r\n');
+console.log("headers →", out, "| sheet:", tplName, "| fields:", (rows[4] ?? rows[2])?.filter(Boolean).length, "| 行1=settings 行3=グループ 行4=表示名 行5=フィールドID");
 const vals = wb.SheetNames.find((n) => /有効な値|Valid Values|推奨値|Dropdown Lists/i.test(n));
 if (vals) {
   const v = XLSX.utils.sheet_to_json(wb.Sheets[vals], { header: 1, raw: false, defval: '' });
