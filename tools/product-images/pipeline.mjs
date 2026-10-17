@@ -109,7 +109,9 @@ async function classify(p) {
 // 主画像の選択：文字入り・人物入り・他社ロゴ入りを避け、文字が残る場合は mainBox ∩ cleanBox で切る（ステッカー/拡大インセットの混入対策）
 function pickMain(cls) {
   const imgs = Array.isArray(cls.images) ? cls.images : [];
-  const rank = (x) => ({ main: 0, package: 1, detail: 2 }[x.kind] ?? 3) * 10 + (x.hasText ? 5 : 0) + (x.mainBox ? 0 : 1);
+  // 文字入り main は cleanBox で切った後に商品がどれだけ残るかで評価：7割未満しか残らないなら、文字なしの scene/package を優先する
+  const keep = (x) => { if (!x.hasText || !okBox(x.cleanBox)) return 1; const b = okBox(x.mainBox) ? x.mainBox : [0, 0, 1, 1]; const c = x.cleanBox; const w = Math.max(0, Math.min(b[2], c[2]) - Math.max(b[0], c[0])), h = Math.max(0, Math.min(b[3], c[3]) - Math.max(b[1], c[1])); return (w * h) / ((b[2] - b[0]) * (b[3] - b[1])); };
+  const rank = (x) => ({ main: 0, package: 10, scene: 20, detail: 30 }[x.kind] ?? 40) + (x.hasText ? (keep(x) >= 0.7 ? 5 : 35) : 0) + (x.mainBox ? 0 : 1);
   const cands = imgs.filter((x) => !x.hasBrandLogo && !x.hasPerson && (x.kind === 'main' || x.mainBox)).sort((a, b) => rank(a) - rank(b) || a.n - b.n);
   return cands[0] ?? imgs.find((x) => x.kind === 'main' && !x.hasBrandLogo) ?? imgs.find((x) => x.mainBox) ?? { n: 1, mainBox: null };
 }
