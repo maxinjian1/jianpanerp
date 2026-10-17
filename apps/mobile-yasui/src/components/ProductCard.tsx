@@ -11,7 +11,7 @@ export function ProductCard({ p, rank, width }: { p: P; rank?: number; width: nu
   const sale = compare > price;
   return (
     <Link href={{ pathname: '/product/[handle]', params: { handle: p.handle } }} asChild>
-      <Pressable style={[s.card, { width }]} accessibilityRole="button" accessibilityLabel={p.title}>
+      <Pressable style={StyleSheet.flatten([s.card, { width }])} accessibilityRole="button" accessibilityLabel={p.title}>
         <View>
           <Image source={p.featuredImage?.url} style={{ width: '100%', aspectRatio: 1, backgroundColor: '#fafafa' }} contentFit="cover" transition={150} />
           {rank != null && <View style={[s.rank, { backgroundColor: rank === 1 ? C.gold : rank === 2 ? C.silver : rank === 3 ? C.bronze : '#555' }]}><Text style={s.rankTxt}>{rank}位</Text></View>}

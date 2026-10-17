@@ -9,7 +9,7 @@ export default function GenresScreen() {
   return (
     <ScrollView contentContainerStyle={s.grid}>
       <Link href={{ pathname: '/collection/[handle]', params: { handle: ALL_COLLECTION } }} asChild>
-        <Pressable style={[s.tile, s.all]}><Text style={s.allTxt}>全商品を見る ›</Text></Pressable>
+        <Pressable style={StyleSheet.flatten([s.tile, s.all])}><Text style={s.allTxt}>全商品を見る ›</Text></Pressable>
       </Link>
       {GENRES.map((g) => (
         <Link key={g.handle} href={{ pathname: '/collection/[handle]', params: { handle: g.handle } }} asChild>
