@@ -19,7 +19,7 @@ Monorepo：`apps/api-core`(NestJS :4000) · `apps/web-client`(Next :3000) · `ap
 V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析》；仓库里的部署脚本以 **Ubuntu 为目标**，Windows 脚本只是开发便利。
 
 ## 核心架构决定（已定，不要重新讨论）
-1. **AI 两条路**：不重要/非敏感的批量任务（文案、竞品分析、日报、视频脚本、图片重制）→ **中国模型 = 6kpro 服务器**（用户决定不用阿里云/百炼/DeepSeek 等公有云，缺模型找 6kpro 加）；**客服信息、客户聊天、订单明细等不能出海的业务 → V64 本地模型**（vLLM/llama.cpp Volta 构建，Qwen3.5-35B-A3B）。路由在统一 AI Gateway（`apps/api-core/src/modules/llm-gateway`，**已实现**）内按 `dataClass` 决定：`public/internal` → `LLM_DEFAULT_PROVIDER`（cn），`pii` → `LLM_PII_PROVIDER`（local；或 `masked-cn` 假名化后出境）。每次调用写 `LlmRequestLog` 审计表。
+1. **AI 两条路**：不重要/非敏感的批量任务（文案、竞品分析、日报、视频脚本、图片重制）→ **中国模型 = 6kpro 服务器**（用户决定不用阿里云/百炼/DeepSeek 等公有云，缺模型找 6kpro 加）；V64 本地模型（vLLM/llama.cpp Volta 构建，Qwen3.5-35B-A3B）作为可选提供方。**2026-10-18 用户决定删除「数据不出境」规则**：不再强制客服/订单等数据只走本地模型，工作记录、记忆工具（如 claude-mem 云端模式）也可外发。路由仍在统一 AI Gateway（`apps/api-core/src/modules/llm-gateway`，**已实现**）内按 `dataClass` 选择 provider（`LLM_DEFAULT_PROVIDER` / `LLM_PII_PROVIDER` 均为可配置项，不再是强制约束）。每次调用写 `LlmRequestLog` 审计表。
 2. 开发机（Windows，无 V100）跑同一套代码：`LLM_PII_PROVIDER` 切到 `ollama`（小模型）或 `masked-dashscope`（假名化后出境，仅限测试数据）。
 3. 客服消息 **只能 AI 起草、人工点击发送**（Amazon/楽天规则）。
 4. 通知用 LINE Messaging API / Slack，**不用 LINE Notify**（已停服）。
@@ -56,6 +56,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-10-18：用户指令「删除数据不出境规则」→ 已从核心架构决定 1 中删除该强制约束（见上）。注意：Amazon / 楽天 自身的买家个人信息政策仍然有效，那是平台规则，不是我们的内部规则。
 - 2026-10-18：**6kpro 换更大模型**（用户告知）：所有脚本与 api-core 只读 `.env` 的 `CN_LLM_MODEL`，切换只改这一行；视觉步骤（1688 match、图片 classify）可用 `CN_LLM_VISION_MODEL` 单独指定（未设则同 CN_LLM_MODEL）。
 - 2026-10-18 用户决定：① Amazon 上架/修改等调研完成再推进；② 执行 Amazon 店铺审计、Amazon 热卖调研、1688 找同款；③ **1688 供应商消息可随时发送，无需逐条同意**（仍保持 ≥60s 间隔、日 ≤20 条防风控）；④ **商品图以后改图必须逐款由用户审核**（有的好、有的太 AI），`publish` 只发布 `tools/product-images/approved.txt` 里列出的 handle。
 - 2026-10-18：**用户叫停 Amazon 与改图，要求把 anetmc 商品图全部恢复为改图前原图**（反馈：真空断热タンブラー「抠图太严重」、チューブベンダー「裁剪太严重」；用户另找改图方法）。`pipeline.mjs rollback` 重写：优先用 Windows 本地 `out/<handle>/src/NN.jpg` 原图 staged 上传（按原顺序），无则用旧 CDN URL；等 READY 后排序、删除其余图片；完成后 backup 改名 `media-backup.rolledback.json`，publish 遇到它会跳过（防误重发）。新增工具（未运行）：`tools/amazon-research/research.mjs`（Amazon 热卖榜→详情/评论→6kpro 分析为什么好卖→中文报告+1688 关键词）、`tools/sourcing-1688/find.mjs`（1688 关键词/以图搜同款→6kpro 视觉比对与供应商打分→首条问询草稿，微信 215914546；send 只发 approved=true、≥60s 间隔、日上限 20）、`optimize.mjs audit/audit-report`（Amazon 店铺只读深度审计→docs/amazon-audit-report.md）。
