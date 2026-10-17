@@ -49,7 +49,7 @@ function loadProducts() {
   let all = JSON.parse(fs.readFileSync(f, 'utf8'));
   if (args.handles) { const set = new Set(fs.readFileSync(args.handles, 'utf8').split(/\r?\n/).map((s) => s.trim()).filter(Boolean)); all = all.filter((p) => set.has(p.handle)); }
   if (args.handle) all = all.filter((p) => p.handle === args.handle);
-  if (args.limit) all = all.slice(0, Number(args.limit));
+  if (args.limit && stage !== 'build') all = all.slice(0, Number(args.limit)); // build は type で絞ってから limit
   return all;
 }
 const specOf = (p) => { const f = path.join(IMG_OUT, p.handle, 'spec.json'); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null; };
@@ -57,7 +57,7 @@ const numId = (gid) => String(gid).split('/').pop();
 
 // ---------- カテゴリ ----------
 function categorize(p) {
-  const text = `${p.title} ${(p.tags ?? []).join(' ')}`;
+  const text = p.title; // タグは雑音が多い（色名・用途語）ので見ない
   for (const k of MAP.keywords) if (new RegExp(k.re).test(text)) return { feed_product_type: k.feed_product_type, approval: !!k.approval, by: 'keyword', browse_node: k.browse_node ?? MAP.browseNodes?.[k.feed_product_type] ?? '' };
   const t = MAP.byType[p.productType];
   if (t) return { feed_product_type: t.feed_product_type, approval: !!t.approval, by: 'type', browse_node: t.browse_node ?? MAP.browseNodes?.[t.feed_product_type] ?? '' };
@@ -65,12 +65,12 @@ function categorize(p) {
 }
 
 // ---------- 文字整形 ----------
-const clean = (s) => String(s ?? '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+const clean = (s) => String(s ?? '').replace(/<li[^>]*>/gi, '・').replace(/<\/(p|li|h[1-6]|div|tr)>|<br\s*\/?>/gi, '　').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/[ \t\r\n]+/g, ' ').replace(/(　\s*){2,}/g, '　').trim();
 const cut = (s, n) => { s = clean(s); if (s.length <= n) return s; const c = s.slice(0, n); const i = Math.max(c.lastIndexOf('。'), c.lastIndexOf('、'), c.lastIndexOf(' ')); return (i > n * 0.6 ? c.slice(0, i) : c).trim(); };
 const title = (p, spec) => cut(`${p.title}`.replace(STRIP_RE, ' '), TITLE_MAX);
 function bullets(p, spec) {
   const b = (spec?.features ?? []).map((f) => cut(`${f.t}：${f.d}`.replace(STRIP_RE, ' '), BULLET_MAX)).filter(Boolean);
-  if (spec?.dimensions) { const d = spec.dimensions; b.push(cut(`サイズ：幅${d.w ?? '-'}×高さ${d.h ?? '-'}×奥行${d.d ?? '-'} ${d.note ?? ''}`, BULLET_MAX)); }
+  if (spec?.dimensions) { const d = spec.dimensions; const ok = (v) => typeof v === 'string' && /[0-9０-９]/.test(v); const dims = [ok(d.w) && `幅${d.w}`, ok(d.h) && `高さ${d.h}`, ok(d.d) && `奥行${d.d}`].filter(Boolean); if (dims.length) b.push(cut(`サイズ：${dims.join('×')}${d.note && !/記載なし|不明/.test(d.note) ? ' ' + d.note : ''}`, BULLET_MAX)); }
   if (spec?.setContents?.length) b.push(cut(`セット内容：${spec.setContents.join('、')}`, BULLET_MAX));
   while (b.length < 5) b.push(b.length === 0 ? cut(p.description, BULLET_MAX) : '');
   return b.slice(0, 5);
@@ -162,7 +162,8 @@ const run = {
   },
   build() {
     const ps = loadProducts(); const groups = {};
-    for (const p of ps) { const c = categorize(p); if (args.type && c.feed_product_type !== args.type) continue; (groups[c.feed_product_type] ??= []).push(...rowsFor(p, c)); }
+    let n = 0; const max = args.limit ? Number(args.limit) : Infinity;
+    for (const p of ps) { const c = categorize(p); if (args.type && c.feed_product_type !== args.type) continue; if (n++ >= max) break; (groups[c.feed_product_type] ??= []).push(...rowsFor(p, c)); }
     const summary = [];
     for (const [type, rows] of Object.entries(groups)) {
       const h = headerRows(type); const unknown = new Set();
