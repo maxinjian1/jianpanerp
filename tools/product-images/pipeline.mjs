@@ -44,7 +44,8 @@ async function chatJson(messages, { maxTokens = 4000, retries = 3 } = {}) {
       const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, temperature: 0.2, max_tokens: maxTokens, response_format: { type: 'json_object' }, messages }) });
       const j = await r.json(); const c = j.choices?.[0]?.message?.content;
       if (!c) throw new Error(`empty content: ${JSON.stringify(j).slice(0, 300)}`);
-      const m = c.match(/\{[\s\S]*\}/); return JSON.parse(m ? m[0] : c);
+      const m = c.match(/\{[\s\S]*\}/);
+      try { return JSON.parse(m ? m[0] : c); } catch (e) { const d = path.join(OUT, '_badjson'); fs.mkdirSync(d, { recursive: true }); fs.writeFileSync(path.join(d, `${Date.now()}.txt`), c); throw e; } // 坏 JSON 原文落盘便于排查（out/ 不入库）
     } catch (e) { if (i === retries - 1) throw e; await sleep(1500 * (i + 1)); }
   }
 }
