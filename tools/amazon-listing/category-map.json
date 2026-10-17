@@ -1,5 +1,5 @@
 {
-  "_doc": "Shopify productType（8 正式分类）→ Amazon.co.jp 在庫ファイルの feed_product_type。approval=true は出品許可申請が必要な可能性が高いカテゴリ。keywords で商品名からサブカテゴリを上書き（上から順に最初に一致したもの）。feed_product_type の正確な値はダウンロードしたテンプレートの「データ定義」シートで確認し、必要なら values を直す。",
+  "_doc": "Shopify productType（8 正式分类）→ Amazon.co.jp 在庫ファイルの feed_product_type。approval=true は出品許可申請が必要な可能性が高いカテゴリ。keywords で商品名からサブカテゴリを上書き（上から順に最初に一致したもの）。feed_product_type の正確な値はダウンロードしたテンプレートの「データ定義」シートで確認し、必要なら values を直す。 2026-10-17 实跑 1181 件后修正：リップ→グリップ误判、ライト→LEDライト付き误判、電動→眉毛シェーバー/キックボード误判、車→耐荷重等误判，改用 lookbehind 与更具体词；顺序 = 宠物/婴儿/健康/美容/运动/玩具/时计/首饰/食品/厨房/箱包/工具/照明/车/衣类/电子。",
   "byType": {
     "日用品雑貨": {
       "feed_product_type": "Home",
@@ -44,14 +44,34 @@
   },
   "keywords": [
     {
-      "re": "化粧|コスメ|美容液|クリーム|洗顔|スキンケア|香水|マスカラ|つけまつげ|リップ|ネイル",
+      "re": "ペット|犬用|猫用|(?<!ワイヤ)リード|首輪|キャットタワー|爪とぎ",
+      "feed_product_type": "PetSupplies",
+      "approval": false
+    },
+    {
+      "re": "ベビー|赤ちゃん|乳児|おむつ|哺乳瓶|抱っこ紐|ベビーカー",
+      "feed_product_type": "Baby",
+      "approval": true
+    },
+    {
+      "re": "(?<!キ)杖|松葉杖|車椅子|歩行器|サポーター|コルセット|ベルト.*(腰|骨盤|膝)|マッサージ|指圧|体重計|血圧|体温計|パルスオキシメーター|介護",
+      "feed_product_type": "HealthAndPersonalCare",
+      "approval": true
+    },
+    {
+      "re": "シェーバー|脱毛|ヘアアイロン|ドライヤー|眉毛|化粧|コスメ|美容液|クリーム|洗顔|スキンケア|香水|マスカラ|つけまつげ|(?<!グ)リップ|ネイル|美顔器|ヘアブラシ",
       "feed_product_type": "Beauty",
       "approval": true
     },
     {
-      "re": "米|食品|お菓子|コーヒー|茶|調味料|サプリ",
-      "feed_product_type": "Grocery",
-      "approval": true
+      "re": "キックボード|スケート|自転車|トレッキング|焚き火|キャンプ|テント|寝袋|ヨガ|ダンベル|腹筋|トレーニング|フィットネス|釣り|登山",
+      "feed_product_type": "SportingGoods",
+      "approval": false
+    },
+    {
+      "re": "おもちゃ|知育|ぬいぐるみ|バランスバイク|ジャンパー|子供用|キッズ|プール|水鉄砲|ブロック",
+      "feed_product_type": "Toys",
+      "approval": false
     },
     {
       "re": "腕時計|ウォッチ",
@@ -59,52 +79,47 @@
       "approval": true
     },
     {
-      "re": "ブレスレット|ネックレス|ピアス|イヤリング|指輪|リング|天然石|パワーストーン",
+      "re": "ブレスレット|ネックレス|ピアス|イヤリング|指輪|(?<!キー|イヤ)リング|天然石|パワーストーン|ペンダント(?!ライト)",
       "feed_product_type": "Jewelry",
       "approval": true
     },
     {
-      "re": "おもちゃ|知育|ぬいぐるみ|バランスバイク|ジャンパー",
-      "feed_product_type": "Toys",
-      "approval": false
+      "re": "(?<![玄白粒])米(?!国)|食品|お菓子|コーヒー|(?<!抹)茶(?!器|碗|筒)|調味料|サプリ|オイル|アマニ|はちみつ|だし",
+      "feed_product_type": "Grocery",
+      "approval": true
     },
     {
-      "re": "スーツケース|キャリー|トートバッグ|リュック|ポーチ|バッグ",
-      "feed_product_type": "Luggage",
-      "approval": false
-    },
-    {
-      "re": "鍋|フライパン|包丁|まな板|タンブラー|水筒|弁当|食器|キッチン|シンク|調理",
+      "re": "鍋|フライパン|包丁|まな板|タンブラー|水筒|弁当|食器|キッチン|シンク|調理|ゴミ箱|保存容器|コップ|グラス",
       "feed_product_type": "Kitchen",
       "approval": false
     },
     {
-      "re": "LED|ライト|照明|ランプ",
-      "feed_product_type": "Lighting",
+      "re": "スーツケース|キャリー(?!ワゴン)|トートバッグ|リュック|ポーチ|バッグ|財布|パスケース",
+      "feed_product_type": "Luggage",
       "approval": false
     },
     {
-      "re": "工具|ドリル|プレス|電動|草刈|ブロワー",
+      "re": "踏み台|脚立|はしご|工具|ドリル|プレス|草刈|ブロワー|ジャッキ|ベンダー|ドライバーセット|レンチ|測量|プリズム|溶接|電動(?!キックボード|歯ブラシ)",
       "feed_product_type": "ToolsAndHomeImprovement",
       "approval": false
     },
     {
-      "re": "車|カー用品|ドライブレコーダー",
+      "re": "デスクライト|照明|ランプ|シーリング|ペンダントライト|投光器|懐中電灯|ヘッドライト|ランタン|電球|LEDテープ|ナイトライト|センサーライト",
+      "feed_product_type": "Lighting",
+      "approval": false
+    },
+    {
+      "re": "カー用品|ドライブレコーダー|車載|車用|洗車|タイヤ|カーナビ|バイク用|カーシート|車内",
       "feed_product_type": "Automotive",
       "approval": false
     },
     {
-      "re": "ブラジャー|タンクトップ|インナー|パーカー|Tシャツ|ワンピース|スカート|制服|パンツ|靴下",
+      "re": "ブラジャー|タンクトップ|インナー|パーカー|Tシャツ|ワンピース|スカート|制服|パンツ|靴下|レギンス|手袋|帽子|マフラー|水着",
       "feed_product_type": "Clothing",
       "approval": false
     },
     {
-      "re": "サポーター|ベルト.*(腰|骨盤|膝)|マッサージ|体重計|血圧",
-      "feed_product_type": "HealthAndPersonalCare",
-      "approval": true
-    },
-    {
-      "re": "ポータブル電源|バッテリー|充電器|USB|ケーブル|SDカード|USBメモリ|イヤホン|スピーカー",
+      "re": "ポータブル電源|バッテリー|充電器|充電ケーブル|USB|SDカード|USBメモリ|イヤホン|スピーカー|ヘッドホン|Bluetooth|HDMI|マウス|キーボード|エアコン|扇風機|加湿器|除湿",
       "feed_product_type": "ConsumerElectronics",
       "approval": false
     }
