@@ -269,6 +269,14 @@ function tailWords(t) {
   for (const raw of parts) { const w = partJa(raw); if (w && !out.includes(w) && !hasWord(head, w)) out.push(w); }
   return [head, ...out].join(' ').trim();
 }
+// トークン内のカタカナ語の先頭・末尾 3 文字以上（ニットパンツ → パンツ / ニット…）を「語」とみなす
+const kanaWords = (tok) => { const out = new Set(); for (const run of tok.match(/[ァ-ヶー]{3,}/g) ?? []) for (let i = 3; i <= run.length; i++) { out.add(run.slice(0, i)); out.add(run.slice(run.length - i)); } return out; };
+const repeatedWord = (ws) => { const cnt = {}; for (const w of ws) for (const k of kanaWords(w)) cnt[k] = (cnt[k] ?? 0) + 1; return Object.keys(cnt).filter((k) => cnt[k] >= 3).sort((a, b) => b.length - a.length)[0]; };
+function dedupeWords(t) {
+  const seen = new Set(); let ws = t.split(' ').filter((w) => { if (seen.has(w)) return false; seen.add(w); return true; });
+  for (let k; (k = repeatedWord(ws)); ) { let n = 0; ws = ws.filter((w) => !(kanaWords(w).has(k) && ++n > 2)); }
+  return ws.join(' ');
+}
 function fixTitle(t0) {
   let t = String(t0 ?? '');
   const notes = [];
@@ -289,6 +297,8 @@ function fixTitle(t0) {
   if (ws(t) !== b4) notes.push('型番');
   // 記号の乱用・重複空白
   const b5 = ws(t); t = ws(t.replace(/[★☆■□◆◇●○※♪♡♥◎]+/g, ' ').replace(/\s*[、,]\s*/g, ' ')); if (t !== b5) notes.push('記号');
+  // 同じ語の繰り返し（Amazon エラー 100470）：同一トークンは最初の 1 つだけ、3 トークン以上に出る語（毛糸パンツ 腹巻きパンツ ニットパンツ）は先頭 2 つだけ残す
+  const b6 = t; t = dedupeWords(t); if (t !== b6) notes.push('重複語');
   return { title: t, changed: notes.length > 0, notes };
 }
 run.fix = function () { // 提案を作るだけ（アップロードしない）→ out/opt/fix-titles.json + docs/amazon-fix-titles-review.md
