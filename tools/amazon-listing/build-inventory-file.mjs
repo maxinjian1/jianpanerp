@@ -124,7 +124,7 @@ const DEFAULT_LABELS = { feed_product_type: '商品タイプ', item_sku: '出品
 // 新形式テンプレート（2026 年版：5 行ヘッダ、5 行目が属性パス contribution_sku#1.value …、データは 7 行目から）。
 // 値は表示ラベル（「親」「新品」等）で入れる。ラベルは category-map.json の flatFileValues で上書きできる（テンプレートの「有効な値」シートで確認すること）。
 const MP = '[marketplace_id=A1VC38T7YXB528]', JA = '[language_tag=ja_JP]';
-const FV = { create: '作成または置換 (完全更新)', parent: '親', child: '子供', condition: '新品', channel: '出品者出荷（デフォルト）', origin: '中国', productIdType: 'GTIN免除', dgRegulation: '該当なし', variationTheme: { Size: 'サイズ', Color: '色', SizeColor: 'サイズ/色' }, ...(MAP.flatFileValues ?? {}) };
+const FV = { create: '作成または置換 (完全更新)', parent: '親', child: '子供', condition: '新品', channel: '出品者出荷（デフォルト）', origin: '中国', productIdType: 'GTIN免除', dgRegulation: '該当なし', variationTheme: { Size: 'サイズ', Color: '色', SizeColor: 'サイズ/色' }, exclusive: 'いいえ', noBattery: 'いいえ', components: '本体', multiColor: 'マルチカラー', ...(MAP.flatFileValues ?? {}) };
 function newFormatRow(r, type) {
   const o = {
     'contribution_sku#1.value': r.item_sku, 'product_type#1.value': MAP.productTypes?.[type] ?? type, '::record_action': FV.create,
@@ -134,8 +134,11 @@ function newFormatRow(r, type) {
     [`item_name${MP}${JA}#1.value`]: r.item_name, [`brand${MP}${JA}#1.value`]: r.brand_name, [`manufacturer${MP}${JA}#1.value`]: r.manufacturer,
     [`recommended_browse_nodes${MP}#1.value`]: r.recommended_browse_nodes ?? '', [`model_number${MP}#1.value`]: r.part_number ?? '', [`part_number${MP}#1.value`]: r.part_number ?? '',
     [`main_product_image_locator${MP}#1.media_location`]: r.main_image_url ?? '', [`product_description${MP}${JA}#1.value`]: r.product_description ?? '',
-    [`generic_keyword${MP}${JA}#1.value`]: r.generic_keywords ?? '', [`color${MP}${JA}#1.value`]: r.color_name ?? '', [`size${MP}${JA}#1.value`]: r.size_name ?? '',
+    [`generic_keyword${MP}${JA}#1.value`]: r.generic_keywords ?? '', [`color${MP}${JA}#1.value`]: r.color_name || (r.parent_child === 'parent' ? '' : r.color_fallback) || FV.multiColor, [`size${MP}${JA}#1.value`]: r.size_name ?? '',
     [`country_of_origin${MP}#1.value`]: FV.origin, // テンプレートで必須（親行も）
+    // 以下 3 つは「条件付きで必須」だが、Seller Central の「ファイルを検証」で空欄がエラーになった（2026-10-19 Home 試点）
+    [`is_exclusive_product${MP}#1.value`]: FV.exclusive, [`batteries_required${MP}#1.value`]: FV.noBattery,
+    [`included_components${MP}${JA}#1.value`]: r.included_components || FV.components,
   };
   for (let i = 1; i <= 8; i++) o[`other_product_image_locator_${i}${MP}#1.media_location`] = r[`other_image_url${i}`] ?? '';
   for (let i = 1; i <= 5; i++) o[`bullet_point${MP}${JA}#${i}.value`] = r[`bullet_point${i}`] ?? '';
@@ -155,10 +158,14 @@ function headerRows(type) {
   return { rows: [[`TemplateType=fptcustom`, `Version=2026.1017`, `TemplateSignature=${type}`, 'settings=contentLanguageTag=ja_JP&feedType=113&headerLanguageTag=ja_JP&metadataVersion=MatprodVkxpdmVNYXRwcm9kQWtzVjJfMjAyNjEw&primaryMarketplaceId=amzn1.mp.o.A1VC38T7YXB528&templateIdentifier=generic', ...Array(fields.length - 4).fill('')], fields.map((k) => DEFAULT_LABELS[k] ?? k), fields], fields, fromTemplate: false };
 }
 
+// 色は親行・単品でも必須：単品はオプション値（色系の名前を優先）、無ければマルチカラー
+const vs1Color = (p) => { const vs = p.variants?.nodes ?? []; const so = vs[0]?.selectedOptions ?? []; const o = so.find((x) => COLORISH.test(x.name)) ?? (vs.length === 1 ? so.find((x) => x.value !== 'Default Title') : null); return o?.value ?? ''; };
+// 電池・充電式の商品は電池属性（種類・重量・リチウム量）が必要 → 自動では出さない
+const BATTERY_RE = /電池|バッテリー|充電|USB|ソーラー|LED|電動|リモコン|コードレス|ワイヤレス/;
 function rowsFor(p, cat) {
   const spec = specOf(p); const img = images(p); const vt = variationTheme(p);
   const base = { feed_product_type: cat.feed_product_type, brand_name: BRAND, manufacturer: BRAND, recommended_browse_nodes: cat.browse_node, item_type_keyword: cat.item_type_keyword ?? '', update_delete: 'Update', currency: 'JPY', condition_type: 'New', country_of_origin: args.origin ?? 'CN', is_adult_product: 'FALSE',
-    product_description: description(p, spec), generic_keywords: keywords(p, spec), manufacturer_contact_information: args.contact ?? '', ...Object.fromEntries(bullets(p, spec).map((b, i) => [`bullet_point${i + 1}`, b])) };
+    product_description: description(p, spec), included_components: cut((spec?.setContents ?? []).join('、'), 100), color_fallback: vs1Color(p), generic_keywords: keywords(p, spec), manufacturer_contact_information: args.contact ?? '', ...Object.fromEntries(bullets(p, spec).map((b, i) => [`bullet_point${i + 1}`, b])) };
   const imgs = { main_image_url: img.main, ...Object.fromEntries(img.others.map((u, i) => [`other_image_url${i + 1}`, u])) };
   const sell = (v) => { const a = amazonPrice(v.price, cat.feed_product_type); PRICING.push({ handle: p.handle, variant: v.title ?? '', type: cat.feed_product_type, shopify: Math.round(Number(v.price)), ...a }); return { standard_price: String(a.price), quantity: String(QTY), fulfillment_latency: String(LATENCY), merchant_shipping_group_name: SHIPPING, part_number: `ANET-${numId(v.id)}`, number_of_items: '1', item_package_quantity: '1' }; };
   const vs = p.variants?.nodes ?? [];
@@ -207,6 +214,7 @@ const run = {
     let n = 0; const max = args.limit ? Number(args.limit) : Infinity;
     for (const p of ps) { const c = categorize(p); if (args.type && c.feed_product_type !== args.type) continue;
       if ((p.variants?.nodes ?? []).some((v) => !(Number(v.price) > 0))) { log('skip（Shopify 価格 0 のバリエーションあり）', p.handle); continue; }
+      if (BATTERY_RE.test(p.title)) { log('skip（電池・充電式の可能性：電池属性が必要）', p.handle); continue; }
       if (n++ >= max) break; (groups[c.feed_product_type] ??= []).push(...rowsFor(p, c)); }
     const summary = [];
     for (const [type, rows] of Object.entries(groups)) {
