@@ -100,8 +100,11 @@ function keywords(p, spec) {
   let s = ''; for (const w of words) { if ((s + ' ' + w).length > KW_MAX) break; s += (s ? ' ' : '') + w; }
   return s;
 }
+// check-main-images --all の結果：合格した原図をメインに並べ替える（画像は編集しない）。null＝合格なし → build で除外
+const NO_MAIN = [], NO_PT = []; const PICK = fs.existsSync(path.join(OUT, 'main-image-pick.json')) ? JSON.parse(fs.readFileSync(path.join(OUT, 'main-image-pick.json'), 'utf8')) : {};
 function images(p) {
-  const urls = (p.media?.nodes ?? []).filter((m) => m.image?.url).map((m) => m.image.url);
+  let urls = (p.media?.nodes ?? []).filter((m) => m.image?.url).map((m) => m.image.url);
+  const pk = PICK[p.handle]; if (pk && urls.includes(pk)) urls = [pk, ...urls.filter((u) => u !== pk)];
   return { main: urls[0] ?? '', others: urls.slice(1, 9) };
 }
 const COLORISH = /color|colour|カラー|色/i, SIZEISH = /size|サイズ|寸法|容量|長さ|タイプ|型|セット|枚数|本数|個数|重さ|kg|cm|数量|規格|仕様/i;
@@ -127,7 +130,7 @@ const MP = '[marketplace_id=A1VC38T7YXB528]', JA = '[language_tag=ja_JP]';
 const FV = { create: '作成または置換 (完全更新)', parent: '親', child: '子供', condition: '新品', channel: '出品者出荷（デフォルト）', origin: '中国', productIdType: 'GTIN免除', dgRegulation: '該当なし', variationTheme: { Size: 'サイズ', Color: '色', SizeColor: 'サイズ/色' }, exclusive: 'いいえ', noBattery: 'いいえ', components: '本体', multiColor: 'マルチカラー', ...(MAP.flatFileValues ?? {}) };
 function newFormatRow(r, type) {
   const o = {
-    'contribution_sku#1.value': r.item_sku, 'product_type#1.value': MAP.productTypes?.[type] ?? type, '::record_action': FV.create,
+    'contribution_sku#1.value': r.item_sku, 'product_type#1.value': r.product_type_code || (typeof MAP.productTypes?.[type] === 'string' ? MAP.productTypes[type] : type), '::record_action': FV.create,
     [`parentage_level${MP}#1.value`]: r.parent_child === 'parent' ? FV.parent : r.parent_child === 'child' ? FV.child : '',
     [`child_parent_sku_relationship${MP}#1.parent_sku`]: r.parent_sku ?? '', 'variation_theme#1.name': FV.variationTheme[r.variation_theme] ?? r.variation_theme ?? '',
     'amzn1.volt.ca.product_id_type': FV.productIdType, [`supplier_declared_dg_hz_regulation${MP}#1.value`]: FV.dgRegulation, // どちらも必須（GTIN 免除済み・危険物なし）
@@ -152,12 +155,27 @@ function newFormatRow(r, type) {
 function headerRows(type) {
   const f = path.join(TPL, `${type}.headers.tsv`);
   if (fs.existsSync(f)) { const all5 = fs.readFileSync(f, 'utf8').replace(/^\ufeff/, '').split(/\r?\n/).filter((l) => l.length).map((l) => l.split('\t'));
-    if (all5.length >= 5 && all5[4][0]?.trim() === 'contribution_sku#1.value') return { rows: [...all5.slice(0, 5), all5[0].map(() => '')], fields: all5[4].map((s) => s.trim()), fromTemplate: true, newFormat: true }; }
+    const dataRow = Number(String(all5[0]?.[0] ?? '').match(/dataRow=(\d+)/)?.[1] ?? 7); // プリファレンス行付きのテンプレートはデータが 8 行目から
+    if (all5.length >= 5 && all5[4][0]?.trim() === 'contribution_sku#1.value') return { rows: [...all5.slice(0, 5), ...Array.from({ length: Math.max(1, dataRow - 6) }, () => all5[0].map(() => ''))], fields: all5[4].map((s) => s.trim()), fromTemplate: true, newFormat: true }; }
   if (fs.existsSync(f)) { const rows = fs.readFileSync(f, 'utf8').replace(/^﻿/, '').split(/\r?\n/).filter((l) => l.length).slice(0, 3).map((l) => l.split('\t')); if (rows.length === 3) return { rows, fields: rows[2].map((s) => s.trim()), fromTemplate: true }; log('warn: headers.tsv は 3 行必要', f); }
   const fields = DEFAULT_FIELDS;
   return { rows: [[`TemplateType=fptcustom`, `Version=2026.1017`, `TemplateSignature=${type}`, 'settings=contentLanguageTag=ja_JP&feedType=113&headerLanguageTag=ja_JP&metadataVersion=MatprodVkxpdmVNYXRwcm9kQWtzVjJfMjAyNjEw&primaryMarketplaceId=amzn1.mp.o.A1VC38T7YXB528&templateIdentifier=generic', ...Array(fields.length - 4).fill('')], fields.map((k) => DEFAULT_LABELS[k] ?? k), fields], fields, fromTemplate: false };
 }
 
+// 新形式の複数商品タイプテンプレート：category-map.json productTypes[type] = { template, rules:[{re, product_type}], fallback? }。
+// 商品名で商品タイプを決め、そのタイプの推奨ブラウズノード（templates/<template>.nodes.json）から商品名に最も合うものを選ぶ。どのルールにも合わない商品は null（build で除外）
+const NODES = {}; const nodesOf = (tpl) => (NODES[tpl] ??= fs.existsSync(path.join(TPL, `${tpl}.nodes.json`)) ? JSON.parse(fs.readFileSync(path.join(TPL, `${tpl}.nodes.json`), 'utf8')) : {});
+function resolveProductType(type, title) {
+  const cfg = MAP.productTypes?.[type]; if (!cfg || typeof cfg === 'string') return { template: type, product_type: cfg ?? '', browse_node: '' };
+  const hit = cfg.rules.find((r) => new RegExp(r.re).test(title)) ?? cfg.fallback; if (!hit) return null;
+  const template = hit.template ?? cfg.template ?? type, list = nodesOf(template)[hit.product_type] ?? [];
+  const hits = (s) => s.split(/[・,、\s／/>＆]+/).filter((t) => t.length >= 2 && title.includes(t)).reduce((a, t) => a + t.length, 0);
+  const score = (n) => { const p = n.replace(/\s*\(\d+\)$/, ''), leaf = p.split('>').pop(); // 末端一致を重視、対象外の性別・年齢層や別部門は減点
+    return hits(leaf) * 2 + hits(p) - (/メンズ|男/.test(p) && !/メンズ|男性|紳士/.test(title) ? 5 : 0) - (/レディース|女/.test(p) && /メンズ|男性|紳士/.test(title) ? 5 : 0)
+      - (/キッズ|ベビー|子ども|ガールズ|ボーイズ|マタニティ/.test(p) && !/キッズ|ベビー|子供|子ども|赤ちゃん|ジュニア/.test(title) ? 5 : 0) - (/文房具|オフィス用品|ビューティー/.test(p) ? 2 : 0); };
+  const browse_node = hit.browse_node ?? list.reduce((best, n) => (score(n) > score(best) ? n : best), list[0] ?? '');
+  return { template, product_type: hit.product_type, browse_node };
+}
 // 色は親行・単品でも必須：単品はオプション値（色系の名前を優先）、無ければマルチカラー
 const vs1Color = (p) => { const vs = p.variants?.nodes ?? []; const so = vs[0]?.selectedOptions ?? []; const o = so.find((x) => COLORISH.test(x.name)) ?? (vs.length === 1 ? so.find((x) => x.value !== 'Default Title') : null); return o?.value ?? ''; };
 // 電池・充電式の商品は電池属性（種類・重量・リチウム量）が必要 → 自動では出さない
@@ -167,7 +185,7 @@ function rowsFor(p, cat) {
   const base = { feed_product_type: cat.feed_product_type, brand_name: BRAND, manufacturer: BRAND, recommended_browse_nodes: cat.browse_node, item_type_keyword: cat.item_type_keyword ?? '', update_delete: 'Update', currency: 'JPY', condition_type: 'New', country_of_origin: args.origin ?? 'CN', is_adult_product: 'FALSE',
     product_description: description(p, spec), included_components: cut((spec?.setContents ?? []).join('、'), 100), color_fallback: vs1Color(p), generic_keywords: keywords(p, spec), manufacturer_contact_information: args.contact ?? '', ...Object.fromEntries(bullets(p, spec).map((b, i) => [`bullet_point${i + 1}`, b])) };
   const imgs = { main_image_url: img.main, ...Object.fromEntries(img.others.map((u, i) => [`other_image_url${i + 1}`, u])) };
-  const sell = (v) => { const a = amazonPrice(v.price, cat.feed_product_type); PRICING.push({ handle: p.handle, variant: v.title ?? '', type: cat.feed_product_type, shopify: Math.round(Number(v.price)), ...a }); return { standard_price: String(a.price), quantity: String(QTY), fulfillment_latency: String(LATENCY), merchant_shipping_group_name: SHIPPING, part_number: `ANET-${numId(v.id)}`, number_of_items: '1', item_package_quantity: '1' }; };
+  const sell = (v) => { const a = amazonPrice(v.price, cat.feed_product_type); PRICING.push({ handle: p.handle, variant: v.title ?? '', type: cat.feed_product_type, shopify: Math.round(Number(v.price)), ...a }); return { standard_price: String(a.price), quantity: String(QTY), fulfillment_latency: String(LATENCY), merchant_shipping_group_name: SHIPPING, part_number: `A${numId(v.id)}`.slice(0, 15), number_of_items: '1', item_package_quantity: '1' }; };
   const vs = p.variants?.nodes ?? [];
   if (!vt || vs.length <= 1) return [{ ...base, ...imgs, ...sell(vs[0] ?? { price: 0, id: p.id }), item_sku: `ANET-V${numId(vs[0]?.id ?? p.id)}`, item_name: title(p, spec), parent_child: '', parent_sku: '', relationship_type: '', variation_theme: '' }];
   const parentSku = `ANET-P${numId(p.id)}`;
@@ -214,8 +232,12 @@ const run = {
     let n = 0; const max = args.limit ? Number(args.limit) : Infinity;
     for (const p of ps) { const c = categorize(p); if (args.type && c.feed_product_type !== args.type) continue;
       if ((p.variants?.nodes ?? []).some((v) => !(Number(v.price) > 0))) { log('skip（Shopify 価格 0 のバリエーションあり）', p.handle); continue; }
+      if (p.handle in PICK && !PICK[p.handle]) { log('skip（メイン画像に使える原図なし：文字・ロゴ等）', p.handle); NO_MAIN.push(p.handle); continue; }
       if (BATTERY_RE.test(p.title)) { log('skip（電池・充電式の可能性：電池属性が必要）', p.handle); continue; }
-      if (n++ >= max) break; (groups[c.feed_product_type] ??= []).push(...rowsFor(p, c)); }
+      const pt = resolveProductType(c.feed_product_type, p.title); if (!pt) { log('skip（対応する商品タイプのテンプレートなし）', c.feed_product_type, p.handle); NO_PT.push([c.feed_product_type, p.handle, p.title].join('\t')); continue; }
+      if (n++ >= max) break; (groups[pt.template] ??= []).push(...rowsFor(p, { ...c, browse_node: pt.browse_node || c.browse_node }).map((r) => ({ ...r, product_type_code: pt.product_type }))); }
+    if (NO_PT.length) { fs.writeFileSync(path.join(OUT, 'no-product-type.tsv'), '﻿' + ['type\thandle\ttitle', ...NO_PT].join('\r\n') + '\r\n'); log('商品タイプ未対応で除外', NO_PT.length, '→ out/no-product-type.tsv'); }
+    if (NO_MAIN.length) { fs.writeFileSync(path.join(OUT, 'main-image-none.tsv'), '﻿' + ['handle\ttitle', ...NO_MAIN.map((h) => `${h}\t${ps.find((p) => p.handle === h)?.title ?? ''}`)].join('\r\n') + '\r\n'); log('メイン画像なしで除外', NO_MAIN.length, '→', path.relative(ROOT, path.join(OUT, 'main-image-none.tsv'))); }
     const summary = [];
     for (const [type, rows] of Object.entries(groups)) {
       const h = headerRows(type); const unknown = new Set();

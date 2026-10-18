@@ -12,6 +12,13 @@ const outDir = path.resolve(import.meta.dirname, '../templates'); fs.mkdirSync(o
 const out = path.join(outDir, `${name}.headers.tsv`);
 fs.writeFileSync(out, rows.slice(0, 5).map((r) => r.map((c) => String(c ?? '').replace(/[\t\r\n]+/g, ' ')).join('\t')).join('\r\n') + '\r\n');
 console.log("headers →", out, "| sheet:", tplName, "| fields:", (rows[4] ?? rows[2])?.filter(Boolean).length, "| 行1=settings 行3=グループ 行4=表示名 行5=フィールドID");
+// 新形式（複数商品タイプ）：Dropdown Lists 行2=商品タイプ・行3=属性パス・行4〜=値 → 商品タイプごとの推奨ブラウズノードを <name>.nodes.json に
+const dd = wb.Sheets['Dropdown Lists'];
+if (dd) {
+  const a = XLSX.utils.sheet_to_json(dd, { header: 1, raw: false, defval: '' }); const nodes = {};
+  (a[2] ?? []).forEach((attr, i) => { if (!String(attr).startsWith('recommended_browse_nodes') || !a[1][i]) return; nodes[a[1][i]] ??= [...new Set(a.slice(3).map((r) => r[i]).filter(Boolean))]; });
+  if (Object.keys(nodes).length) { fs.writeFileSync(path.join(outDir, `${name}.nodes.json`), JSON.stringify(nodes, null, 1) + '\n'); console.log('product types:', Object.entries(nodes).map(([k, v]) => `${k}(${v.length})`).join(', '), '→', `${name}.nodes.json`); }
+}
 const vals = wb.SheetNames.find((n) => /有効な値|Valid Values|推奨値|Dropdown Lists/i.test(n));
 if (vals) {
   const v = XLSX.utils.sheet_to_json(wb.Sheets[vals], { header: 1, raw: false, defval: '' });

@@ -126,33 +126,399 @@
   ],
   "fallback": "Home",
   "browseNodes": {
-    "_doc": "feed_product_type → 推奨ブラウズノード ID（Amazon.co.jp）。テンプレートの「有効な値」シート/ブラウズツリーガイド(BTG)で確認して埋める。空のままだとアップロード時にエラーになる",
-    "Home": "ホーム＆キッチン (3839151)",
-    "Kitchen": "",
-    "HealthAndPersonalCare": "",
-    "Beauty": "",
-    "Grocery": "",
-    "ConsumerElectronics": "",
-    "HomeFurnitureAndDecor": "",
-    "SportingGoods": "",
-    "PetSupplies": "",
-    "Baby": "",
-    "Clothing": "",
-    "Jewelry": "",
-    "Watch": "",
-    "Toys": "",
-    "Luggage": "",
-    "Lighting": "",
-    "ToolsAndHomeImprovement": "",
-    "Automotive": ""
+    "_doc": "単一タイプのテンプレート用の既定ブラウズノード。複数タイプのテンプレートは productTypes の rules で商品ごとに templates/<template>.nodes.json から選ぶ",
+    "Home": "ホーム＆キッチン (3839151)"
   },
   "referralFee": {
     "_note": "Amazon.co.jp 販売手数料の概算（税抜、売価×率）。不明は default=15%（高い側）。実際の料率は Seller Central 料金シミュレーターで確認して直す",
     "default": 0.15
   },
   "productTypes": {
-    "_note": "新形式テンプレートの product_type 値（templates/<type>.headers.tsv を取った時のテンプレートの商品タイプ）。他カテゴリはテンプレートを取ったら追記",
-    "Home": "HOME_PARTS"
+    "_note": "新形式テンプレートの product_type。文字列＝単一タイプ。オブジェクト＝複数タイプのテンプレート（templates/<template>.headers.tsv / .nodes.json）で、rules を上から商品名に当てて最初に一致したタイプ（無ければ fallback、fallback も無ければ build で除外して out/no-product-type.tsv に出す）。ブラウズノードはそのタイプの候補から商品名に合うものを自動選択。テンプレートは Seller Central「商品スプレッドシートをダウンロード」で商品タイプを検索・選択して生成（2026-10-19）。rule に template を書くと別テンプレートのタイプも使える（例：Home の室内すべり台 → Toys の PLAY_SLIDE）",
+    "Home": {
+      "template": "HomeSpecific",
+      "rules": [
+        {
+          "re": "すべり台|滑り台|ジャングルジム",
+          "product_type": "PLAY_SLIDE",
+          "template": "Toys"
+        },
+        {
+          "re": "蚊帳",
+          "product_type": "NETTING_COVER"
+        },
+        {
+          "re": "傘",
+          "product_type": "UMBRELLA"
+        },
+        {
+          "re": "カーテン",
+          "product_type": "CURTAIN"
+        },
+        {
+          "re": "マットレス",
+          "product_type": "MATTRESS"
+        },
+        {
+          "re": "掛け?布団|ブランケット|毛布|タオルケット|肌掛け",
+          "product_type": "BLANKET"
+        },
+        {
+          "re": "ハンガーラック|コートハンガー|洋服ラック",
+          "product_type": "CLOTHES_RACK"
+        },
+        {
+          "re": "タオルハンガー|タオル掛け|タオルバー|タオルラック|タオルハンガー",
+          "product_type": "TOWEL_HOLDER"
+        },
+        {
+          "re": "ケージ|キャットケージ",
+          "product_type": "ANIMAL_CAGE"
+        },
+        {
+          "re": "コレクションケース|ディスプレイ",
+          "product_type": "DISPLAY_ENCLOSURE"
+        },
+        {
+          "re": "ロフトベッド|ベッドフレーム|すのこベッド|二段ベッド",
+          "product_type": "BED_FRAME"
+        },
+        {
+          "re": "ガーデンソファ|ガーデンファニチャー|パティオ",
+          "product_type": "FURNITURE"
+        },
+        {
+          "re": "チェア|椅子|座椅子",
+          "product_type": "CHAIR"
+        },
+        {
+          "re": "収納ボックス|収納ケース|収納箱|衣装ケース",
+          "product_type": "STORAGE_BOX",
+          "browse_node": "ホーム＆キッチン > インテリア > ディスプレイ収納・花器 > ボックス (7840838051)"
+        },
+        {
+          "re": "ラック|棚|シェルフ",
+          "product_type": "SHELF"
+        }
+      ],
+      "fallback": {
+        "template": "Home",
+        "product_type": "HOME_PARTS",
+        "browse_node": "ホーム＆キッチン (3839151)"
+      }
+    },
+    "Luggage": {
+      "rules": [
+        {
+          "re": "スーツケース(?!ベルト)|キャリーケース",
+          "product_type": "SUITCASE"
+        },
+        {
+          "re": "吊り下げ|トラベルポーチ|トラベル収納|収納バッグ|圧縮",
+          "product_type": "STORAGE_BAG"
+        },
+        {
+          "re": "ポーチ|化粧",
+          "product_type": "COSMETIC_CASE"
+        },
+        {
+          "re": "リュック|バックパック",
+          "product_type": "BACKPACK"
+        },
+        {
+          "re": "トート",
+          "product_type": "TOTE_BAG"
+        },
+        {
+          "re": "ショルダー|ハンドバッグ|斜め掛け|ボディバッグ|バッグ",
+          "product_type": "HANDBAG"
+        }
+      ]
+    },
+    "Kitchen": {
+      "rules": [
+        {
+          "re": "タンブラー|カップ|マグ",
+          "product_type": "DRINKING_CUP"
+        },
+        {
+          "re": "ゴミ箱|ダストボックス",
+          "product_type": "TRASH_CAN"
+        },
+        {
+          "re": "ふきん|クロス|タオル",
+          "product_type": "TOWEL"
+        },
+        {
+          "re": "水切り",
+          "product_type": "DRYING_RACK"
+        },
+        {
+          "re": "キッチンボード|食器棚|キャビネット|レンジボード",
+          "product_type": "CABINET"
+        },
+        {
+          "re": "調味料|スパイス",
+          "product_type": "STORAGE_RACK"
+        },
+        {
+          "re": "ラック|棚|シェルフ",
+          "product_type": "SHELF"
+        }
+      ]
+    },
+    "Toys": {
+      "rules": [
+        {
+          "re": "三輪車",
+          "product_type": "RIDE_ON_TOY"
+        },
+        {
+          "re": "キックスクーター|キックボード",
+          "product_type": "KICK_SCOOTER"
+        },
+        {
+          "re": "プール",
+          "product_type": "SPLASH_POOL"
+        },
+        {
+          "re": "すべり台|滑り台",
+          "product_type": "PLAY_SLIDE"
+        },
+        {
+          "re": "ソファ",
+          "product_type": "SOFA"
+        },
+        {
+          "re": "踏み台|ステップ",
+          "product_type": "STEP_STOOL"
+        },
+        {
+          "re": "おもちゃ|玩具|ボール|ゴール|遊具",
+          "product_type": "TOYS_AND_GAMES"
+        }
+      ]
+    },
+    "Automotive": {
+      "rules": [
+        {
+          "re": "ドライブレコーダー|ドラレコ",
+          "product_type": "ONBOARD_CAMERA"
+        },
+        {
+          "re": "スマホ|ホルダー|スタンド",
+          "product_type": "PORTABLE_ELECTRONIC_DEVICE_MOUNT"
+        },
+        {
+          "re": "ブラシ",
+          "product_type": "CLEANING_BRUSH"
+        },
+        {
+          "re": "サンシェード|サンバイザー",
+          "product_type": "VEHICLE_INTERIOR_SHADE"
+        },
+        {
+          "re": "クッション|ランバー",
+          "product_type": "BODY_POSITIONER"
+        }
+      ]
+    },
+    "HomeFurnitureAndDecor": {
+      "rules": [
+        {
+          "re": "チェアカバー|ソファカバー|椅子カバー",
+          "product_type": "FURNITURE_COVER"
+        },
+        {
+          "re": "クッションカバー|ピローカバー",
+          "product_type": "DECORATIVE_PILLOW_COVER"
+        },
+        {
+          "re": "ビーズクッション",
+          "product_type": "BEAN_BAG_CHAIR"
+        },
+        {
+          "re": "枕|ピロー",
+          "product_type": "PILLOW"
+        },
+        {
+          "re": "テーブル|デスク(?!チェア)",
+          "product_type": "TABLE"
+        },
+        {
+          "re": "チェア|椅子",
+          "product_type": "CHAIR"
+        },
+        {
+          "re": "マット|ラグ",
+          "product_type": "RUG"
+        }
+      ]
+    },
+    "Clothing": {
+      "rules": [
+        {
+          "re": "制服|コスプレ|コスチューム",
+          "product_type": "COSTUME_OUTFIT"
+        },
+        {
+          "re": "ブラジャー|ブラトップ|ノンワイヤー",
+          "product_type": "BRA"
+        },
+        {
+          "re": "ワンピース|ドレス",
+          "product_type": "DRESS"
+        },
+        {
+          "re": "ラッシュガード|水着",
+          "product_type": "SWIMWEAR"
+        },
+        {
+          "re": "カーディガン|セーター|ニット",
+          "product_type": "SWEATER"
+        },
+        {
+          "re": "ネクタイ",
+          "product_type": "NECKTIE"
+        },
+        {
+          "re": "パンツ|ズボン",
+          "product_type": "PANTS"
+        },
+        {
+          "re": "シャツ|カットソー|タンクトップ|パーカー|Tシャツ|トップス",
+          "product_type": "SHIRT"
+        }
+      ]
+    },
+    "ToolsAndHomeImprovement": {
+      "rules": [
+        {
+          "re": "脚立|はしご",
+          "product_type": "LADDER"
+        },
+        {
+          "re": "ブロワー",
+          "product_type": "LEAF_BLOWER"
+        },
+        {
+          "re": "フック",
+          "product_type": "STORAGE_HOOK"
+        },
+        {
+          "re": "シューズラック|ラック|棚",
+          "product_type": "SHELF"
+        },
+        {
+          "re": "踏み台|ステップ|スツール",
+          "product_type": "STEP_STOOL"
+        }
+      ]
+    },
+    "ConsumerElectronics": {
+      "rules": [
+        {
+          "re": "イヤホン|ヘッドホン|ヘッドフォン",
+          "product_type": "HEADPHONES"
+        },
+        {
+          "re": "ケーブル",
+          "product_type": "ELECTRONIC_CABLE"
+        },
+        {
+          "re": "スマホケース|iPhoneケース|ケース",
+          "product_type": "CELLULAR_PHONE_CASE"
+        },
+        {
+          "re": "USBメモリ|フラッシュドライブ",
+          "product_type": "FLASH_DRIVE"
+        },
+        {
+          "re": "ポータブル電源|蓄電",
+          "product_type": "POWER_BANK"
+        },
+        {
+          "re": "エアコン",
+          "product_type": "AIR_CONDITIONER"
+        },
+        {
+          "re": "毛布|ブランケット",
+          "product_type": "BLANKET"
+        }
+      ]
+    },
+    "Lighting": {
+      "rules": [
+        {
+          "re": "懐中電灯",
+          "product_type": "FLASHLIGHT"
+        },
+        {
+          "re": "ランタン",
+          "product_type": "ELECTRIC_LANTERN"
+        },
+        {
+          "re": "デスクライト|スタンドライト|ランプ",
+          "product_type": "LAMP"
+        },
+        {
+          "re": "ライト|照明",
+          "product_type": "LIGHT_FIXTURE"
+        }
+      ]
+    },
+    "SportingGoods": {
+      "rules": [
+        {
+          "re": "レインカバー|自転車カバー",
+          "product_type": "STORAGE_COVER"
+        },
+        {
+          "re": "ローラースケート|インラインスケート",
+          "product_type": "ROLLER_SKATE"
+        },
+        {
+          "re": "加重ベスト|ウェイトベスト|アンクルウェイト",
+          "product_type": "WEARABLE_WEIGHT"
+        },
+        {
+          "re": "腹筋",
+          "product_type": "ABDOMINAL_EXERCISER"
+        },
+        {
+          "re": "自転車",
+          "product_type": "BICYCLE"
+        }
+      ]
+    },
+    "PetSupplies": {
+      "rules": [
+        {
+          "re": "リード",
+          "product_type": "LEASH"
+        },
+        {
+          "re": "給水",
+          "product_type": "ANIMAL_WATER_DISPENSER"
+        },
+        {
+          "re": "給餌|フードボウル|ボウル|食器",
+          "product_type": "PET_FEEDER"
+        },
+        {
+          "re": "カート",
+          "product_type": "STROLLER"
+        },
+        {
+          "re": "キャットタワー|爪とぎ",
+          "product_type": "PET_ACTIVITY_STRUCTURE"
+        },
+        {
+          "re": "ベッド|ハウス|マット",
+          "product_type": "PET_BED_MAT"
+        }
+      ]
+    }
   },
   "flatFileValues": {
     "_note": "新形式テンプレートの表示ラベル。2026 版 xlsm には「有効な値」シートが無く「Dropdown Lists」シートが同じ役割（Home.xlsm で 2026-10-19 確認済み）",
@@ -164,6 +530,10 @@
     "origin": "中国",
     "productIdType": "GTIN免除",
     "dgRegulation": "該当なし",
-    "variationTheme": { "Size": "サイズ", "Color": "色", "SizeColor": "サイズ/色" }
+    "variationTheme": {
+      "Size": "サイズ",
+      "Color": "色",
+      "SizeColor": "サイズ/色"
+    }
   }
 }
