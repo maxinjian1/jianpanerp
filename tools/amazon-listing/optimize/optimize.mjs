@@ -211,5 +211,46 @@ run['audit-report'] = function () {
   for (const { t, a } of rows) { md.push(`### ${t.asin}　${(t.title ?? '').slice(0, 50)}`, '', `得分 ${a.score}　${t.frozen ? '（销量 Top，不改动，仅供参考）' : ''}`, '', '| 领域 | 严重度 | 问题 | 修改建议 |', '|---|---|---|---|'); for (const i of a.issues ?? []) md.push(`| ${i.area} | ${i.severity} | ${String(i.finding).replace(/\|/g, '／')} | ${String(i.fix).replace(/\|/g, '／')} |`); md.push(''); }
   const out = path.join(ROOT, 'docs/amazon-audit-report.md'); fs.writeFileSync(out, md.join('\n')); console.log(md.slice(0, 30).join('\n')); log('report →', path.relative(ROOT, out));
 };
-if (!run[stage]) { console.error('usage: rank | fetch | audit | audit-report | write | cards | build | report'); process.exit(2); }
+// ---------- 第 1 段：ルールベースの安全な修正（AI 不使用、タイトルのみ） ----------
+// 監査で全店共通だった「ブランド括弧の崩れ」「型番」「販促 NG 語」「記号の乱用」だけを機械的に直す。
+// 他ブランド名（ALAIX / slenderlady / KissSmell 等）のタイトルはブランド属性と一致させる必要があるので、ブランド部分は触らない。
+const PROMO_NG = /最強|No\.?\s?1|ナンバーワン|絶対|完全版?|最安値?|激安|送料無料|セール|期間限定|限定価格|正規品|新品未使用/gi;
+const UNIT = /^(\d+(\.\d+)?(cm|mm|m|ml|mL|L|g|kg|W|V|mAh|枚|個|本|色|点|足|組|セット|P|p|%|インチ|号))$|^UPF\d+\+?$|^SPF\d+$|^[0-9]?X{0,4}[SML]$|^\d?XL$|^\d+-\d+(cm|歳|才|ヶ月|か月)?$/i;
+function fixTitle(t0) {
+  let t = String(t0 ?? '');
+  const notes = [];
+  const before = t;
+  // ブランド括弧：[SARADEMUNT] サラデマント〕 / SARADEMUNT【サラデマント】 / SARADEMUNT〔サラデマント〕 → SARADEMUNT サラデマント
+  t = t.replace(/^[\[［【〔(（]?\s*SARADEMUNT\s*[\]］】〕)）]?\s*[〔【\[［(（]?\s*サラデマント\s*[〕】\]］)）]?/i, 'SARADEMUNT サラデマント ');
+  t = t.replace(/^[\[［【〔]\s*SARADEMUNT\s*[\]］】〕]/i, 'SARADEMUNT ');
+  if (t !== before) notes.push('ブランド表記');
+  // 対応の取れない単独の 〔 〕 を削除
+  const b2 = t; t = t.replace(/[〔〕]/g, ' '); if (t !== b2) notes.push('括弧');
+  // 販促 NG 語
+  const b3 = t; t = t.replace(/【[^】]*(?:送料無料|セール|限定|最安|激安)[^】]*】/g, ' ').replace(PROMO_NG, ' '); if (t !== b3) notes.push('NG語');
+  // 型番：英数字混在で数字 2 桁以上、単位・サイズ表記ではないトークン（末尾/括弧内に多い）
+  const ws = (x) => x.replace(/[ 　]+/g, ' ').trim(); const b4 = ws(t);
+  t = t.replace(/[（(]\s*([A-Za-z]{1,6}[-_]?\d{2,}[A-Za-z0-9-]*)\s*[)）]/g, (m, code) => UNIT.test(code) ? m : ' ');
+  t = t.split(/\s+/).filter((w) => { const x = w.replace(/^[・、,]+|[・、,]+$/g, ''); if (!x) return false; if (UNIT.test(x)) return true; return !/^(?=.*[A-Za-z])(?=(?:.*\d){2,})[A-Za-z0-9][A-Za-z0-9_-]{3,}$/.test(x) || /^(UPF|SPF|USB|LED|PM|COVID|IPX)\d/i.test(x); }).join(' ');
+  if (ws(t) !== b4) notes.push('型番');
+  // 記号の乱用・重複空白
+  const b5 = ws(t); t = ws(t.replace(/[★☆■□◆◇●○※♪♡♥◎]+/g, ' ').replace(/\s*[、,]\s*/g, ' ')); if (t !== b5) notes.push('記号');
+  return { title: t, changed: notes.length > 0, notes };
+}
+run.fix = function () { // 提案を作るだけ（アップロードしない）→ out/opt/fix-titles.json + docs/amazon-fix-titles-review.md
+  const all = JSON.parse(fs.readFileSync(TARGETS, 'utf8')); // 凍結 10 件は targets に含まれない
+  const isAsin = (x) => /^B0[A-Z0-9]{8}$/.test(x);
+  const out = [];
+  for (const t of all.filter((x) => isAsin(x.asin))) {
+    const cf = path.join(OUT, t.asin, 'current.json'); const cur = fs.existsSync(cf) ? JSON.parse(fs.readFileSync(cf, 'utf8')) : null;
+    const old = cur?.title || t.title; const r = fixTitle(old);
+    if (r.changed) out.push({ asin: t.asin, skus: t.skus, segment: t.segment, old, title: r.title, notes: r.notes, lenOld: old.length, lenNew: r.title.length });
+  }
+  fs.writeFileSync(path.join(OUT, 'fix-titles.json'), JSON.stringify(out, null, 1));
+  const cnt = {}; for (const o of out) for (const n of o.notes) cnt[n] = (cnt[n] ?? 0) + 1;
+  const md = ['# Amazon タイトル修正案（第 1 段・ルールベース）', '', `対象 ${all.length} ASIN 中 ${out.length} 件を修正（凍結 Top10 は除外、まだアップロードしていません）`, '', ...Object.entries(cnt).map(([k, v]) => `- ${k}: ${v}`), '', '| ASIN | 修正内容 | 旧 | 新 |', '|---|---|---|---|', ...out.map((o) => `| ${o.asin} | ${o.notes.join('・')} | ${o.old.replace(/\|/g, '／')} | ${o.title.replace(/\|/g, '／')} |`)];
+  fs.writeFileSync(path.join(ROOT, 'docs/amazon-fix-titles-review.md'), md.join('\n')); console.log(md.slice(0, 12).join('\n')); log('fix proposals', out.length);
+};
+
+if (!run[stage]) { console.error('usage: rank | fetch | audit | audit-report | write | cards | build | report | fix'); process.exit(2); }
 Promise.resolve(run[stage]()).then(() => log('done', stage)).catch((e) => { console.error(e); process.exit(1); });
