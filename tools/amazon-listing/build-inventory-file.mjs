@@ -124,17 +124,18 @@ const DEFAULT_LABELS = { feed_product_type: '商品タイプ', item_sku: '出品
 // 新形式テンプレート（2026 年版：5 行ヘッダ、5 行目が属性パス contribution_sku#1.value …、データは 7 行目から）。
 // 値は表示ラベル（「親」「新品」等）で入れる。ラベルは category-map.json の flatFileValues で上書きできる（テンプレートの「有効な値」シートで確認すること）。
 const MP = '[marketplace_id=A1VC38T7YXB528]', JA = '[language_tag=ja_JP]';
-const FV = { create: '作成または置換（完全更新）', parent: '親', child: '子', condition: '新品', channel: 'DEFAULT', origin: '中国', ...(MAP.flatFileValues ?? {}) };
+const FV = { create: '作成または置換 (完全更新)', parent: '親', child: '子供', condition: '新品', channel: '出品者出荷（デフォルト）', origin: '中国', productIdType: 'GTIN免除', dgRegulation: '該当なし', variationTheme: { Size: 'サイズ', Color: '色', SizeColor: 'サイズ/色' }, ...(MAP.flatFileValues ?? {}) };
 function newFormatRow(r, type) {
   const o = {
     'contribution_sku#1.value': r.item_sku, 'product_type#1.value': MAP.productTypes?.[type] ?? type, '::record_action': FV.create,
     [`parentage_level${MP}#1.value`]: r.parent_child === 'parent' ? FV.parent : r.parent_child === 'child' ? FV.child : '',
-    [`child_parent_sku_relationship${MP}#1.parent_sku`]: r.parent_sku ?? '', 'variation_theme#1.name': r.variation_theme ?? '',
+    [`child_parent_sku_relationship${MP}#1.parent_sku`]: r.parent_sku ?? '', 'variation_theme#1.name': FV.variationTheme[r.variation_theme] ?? r.variation_theme ?? '',
+    'amzn1.volt.ca.product_id_type': FV.productIdType, [`supplier_declared_dg_hz_regulation${MP}#1.value`]: FV.dgRegulation, // どちらも必須（GTIN 免除済み・危険物なし）
     [`item_name${MP}${JA}#1.value`]: r.item_name, [`brand${MP}${JA}#1.value`]: r.brand_name, [`manufacturer${MP}${JA}#1.value`]: r.manufacturer,
     [`recommended_browse_nodes${MP}#1.value`]: r.recommended_browse_nodes ?? '', [`model_number${MP}#1.value`]: r.part_number ?? '', [`part_number${MP}#1.value`]: r.part_number ?? '',
     [`main_product_image_locator${MP}#1.media_location`]: r.main_image_url ?? '', [`product_description${MP}${JA}#1.value`]: r.product_description ?? '',
     [`generic_keyword${MP}${JA}#1.value`]: r.generic_keywords ?? '', [`color${MP}${JA}#1.value`]: r.color_name ?? '', [`size${MP}${JA}#1.value`]: r.size_name ?? '',
-    [`country_of_origin${MP}#1.value`]: r.parent_child === 'parent' ? '' : FV.origin,
+    [`country_of_origin${MP}#1.value`]: FV.origin, // テンプレートで必須（親行も）
   };
   for (let i = 1; i <= 8; i++) o[`other_product_image_locator_${i}${MP}#1.media_location`] = r[`other_image_url${i}`] ?? '';
   for (let i = 1; i <= 5; i++) o[`bullet_point${MP}${JA}#${i}.value`] = r[`bullet_point${i}`] ?? '';
@@ -204,7 +205,9 @@ const run = {
   build() {
     const ps = loadProducts(); const groups = {};
     let n = 0; const max = args.limit ? Number(args.limit) : Infinity;
-    for (const p of ps) { const c = categorize(p); if (args.type && c.feed_product_type !== args.type) continue; if (n++ >= max) break; (groups[c.feed_product_type] ??= []).push(...rowsFor(p, c)); }
+    for (const p of ps) { const c = categorize(p); if (args.type && c.feed_product_type !== args.type) continue;
+      if ((p.variants?.nodes ?? []).some((v) => !(Number(v.price) > 0))) { log('skip（Shopify 価格 0 のバリエーションあり）', p.handle); continue; }
+      if (n++ >= max) break; (groups[c.feed_product_type] ??= []).push(...rowsFor(p, c)); }
     const summary = [];
     for (const [type, rows] of Object.entries(groups)) {
       const h = headerRows(type); const unknown = new Set();

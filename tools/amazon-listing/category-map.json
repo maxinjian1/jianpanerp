@@ -127,7 +127,7 @@
   "fallback": "Home",
   "browseNodes": {
     "_doc": "feed_product_type → 推奨ブラウズノード ID（Amazon.co.jp）。テンプレートの「有効な値」シート/ブラウズツリーガイド(BTG)で確認して埋める。空のままだとアップロード時にエラーになる",
-    "Home": "",
+    "Home": "ホーム＆キッチン (3839151)",
     "Kitchen": "",
     "HealthAndPersonalCare": "",
     "Beauty": "",
@@ -155,12 +155,15 @@
     "Home": "HOME_PARTS"
   },
   "flatFileValues": {
-    "_note": "新形式テンプレートの表示ラベル。テンプレート（xlsm）の「有効な値」シートで確認して直すこと",
-    "create": "作成または置換（完全更新）",
+    "_note": "新形式テンプレートの表示ラベル。2026 版 xlsm には「有効な値」シートが無く「Dropdown Lists」シートが同じ役割（Home.xlsm で 2026-10-19 確認済み）",
+    "create": "作成または置換 (完全更新)",
     "parent": "親",
-    "child": "子",
+    "child": "子供",
     "condition": "新品",
-    "channel": "DEFAULT",
-    "origin": "中国"
+    "channel": "出品者出荷（デフォルト）",
+    "origin": "中国",
+    "productIdType": "GTIN免除",
+    "dgRegulation": "該当なし",
+    "variationTheme": { "Size": "サイズ", "Color": "色", "SizeColor": "サイズ/色" }
   }
 }
