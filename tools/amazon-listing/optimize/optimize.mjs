@@ -217,19 +217,57 @@ run['audit-report'] = function () {
 // 他ブランド名（ALAIX / slenderlady / KissSmell 等）のタイトルはブランド属性と一致させる必要があるので、ブランド部分は触らない。
 const PROMO_NG = /最強|No\.?\s?1|ナンバーワン|絶対|完全版?|最安値?|激安|送料無料|セール|期間限定|限定価格|正規品|新品未使用/gi;
 const UNIT = /^(\d+(\.\d+)?(cm|mm|m|ml|mL|L|g|kg|W|V|mAh|枚|個|本|色|点|足|組|セット|P|p|%|インチ|号))$|^UPF\d+\+?$|^SPF\d+$|^[0-9]?X{0,4}[SML]$|^\d?XL$|^\d+-\d+(cm|歳|才|ヶ月|か月)?$/i;
-// 子 SKU の型番（例 211218TPC-BLACK-2XL / 240116-shorts-a-white-L）には色・サイズが入っている → 型番は消し、色・サイズは日本語にして残す
-const COLOR_JA = { black: 'ブラック', white: 'ホワイト', pink: 'ピンク', red: 'レッド', blue: 'ブルー', navy: 'ネイビー', gray: 'グレー', grey: 'グレー', beige: 'ベージュ', brown: 'ブラウン', green: 'グリーン', khaki: 'カーキ', purple: 'パープル', violet: 'パープル', yellow: 'イエロー', camel: 'キャメル', wine: 'ワインレッド', ivory: 'アイボリー', orange: 'オレンジ', apricot: 'アプリコット', coffee: 'コーヒー', cream: 'クリーム', silver: 'シルバー', gold: 'ゴールド', mint: 'ミント', lavender: 'ラベンダー', burgundy: 'バーガンディ', champagne: 'シャンパン', skin: 'ベージュ', nude: 'ヌード', rose: 'ローズ', child: 'キッズ', kids: 'キッズ', leopard: 'レオパード', floral: '花柄', stripe: 'ストライプ' };
+// 子 SKU の型番（例 211218TPC-BLACK-2XL / 240116-shorts-a-white-L）には色・サイズ・タイプ・柄が入っている → 型番は消し、それらは日本語にして残す（未知語は原文のまま残す）
+const COLOR_JA = { black: 'ブラック', white: 'ホワイト', pink: 'ピンク', red: 'レッド', blue: 'ブルー', navy: 'ネイビー', gray: 'グレー', grey: 'グレー', beige: 'ベージュ', brown: 'ブラウン', green: 'グリーン', khaki: 'カーキ', kahki: 'カーキ', purple: 'パープル', violet: 'パープル', yellow: 'イエロー', camel: 'キャメル', wine: 'ワインレッド', winered: 'ワインレッド', ivory: 'アイボリー', orange: 'オレンジ', apricot: 'アプリコット', coffee: 'コーヒー', cream: 'クリーム', silver: 'シルバー', gold: 'ゴールド', mint: 'ミント', lavender: 'ラベンダー', burgundy: 'バーガンディ', champagne: 'シャンパン', skin: 'ベージュ', nude: 'ヌード', rose: 'ローズ', peach: 'ピーチ', mustard: 'マスタード', olive: 'オリーブ', teal: 'ティール', turquoise: 'ターコイズ', cocoa: 'ココア', tan: 'タン', schwarz: 'ブラック', multicolor: 'マルチカラー', child: 'キッズ', kids: 'キッズ', leopard: 'レオパード', floral: '花柄', stripe: 'ストライプ', striped: 'ストライプ' };
+const COLOR_PREFIX = { light: 'ライト', dark: 'ダーク', deep: 'ディープ', baby: 'ベビー', hot: 'ホット', royal: 'ロイヤル', sky: 'スカイ', navy: 'ネイビー', gold: 'ゴールド', brick: 'ブリック', charcoal: 'チャコール', indigo: 'インディゴ', denim: 'デニム', foggy: 'フォギー', olive: 'オリーブ', peach: 'ピーチ', teal: 'ティール', wine: 'ワイン' };
+// タイプ・柄（バリエーションを区別する語。gezi＝格子）
+const WORD_JA = { shorts: 'ショーツ付き', short: 'ショート', long: 'ロング', half: 'ハーフ', bra: 'ブラ付き', longsleeves: '長袖', ss: '半袖', ls: '長袖', pocket: 'ポケット付き', lace: 'レース', check: 'チェック', checkered: 'チェック', gezi: 'チェック', muji: '無地', lotus: '蓮柄', cat: '猫柄', heart: 'ハート柄', star: '星柄', sheep: '羊柄', dog: '犬柄', owl: 'フクロウ柄', snowman: '雪だるま柄', strawberry: 'いちご柄', bear: 'クマ柄', rabbit: 'うさぎ柄', hedgehog: 'ハリネズミ柄', cactus: 'サボテン柄', flower: '花柄', dots: 'ドット柄', lozenge: 'ダイヤ柄', geometry: '幾何学柄', graffiti: 'グラフィティ柄', christmas: 'クリスマス柄', doll: '人形柄', bow: 'リボン柄', words: '英字柄', seiza: '星座柄', dyeing: 'タイダイ', france: 'フランス柄', union: 'ユニオンジャック柄', painappuru: 'パイナップル柄', statueofliberty: '自由の女神柄', winebottle: 'ワインボトル柄', plumblossom: '梅柄', snowflower: '雪の結晶柄', treeflower: '木と花柄', flowerhouse: '花と家柄', whitebear: 'シロクマ柄', blueflower: '青い花柄', graydog: 'グレー犬柄', yellowdog: 'イエロー犬柄', yellowfire: 'イエローファイア柄', multicolordots: 'マルチカラードット柄' };
+// 2 文字の色略号（bkwtlace / ppgnog など）
+const ABBR_JA = { bk: 'ブラック', wt: 'ホワイト', og: 'オレンジ', yw: 'イエロー', pk: 'ピンク', pp: 'パープル', bu: 'ブルー', gn: 'グリーン', bg: 'ベージュ', mt: 'ミント', gy: 'グレー', rd: 'レッド' };
+const DROP = new Set(['semi', 'rr', 'nomal', 'normal']); // 意味のない略号（muji は「無地」として残す）
 const SIZE_RE = /^(XS|S|M|L|LL|3L|4L|5L|XL|[2-6]XL|XXL|XXXL|F|FREE)$/i;
+// 兄弟 SKU とタイトルが重複するときだけ段階的に情報を残す：1＝単独英字を「タイプX」で残す、2＝型番をそのまま残す
+let FIX_LEVEL = 0;
+const colorJa = (p) => {
+  if (COLOR_JA[p]) return COLOR_JA[p];
+  for (const [k, v] of Object.entries(COLOR_PREFIX)) if (p.startsWith(k) && COLOR_JA[p.slice(k.length)]) return v + COLOR_JA[p.slice(k.length)];
+  for (let i = 3; i <= p.length - 3; i++) { const a = COLOR_JA[p.slice(0, i)], b = COLOR_JA[p.slice(i)] || colorJa1(p.slice(i)); if (a && b) return a + b; } // kahkipink → カーキピンク
+  return '';
+};
+const colorJa1 = (p) => { for (const [k, v] of Object.entries(COLOR_PREFIX)) if (p.startsWith(k) && COLOR_JA[p.slice(k.length)]) return v + COLOR_JA[p.slice(k.length)]; return ''; };
+const abbrJa = (p) => { const m = p.match(/^((?:bk|wt|og|yw|pk|pp|bu|gn|bg|mt|gy|rd)+)(lace)?$/); if (!m || (m[1].length < 4 && !m[2] && p !== 'bk')) return ''; return [...m[1].match(/../g).map((x) => ABBR_JA[x]), ...(m[2] ? ['レース'] : [])].join('×'); };
+// 1 パーツ → 日本語（null＝削除、未知語は原文のまま）
+function partJa(raw) {
+  const p = raw.toLowerCase();
+  if (!p) return null;
+  if (SIZE_RE.test(p)) return /^f(ree)?$/.test(p) ? 'フリーサイズ' : p.toUpperCase();
+  if (/^\d+cm$/.test(p)) return p;
+  if (/\d/.test(p)) return null; // 品番本体（211218TPC / HM220831 / 220727T）
+  if (p.length === 1) return FIX_LEVEL >= 1 && /[a-z]/.test(p) ? 'タイプ' + p.toUpperCase() : null;
+  if (DROP.has(p)) return null;
+  return colorJa(p) || WORD_JA[p] || abbrJa(p) || raw;
+}
+const hasWord = (title, w) => ` ${title} `.includes(SIZE_RE.test(w) ? ` ${w} ` : w);
 function codeWords(code, title) {
-  const parts = code.split(/[-_]/).map((p) => p.toLowerCase()); const out = []; const rest = ` ${String(title).split(code).join(' ')} `;
-  for (const p of parts) {
-    let w = '';
-    if (COLOR_JA[p]) w = COLOR_JA[p];
-    else if (/^(light|dark)(\w+)$/.test(p) && COLOR_JA[p.replace(/^(light|dark)/, '')]) w = (p.startsWith('light') ? 'ライト' : 'ダーク') + COLOR_JA[p.replace(/^(light|dark)/, '')];
-    else if (SIZE_RE.test(p)) w = /^f(ree)?$/i.test(p) ? 'フリーサイズ' : p.toUpperCase();
-    if (w && !out.includes(w) && !rest.includes(SIZE_RE.test(w) ? ` ${w} ` : w)) out.push(w);
-  }
+  if (FIX_LEVEL >= 2) return code;
+  const out = []; const rest = String(title).split(code).join(' ');
+  for (const raw of code.split(/[-_]/)) { const w = partJa(raw); if (w && !out.includes(w) && !hasWord(rest, w)) out.push(w); }
   return out.join(' ');
+}
+// 末尾の「200327 black shorts XL」「Purple M」「Striped Grey Pink」型：6 桁品番は削除、続く英語の色・サイズ・タイプを日本語に
+const isKnown = (raw) => { const p = raw.toLowerCase(); return SIZE_RE.test(p) || p.length === 1 || DROP.has(p) || !!(colorJa(p) || WORD_JA[p] || abbrJa(p)); };
+const isMeaning = (raw) => { const p = raw.toLowerCase(); return (SIZE_RE.test(p) && p.length > 0) || !!(colorJa(p) || WORD_JA[p] || abbrJa(p)); };
+function tailWords(t) {
+  if (FIX_LEVEL >= 2) return t;
+  const ws = t.split(' '); let i = ws.length;
+  while (i > 0 && /^[A-Za-z][A-Za-z_-]*$|^(19|2\d)\d{4}$/.test(ws[i - 1])) i--;
+  const head = ws.slice(0, i).join(' '); const tail = ws.slice(i); if (!tail.length) return t;
+  const code6 = (w) => /^(19|2\d)\d{4}$/.test(w);
+  const parts = tail.filter((w) => !code6(w)).flatMap((w) => w.split(/[-_]/)).filter(Boolean);
+  if (!parts.every(isKnown) || !parts.some(isMeaning)) return tail.some(code6) && parts.every(isKnown) ? [head, ...tail.filter((w) => !code6(w))].join(' ').trim() : t;
+  const out = [];
+  for (const raw of parts) { const w = partJa(raw); if (w && !out.includes(w) && !hasWord(head, w)) out.push(w); }
+  return [head, ...out].join(' ').trim();
 }
 function fixTitle(t0) {
   let t = String(t0 ?? '');
@@ -247,6 +285,7 @@ function fixTitle(t0) {
   const ws = (x) => x.replace(/[ 　]+/g, ' ').trim(); const b4 = ws(t);
   t = t.replace(/[（(]\s*([A-Za-z]{1,6}[-_]?\d{2,}[A-Za-z0-9-]*)\s*[)）]/g, (m, code) => UNIT.test(code) ? m : ' ');
   t = t.split(/\s+/).map((w) => { const x = w.replace(/^[・、,]+|[・、,]+$/g, ''); if (!x) return ''; if (UNIT.test(x) || /^(UPF|SPF|USB|LED|PM|COVID|IPX)\d/i.test(x)) return w; return /^(?=.*[A-Za-z])(?=(?:.*\d){2,})[A-Za-z0-9][A-Za-z0-9_-]{3,}$/.test(x) ? codeWords(x, t) : w; }).join(' ');
+  t = tailWords(ws(t));
   if (ws(t) !== b4) notes.push('型番');
   // 記号の乱用・重複空白
   const b5 = ws(t); t = ws(t.replace(/[★☆■□◆◇●○※♪♡♥◎]+/g, ' ').replace(/\s*[、,]\s*/g, ' ')); if (t !== b5) notes.push('記号');
@@ -256,8 +295,13 @@ run.fix = function () { // 提案を作るだけ（アップロードしない�
   if (args.titles) { // SKU 単位：カテゴリー別出品レポートの contribution_sku / ::title を TSV（sku<TAB>title）に書き出したものを入力にする（子 SKU ごとの実タイトル）
     const frozen = new Set(JSON.parse(fs.readFileSync(path.join(OUT, 'frozen-top10.json'), 'utf8')).flatMap((t) => [].concat(t.skus ?? [])));
     const rows = readText(args.titles).split(/\r?\n/).map((l) => l.split('\t')).filter((r) => r[0] && r[1] && r[0] !== 'sku');
-    const out = []; let skipped = 0;
-    for (const [sku, old] of rows) { if (frozen.has(sku)) { skipped++; continue; } const r = fixTitle(old); if (r.changed) out.push({ sku, old, title: r.title, notes: r.notes }); }
+    const skipped = rows.filter(([sku]) => frozen.has(sku)).length;
+    const cur = rows.filter(([sku]) => !frozen.has(sku)).map(([sku, old]) => ({ sku, old, r: fixTitle(old) }));
+    for (let lv = 1; lv <= 2; lv++) { // 元は別タイトルだった兄弟が同じ新タイトルになる場合だけ、情報を多めに残して作り直す
+      const by = {}; for (const c of cur) (by[c.r.title] ??= new Set()).add(c.old);
+      FIX_LEVEL = lv; for (const c of cur) if (by[c.r.title].size > 1) c.r = fixTitle(c.old); FIX_LEVEL = 0;
+    }
+    const out = cur.filter((c) => c.r.changed).map(({ sku, old, r }) => ({ sku, old, title: r.title, notes: r.notes }));
     fs.writeFileSync(path.join(OUT, 'fix-titles-sku.json'), JSON.stringify(out, null, 1));
     fs.writeFileSync(path.join(OUT, 'fix-titles-sku.tsv'), 'sku\told_title\tnew_title\r\n' + out.map((o) => [o.sku, o.old, o.title].join('\t')).join('\r\n') + '\r\n');
     const cnt = {}; for (const o of out) for (const n of o.notes) cnt[n] = (cnt[n] ?? 0) + 1;
