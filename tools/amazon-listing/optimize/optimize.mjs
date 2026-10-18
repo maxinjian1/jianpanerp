@@ -9,6 +9,7 @@
  *   node tools/amazon-listing/optimize/optimize.mjs cards [--limit N]    # サブ画像（サイズ表・素材・安心梱包・4つの約束）を Chromium で描画 → out/opt/<asin>/cards/*.png
  *   node tools/amazon-listing/optimize/optimize.mjs build                # 出品ファイル PartialUpdate TSV（テキスト）+ 画像 URL 用 TSV → out/opt/update-*.tsv
  *   node tools/amazon-listing/optimize/optimize.mjs report               # 変更前後の一覧 → out/opt/review.md
+ *   node tools/amazon-listing/optimize/optimize.mjs fix [--titles sku-titles.tsv]  # タイトルのルールベース修正案（アップロードしない）。--titles は SKU<TAB>現タイトル → out/opt/fix-titles-sku.tsv
  *
  * 入力（Windows の Seller Central から手で落とす、git 管理外）：
  *   tools/amazon-listing/in/active-listings.txt        出品中の商品レポート（TSV、UTF-8 / Shift_JIS どちらでも）
@@ -216,6 +217,20 @@ run['audit-report'] = function () {
 // 他ブランド名（ALAIX / slenderlady / KissSmell 等）のタイトルはブランド属性と一致させる必要があるので、ブランド部分は触らない。
 const PROMO_NG = /最強|No\.?\s?1|ナンバーワン|絶対|完全版?|最安値?|激安|送料無料|セール|期間限定|限定価格|正規品|新品未使用/gi;
 const UNIT = /^(\d+(\.\d+)?(cm|mm|m|ml|mL|L|g|kg|W|V|mAh|枚|個|本|色|点|足|組|セット|P|p|%|インチ|号))$|^UPF\d+\+?$|^SPF\d+$|^[0-9]?X{0,4}[SML]$|^\d?XL$|^\d+-\d+(cm|歳|才|ヶ月|か月)?$/i;
+// 子 SKU の型番（例 211218TPC-BLACK-2XL / 240116-shorts-a-white-L）には色・サイズが入っている → 型番は消し、色・サイズは日本語にして残す
+const COLOR_JA = { black: 'ブラック', white: 'ホワイト', pink: 'ピンク', red: 'レッド', blue: 'ブルー', navy: 'ネイビー', gray: 'グレー', grey: 'グレー', beige: 'ベージュ', brown: 'ブラウン', green: 'グリーン', khaki: 'カーキ', purple: 'パープル', violet: 'パープル', yellow: 'イエロー', camel: 'キャメル', wine: 'ワインレッド', ivory: 'アイボリー', orange: 'オレンジ', apricot: 'アプリコット', coffee: 'コーヒー', cream: 'クリーム', silver: 'シルバー', gold: 'ゴールド', mint: 'ミント', lavender: 'ラベンダー', burgundy: 'バーガンディ', champagne: 'シャンパン', skin: 'ベージュ', nude: 'ヌード', rose: 'ローズ', child: 'キッズ', kids: 'キッズ', leopard: 'レオパード', floral: '花柄', stripe: 'ストライプ' };
+const SIZE_RE = /^(XS|S|M|L|LL|3L|4L|5L|XL|[2-6]XL|XXL|XXXL|F|FREE)$/i;
+function codeWords(code, title) {
+  const parts = code.split(/[-_]/).map((p) => p.toLowerCase()); const out = []; const rest = ` ${String(title).split(code).join(' ')} `;
+  for (const p of parts) {
+    let w = '';
+    if (COLOR_JA[p]) w = COLOR_JA[p];
+    else if (/^(light|dark)(\w+)$/.test(p) && COLOR_JA[p.replace(/^(light|dark)/, '')]) w = (p.startsWith('light') ? 'ライト' : 'ダーク') + COLOR_JA[p.replace(/^(light|dark)/, '')];
+    else if (SIZE_RE.test(p)) w = /^f(ree)?$/i.test(p) ? 'フリーサイズ' : p.toUpperCase();
+    if (w && !out.includes(w) && !rest.includes(SIZE_RE.test(w) ? ` ${w} ` : w)) out.push(w);
+  }
+  return out.join(' ');
+}
 function fixTitle(t0) {
   let t = String(t0 ?? '');
   const notes = [];
@@ -231,13 +246,24 @@ function fixTitle(t0) {
   // 型番：英数字混在で数字 2 桁以上、単位・サイズ表記ではないトークン（末尾/括弧内に多い）
   const ws = (x) => x.replace(/[ 　]+/g, ' ').trim(); const b4 = ws(t);
   t = t.replace(/[（(]\s*([A-Za-z]{1,6}[-_]?\d{2,}[A-Za-z0-9-]*)\s*[)）]/g, (m, code) => UNIT.test(code) ? m : ' ');
-  t = t.split(/\s+/).filter((w) => { const x = w.replace(/^[・、,]+|[・、,]+$/g, ''); if (!x) return false; if (UNIT.test(x)) return true; return !/^(?=.*[A-Za-z])(?=(?:.*\d){2,})[A-Za-z0-9][A-Za-z0-9_-]{3,}$/.test(x) || /^(UPF|SPF|USB|LED|PM|COVID|IPX)\d/i.test(x); }).join(' ');
+  t = t.split(/\s+/).map((w) => { const x = w.replace(/^[・、,]+|[・、,]+$/g, ''); if (!x) return ''; if (UNIT.test(x) || /^(UPF|SPF|USB|LED|PM|COVID|IPX)\d/i.test(x)) return w; return /^(?=.*[A-Za-z])(?=(?:.*\d){2,})[A-Za-z0-9][A-Za-z0-9_-]{3,}$/.test(x) ? codeWords(x, t) : w; }).join(' ');
   if (ws(t) !== b4) notes.push('型番');
   // 記号の乱用・重複空白
   const b5 = ws(t); t = ws(t.replace(/[★☆■□◆◇●○※♪♡♥◎]+/g, ' ').replace(/\s*[、,]\s*/g, ' ')); if (t !== b5) notes.push('記号');
   return { title: t, changed: notes.length > 0, notes };
 }
 run.fix = function () { // 提案を作るだけ（アップロードしない）→ out/opt/fix-titles.json + docs/amazon-fix-titles-review.md
+  if (args.titles) { // SKU 単位：カテゴリー別出品レポートの contribution_sku / ::title を TSV（sku<TAB>title）に書き出したものを入力にする（子 SKU ごとの実タイトル）
+    const frozen = new Set(JSON.parse(fs.readFileSync(path.join(OUT, 'frozen-top10.json'), 'utf8')).flatMap((t) => [].concat(t.skus ?? [])));
+    const rows = readText(args.titles).split(/\r?\n/).map((l) => l.split('\t')).filter((r) => r[0] && r[1] && r[0] !== 'sku');
+    const out = []; let skipped = 0;
+    for (const [sku, old] of rows) { if (frozen.has(sku)) { skipped++; continue; } const r = fixTitle(old); if (r.changed) out.push({ sku, old, title: r.title, notes: r.notes }); }
+    fs.writeFileSync(path.join(OUT, 'fix-titles-sku.json'), JSON.stringify(out, null, 1));
+    fs.writeFileSync(path.join(OUT, 'fix-titles-sku.tsv'), 'sku\told_title\tnew_title\r\n' + out.map((o) => [o.sku, o.old, o.title].join('\t')).join('\r\n') + '\r\n');
+    const cnt = {}; for (const o of out) for (const n of o.notes) cnt[n] = (cnt[n] ?? 0) + 1;
+    const md = ['# Amazon タイトル修正案（SKU 単位・ルールベース）', '', `入力 ${rows.length} SKU、凍結 Top10 の SKU ${skipped} 件を除外、修正 ${out.length} 件（まだアップロードしていません）。型番は削除し、型番に含まれる色・サイズは日本語にしてタイトル末尾に残す。`, '', ...Object.entries(cnt).map(([k, v]) => `- ${k}: ${v}`), '', '| SKU | 修正内容 | 旧 | 新 |', '|---|---|---|---|', ...out.map((o) => `| ${o.sku} | ${o.notes.join('・')} | ${o.old.replace(/\|/g, '／')} | ${o.title.replace(/\|/g, '／')} |`)];
+    fs.writeFileSync(path.join(ROOT, 'docs/amazon-fix-titles-review.md'), md.join('\n')); console.log(md.slice(0, 10).join('\n')); log('fix proposals (sku)', out.length); return;
+  }
   const all = JSON.parse(fs.readFileSync(TARGETS, 'utf8')); // 凍結 10 件は targets に含まれない
   const isAsin = (x) => /^B0[A-Z0-9]{8}$/.test(x);
   const out = [];
