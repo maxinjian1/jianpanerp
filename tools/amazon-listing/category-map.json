@@ -149,5 +149,18 @@
   "referralFee": {
     "_note": "Amazon.co.jp 販売手数料の概算（税抜、売価×率）。不明は default=15%（高い側）。実際の料率は Seller Central 料金シミュレーターで確認して直す",
     "default": 0.15
+  },
+  "productTypes": {
+    "_note": "新形式テンプレートの product_type 値（templates/<type>.headers.tsv を取った時のテンプレートの商品タイプ）。他カテゴリはテンプレートを取ったら追記",
+    "Home": "HOME_PARTS"
+  },
+  "flatFileValues": {
+    "_note": "新形式テンプレートの表示ラベル。テンプレート（xlsm）の「有効な値」シートで確認して直すこと",
+    "create": "作成または置換（完全更新）",
+    "parent": "親",
+    "child": "子",
+    "condition": "新品",
+    "channel": "DEFAULT",
+    "origin": "中国"
   }
 }

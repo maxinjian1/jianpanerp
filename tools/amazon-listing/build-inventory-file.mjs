@@ -121,8 +121,34 @@ const DEFAULT_FIELDS = ['feed_product_type', 'item_sku', 'brand_name', 'item_nam
   'country_of_origin', 'is_adult_product', 'number_of_items', 'item_package_quantity', 'manufacturer_contact_information'];
 const DEFAULT_LABELS = { feed_product_type: '商品タイプ', item_sku: '出品者SKU', brand_name: 'ブランド名', item_name: '商品名', external_product_id: '商品コード(JANコード等)', external_product_id_type: '商品コードのタイプ', manufacturer: 'メーカー名', part_number: 'メーカー型番', recommended_browse_nodes: '推奨ブラウズノード', item_type_keyword: '商品タイプキーワード', update_delete: 'アップデート・削除', standard_price: '商品の販売価格', currency: '通貨', quantity: '在庫数', fulfillment_latency: 'リードタイム', merchant_shipping_group_name: '配送パターン', condition_type: '商品のコンディション', main_image_url: '商品メイン画像URL', parent_child: '親子関係の指定', parent_sku: '親商品のSKU', relationship_type: '親子関係のタイプ', variation_theme: 'バリエーションテーマ', color_name: '色', color_map: 'カラーマップ', size_name: 'サイズ', product_description: '商品説明文', generic_keywords: '検索キーワード', country_of_origin: '原産国/地域', is_adult_product: 'アダルト商品', number_of_items: '商品の数量', item_package_quantity: '商品パッケージ数', manufacturer_contact_information: 'メーカー連絡先' };
 
+// 新形式テンプレート（2026 年版：5 行ヘッダ、5 行目が属性パス contribution_sku#1.value …、データは 7 行目から）。
+// 値は表示ラベル（「親」「新品」等）で入れる。ラベルは category-map.json の flatFileValues で上書きできる（テンプレートの「有効な値」シートで確認すること）。
+const MP = '[marketplace_id=A1VC38T7YXB528]', JA = '[language_tag=ja_JP]';
+const FV = { create: '作成または置換（完全更新）', parent: '親', child: '子', condition: '新品', channel: 'DEFAULT', origin: '中国', ...(MAP.flatFileValues ?? {}) };
+function newFormatRow(r, type) {
+  const o = {
+    'contribution_sku#1.value': r.item_sku, 'product_type#1.value': MAP.productTypes?.[type] ?? type, '::record_action': FV.create,
+    [`parentage_level${MP}#1.value`]: r.parent_child === 'parent' ? FV.parent : r.parent_child === 'child' ? FV.child : '',
+    [`child_parent_sku_relationship${MP}#1.parent_sku`]: r.parent_sku ?? '', 'variation_theme#1.name': r.variation_theme ?? '',
+    [`item_name${MP}${JA}#1.value`]: r.item_name, [`brand${MP}${JA}#1.value`]: r.brand_name, [`manufacturer${MP}${JA}#1.value`]: r.manufacturer,
+    [`recommended_browse_nodes${MP}#1.value`]: r.recommended_browse_nodes ?? '', [`model_number${MP}#1.value`]: r.part_number ?? '', [`part_number${MP}#1.value`]: r.part_number ?? '',
+    [`main_product_image_locator${MP}#1.media_location`]: r.main_image_url ?? '', [`product_description${MP}${JA}#1.value`]: r.product_description ?? '',
+    [`generic_keyword${MP}${JA}#1.value`]: r.generic_keywords ?? '', [`color${MP}${JA}#1.value`]: r.color_name ?? '', [`size${MP}${JA}#1.value`]: r.size_name ?? '',
+    [`country_of_origin${MP}#1.value`]: r.parent_child === 'parent' ? '' : FV.origin,
+  };
+  for (let i = 1; i <= 8; i++) o[`other_product_image_locator_${i}${MP}#1.media_location`] = r[`other_image_url${i}`] ?? '';
+  for (let i = 1; i <= 5; i++) o[`bullet_point${MP}${JA}#${i}.value`] = r[`bullet_point${i}`] ?? '';
+  if (r.parent_child !== 'parent') Object.assign(o, { // 親行は売買しない（価格・在庫は子に付ける）
+    [`condition_type${MP}#1.value`]: FV.condition, 'fulfillment_availability#1.fulfillment_channel_code': FV.channel, 'fulfillment_availability#1.quantity': r.quantity,
+    'fulfillment_availability#1.lead_time_to_ship_max_days': r.fulfillment_latency, [`purchasable_offer${MP}[audience=ALL]#1.our_price#1.schedule#1.value_with_tax`]: r.standard_price,
+    [`merchant_shipping_group${MP}#1.value`]: r.merchant_shipping_group_name });
+  return o;
+}
+
 function headerRows(type) {
   const f = path.join(TPL, `${type}.headers.tsv`);
+  if (fs.existsSync(f)) { const all5 = fs.readFileSync(f, 'utf8').replace(/^\ufeff/, '').split(/\r?\n/).filter((l) => l.length).map((l) => l.split('\t'));
+    if (all5.length >= 5 && all5[4][0]?.trim() === 'contribution_sku#1.value') return { rows: [...all5.slice(0, 5), all5[0].map(() => '')], fields: all5[4].map((s) => s.trim()), fromTemplate: true, newFormat: true }; }
   if (fs.existsSync(f)) { const rows = fs.readFileSync(f, 'utf8').replace(/^﻿/, '').split(/\r?\n/).filter((l) => l.length).slice(0, 3).map((l) => l.split('\t')); if (rows.length === 3) return { rows, fields: rows[2].map((s) => s.trim()), fromTemplate: true }; log('warn: headers.tsv は 3 行必要', f); }
   const fields = DEFAULT_FIELDS;
   return { rows: [[`TemplateType=fptcustom`, `Version=2026.1017`, `TemplateSignature=${type}`, 'settings=contentLanguageTag=ja_JP&feedType=113&headerLanguageTag=ja_JP&metadataVersion=MatprodVkxpdmVNYXRwcm9kQWtzVjJfMjAyNjEw&primaryMarketplaceId=amzn1.mp.o.A1VC38T7YXB528&templateIdentifier=generic', ...Array(fields.length - 4).fill('')], fields.map((k) => DEFAULT_LABELS[k] ?? k), fields], fields, fromTemplate: false };
@@ -182,7 +208,7 @@ const run = {
     const summary = [];
     for (const [type, rows] of Object.entries(groups)) {
       const h = headerRows(type); const unknown = new Set();
-      const body = rows.map((r) => { for (const k of Object.keys(r)) if (!h.fields.includes(k) && r[k] !== '' && !/^(other_image_url[2-8]|bullet_point[2-5])$/.test(k)) unknown.add(k); return h.fields.map((k) => tsv(r[k])).join('\t'); });
+      const body = rows.map((r0) => { const r = h.newFormat ? newFormatRow(r0, type) : r0; for (const k of Object.keys(r)) if (!h.fields.includes(k) && r[k] !== '' && !/^(other_image_url[2-8]|bullet_point[2-5])$/.test(k)) unknown.add(k); return h.fields.map((k) => tsv(r[k])).join('\t'); });
       const f = path.join(OUT, `inventory-${type}.tsv`);
       fs.writeFileSync(f, '﻿' + [...h.rows.map((r) => r.join('\t')), ...body].join('\r\n') + '\r\n');
       summary.push(`${type}: ${rows.length} 行（${rows.filter((r) => r.parent_child !== 'child').length} 商品）→ ${path.relative(ROOT, f)}${h.fromTemplate ? '' : '  [ヘッダは既定値。templates/' + type + '.headers.tsv を置くと公式ヘッダで出力]'}${unknown.size ? '  テンプレートに無い列（捨てた）: ' + [...unknown].join(',') : ''}`);
