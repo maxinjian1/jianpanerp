@@ -56,6 +56,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-10-18：**用户批准 ComfyUI 改图试点**：`tools/comfy/`（6kpro 看图定操作 → ComfyUI 只生成背景/补边/擦字 → compose.py 把原商品像素贴回 → 6kpro 质检 → 前后对比图 out-preview/ 给用户审核；发布仍只认 approved.txt）。先在 Windows 4080 装 ComfyUI（C:\ComfyUI，:8188，FLUX Fill GGUF Q8 + 4x-UltraSharp），样品 = タンブラー + チューブベンダー；V64 到货后 4 卡各一实例量产。FLUX Fill dev 权重非商业许可，量产前确认或换 Qwen-Image-Edit（Apache-2.0）。
 - 2026-10-18 08:53 JST：**Shopify 商品图全部恢复为批发商原图完成**：1181/1181（含 タンブラー、チューブベンダー 2 件试恢复），0 失败；9,635 张原图全部来自 Windows 本地 src/ 文件重新上传，改图后的图片已删除；每件都有 `media-backup.rolledback.json`。今后改图只发布 `approved.txt` 里用户审核过的商品。Amazon 审计（fetch→audit）与热卖调研两轮仍在 Windows 后台跑，完成后自动接 1688 search/match/draft 与每 3 小时一轮的 send。
 - 2026-10-18：用户指令「删除数据不出境规则」→ 已从核心架构决定 1 中删除该强制约束（见上）。注意：Amazon / 楽天 自身的买家个人信息政策仍然有效，那是平台规则，不是我们的内部规则。
 - 2026-10-18：**6kpro 换更大模型**（用户告知）：所有脚本与 api-core 只读 `.env` 的 `CN_LLM_MODEL`，切换只改这一行；视觉步骤（1688 match、图片 classify）可用 `CN_LLM_VISION_MODEL` 单独指定（未设则同 CN_LLM_MODEL）。
