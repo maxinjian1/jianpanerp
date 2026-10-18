@@ -56,6 +56,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-10-18 14:43 JST：**Amazon 只读审计完成**（`docs/amazon-audit-report.md`，1415 ASIN，另 32 件只有 JAN 未审）：1052 件 90 天零流量、87 件有流量零单、276 件有订单（共 2097 单）。全店共性问题：标题「サラデマント〕」括号错 1045 件、标题带型番 869、箇条書き缺尺寸 1385、说明文混入 CSS/JS 709、合规高风险 166（UV/UPF 164、着痩せ/补正 127）、他牌名（slenderlady 66 / ALAIX 52）。修改仍暂停，等用户定优先级。ComfyUI 试点：用户审核チューブベンダー主图通过并已上线（approved.txt），タンブラー 中文 VIP 防盗图已删（备份 media-backup.comfy.json）。1688 仍等用户拖滑块（315 品待找）。
 - 2026-10-18：**用户批准 ComfyUI 改图试点**：`tools/comfy/`（6kpro 看图定操作 → ComfyUI 只生成背景/补边/擦字 → compose.py 把原商品像素贴回 → 6kpro 质检 → 前后对比图 out-preview/ 给用户审核；发布仍只认 approved.txt）。先在 Windows 4080 装 ComfyUI（C:\ComfyUI，:8188，FLUX Fill GGUF Q8 + 4x-UltraSharp），样品 = タンブラー + チューブベンダー；V64 到货后 4 卡各一实例量产。FLUX Fill dev 权重非商业许可，量产前确认或换 Qwen-Image-Edit（Apache-2.0）。
 - 2026-10-18 08:53 JST：**Shopify 商品图全部恢复为批发商原图完成**：1181/1181（含 タンブラー、チューブベンダー 2 件试恢复），0 失败；9,635 张原图全部来自 Windows 本地 src/ 文件重新上传，改图后的图片已删除；每件都有 `media-backup.rolledback.json`。今后改图只发布 `approved.txt` 里用户审核过的商品。Amazon 审计（fetch→audit）与热卖调研两轮仍在 Windows 后台跑，完成后自动接 1688 search/match/draft 与每 3 小时一轮的 send。
 - 2026-10-18：用户指令「删除数据不出境规则」→ 已从核心架构决定 1 中删除该强制约束（见上）。注意：Amazon / 楽天 自身的买家个人信息政策仍然有效，那是平台规则，不是我们的内部规则。
