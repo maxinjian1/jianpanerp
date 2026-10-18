@@ -61,7 +61,7 @@ const dirOf = (asin) => { const d = path.join(OUT, asin); fs.mkdirSync(d, { recu
 async function chatJson(messages, { maxTokens = 3000, retries = 3 } = {}) {
   for (let i = 0; i < retries; i++) {
     try {
-      const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, temperature: 0.3, max_tokens: maxTokens, response_format: { type: 'json_object' }, messages }) });
+      const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, temperature: 0.3, max_tokens: maxTokens, response_format: { type: 'json_object' }, chat_template_kwargs: { enable_thinking: false, thinking: false }, messages }) });
       const j = await r.json(); const c = j.choices?.[0]?.message?.content; if (!c) throw new Error(`empty: ${JSON.stringify(j).slice(0, 200)}`);
       const m = c.match(/\{[\s\S]*\}/); return JSON.parse(m ? m[0] : c);
     } catch (e) { if (i === retries - 1) throw e; await sleep(1500 * (i + 1)); }
@@ -94,9 +94,9 @@ JSON のみ返す：{"title":"","bullets":["","","","",""],"description":"","sea
 const run = {
   rank() {
     const act = table(path.join(IN, 'active-listings.txt'), '\t');
-    const items = act.map((r) => ({ sku: col(r, /^seller-sku$|出品者SKU/i), asin: col(r, /^asin1$|^ASIN ?1$|^ASIN$/i), title: col(r, /^item-name$|商品名/i), price: num(col(r, /^price$|価格/i)), qty: num(col(r, /^quantity$|数量/i)), image: col(r, /image-url|画像/i), status: col(r, /^status$|ステータス/i), desc: col(r, /item-description|商品説明/i) })).filter((x) => x.asin);
+    const items = act.map((r) => ({ sku: col(r, /^seller-sku$|出品者SKU/i), asin: col(r, /^asin1$|^ASIN ?1$|^ASIN$|^商品ID$/i), title: col(r, /^item-name$|商品名/i), price: num(col(r, /^price$|価格/i)), qty: num(col(r, /^quantity$|数量/i)), image: col(r, /image-url|画像/i), status: col(r, /^status$|ステータス/i), desc: col(r, /item-description|商品説明/i) })).filter((x) => x.asin);
     const bizF = (n) => path.join(IN, `business-report-${n}.csv`);
-    const biz = (n) => fs.existsSync(bizF(n)) ? table(bizF(n), ',').map((r) => ({ asin: col(r, /\(子\)|子商品|child/i) || col(r, /ASIN/i), sessions: num(col(r, /セッション(?!率)|^Sessions/i)), pv: num(col(r, /ページビュー|Page Views/i)), units: num(col(r, /注文品目数|注文された商品点数|Units Ordered/i)), cvr: num(col(r, /ユニットセッション率|コンバージョン|Unit Session/i)), sales: num(col(r, /売上|Ordered Product Sales/i)) })) : [];
+    const biz = (n) => fs.existsSync(bizF(n)) ? table(bizF(n), ',').map((r) => ({ asin: col(r, /\(子\)|（子）|子商品|child/i) || col(r, /ASIN/i), sessions: num(col(r, /セッション(?!率)|^Sessions/i)), pv: num(col(r, /ページビュー|Page Views/i)), units: num(col(r, /注文品目数|注文された商品点数|Units Ordered/i)), cvr: num(col(r, /ユニットセッション率|コンバージョン|Unit Session/i)), sales: num(col(r, /売上|Ordered Product Sales/i)) })) : [];
     const b90 = new Map(biz('90d').map((b) => [b.asin, b])), b30 = new Map(biz('30d').map((b) => [b.asin, b]));
     const byAsin = new Map();
     for (const it of items) { const a = byAsin.get(it.asin) ?? { asin: it.asin, skus: [], title: it.title, price: it.price, image: it.image, desc: it.desc, qty: 0 }; a.skus.push(it.sku); a.qty += it.qty; a.price = a.price || it.price; byAsin.set(it.asin, a); }
@@ -119,7 +119,7 @@ const run = {
         await page.goto(`https://www.amazon.co.jp/dp/${t.asin}?th=1&psc=1`, { waitUntil: 'domcontentloaded', timeout: 60000 }); await sleep(1500 + Math.random() * 1500);
         const cur = await page.evaluate(() => {
           const txt = (s) => document.querySelector(s)?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
-          const bullets = [...document.querySelectorAll('#feature-bullets li span.a-list-item')].map((e) => e.textContent.replace(/\s+/g, ' ').trim()).filter((s) => s && !/詳細はこちら|もっと見る/.test(s));
+          const bullets = [...document.querySelectorAll('#feature-bullets li span.a-list-item, #productFactsDesktopExpander ul.a-unordered-list li span.a-list-item')].map((e) => e.textContent.replace(/\s+/g, ' ').trim()).filter((s) => s && !/詳細はこちら|もっと見る/.test(s));
           let images = []; for (const s of document.scripts) { const m = s.textContent.match(/'colorImages':\s*\{\s*'initial':\s*(\[[\s\S]*?\])\s*\}/); if (m) { try { images = eval(m[1]).map((x) => x.hiRes || x.large).filter(Boolean); } catch {} if (images.length) break; } }
           if (!images.length) images = [...document.querySelectorAll('#altImages img')].map((i) => i.src.replace(/\._[^.]+_\./, '.')).filter((u) => !/sprite|play-icon|360_icon/.test(u));
           const sizes = [...document.querySelectorAll('#native_dropdown_selected_size_name option, #variation_size_name li')].map((e) => e.textContent.trim()).filter((s) => s && !/選択/.test(s));
@@ -152,7 +152,7 @@ const run = {
   },
   build() {
     const ts = loadTargets(); const act = table(path.join(IN, 'active-listings.txt'), '\t');
-    const skusOf = (asin) => act.filter((r) => col(r, /^asin1$|^ASIN ?1$|^ASIN$/i) === asin).map((r) => col(r, /^seller-sku$|出品者SKU/i)).filter(Boolean);
+    const skusOf = (asin) => act.filter((r) => col(r, /^asin1$|^ASIN ?1$|^ASIN$|^商品ID$/i) === asin).map((r) => col(r, /^seller-sku$|出品者SKU/i)).filter(Boolean);
     const tsv = (v) => String(v ?? '').replace(/[\t\r\n]+/g, ' ');
     const textFields = ['sku', 'product-id', 'product-id-type', 'item_name', 'bullet_point1', 'bullet_point2', 'bullet_point3', 'bullet_point4', 'bullet_point5', 'product_description', 'generic_keywords', 'update_delete'];
     const imgFields = ['sku', 'other_image_url1', 'other_image_url2', 'other_image_url3', 'other_image_url4', 'other_image_url5', 'other_image_url6', 'other_image_url7', 'other_image_url8', 'update_delete'];
@@ -180,28 +180,33 @@ const run = {
 };
 
 // ---------- 監査（読み取り専用：変更はしない。ユーザー向けレポートを作る） ----------
-const AUDIT_SYSTEM = `あなたは Amazon.co.jp レディースインナー（ブランド SARADEMUNT）のリスティング監査員です。与えられた商品ページの現状と 90 日実績を見て、日本の女性客の目線で「売れない原因」と「直し方」を具体的に指摘してください。
-評価軸：title（検索語・長さ・ブランド順序・記号）、bullets（本数・見出し・不安解消：サイズ/透け/ひびき/梱包）、description（構成・敬体・情報量）、images（枚数・メイン画像の規約：実人着用/白背景/文字なし、サブ画像にサイズ表/素材/梱包があるか。画像は URL とファイル名から推測できる範囲で）、keywords（検索語の網羅：表記ゆれ・産後/大きいサイズ/楽/締め付けない）、price（同種商品との整合は不明なら触れない）、compliance（最強/No.1/絶対/バストアップ/痩せる 等の NG、性的示唆）、reviews（評価と件数から見た信頼シグナル）。
+const AUDIT_SYSTEM = `あなたは Amazon.co.jp のリスティング監査員です（出品者 アネット株式会社。レディースインナー SARADEMUNT のほか、イヤーマフ・キッズ用品・工具・生活雑貨など多カテゴリを扱う）。まずタイトルと箇条書きから商品のカテゴリと想定購入者を判断し、その購入者の目線で、与えられた商品ページの現状と 90 日実績から「売れない原因」と「直し方」を具体的に指摘してください。カテゴリを取り違えて別ジャンルの基準で採点しないこと。
+評価軸：title（検索語・長さ・ブランド順序・記号）、bullets（本数・見出し・購入前の不安解消：サイズ・素材・対象年齢・使い方・梱包などカテゴリに応じて）、description（構成・敬体・情報量）、images（枚数・メイン画像の規約：白背景/文字なし/衣類は着用またはフラット、サブ画像にサイズ表/素材/梱包があるか。画像は URL とファイル名から推測できる範囲で）、keywords（そのカテゴリで購入者が使う検索語の網羅・表記ゆれ）、price（同種商品との整合は不明なら触れない）、compliance（最強/No.1/絶対/効果の断言 等の NG、カテゴリ固有の規制表現）、reviews（評価と件数から見た信頼シグナル）。
 出力は JSON のみ：{"score":0-100,"verdict":"一言","top_fixes":["最優先の直し 3 つ以内、日本語"],"issues":[{"area":"title|bullets|description|images|keywords|price|compliance|reviews","severity":"high|mid|low","finding":"何が問題か（具体）","fix":"どう直すか（具体、文例があれば）"}]}`;
 run.audit = async function () {
   const all = [...JSON.parse(fs.readFileSync(path.join(OUT, 'frozen-top10.json'), 'utf8')).map((t) => ({ ...t, frozen: true })), ...JSON.parse(fs.readFileSync(TARGETS, 'utf8'))];
   const ts = args.asin ? all.filter((t) => t.asin === args.asin) : args.limit ? all.slice(0, Number(args.limit)) : all; let n = 0;
-  for (const t of ts) {
-    const d = dirOf(t.asin); const f = path.join(d, 'audit.json'); if (fs.existsSync(f) && !args.force) continue;
+  const todo = ts.filter((t) => args.force || !fs.existsSync(path.join(dirOf(t.asin), 'audit.json')));
+  const worker = async () => { for (let t; (t = todo.shift()); ) {
+    const d = dirOf(t.asin); const f = path.join(d, 'audit.json');
     const cf = path.join(d, 'current.json'); const cur = fs.existsSync(cf) ? JSON.parse(fs.readFileSync(cf, 'utf8')) : { title: t.title, bullets: [], description: t.desc ?? '', images: t.image ? [t.image] : [], sizes: [], colors: [], detail: {}, rating: '', reviews: '' };
     const user = `ASIN: ${t.asin}（${t.frozen ? '売上上位：変更しない前提で診断のみ' : t.segment}）\nタイトル: ${cur.title}\n価格: ${cur.price || '¥' + t.price}\n評価: ${cur.rating || '不明'} / ${cur.reviews || 'レビュー数不明'}\n箇条書き:\n${cur.bullets.map((b) => '- ' + b).join('\n') || '(なし)'}\n説明文:\n${String(cur.description).slice(0, 2000) || '(なし)'}\n画像 ${cur.images.length} 枚: ${cur.images.slice(0, 9).map((u) => u.split('/').pop()).join(', ')}\nサイズ: ${cur.sizes.join('/') || '不明'}　カラー: ${cur.colors.join('/') || '不明'}\n商品詳細: ${JSON.stringify(cur.detail).slice(0, 1200)}\n90 日実績: セッション ${t.sessions90 ?? 0}、注文 ${t.units90 ?? 0}、CVR ${t.cvr90 ?? 0}%、売上 ¥${t.sales90 ?? 0}`;
-    try { const j = await chatJson([{ role: 'system', content: AUDIT_SYSTEM }, { role: 'user', content: user }], { maxTokens: 2500 }); j.asin = t.asin; j.frozen = !!t.frozen; j.auditedAt = new Date().toISOString(); fs.writeFileSync(f, JSON.stringify(j, null, 1)); n++; log('audited', t.asin, j.score, j.verdict); }
+    try { const j = await chatJson([{ role: 'system', content: AUDIT_SYSTEM }, { role: 'user', content: user }], { maxTokens: 4000 }); j.asin = t.asin; j.frozen = !!t.frozen; j.auditedAt = new Date().toISOString(); fs.writeFileSync(f, JSON.stringify(j, null, 1)); n++; log('audited', t.asin, j.score, j.verdict); }
     catch (e) { log('ERR audit', t.asin, e.message); fs.appendFileSync(path.join(OUT, 'errors.log'), `${new Date().toISOString()} audit ${t.asin} ${e.message}\n`); }
-  }
+  } };
+  await Promise.all(Array.from({ length: Number(args.concurrency ?? 4) }, worker));
   log('audited', n);
 };
 run['audit-report'] = function () {
   const all = [...JSON.parse(fs.readFileSync(path.join(OUT, 'frozen-top10.json'), 'utf8')).map((t) => ({ ...t, frozen: true })), ...JSON.parse(fs.readFileSync(TARGETS, 'utf8'))];
-  const rows = all.map((t) => { const f = path.join(OUT, t.asin, 'audit.json'); return fs.existsSync(f) ? { t, a: JSON.parse(fs.readFileSync(f, 'utf8')) } : null; }).filter(Boolean);
+  // 商品IDタイプ=EAN で出品された行は「商品ID」が JAN になり ASIN が分からない → ページ取得できず採点も無意味なので別枠
+  const isAsin = (x) => /^B0[A-Z0-9]{8}$|^[0-9]{9}[0-9X]$/.test(x); const noAsin = all.filter((t) => !isAsin(t.asin));
+  const rows = all.filter((t) => isAsin(t.asin)).map((t) => { const f = path.join(OUT, t.asin, 'audit.json'); return fs.existsSync(f) ? { t, a: JSON.parse(fs.readFileSync(f, 'utf8')) } : null; }).filter(Boolean);
   const sev = { high: 0, mid: 0, low: 0 }; const byArea = {}; for (const { a } of rows) for (const i of a.issues ?? []) { sev[i.severity] = (sev[i.severity] ?? 0) + 1; byArea[i.area] = (byArea[i.area] ?? 0) + 1; }
   const md = ['# Amazon 店铺深度审计报告（SARADEMUNT，只读诊断）', '', `审计日期：${new Date().toISOString().slice(0, 10)}　商品数：${rows.length}（其中销量 Top ${rows.filter((r) => r.t.frozen).length} 为「不改动」，仅诊断）`, '', `问题统计：high ${sev.high} / mid ${sev.mid} / low ${sev.low}`, '', '| 领域 | 问题数 |', '|---|---|', ...Object.entries(byArea).sort((a, b) => b[1] - a[1]).map(([k, v]) => `| ${k} | ${v} |`), '', '## 总览（按得分从低到高）', '', '| ASIN | 得分 | 90日会话 | 订单 | CVR | 状态 | 一句话结论 | 最优先修改 |', '|---|---|---|---|---|---|---|---|'];
   rows.sort((p, q) => (p.a.score ?? 0) - (q.a.score ?? 0));
   for (const { t, a } of rows) md.push(`| ${t.asin} | ${a.score ?? '-'} | ${t.sessions90 ?? 0} | ${t.units90 ?? 0} | ${t.cvr90 ?? 0}% | ${t.frozen ? '**不改动**' : t.segment} | ${a.verdict ?? ''} | ${(a.top_fixes ?? []).join('；')} |`);
+  if (noAsin.length) { md.push('', `## 未审计：商品ID 是 JAN、没有 ASIN（${noAsin.length} 件）`, '', '这些出品在「全出品レポート」里商品IDタイプ为 EAN，商品ID 是 JAN 码，报告里没有 ASIN，所以没法取商品页、没有打分。需要在卖家后台按 SKU 查到 ASIN 后再审计。', '', '| JAN | SKU | 商品名 |', '|---|---|---|'); for (const t of noAsin) md.push(`| ${t.asin} | ${[].concat(t.skus ?? []).join(" ")} | ${(t.title ?? '').slice(0, 60)} |`); }
   md.push('', '## 逐产品明细', '');
   for (const { t, a } of rows) { md.push(`### ${t.asin}　${(t.title ?? '').slice(0, 50)}`, '', `得分 ${a.score}　${t.frozen ? '（销量 Top，不改动，仅供参考）' : ''}`, '', '| 领域 | 严重度 | 问题 | 修改建议 |', '|---|---|---|---|'); for (const i of a.issues ?? []) md.push(`| ${i.area} | ${i.severity} | ${String(i.finding).replace(/\|/g, '／')} | ${String(i.fix).replace(/\|/g, '／')} |`); md.push(''); }
   const out = path.join(ROOT, 'docs/amazon-audit-report.md'); fs.writeFileSync(out, md.join('\n')); console.log(md.slice(0, 30).join('\n')); log('report →', path.relative(ROOT, out));
