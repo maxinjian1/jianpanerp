@@ -29,17 +29,17 @@ const CDP = args.cdp ?? 'http://127.0.0.1:9222';
 
 // カテゴリ別名 → ベストセラーのパス（node ID は Amazon.co.jp の公開ランキング URL から）
 const CATS = {
-  home: { name: 'ホーム＆キッチン', path: 'home' }, kitchen: { name: 'キッチン用品', path: 'kitchen' }, beauty: { name: 'ビューティー', path: 'beauty' }, hpc: { name: 'ドラッグストア', path: 'hpc' },
+  home: { name: 'ホーム＆キッチン', path: 'kitchen' }, kitchen: { name: 'キッチン用品', path: 'kitchen', node: '13938481' }, beauty: { name: 'ビューティー', path: 'beauty' }, hpc: { name: 'ドラッグストア', path: 'hpc' },
   fashion: { name: '服＆ファッション小物', path: 'fashion' }, lingerie: { name: 'レディースインナー', path: 'fashion', node: '2131487051' }, baby: { name: 'ベビー＆マタニティ', path: 'baby' }, toys: { name: 'おもちゃ', path: 'toys' },
   sports: { name: 'スポーツ＆アウトドア', path: 'sports' }, pet: { name: 'ペット用品', path: 'pet-supplies' }, electronics: { name: '家電＆カメラ', path: 'electronics' }, diy: { name: 'DIY・工具・ガーデン', path: 'diy' },
-  automotive: { name: '車＆バイク', path: 'automotive' }, office: { name: '文房具・オフィス用品', path: 'office-products' }, grocery: { name: '食品・飲料', path: 'food-beverage' }, jewelry: { name: 'ジュエリー', path: 'jewelry' }, watch: { name: '腕時計', path: 'watch' }, luggage: { name: 'バッグ・スーツケース', path: 'luggage' },
+  automotive: { name: '車＆バイク', path: 'automotive' }, office: { name: '文房具・オフィス用品', path: 'office-products' }, grocery: { name: '食品・飲料', path: 'food-beverage' }, jewelry: { name: 'ジュエリー', path: 'jewelry' }, watch: { name: '腕時計', path: 'watch' }, luggage: { name: 'バッグ・スーツケース', path: 'fashion', node: '2221077051' },
 };
 const listUrls = (c) => { const base = `https://www.amazon.co.jp/gp`; const node = c.node ? `/${c.node}` : ''; return { bestsellers: `${base}/bestsellers/${c.path}${node}`, newreleases: `${base}/new-releases/${c.path}${node}`, movers: `${base}/movers-and-shakers/${c.path}${node}` }; };
 const catDir = (k) => { const d = path.join(OUT, k); fs.mkdirSync(d, { recursive: true }); return d; };
 
-async function chatJson(messages, { maxTokens = 3000, retries = 3 } = {}) {
+async function chatJson(messages, { maxTokens = 4000, retries = 3 } = {}) {
   for (let i = 0; i < retries; i++) {
-    try { const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, temperature: 0.3, max_tokens: maxTokens, response_format: { type: 'json_object' }, messages }) }); const j = await r.json(); const c = j.choices?.[0]?.message?.content; if (!c) throw new Error('empty'); const m = c.match(/\{[\s\S]*\}/); return JSON.parse(m ? m[0] : c); }
+    try { const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, temperature: 0.3, max_tokens: maxTokens, response_format: { type: 'json_object' }, chat_template_kwargs: { enable_thinking: false, thinking: false }, messages }) }); const j = await r.json(); const c = j.choices?.[0]?.message?.content; if (!c) throw new Error('empty'); const m = c.match(/\{[\s\S]*\}/); return JSON.parse(m ? m[0] : c); }
     catch (e) { if (i === retries - 1) throw e; await sleep(1500 * (i + 1)); }
   }
 }
@@ -104,13 +104,15 @@ const run = {
     for (const k of cats) {
       const dir = catDir(k); const adir = path.join(dir, 'analysis'); fs.mkdirSync(adir, { recursive: true });
       const files = fs.readdirSync(dir).filter((f) => /^B0[A-Z0-9]{8}\.json$/.test(f)).slice(0, Number(args.limit ?? 60)); let n = 0;
-      for (const f of files) {
-        const out = path.join(adir, f); if (fs.existsSync(out) && !args.force) continue;
+      const todo = files.filter((f) => args.force || !fs.existsSync(path.join(adir, f)));
+      const worker = async () => { for (let f; (f = todo.shift()); ) {
+        const out = path.join(adir, f);
         const d = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
         const user = `カテゴリ: ${CATS[k]?.name ?? k}\nASIN: ${d.asin}　榜单: ${(d.lists ?? []).join('/')}　排名: ${JSON.stringify(d.rankIn ?? {})}\n标题: ${d.title}\n价格: ${d.price}　评分: ${d.rating}　评论数: ${d.reviewCount}\n品牌: ${d.brand}　卖家: ${d.seller}　配送: ${d.fulfilled}　发售: ${d.since || '不明'}\nBSR: ${d.bsr || '不明'}\n图片数: ${(d.images ?? []).length}　视频: ${d.hasVideo}　A+: ${d.hasAplus}　优惠券/特卖: ${d.couponOrSale}\n规格选项: ${(d.variants ?? []).slice(0, 15).join(' / ')}\n卖点:\n${(d.bullets ?? []).map((b) => '- ' + b).join('\n')}\n说明: ${String(d.description ?? '').slice(0, 1200)}\n评论样本:\n${(d.reviews ?? []).map((r) => `[${r.star}] ${r.title} — ${r.body}`).join('\n')}`;
         try { const j = await chatJson([{ role: 'system', content: SYS }, { role: 'user', content: user }]); fs.writeFileSync(out, JSON.stringify({ asin: d.asin, title: d.title, price: d.price, rating: d.rating, reviewCount: d.reviewCount, image: d.image ?? d.images?.[0], rankIn: d.rankIn, ...j }, null, 1)); n++; log('analyzed', k, d.asin, j.entry_score); }
         catch (e) { log('ERR analyze', d.asin, e.message); }
-      }
+      } };
+      await Promise.all(Array.from({ length: Number(args.concurrency ?? 4) }, worker));
       log(k, 'analyzed', n);
     }
   },

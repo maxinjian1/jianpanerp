@@ -33,26 +33,37 @@ const QUEUE = path.join(OUT, 'outreach-queue.json');
 const dirOf = (asin) => { const d = path.join(OUT, asin); fs.mkdirSync(d, { recursive: true }); return d; };
 const loadIn = () => { if (!args.in) throw new Error('--in <sourcing.json> を指定'); let a = JSON.parse(fs.readFileSync(path.resolve(ROOT, args.in), 'utf8')); if (args.asin) a = a.filter((x) => x.asin === args.asin); if (args.limit) a = a.slice(0, Number(args.limit)); return a; };
 
-async function chat(messages, { json = true, maxTokens = 2500, retries = 3, model = MODEL } = {}) {
+async function chat(messages, { json = true, maxTokens = 4000, retries = 3, model = MODEL } = {}) {
   for (let i = 0; i < retries; i++) {
-    try { const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model, temperature: 0.2, max_tokens: maxTokens, ...(json ? { response_format: { type: 'json_object' } } : {}), messages }) }); const j = await r.json(); const c = j.choices?.[0]?.message?.content; if (!c) throw new Error('empty'); if (!json) return c; const m = c.match(/\{[\s\S]*\}/); return JSON.parse(m ? m[0] : c); }
+    try { const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model, temperature: 0.2, max_tokens: maxTokens, chat_template_kwargs: { enable_thinking: false, thinking: false }, ...(json ? { response_format: { type: 'json_object' } } : {}), messages }) }); const j = await r.json(); const c = j.choices?.[0]?.message?.content; if (!c) throw new Error('empty'); if (!json) return c; const m = c.match(/\{[\s\S]*\}/); return JSON.parse(m ? m[0] : c); }
     catch (e) { if (i === retries - 1) throw e; await sleep(1500 * (i + 1)); }
   }
 }
 async function browser() { const { chromium } = await import('playwright'); const b = await chromium.connectOverCDP(CDP); const ctx = b.contexts()[0]; const page = await ctx.newPage(); return { b, ctx, page }; }
-const risky = (page) => /login|passport|punish|captcha|_____tmd_____|sec\.1688/i.test(page.url());
+// URL に加えて、同一 URL のままページ内に出る滑块（nc_ / baxia / punish）も検知する
+const risky = async (page) => /login|passport|punish|captcha|_____tmd_____|sec\.1688/i.test(page.url()) || await page.evaluate(() => !!document.querySelector('#nc_1_n1z, .nc-container, .nc_wrapper, #baxia-dialog-content, iframe[src*="punish"], iframe[src*="captcha"]') || /请拖动|滑块|拖动到最右|验证码|安全验证|访问被拒绝/.test(document.body?.innerText?.slice(0, 3000) ?? '')).catch(() => false);
 const num = (s) => Number(String(s ?? '').replace(/[^0-9.]/g, '')) || 0;
 
 async function scrapeOffers(page) {
   for (let y = 0; y < 5; y++) { await page.mouse.wheel(0, 1600); await sleep(600); }
   return page.evaluate(() => {
-    const cards = [...document.querySelectorAll('.offer-list-row-offer, .sm-offer-item, [class*="offer-item"], .space-offer-card-box, [data-h5-type="offerCard"]')];
+    const cards = [...document.querySelectorAll('.offer-list-row-offer, .sm-offer-item, [class*="offer-item"], .space-offer-card-box, [data-h5-type="offerCard"], .search-offer-item')];
     return cards.map((el) => {
       const t = (s) => el.querySelector(s)?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
       const a = el.querySelector('a[href*="detail.1688.com"], a[href*="offer/"]'); const url = a?.href ?? '';
       const text = el.innerText.replace(/\s+/g, ' ');
       return { url, offerId: (url.match(/offer\/(\d+)/) || [])[1] ?? '', title: t('.title, .offer-title, [class*="title"]') || a?.getAttribute('title') || '', price: (text.match(/¥\s*([0-9.]+)/) || [])[1] ?? '', moq: (text.match(/([0-9]+)\s*(件|个|套|双|条|只|箱)起批/) || [])[0] ?? '', sold: (text.match(/(成交|已售)\s*([0-9.]+万?\+?)/) || [])[0] ?? '', supplier: t('.company-name, [class*="company"], [class*="shop-name"]'), years: (text.match(/([0-9]+)\s*年/) || [])[1] ?? '', repurchase: (text.match(/回头率\s*([0-9.]+%)/) || [])[1] ?? '', image: el.querySelector('img')?.src ?? '', badges: ['实力商家', '源头工厂', '深度验厂', '一件代发', '48小时发货', '7天包换', '严选'].filter((b) => text.includes(b)) };
-    }).filter((x) => x.url);
+    }).map((x, i) => {
+      // 2026-10 の検索結果カード（.search-offer-item）は商品リンクが「似た商品を探す」(similar_search?offerIds=) で、店舗・旺旺は別リンク
+      const el = cards[i]; const text = el.innerText.replace(/\s+/g, ' ');
+      if (!x.offerId) { const m = (el.querySelector('a[href*="offerIds="]')?.href.match(/offerIds=(\d+)/) || []); if (m[1]) { x.offerId = m[1]; x.url = `https://detail.1688.com/offer/${m[1]}.html`; } }
+      const pm = text.match(/¥\s*([0-9]+)\s*(\.[0-9]+)?/); if (pm) x.price = pm[1] + (pm[2] ?? '');
+      const shop = el.querySelector('a[href*=".1688.com/"]:not([href*="s.1688.com"]):not([href*="air.1688.com"]):not([href*="r.1688.com"])');
+      if (!x.supplier) x.supplier = (el.innerText.split(/\n/).map((s) => s.trim()).reverse().find((s) => /(公司|厂|商行|店|经营部)$/.test(s)) ?? shop?.textContent?.trim() ?? '');
+      x.shopUrl = shop?.href ?? ''; x.wangwang = decodeURIComponent((el.querySelector('a[href*="uid="]')?.href.match(/uid=([^&]+)/) || [])[1] ?? '');
+      if (!x.sold) x.sold = (text.match(/全网\s*[0-9.]+万?\+?件|已售\s*[0-9.]+万?\+?件/) || [])[0] ?? '';
+      return x;
+    }).filter((x) => x.url && !/similar_search/.test(x.url));
   });
 }
 
@@ -63,12 +74,12 @@ const run = {
       const f = path.join(dirOf(it.asin), 'offers.json'); if (fs.existsSync(f) && !args.force) continue;
       const offers = new Map();
       for (const kw of (it.keywords ?? []).slice(0, 3)) {
-        try { await page.goto(`https://s.1688.com/selloffer/offer_search.htm?keywords=${encodeURIComponent(kw)}&sortType=va_rmdarkgmv30rt`, { waitUntil: 'domcontentloaded', timeout: 60000 }); await jitter(); if (risky(page)) { log('RISK/LOGIN', page.url()); await page.screenshot({ path: path.join(OUT, `risk-${Date.now()}.png`) }); break; }
+        try { await page.goto(`https://s.1688.com/selloffer/offer_search.htm?charset=utf8&keywords=${encodeURIComponent(kw)}&sortType=va_rmdarkgmv30rt`, { waitUntil: 'domcontentloaded', timeout: 60000 }); await jitter(); if (await risky(page)) { log('RISK — stop', page.url()); await page.screenshot({ path: path.join(OUT, `risk-${Date.now()}.png`) }); await page.close(); await b.close(); process.exit(3); }
           const got = await scrapeOffers(page); for (const o of got.slice(0, per)) if (!offers.has(o.offerId || o.url)) offers.set(o.offerId || o.url, { ...o, via: kw }); log('search', it.asin, kw, got.length); }
         catch (e) { log('ERR search', it.asin, kw, e.message); }
       }
       // 以图搜图（1688 画像検索 URL は仕様変更が多いので失敗しても続行）
-      if (it.image && !args['no-image']) { try { await page.goto(`https://s.1688.com/youyuan/index.htm?tab=imageSearch&imageAddress=${encodeURIComponent(it.image)}`, { waitUntil: 'domcontentloaded', timeout: 60000 }); await jitter(); if (!risky(page)) { const got = await scrapeOffers(page); for (const o of got.slice(0, per)) if (!offers.has(o.offerId || o.url)) offers.set(o.offerId || o.url, { ...o, via: 'image' }); log('image-search', it.asin, got.length); } } catch (e) { log('image-search skip', it.asin, e.message.slice(0, 80)); } }
+      if (it.image && !args['no-image']) { try { await page.goto(`https://s.1688.com/youyuan/index.htm?tab=imageSearch&imageAddress=${encodeURIComponent(it.image)}`, { waitUntil: 'domcontentloaded', timeout: 60000 }); await jitter(); if (!(await risky(page))) { const got = await scrapeOffers(page); for (const o of got.slice(0, per)) if (!offers.has(o.offerId || o.url)) offers.set(o.offerId || o.url, { ...o, via: 'image' }); log('image-search', it.asin, got.length); } } catch (e) { log('image-search skip', it.asin, e.message.slice(0, 80)); } }
       fs.writeFileSync(f, JSON.stringify({ asin: it.asin, title: it.title, price_jpy: it.price_jpy, image: it.image, target_cost_cny: it.target_cost_cny, offers: [...offers.values()] }, null, 1)); log(it.asin, 'offers', offers.size);
     }
     await page.close(); await b.close();
@@ -83,12 +94,12 @@ const run = {
       const content = [{ type: 'text', text: `Amazon 商品：${O.title}　价格 ${O.price_jpy}　目标采购价 ${O.target_cost_cny}\n1688 货品：\n${O.offers.slice(0, 20).map((o, i) => `${i + 1}. offerId=${o.offerId} | ${o.title} | ¥${o.price} | ${o.moq} | ${o.sold} | ${o.supplier} | ${o.years}年 | 回头率${o.repurchase} | ${o.badges.join('/')}`).join('\n')}` }];
       if (O.image) content.push({ type: 'text', text: 'Amazon 主图：' }, { type: 'image_url', image_url: { url: O.image } });
       for (const o of O.offers.slice(0, 8)) if (o.image) content.push({ type: 'text', text: `1688 offerId=${o.offerId} 图：` }, { type: 'image_url', image_url: { url: o.image.startsWith('//') ? 'https:' + o.image : o.image } });
-      try { const j = await chat([{ role: 'system', content: SYS }, { role: 'user', content }], { maxTokens: 3000, model: VISION_MODEL }); fs.writeFileSync(out, JSON.stringify({ asin: it.asin, ...j }, null, 1)); log('matched', it.asin, (j.best ?? []).length); }
+      try { const j = await chat([{ role: 'system', content: SYS }, { role: 'user', content }], { maxTokens: 4000, model: VISION_MODEL }); fs.writeFileSync(out, JSON.stringify({ asin: it.asin, ...j }, null, 1)); log('matched', it.asin, (j.best ?? []).length); }
       catch (e) { log('ERR match', it.asin, e.message); }
     }
   },
   async draft() {
-    const items = loadIn(); const queue = fs.existsSync(QUEUE) ? JSON.parse(fs.readFileSync(QUEUE, 'utf8')) : []; const seen = new Set(queue.map((q) => q.offerId));
+    const items = loadIn(); const queue = fs.existsSync(QUEUE) ? JSON.parse(fs.readFileSync(QUEUE, 'utf8')) : []; const seen = new Set(queue.map((q) => q.offerId)); const seenSup = new Set(queue.map((q) => q.supplier).filter(Boolean)); const cat = path.basename(path.dirname(path.resolve(ROOT, args.in)));
     const date = new Date().toISOString().slice(0, 10); const md = [`# 1688 候选供应商与首条问询（${date}）`, '', `> 发送前请审核：把 \`tools/sourcing-1688/out/outreach-queue.json\` 里要发的条目 approved 改为 true；或在 Windows 会话里说「批准全部」。微信：${WECHAT}`, ''];
     for (const it of items) {
       const d = dirOf(it.asin); const of = path.join(d, 'offers.json'), mf = path.join(d, 'match.json'); if (!fs.existsSync(of) || !fs.existsSync(mf)) continue;
@@ -97,14 +108,14 @@ const run = {
       md.push(`## ${it.asin}　${String(it.title).slice(0, 50)}`, '', `Amazon 售价 ${it.price_jpy}　目标采购价 ${it.target_cost_cny}`, '', '| 供应商 | 货品 | 价格 | 起批 | 成交 | 标签 | 同款 | 供应商分 | 链接 |', '|---|---|---|---|---|---|---|---|---|');
       for (const o of best) {
         const m = mi[o.offerId] ?? {}; md.push(`| ${o.supplier} | ${String(o.title).slice(0, 30)} | ¥${o.price} | ${o.moq} | ${o.sold} | ${o.badges.join('/')} | ${m.same_product ?? '-'} ${m.similarity ?? ''} | ${m.supplier_score ?? '-'} | [打开](${o.url}) |`);
-        if (seen.has(o.offerId)) continue;
-        const asks = (m.ask ?? []).slice(0, 2).join('；');
+        if (seen.has(o.offerId) || (o.supplier && seenSup.has(o.supplier))) continue; // 同じ供应商には 1 通だけ
+        let asks = (m.ask ?? []).slice(0, 2).join('；'); if (asks && !/起订|起批|MOQ/i.test(asks)) asks += '；起订量（MOQ）'; // 検索カードに起批が出ないので必ず確認
         const message = `您好，我们是${COMPANY}，在日本做 Amazon、楽天、Yahoo、Shopify 多平台销售。看到贵公司的「${String(o.title).slice(0, 30)}」，希望能拿到贵公司的产品长期合作。想先了解：${asks || '起订量、打样周期、是否支持一件代发到日本集货仓'}。方便的话可以加微信 ${WECHAT} 详聊吗？谢谢。`;
-        queue.push({ asin: it.asin, offerId: o.offerId, url: o.url, supplier: o.supplier, offerTitle: o.title, message, approved: args['approve-all'] === '1', status: 'pending', createdAt: new Date().toISOString() }); seen.add(o.offerId);
+        queue.push({ asin: it.asin, offerId: o.offerId, url: o.url, supplier: o.supplier, offerTitle: o.title, message, approved: args['approve-all'] === '1', status: 'pending', createdAt: new Date().toISOString() }); seen.add(o.offerId); if (o.supplier) seenSup.add(o.supplier);
       }
       md.push('');
     }
-    fs.writeFileSync(QUEUE, JSON.stringify(queue, null, 1)); const docDir = path.join(ROOT, 'docs/sourcing'); fs.mkdirSync(docDir, { recursive: true }); const outMd = path.join(docDir, `1688-候选供应商-${date}.md`); fs.writeFileSync(outMd, md.join('\n'));
+    fs.writeFileSync(QUEUE, JSON.stringify(queue, null, 1)); const docDir = path.join(ROOT, 'docs/sourcing'); fs.mkdirSync(docDir, { recursive: true }); const outMd = path.join(docDir, `1688-候选供应商-${cat}-${date}.md`); fs.writeFileSync(outMd, md.join('\n'));
     log('queue', queue.length, 'pending', queue.filter((q) => q.status === 'pending').length, '→', path.relative(ROOT, outMd));
   },
   async send() {
@@ -116,9 +127,9 @@ const run = {
     for (const q of todo) {
       if (budget <= 0) break;
       try {
-        await page.goto(q.url, { waitUntil: 'domcontentloaded', timeout: 60000 }); await jitter(); if (risky(page)) { log('RISK — stop', page.url()); await page.screenshot({ path: path.join(OUT, `risk-${Date.now()}.png`) }); break; }
+        await page.goto(q.url, { waitUntil: 'domcontentloaded', timeout: 60000 }); await jitter(); if (await risky(page)) { log('RISK — stop', page.url()); await page.screenshot({ path: path.join(OUT, `risk-${Date.now()}.png`) }); break; }
         const [popup] = await Promise.all([ctx.waitForEvent('page', { timeout: 20000 }).catch(() => null), page.getByText(/联系供应商|联系厂家|和我联系|在线咨询/).first().click({ timeout: 15000 })]);
-        const chat = popup ?? page; await chat.waitForLoadState('domcontentloaded'); await jitter(3000, 5000);
+        const chat = popup ?? page; await chat.waitForLoadState('domcontentloaded'); await jitter(3000, 5000); if (await risky(chat)) { log('RISK — stop', chat.url()); await chat.screenshot({ path: path.join(OUT, `risk-${Date.now()}.png`) }); await b.close(); process.exit(3); }
         const box = chat.locator('textarea, [contenteditable="true"], #chat-input, .send-textarea').first(); await box.waitFor({ timeout: 20000 });
         if (args.dry) { log('[dry] would send to', q.supplier, q.message.slice(0, 40)); if (popup) await popup.close(); continue; }
         await box.click(); await box.fill(q.message); await sleep(800); await chat.keyboard.press('Enter'); await sleep(1500);
