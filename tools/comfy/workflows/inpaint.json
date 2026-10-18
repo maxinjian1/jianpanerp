@@ -1,0 +1,226 @@
+{
+ "1": {
+  "class_type": "UnetLoaderGGUF",
+  "inputs": {
+   "unet_name": "flux1-fill-dev-Q8_0.gguf"
+  },
+  "_meta": {
+   "title": "FLUX.1 Fill dev Q8"
+  }
+ },
+ "2": {
+  "class_type": "DualCLIPLoader",
+  "inputs": {
+   "clip_name1": "clip_l.safetensors",
+   "clip_name2": "t5xxl_fp8_e4m3fn.safetensors",
+   "type": "flux"
+  }
+ },
+ "3": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "ae.safetensors"
+  }
+ },
+ "4": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "{{IMAGE}}"
+  },
+  "_meta": {
+   "title": "IMAGE"
+  }
+ },
+ "5": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "{{MASK}}"
+  },
+  "_meta": {
+   "title": "MASK（白=生成）"
+  }
+ },
+ "6": {
+  "class_type": "ImageScaleToTotalPixels",
+  "inputs": {
+   "image": [
+    "4",
+    0
+   ],
+   "upscale_method": "lanczos",
+   "megapixels": 1,
+   "resolution_steps": 16
+  }
+ },
+ "7": {
+  "class_type": "ImageScaleToTotalPixels",
+  "inputs": {
+   "image": [
+    "5",
+    0
+   ],
+   "upscale_method": "nearest-exact",
+   "megapixels": 1,
+   "resolution_steps": 16
+  }
+ },
+ "8": {
+  "class_type": "ImageToMask",
+  "inputs": {
+   "image": [
+    "7",
+    0
+   ],
+   "channel": "red"
+  }
+ },
+ "9": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "2",
+    0
+   ],
+   "text": "{{PROMPT}}"
+  },
+  "_meta": {
+   "title": "PROMPT"
+  }
+ },
+ "10": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "2",
+    0
+   ],
+   "text": "{{NEG}}"
+  },
+  "_meta": {
+   "title": "NEG"
+  }
+ },
+ "11": {
+  "class_type": "FluxGuidance",
+  "inputs": {
+   "conditioning": [
+    "9",
+    0
+   ],
+   "guidance": 30
+  }
+ },
+ "12": {
+  "class_type": "DifferentialDiffusion",
+  "inputs": {
+   "model": [
+    "1",
+    0
+   ]
+  }
+ },
+ "13": {
+  "class_type": "InpaintModelConditioning",
+  "inputs": {
+   "positive": [
+    "11",
+    0
+   ],
+   "negative": [
+    "10",
+    0
+   ],
+   "vae": [
+    "3",
+    0
+   ],
+   "pixels": [
+    "6",
+    0
+   ],
+   "mask": [
+    "8",
+    0
+   ],
+   "noise_mask": false
+  }
+ },
+ "14": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "12",
+    0
+   ],
+   "positive": [
+    "13",
+    0
+   ],
+   "negative": [
+    "13",
+    1
+   ],
+   "latent_image": [
+    "13",
+    2
+   ],
+   "seed": "{{SEED}}",
+   "steps": 28,
+   "cfg": 1,
+   "sampler_name": "euler",
+   "scheduler": "normal",
+   "denoise": 1
+  }
+ },
+ "15": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "14",
+    0
+   ],
+   "vae": [
+    "3",
+    0
+   ]
+  }
+ },
+ "16": {
+  "class_type": "GetImageSize",
+  "inputs": {
+   "image": [
+    "4",
+    0
+   ]
+  }
+ },
+ "17": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "image": [
+    "15",
+    0
+   ],
+   "upscale_method": "lanczos",
+   "width": [
+    "16",
+    0
+   ],
+   "height": [
+    "16",
+    1
+   ],
+   "crop": "disabled"
+  }
+ },
+ "18": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "17",
+    0
+   ],
+   "filename_prefix": "anet/inpaint"
+  }
+ }
+}

@@ -41,7 +41,7 @@ const srcList = (h) => { const d = path.join(SRC, h, 'src'); return fs.existsSyn
 function py(cmd, jobs) { const f = path.join(OUT, `_jobs-${cmd}-${process.pid}.json`); fs.writeFileSync(f, JSON.stringify(jobs)); const r = spawnSync(PY, [path.join(__dirname, 'compose.py'), cmd, f], { encoding: 'utf8', maxBuffer: 1 << 26 }); fs.unlinkSync(f); if (r.status !== 0) throw new Error(`compose ${cmd}: ${r.stderr.slice(-400)}`); return r.stdout.trim().split('\n').filter((l) => l.startsWith('{')).map((l) => JSON.parse(l)); }
 const b64 = (p) => `data:image/${p.endsWith('.png') ? 'png' : 'jpeg'};base64,${fs.readFileSync(p).toString('base64')}`;
 
-async function chatJson(messages, { maxTokens = 3000, retries = 3 } = {}) {
+async function chatJson(messages, { maxTokens = 4000, retries = 3 } = {}) {
   for (let i = 0; i < retries; i++) {
     try {
       const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, temperature: 0.2, max_tokens: maxTokens, response_format: { type: 'json_object' }, chat_template_kwargs: { enable_thinking: false }, reasoning_effort: 'low', messages }) });
@@ -83,6 +83,12 @@ const PLAN_SYS = `你是日本电商（楽天/Amazon/Shopify）的商品图美�
 - "bg_scene"：换成日本家庭/生活场景背景，商品原样放入（只用于 1-2 张，给出英文场景描述 scene_prompt，不能出现人、文字、其他品牌）
 - "upscale"：图片模糊或分辨率低于 1000px 时放大增强
 - "drop"：图很差（拼图、广告海报、全是文字、其他品牌）不建议使用
+硬性规则（违反会导致商品被破坏，必须遵守）：
+- 信息图（尺寸标注/箭头、颜色名称对照、使用步骤、前后对比、参数表、多视角拼图）→ 只能 "keep" 或 "pad_square"，**不许 remove_text / bg_white / bg_scene**：这些字是商品信息，擦掉会丢信息，抠图会把标注和示意图当成商品。
+- 商品被手/人/其他物体遮挡或手持 → **不许 bg_white / bg_scene**（抠出来会留下手指形状的缺口），只能 "keep" / "remove_text" / "pad_square"。
+- "remove_text" 只擦叠加在图上的促销口号、中文、水印、店铺名；保留尺寸、颜色名、型号等信息字。
+- "bg_scene" 只用于商品完整、无遮挡、无标注的单品实拍图。
+- 盗图警告、VIP/授权声明、店铺公告类图片 → "drop"。
 输出 JSON：{"category":"品类","main_n":主图编号,"images":[{"n":1,"ops":["remove_text","pad_square","bg_white"],"scene_prompt":"(bg_scene 时必填，英文)","why":"一句中文理由"}],"notes":"整体建议一句"}`;
 const QC_SYS = `你是商品图质检。第一张是原图，第二张是改后的图。请严格判断：
 1 same_product：是不是同一件商品（形状、颜色、印刷、配件一致）
@@ -122,7 +128,8 @@ const run = {
           const pm = path.join(wk, `${tag}-prodmask.png`); py('mask', [{ src: cur, out: pm }]);
           if (ops.includes('remove_text')) {
             const tm = path.join(wk, `${tag}-textmask.png`); const [r] = py('textmask', [{ src: cur, mask: pm, out: tm }]);
-            if (r?.boxes && haveWf('inpaint')) { const o = path.join(wk, `${tag}-notext.png`); await runWf('inpaint', { IMAGE: await upload(cur), MASK: await upload(tm), PROMPT: 'clean background, no text', NEG: 'text, letters, watermark', SEED: seed, SIZE }, o); cur = o; py('mask', [{ src: cur, out: pm }]); }
+            if (r?.boxes && (ops.includes('bg_white') || ops.includes('bg_scene'))) py('subtract', [{ mask: pm, sub: tm, out: pm }]); // 背景ごと差し替えるので文字は遮罩から外すだけ
+            else if (r?.boxes && haveWf('inpaint')) { const o = path.join(wk, `${tag}-notext.png`); await runWf('inpaint', { IMAGE: await upload(cur), MASK: await upload(tm), PROMPT: 'plain empty smooth surface, seamless continuation of the surrounding background and colors, clean product photo', NEG: 'letters, characters, words, captions, watermark, logo, symbols', SEED: seed, SIZE }, o); cur = o; py('mask', [{ src: cur, out: pm }]); }
           }
           if (ops.includes('bg_white') || ops.includes('bg_scene')) {
             const base = path.join(wk, `${tag}-base.jpg`), bm = path.join(wk, `${tag}-bgmask.png`), fm = path.join(wk, `${tag}-fgmask.png`);

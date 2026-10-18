@@ -42,6 +42,13 @@ def textmask(jobs):
         m = m.filter(ImageFilter.MaxFilter(7))
         m.save(j['out']); print(json.dumps({'textmask': j['out'], 'boxes': n, 'area': sum(1 for v in m.getdata() if v > 0) / (W * H)}))
 
+def subtract(jobs):
+    # 背景を差し替える画像は文字を AI で塗らず、商品遮罩から文字領域を引くだけ（FLUX Fill は文字枠に偽の文字を描くため）
+    for j in jobs:
+        m = load(j['mask']).convert('L'); t = load(j['sub']).convert('L').resize(m.size)
+        Image.composite(Image.new('L', m.size, 0), m, t.point(lambda v: 255 if v > 127 else 0)).save(j['out'])
+        print(json.dumps({'subtract': j['out']}))
+
 def _uniform_edge(im):
     W, H = im.size; strip = 6
     edges = [im.crop((0, 0, W, strip)), im.crop((0, H - strip, W, H)), im.crop((0, 0, strip, H)), im.crop((W - strip, 0, W, H))]
@@ -88,6 +95,13 @@ def composite(jobs):
             bg = Image.composite(Image.new('RGB', orig.size, (90, 90, 90)), bg, off)
         Image.composite(orig, bg, m.filter(ImageFilter.GaussianBlur(j.get('feather', 1.5)))).save(j['out'], quality=95)
 
+def _font(size):
+    from PIL import ImageFont
+    for f in ('C:/Windows/Fonts/YuGothM.ttc', 'C:/Windows/Fonts/meiryo.ttc', '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'):  # ラベルは中日文なので CJK フォント必須
+        try: return ImageFont.truetype(f, size)
+        except OSError: pass
+    return ImageFont.load_default()
+
 def sheet(jobs):
     for j in jobs:
         T = 520; rows = j['rows']; im = Image.new('RGB', (T * 2 + 30, len(rows) * (T + 34) + 10), 'white'); d = ImageDraw.Draw(im)
@@ -97,10 +111,10 @@ def sheet(jobs):
                 t = ImageOps.contain(load(p).convert('RGB'), (T, T)); x = 10 + k * (T + 10)
                 im.paste(t, (x + (T - t.width) // 2, y + (T - t.height) // 2))
             lab = (j.get('labels') or [''] * len(rows))[i]
-            d.text((12, y + T + 6), f'BEFORE  |  AFTER   {lab}'[:120], fill=(60, 60, 60))
+            d.text((12, y + T + 6), f'BEFORE  |  AFTER   {lab}'[:90], fill=(60, 60, 60), font=_font(15))
         im.save(j['out'], quality=85)
 
 if __name__ == '__main__':
     cmd, f = sys.argv[1], sys.argv[2]
     jobs = json.load(open(f, encoding='utf-8'))
-    {'mask': mask, 'textmask': textmask, 'pad': pad, 'prep_bg': prep_bg, 'composite': composite, 'sheet': sheet}[cmd](jobs)
+    {'mask': mask, 'textmask': textmask, 'subtract': subtract, 'pad': pad, 'prep_bg': prep_bg, 'composite': composite, 'sheet': sheet}[cmd](jobs)

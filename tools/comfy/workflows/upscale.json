@@ -1,0 +1,53 @@
+{
+ "1": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "{{IMAGE}}"
+  },
+  "_meta": {
+   "title": "IMAGE"
+  }
+ },
+ "2": {
+  "class_type": "UpscaleModelLoader",
+  "inputs": {
+   "model_name": "4x-UltraSharp.pth"
+  }
+ },
+ "3": {
+  "class_type": "ImageUpscaleWithModel",
+  "inputs": {
+   "upscale_model": [
+    "2",
+    0
+   ],
+   "image": [
+    "1",
+    0
+   ]
+  }
+ },
+ "4": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "image": [
+    "3",
+    0
+   ],
+   "upscale_method": "lanczos",
+   "width": "{{SIZE}}",
+   "height": 0,
+   "crop": "disabled"
+  }
+ },
+ "5": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "4",
+    0
+   ],
+   "filename_prefix": "anet/upscale"
+  }
+ }
+}
