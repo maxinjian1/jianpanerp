@@ -145,5 +145,9 @@
     "Lighting": "",
     "ToolsAndHomeImprovement": "",
     "Automotive": ""
+  },
+  "referralFee": {
+    "_note": "Amazon.co.jp 販売手数料の概算（税抜、売価×率）。不明は default=15%（高い側）。実際の料率は Seller Central 料金シミュレーターで確認して直す",
+    "default": 0.15
   }
 }

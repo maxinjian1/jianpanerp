@@ -36,6 +36,21 @@ const LATENCY = Number(args.latency ?? 1);          // 平日12時までのご�
 const SHIPPING = args.shipping ?? '全国送料無料';    // Seller Central の配送パターン名と一致させる
 const TITLE_MAX = Number(args['title-max'] ?? 65);
 const BULLET_MAX = 120, DESC_MAX = 1900, KW_MAX = 100;
+// ---------- Amazon 価格（2026-10-18 ユーザー確認：卸価格は税込・送料込み。Shopify は卸×1.15） ----------
+// Shopify 価格 = ceil(卸×1.15 / 10)×10 なので 卸 ≈ Shopify 価格 / 1.15（切り上げ分だけ高めに見積もる＝安全側）。
+// 税抜利益 = P/1.1 − 手数料率×P − 広告率×P/1.1 − 卸/1.1 が「200 円以上」かつ「税抜売価の 10% 以上」になる最小の P。
+// 手数料率はカテゴリーごとに category-map.json の referralFee（無ければ 15%＝最も高い側）。実際の料率は Seller Central の料金シミュレーターで確認する。
+const SHOPIFY_MARKUP = Number(args['shopify-markup'] ?? 1.15);
+const AD_RATE = Number(args['ad-rate'] ?? 0.05), MIN_PROFIT = Number(args['min-profit'] ?? 200), MIN_MARGIN = Number(args['min-margin'] ?? 0.10);
+function amazonPrice(shopifyPrice, type) {
+  const fee = MAP.referralFee?.[type] ?? MAP.referralFee?.default ?? 0.15;
+  const cost = Number(shopifyPrice) / SHOPIFY_MARKUP; const costEx = cost / 1.1;
+  const keep = 1 / 1.1 - fee - AD_RATE / 1.1; // 売価 1 円あたり手元に残る税抜額
+  const p = Math.max((costEx + MIN_PROFIT) / keep, costEx / (keep - MIN_MARGIN / 1.1));
+  const price = Math.ceil(p / 10) * 10;
+  return { price, cost: Math.round(cost), fee, profitEx: Math.round(price / 1.1 - fee * price - AD_RATE * price / 1.1 - costEx), markup: price / cost - 1 };
+}
+const PRICING = []; // build 時に out/pricing.tsv へ
 
 // Amazon.co.jp で使えない / 薬機法・景表法で危ない語（タイトル・箇条書きから除去 or 警告）
 const STRIP_RE = /送料無料|最安値?|激安|No\.?1|ナンバーワン|日本一|世界一|SALE|セール|限定|即納|正規品|【[^】]*】|★|☆|■|◆|●|◎|♪|！！+/g;
@@ -118,7 +133,7 @@ function rowsFor(p, cat) {
   const base = { feed_product_type: cat.feed_product_type, brand_name: BRAND, manufacturer: BRAND, recommended_browse_nodes: cat.browse_node, item_type_keyword: cat.item_type_keyword ?? '', update_delete: 'Update', currency: 'JPY', condition_type: 'New', country_of_origin: args.origin ?? 'CN', is_adult_product: 'FALSE',
     product_description: description(p, spec), generic_keywords: keywords(p, spec), manufacturer_contact_information: args.contact ?? '', ...Object.fromEntries(bullets(p, spec).map((b, i) => [`bullet_point${i + 1}`, b])) };
   const imgs = { main_image_url: img.main, ...Object.fromEntries(img.others.map((u, i) => [`other_image_url${i + 1}`, u])) };
-  const sell = (v) => ({ standard_price: String(Math.round(Number(v.price))), quantity: String(QTY), fulfillment_latency: String(LATENCY), merchant_shipping_group_name: SHIPPING, part_number: `ANET-${numId(v.id)}`, number_of_items: '1', item_package_quantity: '1' });
+  const sell = (v) => { const a = amazonPrice(v.price, cat.feed_product_type); PRICING.push({ handle: p.handle, variant: v.title ?? '', type: cat.feed_product_type, shopify: Math.round(Number(v.price)), ...a }); return { standard_price: String(a.price), quantity: String(QTY), fulfillment_latency: String(LATENCY), merchant_shipping_group_name: SHIPPING, part_number: `ANET-${numId(v.id)}`, number_of_items: '1', item_package_quantity: '1' }; };
   const vs = p.variants?.nodes ?? [];
   if (!vt || vs.length <= 1) return [{ ...base, ...imgs, ...sell(vs[0] ?? { price: 0, id: p.id }), item_sku: `ANET-V${numId(vs[0]?.id ?? p.id)}`, item_name: title(p, spec), parent_child: '', parent_sku: '', relationship_type: '', variation_theme: '' }];
   const parentSku = `ANET-P${numId(p.id)}`;
@@ -173,6 +188,11 @@ const run = {
       summary.push(`${type}: ${rows.length} 行（${rows.filter((r) => r.parent_child !== 'child').length} 商品）→ ${path.relative(ROOT, f)}${h.fromTemplate ? '' : '  [ヘッダは既定値。templates/' + type + '.headers.tsv を置くと公式ヘッダで出力]'}${unknown.size ? '  テンプレートに無い列（捨てた）: ' + [...unknown].join(',') : ''}`);
     }
     console.log(summary.join('\n'));
+    if (PRICING.length) { // 価格の根拠（卸の推定値・手数料率・税抜利益）を残す。利益 0 未満は出ない設計だが念のため件数を出す
+      fs.writeFileSync(path.join(OUT, 'pricing.tsv'), '\ufeff' + ['handle\tvariant\ttype\tshopify\tcost_est\tamazon\tfee\tmarkup\tprofit_ex_tax', ...PRICING.map((r) => [r.handle, r.variant, r.type, r.shopify, r.cost, r.price, r.fee, (r.markup * 100).toFixed(0) + '%', r.profitEx].join('\t'))].join('\r\n') + '\r\n');
+      const mk = PRICING.map((r) => r.markup).sort((a, b) => a - b);
+      log('pricing', PRICING.length, 'variants, markup median', (mk[mk.length >> 1] * 100).toFixed(0) + '%', 'loss', PRICING.filter((r) => r.profitEx < 0).length, '→', path.relative(ROOT, path.join(OUT, 'pricing.tsv')));
+    }
   },
   check() {
     const ps = loadProducts(); const lines = ['# 在庫ファイル点検', ''];
