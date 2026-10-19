@@ -5,6 +5,7 @@
  *   node tools/amazon-listing/build-inventory-file.mjs refresh             # Shopify から公開後の画像 URL / 価格を取り直す → out/products-live.json
  *   node tools/amazon-listing/build-inventory-file.mjs build [--type Home] [--limit 10] [--handles file] [--qty 50] [--latency 1] [--shipping 全国送料無料]
  *                                                                           # feed_product_type ごとに out/inventory-<type>.tsv（UTF-8 TSV、3 行ヘッダ）
+ *   build に --products <json> --out <dir> を付けると、その商品リスト（refresh と同じ形）で別ディレクトリに出力（tools/amazon-visual/visual.mjs watch が使う）
  *   node tools/amazon-listing/build-inventory-file.mjs check               # 禁止語・文字数・画像不足を点検 → out/check-report.md
  *
  * 入力：tools/product-images/out/products.json（pipeline fetch）＋ out/<handle>/spec.json（pipeline spec）
@@ -23,10 +24,10 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
 const IMG_OUT = path.resolve(ROOT, 'tools/product-images/out');
-const OUT = path.resolve(__dirname, 'out'); fs.mkdirSync(OUT, { recursive: true });
 const TPL = path.resolve(__dirname, 'templates');
 const stage = process.argv[2];
 const args = Object.fromEntries(process.argv.slice(3).map((a, i, arr) => a.startsWith('--') ? [a.slice(2), arr[i + 1] && !arr[i + 1].startsWith('--') ? arr[i + 1] : '1'] : []).filter(Boolean));
+const OUT = path.resolve(args.out ?? path.join(__dirname, 'out')); fs.mkdirSync(OUT, { recursive: true });
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const MAP = JSON.parse(fs.readFileSync(path.join(__dirname, 'category-map.json'), 'utf8'));
 
@@ -42,7 +43,7 @@ const BULLET_MAX = 120, DESC_MAX = 1900, KW_MAX = 100;
 // 手数料率はカテゴリーごとに category-map.json の referralFee（無ければ 15%＝最も高い側）。実際の料率は Seller Central の料金シミュレーターで確認する。
 const SHOPIFY_MARKUP = Number(args['shopify-markup'] ?? 1.15);
 const AD_RATE = Number(args['ad-rate'] ?? 0.05), MIN_PROFIT = Number(args['min-profit'] ?? 200), MIN_MARGIN = Number(args['min-margin'] ?? 0.10);
-function amazonPrice(shopifyPrice, type) {
+export function amazonPrice(shopifyPrice, type) {
   const fee = MAP.referralFee?.[type] ?? MAP.referralFee?.default ?? 0.15;
   const cost = Number(shopifyPrice) / SHOPIFY_MARKUP; const costEx = cost / 1.1;
   const keep = 1 / 1.1 - fee - AD_RATE / 1.1; // 売価 1 円あたり手元に残る税抜額
@@ -59,7 +60,7 @@ const WARN_RE = /治る|治す|完治|効く|効果|改善|痩せる|ダイエ�
 // ---------- 入力 ----------
 function loadProducts() {
   const live = path.join(OUT, 'products-live.json');
-  const f = fs.existsSync(live) ? live : path.join(IMG_OUT, 'products.json');
+  const f = args.products ? path.resolve(args.products) : fs.existsSync(live) ? live : path.join(IMG_OUT, 'products.json');
   if (!fs.existsSync(f)) throw new Error(`products.json が無い：先に pipeline fetch を実行（${f}）`);
   let all = JSON.parse(fs.readFileSync(f, 'utf8'));
   if (args.handles) { const set = new Set(fs.readFileSync(args.handles, 'utf8').split(/\r?\n/).map((s) => s.trim()).filter(Boolean)); all = all.filter((p) => set.has(p.handle)); }
@@ -71,7 +72,7 @@ const specOf = (p) => { const f = path.join(IMG_OUT, p.handle, 'spec.json'); ret
 const numId = (gid) => String(gid).split('/').pop();
 
 // ---------- カテゴリ ----------
-function categorize(p) {
+export function categorize(p) {
   const text = p.title; // タグは雑音が多い（色名・用途語）ので見ない
   for (const k of MAP.keywords) if (new RegExp(k.re).test(text)) return { feed_product_type: k.feed_product_type, approval: !!k.approval, by: 'keyword', browse_node: k.browse_node ?? MAP.browseNodes?.[k.feed_product_type] ?? '' };
   const t = MAP.byType[p.productType];
@@ -319,5 +320,7 @@ const run = {
     fs.writeFileSync(path.join(OUT, 'check-report.md'), lines.join('\n')); console.log(lines.slice(0, 40).join('\n')); if (lines.length > 40) console.log(`... 全文は out/check-report.md`);
   },
 };
-if (!run[stage]) { console.error('usage: classify | refresh | build | check'); process.exit(2); }
-Promise.resolve(run[stage]()).then(() => log('done', stage)).catch((e) => { console.error(e); process.exit(1); });
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) { // import 時（visual.mjs が amazonPrice を使う）は CLI を動かさない
+  if (!run[stage]) { console.error('usage: classify | refresh | build | check'); process.exit(2); }
+  Promise.resolve(run[stage]()).then(() => log('done', stage)).catch((e) => { console.error(e); process.exit(1); });
+}

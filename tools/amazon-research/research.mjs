@@ -22,19 +22,19 @@ const stage = process.argv[2];
 const argv = process.argv.slice(3); const args = {}; for (let i = 0; i < argv.length; i++) if (argv[i].startsWith('--')) { const k = argv[i].slice(2); const v = argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[++i] : '1'; args[k] = args[k] ? [].concat(args[k], v) : v; }
 const cats = [].concat(args.cat ?? []);
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const jitter = (a = 2000, b = 5000) => sleep(a + Math.random() * (b - a));
+export const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); export const jitter = (a = 2000, b = 5000) => sleep(a + Math.random() * (b - a));
 const env = Object.fromEntries((fs.existsSync(path.join(ROOT, '.env')) ? fs.readFileSync(path.join(ROOT, '.env'), 'utf8') : '').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#') && l.includes('=')).map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^"|"$/g, '')]; }));
 const LLM = (env.CN_LLM_BASE_URL || 'http://100.82.2.101:8199/v1').replace(/\/$/, ''), MODEL = env.CN_LLM_MODEL || 'GLM-5.3-Flash';
 const CDP = args.cdp ?? 'http://127.0.0.1:9222';
 
 // カテゴリ別名 → ベストセラーのパス（node ID は Amazon.co.jp の公開ランキング URL から）
-const CATS = {
+export const CATS = {
   home: { name: 'ホーム＆キッチン', path: 'kitchen' }, kitchen: { name: 'キッチン用品', path: 'kitchen', node: '13938481' }, beauty: { name: 'ビューティー', path: 'beauty' }, hpc: { name: 'ドラッグストア', path: 'hpc' },
   fashion: { name: '服＆ファッション小物', path: 'fashion' }, lingerie: { name: 'レディースインナー', path: 'fashion', node: '2131487051' }, baby: { name: 'ベビー＆マタニティ', path: 'baby' }, toys: { name: 'おもちゃ', path: 'toys' },
   sports: { name: 'スポーツ＆アウトドア', path: 'sports' }, pet: { name: 'ペット用品', path: 'pet-supplies' }, electronics: { name: '家電＆カメラ', path: 'electronics' }, diy: { name: 'DIY・工具・ガーデン', path: 'diy' },
   automotive: { name: '車＆バイク', path: 'automotive' }, office: { name: '文房具・オフィス用品', path: 'office-products' }, grocery: { name: '食品・飲料', path: 'food-beverage' }, jewelry: { name: 'ジュエリー', path: 'jewelry' }, watch: { name: '腕時計', path: 'watch' }, luggage: { name: 'バッグ・スーツケース', path: 'fashion', node: '2221077051' },
 };
-const listUrls = (c) => { const base = `https://www.amazon.co.jp/gp`; const node = c.node ? `/${c.node}` : ''; return { bestsellers: `${base}/bestsellers/${c.path}${node}`, newreleases: `${base}/new-releases/${c.path}${node}`, movers: `${base}/movers-and-shakers/${c.path}${node}` }; };
+export const listUrls = (c) => { const base = `https://www.amazon.co.jp/gp`; const node = c.node ? `/${c.node}` : ''; return { bestsellers: `${base}/bestsellers/${c.path}${node}`, newreleases: `${base}/new-releases/${c.path}${node}`, movers: `${base}/movers-and-shakers/${c.path}${node}` }; };
 const catDir = (k) => { const d = path.join(OUT, k); fs.mkdirSync(d, { recursive: true }); return d; };
 
 async function chatJson(messages, { maxTokens = 4000, retries = 3 } = {}) {
@@ -44,7 +44,34 @@ async function chatJson(messages, { maxTokens = 4000, retries = 3 } = {}) {
   }
 }
 async function browser() { const { chromium } = await import('playwright'); const b = await chromium.connectOverCDP(CDP); const ctx = b.contexts()[0]; const page = await ctx.newPage(); return { b, page }; }
-const blocked = (page) => /captcha|validateCaptcha|\/errors\/|ap\/signin/i.test(page.url());
+export const blocked = (page) => /captcha|validateCaptcha|\/errors\/|ap\/signin/i.test(page.url());
+
+// ---- ページ読み取り（tools/amazon-visual/visual.mjs からも使う）----
+/** ランキング一覧ページ（ベストセラー/新着/急上昇）→ [{asin, rank, title, price, rating, reviews, image}] */
+export const readList = (page) => page.evaluate(() => [...document.querySelectorAll('#gridItemRoot, .zg-grid-general-faceout, [data-asin].p13n-sc-uncoverable-faceout')].map((el) => {
+    const a = el.querySelector('a[href*="/dp/"]'); const asin = (a?.href.match(/\/dp\/([A-Z0-9]{10})/) || [])[1] || el.getAttribute('data-asin') || el.closest('[data-asin]')?.getAttribute('data-asin');
+    const t = (s) => el.querySelector(s)?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+    return { asin, rank: Number((t('.zg-bdg-text') || '').replace(/[^0-9]/g, '')) || null, title: t('._cDEzb_p13n-sc-css-line-clamp-3_g3dy1, ._cDEzb_p13n-sc-css-line-clamp-4_2q2cc, .p13n-sc-truncate-desktop-type2, [class*=line-clamp]'), price: t('._cDEzb_p13n-sc-price_3mJ9Z, .p13n-sc-price, .a-price .a-offscreen'), rating: t('.a-icon-alt'), reviews: t('.a-size-small:not(.a-color-price), a[href*="customerReviews"] span'), image: el.querySelector('img')?.src ?? '' };
+  }).filter((x) => x.asin));
+/** 商品詳細ページ → {title, price, rating, reviewCount, brand, seller, fulfilled, bullets, description, bsr, since, images, variants, reviews, …} */
+export const readDetail = (page) => page.evaluate(() => {
+    const txt = (s) => document.querySelector(s)?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+    const bullets = [...document.querySelectorAll('#feature-bullets li span.a-list-item')].map((e) => e.textContent.replace(/\s+/g, ' ').trim()).filter((s) => s && !/詳細はこちら|もっと見る/.test(s));
+    const body = document.body.innerText;
+    const bsr = (body.match(/Amazon 売れ筋ランキング:?\s*([\s\S]{0,300}?)(?:カスタマーレビュー|Amazon\.co\.jp での取り扱い開始日|$)/) || [])[1]?.replace(/\s+/g, ' ').trim() ?? '';
+    const since = (body.match(/取り扱い開始日\s*[:：]?\s*([0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2})/) || [])[1] ?? '';
+    const seller = txt('#sellerProfileTriggerId') || txt('#merchant-info'); const brand = txt('#bylineInfo').replace(/^ブランド[:：]\s*/, '').replace(/のストアを表示$/, '');
+    const reviews = [...document.querySelectorAll('[data-hook="review"]')].slice(0, 8).map((r) => ({ star: r.querySelector('[data-hook="review-star-rating"] .a-icon-alt, .review-rating .a-icon-alt')?.textContent?.trim() ?? '', title: r.querySelector('[data-hook="review-title"], [data-hook="reviewTitle"]')?.textContent?.replace(/\s+/g, ' ').trim() ?? '', body: r.querySelector('[data-hook="review-body"], [data-hook="reviewRichContentContainer"]')?.textContent?.replace(/\s+/g, ' ').trim().slice(0, 400) ?? '' })); // 2026-10 から reviewTitle / reviewRichContentContainer
+    // eval は Amazon の CSP で失敗する（images が常に空だった）→ 'initial' 区間から hiRes（無ければ large）の URL を順に拾う
+    const images = []; for (const s of document.scripts) { const t = s.textContent; const i = t.indexOf("'colorImages'"); if (i < 0) continue; const a = t.indexOf("'initial'", i); const e = t.indexOf("'colorToAsin'", a); const seg = t.slice(a, e > a ? e : a + 200000); const grab = (k) => [...seg.matchAll(new RegExp(`"${k}":"(https:[^"]+)"`, 'g'))].map((m) => m[1]); const hi = grab('hiRes'); images.push(...new Set(hi.length ? hi : grab('large'))); break; }
+    const variants = [...document.querySelectorAll('#twister li, #variation_color_name li, #variation_size_name li')].map((e) => e.getAttribute('title')?.replace(/^.*?選択\s*/, '') ?? e.textContent.trim()).filter(Boolean).slice(0, 30);
+    return { title: txt('#productTitle'), price: txt('.a-price .a-offscreen') || txt('#priceblock_ourprice'), rating: txt('#acrPopover .a-icon-alt'), reviewCount: txt('#acrCustomerReviewText'), brand, seller, fulfilled: /Amazon\.co\.jp が発送|Amazonが発送/.test(body) ? 'FBA' : 'FBM?', bullets, description: txt('#productDescription') || txt('#aplus_feature_div').slice(0, 1500), bsr, since, images, variants, reviews, hasAplus: !!document.querySelector('#aplus'), hasVideo: !!document.querySelector('#altImages .videoThumbnail, [data-video-url]'), couponOrSale: !!document.querySelector('#couponBadgeRegularVpc, .dealBadge, #dealBadgeSupportingText') };
+  });
+/** 検索結果ページ /s?k= → [{asin, pos, title, price, rating, reviews, image, sponsored}] */
+export const readSearch = (page) => page.evaluate(() => [...document.querySelectorAll('[data-component-type="s-search-result"][data-asin]')].map((el, i) => {
+  const t = (s) => el.querySelector(s)?.textContent?.replace(/s+/g, ' ').trim() ?? '';
+  return { asin: el.getAttribute('data-asin'), pos: i + 1, title: t('h2'), price: t('.a-price .a-offscreen'), rating: t('.a-icon-alt'), reviews: (el.querySelector('[aria-label$="件の評価"]')?.getAttribute('aria-label') ?? t('.s-underline-text')).replace(/[^0-9,]/g, ''), image: el.querySelector('img.s-image')?.src ?? '', sponsored: /スポンサー|Sponsored/.test(el.textContent) };
+}).filter((x) => x.asin));
 
 const run = {
   cats() { for (const [k, v] of Object.entries(CATS)) console.log(k.padEnd(12), v.name, listUrls(v).bestsellers); },
@@ -58,11 +85,7 @@ const run = {
         try {
           await page.goto(u, { waitUntil: 'domcontentloaded', timeout: 60000 }); await jitter(); if (blocked(page)) { log('BLOCKED', page.url()); await page.screenshot({ path: path.join(catDir(k), `blocked-${Date.now()}.png`) }); continue; }
           for (let y = 0; y < 6; y++) { await page.mouse.wheel(0, 1500); await sleep(500); } // 遅延読み込み
-          const got = await page.evaluate(() => [...document.querySelectorAll('#gridItemRoot, .zg-grid-general-faceout, [data-asin].p13n-sc-uncoverable-faceout')].map((el) => {
-            const a = el.querySelector('a[href*="/dp/"]'); const asin = (a?.href.match(/\/dp\/([A-Z0-9]{10})/) || [])[1] || el.getAttribute('data-asin') || el.closest('[data-asin]')?.getAttribute('data-asin');
-            const t = (s) => el.querySelector(s)?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
-            return { asin, rank: Number((t('.zg-bdg-text') || '').replace(/[^0-9]/g, '')) || null, title: t('._cDEzb_p13n-sc-css-line-clamp-3_g3dy1, ._cDEzb_p13n-sc-css-line-clamp-4_2q2cc, .p13n-sc-truncate-desktop-type2, [class*=line-clamp]'), price: t('._cDEzb_p13n-sc-price_3mJ9Z, .p13n-sc-price, .a-price .a-offscreen'), rating: t('.a-icon-alt'), reviews: t('.a-size-small:not(.a-color-price), a[href*="customerReviews"] span'), image: el.querySelector('img')?.src ?? '' };
-          }).filter((x) => x.asin));
+          const got = await readList(page);
           for (const g of got) { const prev = items.get(g.asin) ?? { asin: g.asin, lists: [] }; items.set(g.asin, { ...prev, ...Object.fromEntries(Object.entries(g).filter(([, v]) => v)), lists: [...new Set([...prev.lists, kind])], rank: prev.rank ?? g.rank, rankIn: { ...(prev.rankIn ?? {}), [kind]: g.rank } }); }
           log(k, kind, pg, got.length, 'items');
         } catch (e) { log('ERR', k, kind, e.message); }
@@ -80,18 +103,7 @@ const run = {
         const f = path.join(catDir(k), `${it.asin}.json`); if (fs.existsSync(f) && !args.force) continue;
         try {
           await page.goto(`https://www.amazon.co.jp/dp/${it.asin}?th=1&psc=1`, { waitUntil: 'domcontentloaded', timeout: 60000 }); await jitter(); if (blocked(page)) { log('BLOCKED', it.asin); await sleep(60000); continue; }
-          const d = await page.evaluate(() => {
-            const txt = (s) => document.querySelector(s)?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
-            const bullets = [...document.querySelectorAll('#feature-bullets li span.a-list-item')].map((e) => e.textContent.replace(/\s+/g, ' ').trim()).filter((s) => s && !/詳細はこちら|もっと見る/.test(s));
-            const body = document.body.innerText;
-            const bsr = (body.match(/Amazon 売れ筋ランキング:?\s*([\s\S]{0,300}?)(?:カスタマーレビュー|Amazon\.co\.jp での取り扱い開始日|$)/) || [])[1]?.replace(/\s+/g, ' ').trim() ?? '';
-            const since = (body.match(/取り扱い開始日\s*[:：]?\s*([0-9]{4}\/[0-9]{1,2}\/[0-9]{1,2})/) || [])[1] ?? '';
-            const seller = txt('#sellerProfileTriggerId') || txt('#merchant-info'); const brand = txt('#bylineInfo').replace(/^ブランド[:：]\s*/, '').replace(/のストアを表示$/, '');
-            const reviews = [...document.querySelectorAll('[data-hook="review"]')].slice(0, 8).map((r) => ({ star: r.querySelector('[data-hook="review-star-rating"] .a-icon-alt, .review-rating .a-icon-alt')?.textContent?.trim() ?? '', title: r.querySelector('[data-hook="review-title"]')?.textContent?.replace(/\s+/g, ' ').trim() ?? '', body: r.querySelector('[data-hook="review-body"]')?.textContent?.replace(/\s+/g, ' ').trim().slice(0, 400) ?? '' }));
-            const images = []; for (const s of document.scripts) { const m = s.textContent.match(/'colorImages':\s*\{\s*'initial':\s*(\[[\s\S]*?\])\s*\}/); if (m) { try { images.push(...eval(m[1]).map((x) => x.hiRes || x.large).filter(Boolean)); } catch {} break; } }
-            const variants = [...document.querySelectorAll('#twister li, #variation_color_name li, #variation_size_name li')].map((e) => e.getAttribute('title')?.replace(/^.*?選択\s*/, '') ?? e.textContent.trim()).filter(Boolean).slice(0, 30);
-            return { title: txt('#productTitle'), price: txt('.a-price .a-offscreen') || txt('#priceblock_ourprice'), rating: txt('#acrPopover .a-icon-alt'), reviewCount: txt('#acrCustomerReviewText'), brand, seller, fulfilled: /Amazon\.co\.jp が発送|Amazonが発送/.test(body) ? 'FBA' : 'FBM?', bullets, description: txt('#productDescription') || txt('#aplus_feature_div').slice(0, 1500), bsr, since, images, variants, reviews, hasAplus: !!document.querySelector('#aplus'), hasVideo: !!document.querySelector('#altImages .videoThumbnail, [data-video-url]'), couponOrSale: !!document.querySelector('#couponBadgeRegularVpc, .dealBadge, #dealBadgeSupportingText') };
-          });
+          const d = await readDetail(page);
           fs.writeFileSync(f, JSON.stringify({ ...it, ...d, fetchedAt: new Date().toISOString() }, null, 1)); log('detail', k, it.asin, d.title.slice(0, 30), d.reviews.length, 'reviews');
         } catch (e) { log('ERR detail', it.asin, e.message); }
       }
@@ -131,5 +143,7 @@ const run = {
     }
   },
 };
-if (!run[stage]) { console.error('usage: cats | collect | detail | analyze | report  (--cat <key> …)'); process.exit(2); }
-Promise.resolve(run[stage]()).then(() => log('done', stage)).catch((e) => { console.error(e); process.exit(1); });
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) { // import 時（visual.mjs）は CLI を動かさない
+  if (!run[stage]) { console.error('usage: cats | collect | detail | analyze | report  (--cat <key> …)'); process.exit(2); }
+  Promise.resolve(run[stage]()).then(() => log('done', stage)).catch((e) => { console.error(e); process.exit(1); });
+}
