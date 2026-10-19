@@ -287,3 +287,17 @@
 | マリンシューズ-ビーチサンダルタイプ-水陸両用-滑り止め-速乾-通気性-男女兼用 | 単品商品に SKU 追加が必要 | OB-02-W |
 | マリンシューズ-ビーチサンダルタイプ-水陸両用-滑り止め-速乾-通気性-男女兼用 | 単品商品に SKU 追加が必要 | 11110101010 |
 
+
+## 実行結果（2026-10-19 04:49–05:04 UTC、`apply`、--content / --stock なし）
+
+| フェーズ | 件数 | 成功 | 失敗 |
+|---|---|---|---|
+| draft（ACTIVE → DRAFT） | 56 | 56 | 0 |
+| update（価格 99 SKU／27 商品、variant 追加 5・削除 2） | 1131 | 1131 | 0 |
+| create（kjyf-scraper → ERP → publish-loop、ACTIVE） | 5 | 5 | 0（LLM タイムアウト 1 回、再試行で成功） |
+
+- 同期後に backup → plan をやり直すと、価格・variant・draft・create の差分は 0 件（収束を確認）。
+- タイトル・説明は変更していない（既定 OFF）：現行の説明は GLM 箇条書きの文章（画像なし）で、B2B の説明は大半が卸の画像だけ（合計 13,008 枚）、タイトルはキーワード羅列（平均 39→86 文字）。上書きするなら `apply --only update --content`。
+- 在庫は同期していない：Shopify アプリに read_inventory / write_inventory / read_locations スコープが無い。スコープ追加後に `apply --only update --stock`。
+- B2B 側の重複出品 298 件（別 good_id が同じ SKU）は作成しない。手作業 24 件（単品商品に SKU 追加が必要）は未対応。
+- ロールバック：`node tools/kjyf-b2b/sync.mjs rollback tools/kjyf-b2b/out/shopify-backup-2026-10-19T04-19-45.json`（新規 5 件は削除せず DRAFT）。
