@@ -301,3 +301,16 @@
 - 在庫は同期していない：Shopify アプリに read_inventory / write_inventory / read_locations スコープが無い。スコープ追加後に `apply --only update --stock`。
 - B2B 側の重複出品 298 件（別 good_id が同じ SKU）は作成しない。手作業 24 件（単品商品に SKU 追加が必要）は未対応。
 - ロールバック：`node tools/kjyf-b2b/sync.mjs rollback tools/kjyf-b2b/out/shopify-backup-2026-10-19T04-19-45.json`（新規 5 件は削除せず DRAFT）。
+
+## 追加実行（2026-10-19 06:0x UTC、ユーザー決定に基づく）
+
+- **価格は税込**（ユーザー確認）：B2B の卸価格（`skus[].price`）は税込。販売価格 = ceil(税込卸価格 × 1.15 / 10) × 10。
+- タイトル：現行の Shopify タイトルを維持（変更なし）。
+- 説明：`apply --only update --desc-only` で **534 件**を B2B（view 0）の説明に置き換え（失敗 0）。前後の backup を比較し、変わったのは説明 534 件だけで、タイトル・ステータス・価格の変更は 0 件。B2B 説明に日本語（かな）本文が無い 548 件は現行のまま。VIP・防盗の文言を含む説明は 0 件（真空断熱タンブラーの B2B 説明に画像は無い）。
+  - 説明だけ戻す：`node tools/kjyf-b2b/sync.mjs rollback tools/kjyf-b2b/out/shopify-backup-2026-10-19T05-05-12.json --desc-only`
+- 在庫：同期しない（ユーザー決定、在庫スコープは追加しない）。
+- 手作業 24 件（すべて good 34560 マリンシューズ）：**追加しない**。24 SKU（OB-02-B…W と 11111／11110101010）は別の Shopify 商品「マリンシューズ 水陸両用ビーチシューズ」（ACTIVE、多規格）に既にある。単品の「マリンシューズ ビーチサンダルタイプ」（OB-02-A だけ）は重複出品なので、追加すると同じ SKU が 2 商品に載る。単品側を DRAFT にするかは判断待ち。
+- hold 2 件：作成しない。
+  - 38282「xiejia」：B2B の副題は「补款链接-慎点慎拍」で、差額支払い用のリンク（商品ではない）。画像 0・説明なし・在庫 0。
+  - 33902 畳ベッド：SKU が無く価格も無い（旧サイトでも skus 空）。
+- B2B 側の重複 298 件：処理しない。

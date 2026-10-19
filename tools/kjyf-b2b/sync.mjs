@@ -11,6 +11,9 @@
  *     read_locations スコープが必要（2026-10-19 時点で無いので既定は OFF）
  *     --content：タイトル・説明も B2B（view 0）で上書き。既定 OFF：現行 Shopify の説明は GLM 箇条書き付きの文章で、
  *     B2B の説明は大半が卸の画像だけ・タイトルはキーワード羅列（平均 39→86 文字）のため、ユーザー確認待ち
+ *     --desc-only：説明（descriptionHtml）だけ上書き（2026-10-19 ユーザー決定「先使用，之后再换」、タイトルは現行維持）。
+ *     B2B 説明に日本語（かな）本文が無い／空／VIP・防盗の文言を含む商品は現行のまま。--content と同時指定不可
+ *   node tools/kjyf-b2b/sync.mjs rollback <backup.json> --desc-only   # 説明だけ戻す
  *   node tools/kjyf-b2b/sync.mjs rollback <backup.json>
  *
  * B2B API は匿名で呼ぶ（ログイン時と結果が同じことを 2026-10-19 調査で確認、docs/kjyf-b2b-调研.md）。間隔 1.1 秒。
@@ -189,6 +192,9 @@ function writeDoc(sum, update, draft, create, hold, manual, duplicate) {
 }
 
 // ───────────── 実行 ─────────────
+// 説明に使えるか：タグを除いた本文にかなを含み、VIP・防盗（卸の盗用防止画像の注記）を含まない
+const descText = (h) => String(h ?? '').replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;|&#d+;/g, ' ');
+const descUsable = (h) => /[぀-ヿ]/.test(descText(h)) && !/VIP|防盗|防盜/i.test(h);
 const LOG = path.join(OUT, 'sync-log.jsonl');
 const record = (o) => fs.appendFileSync(LOG, JSON.stringify({ at: new Date().toISOString(), ...o }) + '\n');
 class Guard { constructor(name, total) { Object.assign(this, { name, total, ok: 0, fail: 0, errors: [] }); }
@@ -217,10 +223,12 @@ async function apply() {
     g.end();
   }
   if (!only || only === 'update') {
-    const STOCK = argv.includes('--stock'), CONTENT = argv.includes('--content'); const locId = STOCK ? await locationId() : null; const todo = P.update.slice(0, limit); const g = new Guard('update', todo.length);
+    const STOCK = argv.includes('--stock'), CONTENT = argv.includes('--content'), DESC_ONLY = argv.includes('--desc-only');
+    if (CONTENT && DESC_ONLY) throw new Error('--content と --desc-only は同時に使えない'); const locId = STOCK ? await locationId() : null; const todo = P.update.slice(0, limit); const g = new Guard('update', todo.length);
     for (const u of todo) {
       if (!anet.has(u.id)) continue; let err = '';
       try {
+        if (DESC_ONLY && u.desc && descUsable(u.desc)) { const d = await gql(`mutation($i:ProductInput!){ productUpdate(input:$i){ userErrors{message} } }`, { i: { id: u.id, descriptionHtml: u.desc } }); err ||= ue(d.productUpdate); }
         if (CONTENT && (u.title || u.desc)) { const d = await gql(`mutation($i:ProductInput!){ productUpdate(input:$i){ userErrors{message} } }`, { i: { id: u.id, ...(u.title ? { title: u.title.to } : {}), ...(u.desc ? { descriptionHtml: u.desc } : {}) } }); err ||= ue(d.productUpdate); }
         if (!err && u.priceChanges.length) { const d = await gql(`mutation($p:ID!,$v:[ProductVariantsBulkInput!]!){ productVariantsBulkUpdate(productId:$p, variants:$v){ userErrors{message} } }`, { p: u.id, v: u.priceChanges.map((c) => ({ id: c.id, price: String(c.to) })) }); err ||= ue(d.productVariantsBulkUpdate); }
         if (!err && u.del.length) { const d = await gql(`mutation($p:ID!,$v:[ID!]!){ productVariantsBulkDelete(productId:$p, variantsIds:$v){ userErrors{message} } }`, { p: u.id, v: u.del.map((x) => x.id) }); err ||= ue(d.productVariantsBulkDelete); }
@@ -254,6 +262,7 @@ async function createViaErp(rows) {
 // ───────────── ロールバック ─────────────
 async function rollback(file) {
   const S = J(file); const now = await shopifyAll(); const cur = new Map(now.map((p) => [p.id, p]));
+  if (argv.includes('--desc-only')) { let n = 0, fail = 0; for (const p of S.products) { const c = cur.get(p.id); if (!c || c.descriptionHtml === p.descriptionHtml) continue; const d = await gql(`mutation($i:ProductInput!){ productUpdate(input:$i){ userErrors{message} } }`, { i: { id: p.id, descriptionHtml: p.descriptionHtml } }); ue(d.productUpdate) ? fail++ : n++; await sleep(250); } log('rollback desc ok', n, 'fail', fail); return; }
   let n = 0, fail = 0;
   for (const p of S.products) {
     const c = cur.get(p.id); if (!c) { log('消えた商品（再作成はしない）', p.handle); fail++; continue; }
