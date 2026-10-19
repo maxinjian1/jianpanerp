@@ -222,7 +222,13 @@ const dimsOf = (spec, desc = '', img = null) => {
 const vs1Color = (p) => { const vs = p.variants?.nodes ?? []; const so = vs[0]?.selectedOptions ?? []; const o = so.find((x) => COLORISH.test(x.name)) ?? (vs.length === 1 ? so.find((x) => x.value !== 'Default Title') : null); return o?.value ?? ''; };
 // 電池・充電式の商品は電池属性（種類・重量・リチウム量）が必要 → 自動では出さない
 const BATTERY_RE = /電池|バッテリー|充電|USB|ソーラー|LED|電動|リモコン|コードレス|ワイヤレス/;
+// p.amazonListing（tools/amazon-visual の listing：事実検証済みの商品名・箇条書き・説明・キーワード）があれば spec.json 由来の文案より優先
 function rowsFor(p, cat) {
+  const rows = rowsFor0(p, cat); const L = p.amazonListing; if (!L) return rows;
+  const bl = Object.fromEntries([0, 1, 2, 3, 4].map((i) => [`bullet_point${i + 1}`, L.bullets?.[i]?.t ?? '']));
+  return rows.map((r) => ({ ...r, ...bl, product_description: L.description || r.product_description, generic_keywords: L.keywords || r.generic_keywords, item_name: r.parent_child === 'child' ? `${L.title} ${[r.color_name, r.size_name].filter(Boolean).join(' ')}`.trim() : L.title }));
+}
+function rowsFor0(p, cat) {
   const spec = specOf(p); const img = images(p); const vt = variationTheme(p);
   const base = { feed_product_type: cat.feed_product_type, brand_name: BRAND, manufacturer: BRAND, recommended_browse_nodes: cat.browse_node, item_type_keyword: cat.item_type_keyword ?? '', update_delete: 'Update', currency: 'JPY', condition_type: 'New', country_of_origin: args.origin ?? 'CN', is_adult_product: 'FALSE',
     product_description: description(p, spec), included_components: cut((spec?.setContents ?? []).join('、'), 100), color_fallback: vs1Color(p), model_name: cut(spec?.shortTitle || p.title, 50),  generic_keywords: keywords(p, spec), manufacturer_contact_information: args.contact ?? '', ...Object.fromEntries(bullets(p, spec).map((b, i) => [`bullet_point${i + 1}`, b])) };

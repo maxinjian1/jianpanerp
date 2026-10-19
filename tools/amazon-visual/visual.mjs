@@ -9,6 +9,10 @@
  *   node tools/amazon-visual/visual.mjs review [--dry]        # Shopify に【Amazon審査】DRAFT を作る（どのチャネルにも公開しない。原商品は触らない）
  *   node tools/amazon-visual/visual.mjs watch                 # amazon-approved-a/-b の審査商品 → 在庫ファイル（TSV）を作る（dry-run。Amazon へのアップロードはしない）
  *   node tools/amazon-visual/visual.mjs watch --mark-listed --handles a,b   # Seller Central で処理成功を確認した後だけ：タグを amazon-listed に替える
+ *   node tools/amazon-visual/visual.mjs check                 # 鉄則の自己点検（主图 2000px・外周純白・商品長辺 ≈85%・後付け文字/小物なし、副图の数字の出典・禁止語）→ brief.check
+ *   node tools/amazon-visual/visual.mjs publish [--dry]       # 合格＋approved.txt の原商品の画像を A 案 7 枚に（旧画像は media-backup.json、pipeline.mjs rollback で戻せる）＋ tag amazon-pick
+ *   node tools/amazon-visual/visual.mjs collection            # 自動集合「Amazon おすすめ」（amazon-osusume、tag=amazon-pick）→ Online Store + Headless
+ *   node tools/amazon-visual/visual.mjs listing               # Amazon 出品データ（SARADEMUNT 商品名・箇条書き 5・説明・キーワード・amazonPrice）→ out/<h>/amazon-listing.json + docs/amazon-visual/<h>.md ＋ 在庫ファイル dry-run
  *   node tools/amazon-visual/visual.mjs all                   # pick〜render
  * 共通：--handle <h>（1 件だけ）/ --force（作り直し）/ --cdp http://127.0.0.1:9224（公開ページのみ、ログインしない）
  * 再実行可：各段は out/<handle>/ のファイルがあれば飛ばす。出力 out/ は git に入れない（preview は docs/amazon-visual/ にコピー）。
@@ -46,6 +50,8 @@ const yen = (s) => Number(String(s ?? '').replace(/[^0-9]/g, '')) || null;
 const starOf = (s) => Number((String(s).match(/(?:うち|中)\s*([0-9.]+)/) || String(s).match(/([0-9.]+)/) || [])[1]) || null; // 「5つ星のうち4.0」「星5つ中4つ」
 // 他社ブランド・IP（kjyf-b2b/compare-ja.mjs と同じ）
 const HOLD_RE = /W杯|ワールドカップ|世界杯|日本代表|FIFA|サッカー日本|オリンピック|五輪|ディズニー|Disney|サンリオ|Sanrio|キティ|Hello ?Kitty|ポケモン|Pokemon|ちいかわ|スヌーピー|ドラえもん|ミッキー|ジブリ|ナイキ|NIKE|アディダス|adidas|ルイ.?ヴィトン|LOUIS ?VUITTON|シャネル|CHANEL|グッチ|GUCCI|エルメス|HERMES|ロレックス|ダイソン|Dyson|iPhone|Apple|Galaxy|Switch|任天堂|ニンテンドー|PlayStation|SONY|ソニー|パナソニック|Panasonic|シャープ|SHARP|無印|ユニクロ|UNIQLO|ANKER|アンカー/i;
+// 画像の訴求に使わない注意書き（顧慮への答えにならない）
+const CAUTION_RE = /NG|ご注意|しないで|しない(?:で|こと)|避け|不可|禁止/;
 // 画像に入れない語（SOP 鉄則 4。送料無料は Amazon の画像に書かない）
 const NG_RE = /最強|No\.?\s*1|ナンバーワン|絶対|日本一|世界一|業界初|最安|激安|完璧|永久|治る|痩せ|医療|送料無料|保証付き/i;
 
@@ -232,6 +238,8 @@ const PLAN_SYS = `あなたは Amazon.co.jp の商品画像ディレクターで
 - 画像に書く数字・仕様は facts にあるものだけ。各テキストに根拠の factIds を付ける。facts で答えられない顧慮は answers に入れず unanswered に入れる。
 - 最強/No.1/絶対/日本一/世界一/業界初/最安/送料無料/医療効果/他社ブランド名は使わない。
 - 文字は短く：headline は 1 行 12 字以内（<br> で最大 2 行）、sub 24 字以内、points の t は 14 字以内。名詞止め。
+- concern の worry と points は同じ話題であること（例: 縫製が心配 → 縫製・補強についての fact が必要）。無関係な fact（素材名・ファスナー付き 等）で答えたことにしない。該当 fact が無い顧慮は unanswered へ。
+- concern の headline は顧慮に正面から答える肯定的な言い方（「〜NG」「ご注意」「〜しないで」のような注意書きは不可）。facts で正面から答えられない顧慮は concern に使わず、代わりに需求（容量・サイズ・軽さ等）の具体的な証拠を見せる。
 - img は自社原図の番号。文字の無い原図を優先。副图は着用（人物入り）でもよい。mainA/mainB は人が写っていない原図（白背景の商品単体が無ければ、物だけが写った scene）。
 JSON:
 {"answers":[{"topic":"T?","slide":"concern1|concern2|value|size|scene|set","factIds":["F1"]}],
@@ -248,7 +256,8 @@ JSON:
 async function reviews(p) {
   const b = brief(p); if (!b.competitors?.length) throw new Error('competitors 無し'); if (!ownClassify(p)) throw new Error('own.json 無し：先に teardown'); if (b.plan && !args.force) return;
   // 4-1 事実
-  if (!b.facts || args.force) { const r = await facts(p); b.facts = r.facts; b.factsDropped = r.dropped.map((f) => `${f.k}: ${f.v}（${f.src}）`); saveBrief(p, b); log('facts', b.facts.length, 'dropped', r.dropped.length); }
+  // facts の ID は plan-override から参照されるので --force では作り直さない（--refacts で作り直す）
+  if (!b.facts || args.refacts) { const r = await facts(p); b.facts = r.facts; b.factsDropped = r.dropped.map((f) => `${f.k}: ${f.v}（${f.src}）`); saveBrief(p, b); log('facts', b.facts.length, 'dropped', r.dropped.length); }
   // 4-2 レビュー（商品ページの上位レビュー。★別の一覧ページはログインが要るので使わない）
   const revs = []; for (const c of b.competitors) { const d = J(path.join(OUT, p.handle, 'comp', `${c.asin}.json`)); for (const r of d.reviews ?? []) if (r.body) revs.push({ asin: c.asin, star: starOf(r.star), title: r.title, body: r.body }); }
   const low = revs.filter((r) => r.star && r.star <= 3), high = revs.filter((r) => r.star && r.star >= 4); const use = [...low, ...high];
@@ -259,8 +268,10 @@ async function reviews(p) {
   const T = topics.filter((t) => t.count > 0).map((t) => ({ ...t, asins: [...t.asins] })).sort((a, z) => z.count - a.count);
   // 4-3 plan
   const own = ownClassify(p).images;
-  const pj = await chatJson([{ role: 'system', content: PLAN_SYS }, { role: 'user', content: `商品: ${p.title}\n客群: ${b.segment}\n\n顧慮（差評 ${low.length} 件から、件数順）:\n${T.filter((t) => t.type === 'concern').map((t) => `${t.id} ${t.ja}（${t.label}） ${t.count}件`).join('\n') || 'なし'}\n\n需求（好評 ${high.length} 件から）:\n${T.filter((t) => t.type === 'need').map((t) => `${t.id} ${t.ja}（${t.label}） ${t.count}件`).join('\n')}\n\n竞品画像の空白:\n${(b.gaps ?? []).map((g) => `- ${g.observation} → ${g.ours}（原図 ${g.useImages?.join(',')}）`).join('\n')}\n\nfacts:\n${b.facts.map((f) => `${f.id} ${f.k}: ${f.v}`).join('\n')}\n\n自社原図:\n${own.map((x) => `${x.n}. ${x.kind} ${x.angle} ${x.hasText ? '文字あり' : '文字なし'} ${x.hasPerson ? '人物' : ''} ${x.hasBrandLogo ? '他社ロゴ' : ''} ${x.caption}`).join('\n')}` }], { maxTokens: 5000 });
-  const v = validatePlan(pj, b.facts, own);
+  const pj = await chatJson([{ role: 'system', content: PLAN_SYS }, { role: 'user', content: `商品: ${p.title}\n客群: ${b.segment}\n\n顧慮（差評 ${low.length} 件から、件数順）:\n${T.filter((t) => t.type === 'concern').map((t) => `${t.id} ${t.ja}（${t.label}） ${t.count}件`).join('\n') || 'なし'}\n\n需求（好評 ${high.length} 件から）:\n${T.filter((t) => t.type === 'need').map((t) => `${t.id} ${t.ja}（${t.label}） ${t.count}件`).join('\n')}\n\n竞品画像の空白:\n${(b.gaps ?? []).map((g) => `- ${g.observation} → ${g.ours}（原図 ${g.useImages?.join(',')}）`).join('\n')}\n\nfacts:\n${b.facts.filter((f) => !/注意|ブランド|商品番号|型番|品番/.test(f.k)).map((f) => `${f.id} ${f.k}: ${f.v}`).join('\n')}\n\n自社原図:\n${own.map((x) => `${x.n}. ${x.kind} ${x.angle} ${x.hasText ? '文字あり' : '文字なし'} ${x.hasPerson ? '人物' : ''} ${x.hasBrandLogo ? '他社ロゴ' : ''} ${x.caption}`).join('\n')}` }], { maxTokens: 5000 });
+  // 人が直した内容（out/<h>/plan-override.json：slides の一部・unanswered）を重ねてから同じ検証にかける
+  const ovF = path.join(OUT, p.handle, 'plan-override.json'); if (fs.existsSync(ovF)) { const ov = J(ovF); pj.slides = { ...(pj.slides ?? {}), ...(ov.slides ?? {}) }; const tid = (o) => ({ ...o, topic: o.topic ?? T.find((t) => o.topicLike && t.label.includes(o.topicLike))?.id ?? o.topicLike }); if (ov.answers) pj.answers = [...(pj.answers ?? []).filter((a) => !ov.answers.some((o) => o.slide === a.slide)), ...ov.answers.map(tid)]; if (ov.unanswered) { const un = ov.unanswered.map(tid); pj.unanswered = [...(pj.unanswered ?? []).filter((u) => !un.some((x) => x.topic === u.topic)), ...un]; pj.answers = (pj.answers ?? []).filter((a) => !un.some((x) => x.topic === a.topic)); } log('plan-override 適用', Object.keys(ov.slides ?? {}).join(',')); }
+  const v = validatePlan(pj, b.facts, own); await verifyClaims(v, b.facts);
   const answeredBy = (t) => (v.answers ?? []).filter((a) => a.topic === t.id && a.factIds?.length).map((a) => ({ slide: a.slide, factIds: a.factIds }));
   b.concerns = T.filter((t) => t.type === 'concern').map((t) => ({ id: t.id, topic: t.label, ja: t.ja, count: t.count, asins: t.asins, examples: t.examples, answeredBy: answeredBy(t) }));
   b.needs = T.filter((t) => t.type === 'need').map((t) => ({ id: t.id, topic: t.label, ja: t.ja, count: t.count, asins: t.asins, examples: t.examples, answeredBy: answeredBy(t) }));
@@ -272,10 +283,23 @@ async function reviews(p) {
   b.tests = b.tests ?? [];
   saveBrief(p, b); log('plan', p.handle.slice(0, 30), 'concerns', b.concerns.length, 'needs', b.needs.length, 'unanswered', b.unanswered.length, 'removed', v.removed.length);
 }
+// 6kpro でもう一度：各テキストが引用した fact で本当に裏づけられているか（誇張・無関係な fact での「回答」を落とす）
+async function verifyClaims(v, facts) {
+  const byId = Object.fromEntries(facts.map((f) => [f.id, f])); const items = [];
+  for (const [k, s] of Object.entries(v.slides)) { const ids = [...new Set([...(s.points ?? []), ...(s.rows ?? []), ...(s.items ?? []), ...(s.notes ?? [])].flatMap((x) => x.factIds ?? []))];
+    if (s.headline) items.push({ k, f: 'headline', t: s.headline, ids, worry: s.worry }); if (s.sub) items.push({ k, f: 'sub', t: s.sub, ids, worry: s.worry }); for (const [arr, f] of [['points', 't'], ['rows', 'v'], ['items', 't'], ['notes', 't']]) (s[arr] ?? []).forEach((x, i) => items.push({ k, f: `${arr}.${i}`, t: x[f], ids: x.factIds ?? [], worry: s.worry })); }
+  const j = await chatJson([{ role: 'system', content: '商品画像の文言チェック。各行の文言が、付いている根拠 fact の内容だけで言えるか判定する。誇張（抜群・しっかり・丈夫・安心 等で根拠が無い）、fact に無い機能（折りたたみ 等）、worry（顧慮）への答えになっていないのに答えたように見せる文言は ok=false。JSON: {"r":[{"i":番号,"ok":bool,"why":"中文 20 字"}]}' }, { role: 'user', content: `facts:\n${facts.map((f) => `${f.id} ${f.k}: ${f.v}`).join('\n')}\n\n文言:\n${items.map((x, i) => `#${i} [${x.k}${x.worry ? ` 顧慮「${x.worry}」` : ''}] ${x.t.replace(/<br>/g, '')}  根拠: ${x.ids.map((id) => `${id}=${byId[id]?.v ?? '?'}`).join(' / ') || 'なし'}`).join('\n')}` }], { maxTokens: 3000 }).catch(() => null);
+  if (!j?.r) { v.removed.push('verifyClaims: 判定できず（未検証）'); return; }
+  for (const r of j.r) { if (r.ok !== false) continue; const x = items[r.i]; if (!x) continue; const s = v.slides[x.k]; v.removed.push(`${x.k}.${x.f}: ${x.t}（裏づけ不足：${r.why ?? ''}）`);
+    if (x.f === 'headline' || x.f === 'sub') s[x.f] = ''; else { const [arr, i] = x.f.split('.'); s[arr][Number(i)] = null; } }
+  for (const s of Object.values(v.slides)) { for (const arr of ['points', 'rows', 'items', 'notes']) if (s[arr]) s[arr] = s[arr].filter(Boolean); if ('headline' in s && !s.headline) s.headline = (s.points ?? s.items ?? [])[0]?.t ?? (s.rows?.length ? 'サイズ・仕様' : ''); }
+  if (v.slides.scene && !v.slides.scene.headline && v.slides.scene.sub) { v.slides.scene.headline = v.slides.scene.sub; v.slides.scene.sub = ''; }
+  if (v.slides.set && !v.slides.set.items.length) v.slides.set.items = [{ t: '本体 ×1', factIds: [] }];
+}
 // 数字が facts に無い・NG 語を含むテキストは消す（コードで強制）
 function validatePlan(pj, facts, own) {
-  const removed = []; const byId = Object.fromEntries(facts.map((f) => [f.id, f])); const allNums = new Set(facts.flatMap((f) => nums(f.v)));
-  const okText = (t, ids, where) => { if (!t) return ''; const s = String(t); if (NG_RE.test(s) || HOLD_RE.test(s)) { removed.push(`${where}: ${s}（NG 語）`); return ''; } const allowed = new Set((ids ?? []).flatMap((id) => nums(byId[id]?.v))); const bad = nums(s.replace(/<br>/g, '')).filter((n) => !allowed.has(n) && !allNums.has(n)); if (bad.length) { removed.push(`${where}: ${s}（数字 ${bad.join(',')} が facts に無い）`); return ''; } return s; };
+  const removed = []; const byId = Object.fromEntries(facts.map((f) => [f.id, f])); const brands = facts.filter((f) => /ブランド/.test(f.k)).map((f) => String(f.v).replace(/^ブランド[:：\s]*/, '').trim()).filter((x) => x.length >= 3); const allNums = new Set(facts.flatMap((f) => nums(f.v)));
+  const okText = (t, ids, where) => { if (!t) return ''; const s = String(t); if (NG_RE.test(s) || HOLD_RE.test(s) || CAUTION_RE.test(s) || brands.some((x) => s.includes(x)) || /ブランド/.test(s)) { removed.push(`${where}: ${s}（NG 語/注意書き）`); return ''; } const allowed = new Set((ids ?? []).flatMap((id) => nums(byId[id]?.v))); const bad = nums(s.replace(/<br>/g, '')).filter((n) => !allowed.has(n) && !allNums.has(n)); if (bad.length) { removed.push(`${where}: ${s}（数字 ${bad.join(',')} が facts に無い）`); return ''; } return s; };
   const okImg = (n) => own.find((o) => o.n === Number(n))?.n ?? null;
   const okMain = (n) => { const x = own.find((o) => o.n === Number(n)); return x && x.kind !== 'model' && x.kind !== 'infographic' && (!x.hasPerson || x.kind === 'scene') ? x.n : null; }; // hasBrandLogo は商品自体の刻印でも true になるので除外しない（警告に出す）
   const s = pj.slides ?? {}; const out = {};
@@ -319,6 +343,7 @@ const SLIDE_ZH = { main: '主图', value: '价值（需求最大点）', valueB:
 async function render(p) {
   const b = brief(p); if (!b.plan) throw new Error('plan 無し：先に reviews'); const own = ownClassify(p).images; const byN = Object.fromEntries(own.map((x) => [x.n, x]));
   const A = pdir(p, 'a'), B = pdir(p, 'b'), work = pdir(p, 'work');
+  if (args['main-b'] && args.handle) { const n = args['main-b'] === 'a' ? b.plan.mainA.img : Number(args['main-b']); b.plan.mainB = { img: n, why: args['main-b'] === 'a' ? 'B 案主图原图不合规（含非附带小物），改用与 A 相同的主图；A/B 只比较副图顺序' : '手动指定' }; saveBrief(p, b); }
   if (fs.existsSync(path.join(B, '07.jpg')) && fs.existsSync(path.join(OUT, p.handle, 'preview.jpg')) && !args.force) return;
   const src = (n) => path.join(OUT, p.handle, 'src', `${pad(n)}.jpg`);
   // 切り抜き（rembg、主图 A/B 用）
@@ -326,29 +351,37 @@ async function render(p) {
   for (const n of new Set([b.plan.mainA.img, b.plan.mainB.img])) if (!fs.existsSync(cut(n)) || args.force) jobs.push({ src: src(n), out: cut(n), box: boxFor(byN[n]) });
   py('cutout', jobs);
   // 副图の写真：文字入りの原図は cleanBox で切る。切れなければ切り抜きで代用
-  const crops = []; const photo = (n) => { const x = byN[n]; if (!x) return null; if (!x.hasText) return src(n); if (!okBox(x.cleanBox) || (x.cleanBox[2] - x.cleanBox[0]) * (x.cleanBox[3] - x.cleanBox[1]) < 0.25) return null; const o = path.join(work, `crop-${pad(n)}.jpg`); if ((!fs.existsSync(o) || args.force) && !crops.some((c) => c.out === o)) crops.push({ src: src(n), out: o, box: x.cleanBox }); return o; };
+  const crops = [], used = new Set(); let badCrops = new Set();
+  const photo = (n) => { const x = byN[n]; if (!x) return null; if (!x.hasText) return src(n); if (!okBox(x.cleanBox) || (x.cleanBox[2] - x.cleanBox[0]) * (x.cleanBox[3] - x.cleanBox[1]) < 0.25) return null; const o = path.join(work, `crop-${pad(n)}.jpg`); if (badCrops.has(o)) return null; used.add(o); if ((!fs.existsSync(o) || args.force) && !crops.some((c) => c.out === o)) crops.push({ src: src(n), out: o, box: x.cleanBox }); return o; };
   const S = b.plan.slides; const cutA = cut(b.plan.mainA.img), cutB = cut(b.plan.mainB.img);
   const imgOr = (n, fallbackCut) => { const f = n ? photo(n) : null; return f ? `<img class="ph" src="${furl(f)}">` : `<div style="width:100%;height:100%;padding:60px;background:#fff"><img class="ct" src="${furl(fallbackCut)}"></div>`; };
   const pts = (list) => list.map((q) => `<div class="pt"><i>✓</i><span>${esc(q.t)}</span></div>`).join('');
+  const big = (list) => list.map((q) => `<div class="pt" style="font-size:${String(q.t).length > 9 ? 58 : 66}px;padding:30px 30px;gap:20px"><i style="font-size:66px">✓</i><span>${esc(q.t)}</span></div>`).join('');
+  // 文字はスマホのサムネイルでも読める大きさ（見出し ≥ 画面幅 60%、要点 ≥ 画面高 4%＝64px@1600）
   const T = {
     main: (cutF) => `<div style="position:absolute;inset:0;background:#fff;display:flex;align-items:center;justify-content:center"><img src="${furl(cutF)}" style="width:${PX * 0.85}px;height:${PX * 0.85}px;object-fit:contain"></div>`,
-    value: (s, cutF) => `<div style="padding:90px 90px 0"><div class="chip">POINT</div><h1 style="margin-top:28px">${esc(s.headline)}</h1>${s.sub ? `<div class="sub">${esc(s.sub)}</div>` : ''}<div class="rule"></div></div>
-      <div class="panel" style="position:absolute;left:90px;right:${s.points.length ? 760 : 90}px;top:540px;bottom:90px">${imgOr(s.img, cutF)}</div>
-      <div style="position:absolute;right:90px;width:640px;top:540px;display:grid;gap:26px">${pts(s.points)}</div>`,
-    concern: (s, cutF) => `<div class="panel" style="position:absolute;left:0;top:0;width:${PX * 0.5}px;height:${PX}px;border-radius:0">${imgOr(s.img, cutF)}</div>
-      <div style="position:absolute;left:${PX * 0.5 + 70}px;right:80px;top:110px">${s.worry ? `<div style="font-size:36px;font-weight:700;color:${TH.sub};border-left:8px solid ${TH.line};padding:8px 0 8px 22px">「${esc(s.worry)}」</div>` : ''}<div class="chip" style="margin-top:46px">ANSWER</div><h1 style="margin-top:24px;font-size:72px">${esc(s.headline)}</h1><div class="rule"></div><div style="display:grid;gap:24px;margin-top:56px">${pts(s.points)}</div></div>`,
-    size: (s, cutF) => `<div style="padding:90px 90px 0"><div class="chip">SPEC</div><h1 style="margin-top:28px">${esc(s.headline)}</h1><div class="rule"></div></div>
-      <div style="position:absolute;left:90px;top:440px;width:${PX * 0.42}px;height:${PX * 0.6}px;display:flex;align-items:center;justify-content:center"><img class="ct" src="${furl(cutF)}"></div>
-      <div style="position:absolute;right:90px;top:460px;width:${PX * 0.46}px">${s.rows.map((r) => `<div style="display:flex;gap:26px;padding:28px 0;border-bottom:3px solid ${TH.line}"><div style="min-width:190px;font-size:34px;color:${TH.sub};font-weight:700">${esc(r.k)}</div><div style="font-size:40px;font-weight:900;line-height:1.35">${esc(r.v)}</div></div>`).join('')}</div>`,
-    scene: (s, cutF) => `<div style="position:absolute;inset:0">${imgOr(s.img, cutF)}</div><div style="position:absolute;left:0;right:0;bottom:0;padding:90px;background:linear-gradient(transparent,rgba(17,17,17,.72))">${s.tag ? `<div class="chip">${esc(s.tag)}</div>` : ''}<h1 style="color:#fff;margin-top:24px;text-shadow:0 2px 12px rgba(0,0,0,.35)">${esc(s.headline)}</h1>${s.sub ? `<div class="sub" style="color:#fff;opacity:.92">${esc(s.sub)}</div>` : ''}</div>`,
-    set: (s, cutF) => `<div style="padding:90px 90px 0"><div class="chip">SET</div><h1 style="margin-top:28px">${esc(s.headline)}</h1><div class="rule"></div></div>
-      <div style="position:absolute;left:90px;top:440px;width:${PX * 0.44}px;height:${PX * 0.56}px;display:flex;align-items:center;justify-content:center"><img class="ct" src="${furl(cutF)}"></div>
-      <div style="position:absolute;right:90px;top:460px;width:${PX * 0.42}px;display:grid;gap:24px">${pts(s.items)}${s.notes.map((q) => `<div style="font-size:32px;font-weight:700;color:${TH.sub};padding:10px 4px">・${esc(q.t)}</div>`).join('')}</div>`,
+    value: (s, cutF) => `<div style="position:absolute;left:70px;right:70px;top:70px"><h1 style="font-size:132px;line-height:1.15">${esc(s.headline)}</h1>${s.sub ? `<div class="sub" style="font-size:52px;margin-top:22px">${esc(s.sub)}</div>` : ''}</div>
+      <div class="panel" style="position:absolute;left:70px;top:560px;bottom:70px;width:${s.points.length ? 820 : PX - 140}px">${imgOr(s.img, cutF)}</div>
+      <div style="position:absolute;left:930px;right:70px;top:560px;bottom:70px;display:flex;flex-direction:column;justify-content:space-between;gap:28px">${big(s.points)}</div>`,
+    concern: (s, cutF) => `<div class="panel" style="position:absolute;left:0;top:0;width:${PX * 0.44}px;height:${PX}px;border-radius:0">${imgOr(s.img, cutF)}</div>
+      <div style="position:absolute;left:${PX * 0.44 + 60}px;right:60px;top:80px;bottom:70px;display:flex;flex-direction:column">${s.worry ? `<div style="font-size:50px;font-weight:700;color:${TH.sub};line-height:1.35">「${esc(s.worry)}」</div>` : ''}<div class="chip" style="font-size:44px;margin-top:40px;align-self:flex-start">ANSWER</div><h1 style="margin-top:26px;font-size:104px;line-height:1.18">${esc(s.headline)}</h1><div style="flex:1"></div><div style="display:grid;gap:26px">${big(s.points)}</div></div>`,
+    size: (s, cutF) => `<div style="position:absolute;left:70px;right:70px;top:70px"><h1 style="font-size:128px">${esc(s.headline)}</h1></div>
+      <div style="position:absolute;left:40px;top:330px;width:${PX * 0.42}px;bottom:70px;display:flex;align-items:center;justify-content:center"><img class="ct" src="${furl(cutF)}"></div>
+      <div style="position:absolute;left:${PX * 0.45}px;right:70px;top:330px;bottom:70px;display:flex;flex-direction:column;justify-content:center">${s.rows.map((r) => `<div style="padding:26px 0;border-bottom:4px solid ${TH.line}"><div style="font-size:44px;color:${TH.sub};font-weight:700">${esc(r.k)}</div><div style="font-size:68px;font-weight:900;line-height:1.25;margin-top:6px">${esc(r.v)}</div></div>`).join('')}</div>`,
+    scene: (s, cutF) => `<div style="position:absolute;inset:0">${imgOr(s.img, cutF)}</div><div style="position:absolute;left:0;right:0;bottom:0;padding:80px 70px;background:linear-gradient(transparent,rgba(17,17,17,.78) 35%)">${s.tag ? `<div class="chip" style="font-size:48px">${esc(s.tag)}</div>` : ''}<h1 style="color:#fff;margin-top:26px;font-size:132px;line-height:1.15;text-shadow:0 2px 12px rgba(0,0,0,.35)">${esc(s.headline)}</h1>${s.sub ? `<div style="color:#fff;font-size:56px;font-weight:700;margin-top:18px">${esc(s.sub)}</div>` : ''}</div>`,
+    set: (s, cutF) => `<div style="position:absolute;left:70px;right:70px;top:70px"><h1 style="font-size:128px">${esc(s.headline)}</h1></div>
+      <div style="position:absolute;left:40px;top:330px;width:${PX * 0.42}px;bottom:70px;display:flex;align-items:center;justify-content:center"><img class="ct" src="${furl(cutF)}"></div>
+      <div style="position:absolute;left:${PX * 0.45}px;right:70px;top:330px;bottom:70px;display:flex;flex-direction:column;justify-content:center;gap:26px">${big(s.items)}${s.notes.map((q) => `<div style="font-size:52px;font-weight:700;color:${TH.sub};line-height:1.35">・${esc(q.t)}</div>`).join('')}</div>`,
   };
   const slideHtml = (key, cutF) => { if (key === 'main') return page(T.main(cutF)); const s = S[key]; const tpl = key.startsWith('value') ? T.value : key.startsWith('concern') ? T.concern : T[key]; return page(tpl(s, cutF)); };
   const shots = []; const names = {};
   for (const [set, dir, cutF] of [['A', A, cutA], ['B', B, cutB]]) b.plan[set].forEach((key, i) => { const out = path.join(dir, `${pad(i + 1)}.jpg`); (names[set] ??= []).push({ n: i + 1, key, file: path.relative(path.join(OUT, p.handle), out).replace(/\\/g, '/') }); shots.push({ key, cutF, out }); });
-  const htmls = shots.map((s) => ({ ...s, html: slideHtml(s.key, s.cutF) })); py('crop', crops); // HTML を作る過程で crop が決まる → 先に作る
+  for (const s of shots) slideHtml(s.key, s.cutF); py('crop', crops); // HTML を作る過程で使う crop が決まる → 先に作る
+  // cleanBox で切っても卸の文字が残ることがある → 6kpro 視覚で確認し、文字が残る crop は切り抜き表示に替える
+  const ctF = path.join(work, 'croptext.json'); const ct = fs.existsSync(ctF) && !args.force ? J(ctF) : {}; const todo = [...used].filter((f) => !(path.basename(f) in ct));
+  if (todo.length) { const th = todo.map((f) => ({ src: f, out: f.replace(/\.jpg$/, '-t.jpg'), max: 512 })); py('thumbs', th); const r = await visionBatch('各画像に文字（日本語・中国語・英語の説明文、キャッチコピー、ラベル、透かし）が見えるか判定。商品本体に印刷・刻印された文字は除く。JSON: {"images":[{"n":1,"hasText":bool,"what":"見える文字 20 字以内"}]}', th.map((t) => t.out), '自社商品の切り抜き写真'); todo.forEach((f, i) => { ct[path.basename(f)] = r.find((x) => x.n === i + 1) ?? { hasText: true, what: '判定なし' }; }); W(ctF, ct); }
+  badCrops = new Set([...used].filter((f) => ct[path.basename(f)]?.hasText)); if (badCrops.size) log('文字が残る crop → 切り抜きで代用', [...badCrops].map((f) => path.basename(f)).join(','));
+  const htmls = shots.map((s) => ({ ...s, html: slideHtml(s.key, s.cutF) }));
   await renderHtml(htmls);
   b.render = { A: names.A, B: names.B, at: new Date().toISOString() };
   // 主图の自動点検（純白・文字・ロゴ・付属しない小物）
@@ -391,6 +424,7 @@ function summaryHtml(p, b, bUrls) {
     `<h3>A 案（本商品图片第 1〜7 张）</h3><p>${b.plan.A.map((k, i) => `${i + 1}.${SLIDE_ZH[k]}`).join(' / ')}<br>主图：原图 ${b.plan.mainA.img}（${e(b.plan.mainA.why)}）</p>`,
     `<h3>B 案（本商品图片第 8〜14 张）</h3><p>${b.plan.B.map((k, i) => `${i + 1}.${SLIDE_ZH[k]}`).join(' / ')}<br>主图：原图 ${b.plan.mainB.img}（${e(b.plan.mainB.why)}）</p>`,
     `<p>${bUrls.map((u, i) => `<img src="${u}" alt="B案 ${pad(i + 1)}" width="300" style="margin:4px">`).join('')}</p>`,
+    b.check ? `<h3>SOP 自检：${b.check.pass ? '合格' : '不合格'}</h3>${li([...b.check.issues.map((x) => `✗ ${e(x)}`), ...b.check.warn.map((x) => `⚠ ${e(x)}`), `A 主图像素：外周纯白 ${b.check.pixels.a.borderPureWhite}、商品长边占比 ${b.check.pixels.a.longSideRatio}、${b.check.pixels.a.w}px ${b.check.pixels.a.format}`])}` : '',
     b.render?.mainQa?.images ? `<h3>主图自动检查</h3>${li(b.render.mainQa.images.map((q) => `${q.n === 1 ? 'A' : 'B'}：白底 ${q.whiteBg ? 'OK' : 'NG'}／文字 ${q.hasText ? '有' : '无'}／Logo ${q.hasLogo ? '有' : '无'}／多余小物 ${q.extraProps ? '有' : '无'}／占比 ${e(q.productRatio)} ${e(q.note)}`))}` : ''].join('\n');
 }
 async function review(p) {
@@ -401,6 +435,16 @@ async function review(p) {
   if (args.dry) { log('dry', p.handle.slice(0, 30), '→ 【Amazon審査】', b.render.A.length, '+', b.render.B.length, '枚'); return; }
   const id = String(p.id).split('/').pop(); const files = [...b.render.A.map((x) => ['A', x]), ...b.render.B.map((x) => ['B', x])];
   const media = []; for (const [set, x] of files) media.push({ originalSource: await upload(path.join(OUT, p.handle, x.file), `amz-${id}-${set.toLowerCase()}-${pad(x.n)}.jpg`), mediaContentType: 'IMAGE', alt: `${set}案 ${pad(x.n)} ${SLIDE_ZH[x.key]}` });
+  if (exists) { // --force：既存の審査 DRAFT の画像と説明を作り直す（重複商品を作らない）
+    const old = (await gql(`query($id:ID!){ product(id:$id){ status media(first:60){ nodes{ id } } } }`, { id: exists.id })).product; if (old.status !== 'DRAFT') throw new Error('審査商品が DRAFT ではない');
+    const cm = await gql(`mutation($id:ID!,$m:[CreateMediaInput!]!){ productCreateMedia(productId:$id, media:$m){ media{ id } mediaUserErrors{ message } } }`, { id: exists.id, m: media }); if (cm.productCreateMedia.mediaUserErrors.length) throw new Error(cm.productCreateMedia.mediaUserErrors[0].message);
+    const ids = cm.productCreateMedia.media.map((m) => m.id); let urls = [];
+    for (let i = 0; i < 40; i++) { await sleep(3000); const m = await gql(`query($id:ID!){ product(id:$id){ media(first:60){ nodes{ id alt status ... on MediaImage{ image{ url } } } } } }`, { id: exists.id }); const mine = m.product.media.nodes.filter((x) => ids.includes(x.id)); if (mine.some((x) => x.status === 'FAILED')) throw new Error('media FAILED'); if (mine.length === ids.length && mine.every((x) => x.status === 'READY')) { urls = mine.filter((x) => /^B案/.test(x.alt ?? '')).map((x) => x.image.url); break; } }
+    await gql(`mutation($id:ID!,$m:[MoveInput!]!){ productReorderMedia(id:$id, moves:$m){ userErrors{ message } } }`, { id: exists.id, m: ids.map((x, i) => ({ id: x, newPosition: String(i) })) });
+    if (old.media.nodes.length) await gql(`mutation($id:ID!,$m:[ID!]!){ productDeleteMedia(productId:$id, mediaIds:$m){ mediaUserErrors{ message } } }`, { id: exists.id, m: old.media.nodes.map((x) => x.id) });
+    const u = await gql(`mutation($p:ProductUpdateInput!){ productUpdate(product:$p){ userErrors{ message } } }`, { p: { id: exists.id, descriptionHtml: summaryHtml(p, b, urls) } }); if (ue(u.productUpdate)) throw new Error(ue(u.productUpdate));
+    W(rf, { id: exists.id, adminUrl: adminUrl(exists.id), updatedAt: new Date().toISOString(), bImages: urls.length, status: 'DRAFT' }); log('review 更新', adminUrl(exists.id), `${ids.length} new / ${old.media.nodes.length} old`); return;
+  }
   // 画像は A 案 7 枚が先頭（1 枚目＝A 主图）。B 案 7 枚は 8 枚目以降（アプリに write_files が無いので、説明文の <img> 用に商品メディアに置く）
   const d = await gql(`mutation($p:ProductCreateInput!, $m:[CreateMediaInput!]){ productCreate(product:$p, media:$m){ product{ id handle variants(first:1){ nodes{ id } } } userErrors{ field message } } }`, { p: { title: `【Amazon審査】${p.title}`, vendor: 'ANET', productType: p.productType, status: 'DRAFT', tags: ['amazon-review', `amazon-src:${p.handle}`], descriptionHtml: summaryHtml(p, b, []) }, m: media });
   if (ue(d.productCreate)) throw new Error(ue(d.productCreate)); const prod = d.productCreate.product;
@@ -445,9 +489,134 @@ async function watch() {
   log(`dry-run：${path.relative(ROOT, dir)}/inventory-*.tsv を作成。Amazon へのアップロードはしていない。処理成功を確認したら watch --mark-listed --handles …`);
 }
 
+// ================= check（SOP 鉄則の自己点検。A 案＝公開する案）=================
+async function check(p) {
+  const b = brief(p); if (!b.render) throw new Error('render 無し'); const issues = []; const warn = [];
+  // 主图：2000px・JPEG・外周が純白 RGB255・商品の長辺が約 85%（コードで測る）
+  const mains = ['a', 'b'].map((s) => ({ s, src: path.join(OUT, p.handle, s, '01.jpg'), out: path.join(OUT, p.handle, 'work', `white-${s}.json`) })); py('whitecheck', mains);
+  const px = Object.fromEntries(mains.map((m) => [m.s, J(m.out)]));
+  for (const [s, r] of Object.entries(px)) { const tag = `${s.toUpperCase()}主图`; if (r.format !== 'JPEG' || r.mode !== 'RGB') issues.push(`${tag}：形式 ${r.format}/${r.mode}`); if (Math.max(r.w, r.h) < 2000) issues.push(`${tag}：长边 ${Math.max(r.w, r.h)}px`); if (r.borderPureWhite < 0.99) issues.push(`${tag}：外周纯白率 ${r.borderPureWhite}`); if (r.longSideRatio < 0.8 || r.longSideRatio > 0.9) issues.push(`${tag}：商品长边占比 ${r.longSideRatio}`); }
+  // 主图：文字・ロゴ・透かし・付属しない小物（6kpro 視覚。商品本体の印字は別扱い）
+  const th = mains.map((m) => ({ src: m.src, out: m.src.replace(/01\.jpg$/, '').replace(/[\\/]$/, '') + '-qa.jpg', max: 768 })); py('thumbs', th);
+  const q = await visionBatch('Amazon 主图の規約チェック。各画像について JSON: {"images":[{"n":1,"addedText":bool（画像に後から載せた文字・数字・透かし・枠）,"printOnProduct":"商品本体に印刷/刻印された文字やロゴ（無ければ空）","extraProps":bool（商品以外の物：ハンガー・フック・タグ・人体・家具など）,"pureWhiteBg":bool,"note":"問題点 中文 30 字以内"}]}', th.map((t) => t.out), '画像1=A案主图 画像2=B案主图');
+  for (const r of q) { const tag = `${r.n === 1 ? 'A' : 'B'}主图`; const bad = [r.addedText && '有后加文字/水印', r.extraProps && '有非附带小物', r.pureWhiteBg === false && '背景非纯白'].filter(Boolean); (r.n === 1 ? issues : warn).push(...bad.map((x) => `${tag}：${x}（${r.note ?? ''}）`)); if (r.printOnProduct) warn.push(`${tag}：商品本体印字「${r.printOnProduct}」——非 SARADEMUNT 的品牌名需确认`); }
+  // 副图：文字は validatePlan 済み。最終の slides を再点検（数字の出処・禁止語・他社/IP）
+  const allNums = new Set(b.facts.flatMap((f) => nums(f.v))); const texts = [];
+  for (const [k, s] of Object.entries(b.plan.slides)) for (const t of [s.worry, s.headline, s.sub, s.tag, ...(s.points ?? []).map((x) => x.t), ...(s.rows ?? []).map((x) => x.v), ...(s.items ?? []).map((x) => x.t), ...(s.notes ?? []).map((x) => x.t)]) if (t) texts.push([k, String(t)]);
+  for (const [k, t] of texts) { if (NG_RE.test(t) || HOLD_RE.test(t)) issues.push(`副图 ${k}：禁止语「${t}」`); const bad = nums(t.replace(/<br>/g, '')).filter((n) => !allNums.has(n)); if (bad.length) issues.push(`副图 ${k}：数字 ${bad.join(',')} 无出处`); }
+  b.check = { at: new Date().toISOString(), pass: !issues.length, issues, warn, pixels: px, vision: q }; saveBrief(p, b);
+  log('check', p.handle.slice(0, 30), b.check.pass ? 'PASS' : 'FAIL', issues.join(' / '), warn.length ? `warn ${warn.length}` : '');
+  if (!b.check.pass) process.exitCode = 1;
+}
+
+// ================= publish（A 案を原商品の画像に。用户 2026-10-20 承認：anetmc.com で展示、Amazon はまだ出さない）=================
+// バックアップは tools/product-images/out/<handle>/media-backup.json（pipeline.mjs rollback --handle <h> で元に戻せる形式。localDir に置換前の画像を保存）
+const PI_OUT = path.join(ROOT, 'tools/product-images/out');
+async function publishA(p) {
+  const b = brief(p); if (!b.check?.pass) throw new Error('check 未合格'); const approved = new Set(fs.readFileSync(path.join(ROOT, 'tools/product-images/approved.txt'), 'utf8').split(/\r?\n/).map((x) => x.trim()));
+  if (!approved.has(p.handle)) throw new Error('approved.txt に無い');
+  const bakF = path.join(PI_OUT, p.handle, 'media-backup.json'); const done = fs.existsSync(bakF) && J(bakF).by === 'amazon-visual';
+  const cur = (await gql(`query($id:ID!){ product(id:$id){ vendor tags media(first:60){ nodes{ id ... on MediaImage{ image{ url } } } } } }`, { id: p.id })).product;
+  if (cur.vendor !== 'ANET') throw new Error('vendor が ANET ではない');
+  if (done && !args.force) { log('publish 済み', p.handle.slice(0, 30)); } else {
+    if (args.dry) { log('[dry] replace', cur.media.nodes.length, '→ A 7', p.handle.slice(0, 30)); return; }
+    // 1) 置換前の画像を保存（rollback 用 localDir）
+    const old = cur.media.nodes.filter((m) => m.image?.url).map((m) => ({ id: m.id, url: m.image.url })); const localDir = 'amazon-pick-old';
+    for (const [i, m] of old.entries()) await download(m.url, path.join(PI_OUT, p.handle, localDir, `${pad(i + 1)}.jpg`));
+    // 2) A 案 7 枚を追加 → 処理待ち → 並べ替え → 旧画像を削除
+    const alts = { main: p.title, value: `${p.title} 特長`, valueB: `${p.title} 特長`, concern1: `${p.title} ディテール`, concern2: `${p.title} 収納・使い方`, size: `${p.title} サイズ・仕様`, scene: `${p.title} 使用シーン`, set: `${p.title} セット内容` };
+    const media = []; for (const x of b.render.A) media.push({ originalSource: await upload(path.join(OUT, p.handle, x.file), `amz-${String(p.id).split('/').pop()}-a-${pad(x.n)}.jpg`), mediaContentType: 'IMAGE', alt: alts[x.key] });
+    const cm = await gql(`mutation($id:ID!,$m:[CreateMediaInput!]!){ productCreateMedia(productId:$id, media:$m){ media{ id } mediaUserErrors{ message } } }`, { id: p.id, m: media });
+    if (cm.productCreateMedia.mediaUserErrors.length) throw new Error(cm.productCreateMedia.mediaUserErrors[0].message); const ids = cm.productCreateMedia.media.map((m) => m.id);
+    W(bakF, { productId: p.id, old, new: ids, localDir, by: 'amazon-visual', at: new Date().toISOString() }); // 先に書く（途中で落ちても rollback できる）
+    for (let i = 0; i < 40; i++) { await sleep(2000); const d = await gql(`query($id:ID!){ product(id:$id){ media(first:80){ nodes{ id status } } } }`, { id: p.id }); const mine = d.product.media.nodes.filter((m) => ids.includes(m.id)); if (mine.some((m) => m.status === 'FAILED')) throw new Error('media FAILED（旧画像は残したまま）'); if (mine.length === ids.length && mine.every((m) => m.status === 'READY')) break; }
+    await gql(`mutation($id:ID!,$m:[MoveInput!]!){ productReorderMedia(id:$id, moves:$m){ userErrors{ message } } }`, { id: p.id, m: ids.map((id, i) => ({ id, newPosition: String(i) })) });
+    const del = await gql(`mutation($id:ID!,$m:[ID!]!){ productDeleteMedia(productId:$id, mediaIds:$m){ deletedMediaIds mediaUserErrors{ message } } }`, { id: p.id, m: old.map((o) => o.id) });
+    if (del.productDeleteMedia.mediaUserErrors.length) throw new Error(del.productDeleteMedia.mediaUserErrors[0].message);
+    log('published A', p.handle.slice(0, 30), `${ids.length} new / ${old.length} old removed`);
+  }
+  if (!cur.tags.includes('amazon-pick')) { const t = await gql(`mutation($id:ID!){ tagsAdd(id:$id, tags:["amazon-pick"]){ userErrors{ message } } }`, { id: p.id }); if (ue(t.tagsAdd)) throw new Error(ue(t.tagsAdd)); log('tag amazon-pick', p.handle.slice(0, 30)); }
+}
+
+// ================= collection「Amazon おすすめ」（tag = amazon-pick の自動集合）→ Online Store + Headless =================
+async function collection() {
+  let c = (await gql(`{ collectionByHandle(handle:"amazon-osusume"){ id handle title } }`)).collectionByHandle;
+  if (!c) { const d = await gql(`mutation($i:CollectionInput!){ collectionCreate(input:$i){ collection{ id handle title } userErrors{ message } } }`, { i: { title: 'Amazon おすすめ', handle: 'amazon-osusume', descriptionHtml: '<p>Amazon の売れ筋と口コミを調べて選んだバッグ。</p>', ruleSet: { appliedDisjunctively: false, rules: [{ column: 'TAG', relation: 'EQUALS', condition: 'amazon-pick' }] }, sortOrder: 'MANUAL' } }); if (ue(d.collectionCreate)) throw new Error(ue(d.collectionCreate)); c = d.collectionCreate.collection; log('collection created', c.handle); }
+  const pubs = (await gql(`{ publications(first:20){ nodes{ id name } } }`)).publications.nodes.filter((x) => /online store|headless/i.test(x.name));
+  const r = await gql(`mutation($id:ID!,$in:[PublicationInput!]!){ publishablePublish(id:$id, input:$in){ userErrors{ message } } }`, { id: c.id, in: pubs.map((x) => ({ publicationId: x.id })) }); if (ue(r.publishablePublish)) throw new Error(ue(r.publishablePublish));
+  const v = (await gql(`query($id:ID!){ collection(id:$id){ productsCount{ count } resourcePublicationsV2(first:10){ nodes{ publication{ name } } } } }`, { id: c.id })).collection;
+  W(path.join(OUT, 'collection.json'), { id: c.id, handle: c.handle, url: `https://anetmc.com/collections/${c.handle}`, admin: `https://admin.shopify.com/store/${SHOP.replace(/\.myshopify\.com$/, '')}/collections/${c.id.split('/').pop()}`, products: v.productsCount.count, publications: v.resourcePublicationsV2.nodes.map((x) => x.publication.name) });
+  log('collection', c.handle, 'products', v.productsCount.count, 'pubs', v.resourcePublicationsV2.nodes.map((x) => x.publication.name).join(' / '));
+}
+
+// ================= listing（Amazon 出品データ。アップロードはしない）=================
+const LIST_SYS = `あなたは Amazon.co.jp の出品担当です。与えられた facts（出典付き事実）と顧客の需求・顧慮から、出品データを日本語で作ります。
+厳守：
+- 数字・仕様は facts にあるものだけ。各箇条書きに根拠の factIds。
+- 最強/No.1/絶対/日本一/世界一/最安/激安/送料無料/限定/セール/即納/正規品/医療効果/他社ブランド名/【】★■ などの記号は使わない。
+- title: 「SARADEMUNT 」で始め、商品の種類・主要な特徴・素材/用途を自然に並べる。全角換算 65 字以内。型番は入れない。
+- bullets: 5 本、各「【見出し】本文」ではなく「見出し：本文」の形で 100 字以内。需求の大きい順、顧慮への回答を含める。
+- description: 400〜800 字、です・ます調。
+- keywords: タイトルに無い検索語をスペース区切りで、全体 200 バイト以内（同義語・用途・シーン）。
+JSON: {"title":"","bullets":[{"t":"見出し：本文（1 つの文字列）","factIds":[]}],"description":"","keywords":""}`;
+async function listing(p) {
+  const b = brief(p); const f = path.join(OUT, p.handle, 'amazon-listing.json'); if (fs.existsSync(f) && !args.force) { log('listing あり', p.handle.slice(0, 30)); return; }
+  const j = await chatJson([{ role: 'system', content: LIST_SYS }, { role: 'user', content: `商品: ${p.title}\n版型: ${b.form}　客群: ${b.segment}\n需求: ${b.needs.map((x) => `${x.ja}(${x.count})`).join('、')}\n顧慮: ${b.concerns.map((x) => `${x.ja}(${x.count})`).join('、')}\nfacts:\n${b.facts.map((x) => `${x.id} ${x.k}: ${x.v}`).join('\n')}` }], { maxTokens: 4000 });
+  const byId = Object.fromEntries(b.facts.map((x) => [x.id, x])); const allNums = new Set(b.facts.flatMap((x) => nums(x.v))); const removed = [];
+  const ok = (t, where) => { const s = String(t ?? '').replace(/[【】★☆■◆●◎♪]/g, ' ').replace(/\s+/g, ' ').trim(); if (!s) return ''; if (NG_RE.test(s) || HOLD_RE.test(s) || /限定|セール|即納|正規品/.test(s)) { removed.push(`${where}: ${s}（禁止语）`); return ''; } const bad = nums(s).filter((n) => !allNums.has(n)); if (bad.length) { removed.push(`${where}: ${s}（数字 ${bad.join(',')} 无出处）`); return ''; } return s; };
+  let title = ok(j.title, 'title'); if (!title.startsWith('SARADEMUNT')) title = `SARADEMUNT ${title}`.trim(); if (title.length > 65) title = title.slice(0, 65).replace(/\s\S*$/, '');
+  // 箇条書き：形の揺れを吸収（{t} / {h,b} / 文字列）→ 本文の無いものは捨てる → 6kpro で裏づけ確認（誇張・fact に無い機能・注意書きの言い換えを落とす）
+  let bullets = (j.bullets ?? []).map((x, i) => { const t = typeof x === 'string' ? x : [x.t ?? x.text ?? x.title ?? x.h ?? x.head ?? '', x.body ?? x.b ?? x.d ?? ''].filter(Boolean).join(x.body || x.b || x.d ? '：' : ''); return { t: ok(t, `bullet${i + 1}`).slice(0, 120), factIds: ((typeof x === 'object' && x.factIds) || []).filter((id) => byId[id]) }; }).filter((x) => x.t && !/[：:]\s*$/.test(x.t) && x.t.replace(/^[^：:]*[：:]/, '').trim().length >= 8);
+  const factsTxt = b.facts.map((x) => `${x.id} ${x.k}: ${x.v}`).join('\n');
+  const verify = (list) => chatJson([{ role: 'system', content: 'Amazon 箇条書きの裏づけチェック。商品の性質・機能・性能についての主張が根拠 fact に無いもの（撥水・丈夫・しっかり・底板付き 等）、注意事項を長所のように書いたものだけ ok=false。用途の言い換え（〜に便利、持ち運びやすい）や fact の数値・仕様の言い換えは ok=true。JSON: {"r":[{"i":番号,"ok":bool,"why":"中文 20 字"}]}' }, { role: 'user', content: `facts:\n${factsTxt}\n\n${list.map((x, i) => `#${i} ${x.t}  根拠: ${x.factIds.join(',') || 'なし'}`).join('\n')}` }], { maxTokens: 1500 }).catch(() => null);
+  // 裏づけ不足の行は 1 回だけ fact の言葉で書き直させて再判定、それでも駄目なら捨てる
+  let vr = await verify(bullets);
+  if (vr?.r) {
+    const badIdx = vr.r.filter((r) => r.ok === false).map((r) => r.i).filter((i) => bullets[i]);
+    if (badIdx.length) {
+      const rw = await chatJson([{ role: 'system', content: '次の Amazon 箇条書きを、指摘を直して facts の内容だけで書き直す。「見出し：本文」1 つの文字列、100 字以内、誇張なし、注意事項は書かない。JSON: {"bullets":[{"i":番号,"t":"","factIds":[]}]}' }, { role: 'user', content: `facts:\n${factsTxt}\n\n${badIdx.map((i) => `#${i} ${bullets[i].t}  指摘: ${vr.r.find((r) => r.i === i)?.why ?? ''}`).join('\n')}` }], { maxTokens: 1500 }).catch(() => null);
+      const fixed = (rw?.bullets ?? []).filter((x) => badIdx.includes(x.i)).map((x) => ({ i: x.i, t: ok(x.t, `bullet-rw${x.i}`).slice(0, 120), factIds: (x.factIds ?? []).filter((id) => byId[id]) })).filter((x) => x.t);
+      const vr2 = fixed.length ? await verify(fixed) : null; const good = new Set((vr2?.r ?? []).filter((r) => r.ok !== false).map((r) => r.i));
+      for (const i of badIdx) { const k = fixed.findIndex((x) => x.i === i); if (k >= 0 && good.has(k)) { removed.push(`bullet 書き直し: ${bullets[i].t} → ${fixed[k].t}`); bullets[i] = { t: fixed[k].t, factIds: fixed[k].factIds }; } else { removed.push(`bullet: ${bullets[i].t}（裏づけ不足：${vr.r.find((r) => r.i === i)?.why ?? ''}）`); bullets[i] = null; } }
+      bullets = bullets.filter(Boolean);
+    }
+  } else removed.push('bullets: 裏づけ確認できず（未検証）');
+  bullets = bullets.slice(0, 5); if (bullets.length < 5) removed.push(`bullets が ${bullets.length} 本（5 本未満：裏づけのある事実が足りない）`);
+  const description = ok(j.description, 'description').slice(0, 1900); let keywords = ok(j.keywords, 'keywords'); while (Buffer.byteLength(keywords) > 200) keywords = keywords.replace(/\s*\S+$/, '');
+  const cat = categorize(p); const prices = p.variants.map((v) => ({ sku: v.sku, variant: v.title, shopify: Number(v.price), ...amazonPrice(v.price, cat.feed_product_type) }));
+  const out = { handle: p.handle, brand: 'SARADEMUNT', feed_product_type: cat.feed_product_type, title, bullets, description, keywords, prices, fulfillment: '出品者出荷', shipping: '全国送料無料', images: 'anetmc.com 商品画像（A 案 7 枚）', removed, at: new Date().toISOString(), uploaded: false };
+  W(f, out); log('listing', p.handle.slice(0, 30), title.length, '字', bullets.length, 'bullets', removed.length ? `removed ${removed.length}` : '');
+  // docs：中文摘要 + 日文原文
+  const id = String(p.id).split('/').pop(); const r = fs.existsSync(path.join(OUT, p.handle, 'review.json')) ? J(path.join(OUT, p.handle, 'review.json')) : {};
+  const md = [`# ${p.title}`, '', `- anetmc.com：https://anetmc.com/products/${p.handle}`, `- 审核用 DRAFT（B 案保留）：${r.adminUrl ?? '-'}`, `- A/B 对比：[preview](${id}-preview.jpg)`, `- Amazon 预计价：${[...new Set(prices.map((x) => `¥${x.price}`))].join(' / ')}（Shopify ${[...new Set(prices.map((x) => `¥${x.shopify}`))].join(' / ')}，类目 ${cat.feed_product_type}，手续费 ${Math.round(prices[0].fee * 100)}%）；**未上传 Amazon**`, '',
+    '## 中文摘要', '', `- 关键词：${b.keywords.join(' / ')}；版型 ${b.form}；客群 ${b.segment}`, `- 竞品 ${b.competitors.length} 件：${b.competitors.map((c) => `${c.asin}（${c.price}，★${c.rating ?? '-'}，${c.reviews ?? '-'} 评）`).join('、')}`, `- 大家都一样：${(b.teardown?.same ?? []).join('；')}`, `- 没人展示：${(b.gaps ?? []).map((g) => g.observation).join('；')}`,
+    `- 顾虑：${b.concerns.map((c) => `${c.topic} ${c.count}${c.answeredBy.length ? '' : '（未答）'}`).join('、') || '无'}`, `- 需求：${b.needs.map((c) => `${c.topic} ${c.count}`).join('、')}`, `- 答不了（要问供应商）：${b.unanswered.map((u) => u.topic).join('、') || '无'}`,
+    `- A 案（已上 anetmc.com）：${b.plan.A.map((k, i) => `${i + 1}.${SLIDE_ZH[k]}`).join(' / ')}，主图原图 ${b.plan.mainA.img}；B 案（留在 DRAFT）：${b.plan.B.map((k, i) => `${i + 1}.${SLIDE_ZH[k]}`).join(' / ')}，主图原图 ${b.plan.mainB.img}`,
+    `- 自检：${b.check?.pass ? '合格' : '不合格'}${b.check?.issues?.length ? '（' + b.check.issues.join('；') + '）' : ''}${b.check?.warn?.length ? '；注意：' + b.check.warn.join('；') : ''}`, ...(removed.length ? [`- 出品文案里被自动删掉的：${removed.join('；')}`] : []), '',
+    '## Amazon 出品データ（日本語原文）', '', `**商品名**（${title.length} 字）`, '', title, '', '**箇条書き**', '', ...bullets.map((x) => `- ${x.t}（根拠 ${x.factIds.join(',') || '—'}）`), '', '**商品説明**', '', description, '', `**検索キーワード**（${Buffer.byteLength(keywords)} バイト）`, '', keywords, '',
+    '**根拠（facts）**', '', ...b.facts.map((x) => `- ${x.id} ${x.k}：${x.v}（${x.src}）`), ''].join('\n');
+  fs.mkdirSync(DOCS, { recursive: true }); fs.writeFileSync(path.join(DOCS, `${p.handle}.md`), md);
+}
+// 在庫ファイル（dry-run）：amazon-pick の原商品＋ listing.json → build-inventory-file（アップロードしない）
+async function listingFile() {
+  const items = [];
+  for (const p of pilot()) {
+    const L = path.join(OUT, p.handle, 'amazon-listing.json'); if (!fs.existsSync(L)) continue;
+    const q = await gql(`query($h:String!){ productByHandle(handle:$h){ id handle title description productType tags status vendor options{ name values } variants(first:50){ nodes{ id title price compareAtPrice sku selectedOptions{ name value } } } media(first:12){ nodes{ ... on MediaImage{ image{ url } } } } } }`, { h: p.handle });
+    const x = q.productByHandle; if (!x || x.vendor !== 'ANET' || !x.tags.includes('amazon-pick')) { log('skip（amazon-pick でない）', p.handle.slice(0, 30)); continue; }
+    items.push({ ...x, amazonListing: J(L) });
+  }
+  if (!items.length) { log('対象なし'); return; }
+  const dir = path.join(OUT, 'listing'); W(path.join(dir, 'products.json'), items);
+  const r = spawnSync(process.execPath, [path.join(ROOT, 'tools/amazon-listing/build-inventory-file.mjs'), 'build', '--products', path.join(dir, 'products.json'), '--out', dir], { encoding: 'utf8', stdio: 'inherit' }); if (r.status !== 0) throw new Error('build-inventory-file 失敗');
+  for (const p of items) { const f = path.join(OUT, p.handle, 'amazon-listing.json'); W(f, { ...J(f), inventoryFiles: fs.readdirSync(dir).filter((x) => /^inventory-.*\.tsv$/.test(x)).map((x) => path.relative(ROOT, path.join(dir, x)).replace(/\\/g, '/')) }); }
+  log(`dry-run：${path.relative(ROOT, dir)}/inventory-*.tsv（アップロードしていない）`);
+}
+
 // ---------- CLI ----------
 const run = { pick, compete: () => each(compete), teardown: () => each(teardown), reviews: () => each(reviews), render: () => each(render), review: () => each(review), watch,
+  check: () => each(check), publish: () => each(publishA), collection, listing: async () => { await each(listing); await listingFile(); },
   all: async () => { await pick(); for (const s of [compete, teardown, reviews, render]) await each(s); } };
-if (!run[stage]) { console.error('usage: pick | compete | teardown | reviews | render | review [--dry] | watch [--mark-listed --handles …] | all   (--handle h / --force / --cdp url)'); process.exit(2); }
+if (!run[stage]) { console.error('usage: pick | compete | teardown | reviews | render | review [--dry] | check | publish [--dry] | collection | listing | watch [--mark-listed --handles …] | all  (--handle h / --force / --cdp url)'); process.exit(2); }
 // CDP ブラウザは自分のタブだけ閉じる（ウィンドウ・ブラウザは閉じない）。最後は process.exit
 Promise.resolve(run[stage]()).then(async () => { if (BR) await BR.page.close().catch(() => {}); log('done', stage); process.exit(process.exitCode ?? 0); }, async (e) => { console.error(e); if (BR) await BR.page.close().catch(() => {}); process.exit(1); });
