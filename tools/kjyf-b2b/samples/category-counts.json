@@ -1,0 +1,79 @@
+{
+ "viewId": 2,
+ "all": 1135,
+ "viewId0_all": 1191,
+ "byCategory": [
+  {
+   "cat_id": 744,
+   "total": 0
+  },
+  {
+   "cat_id": 2,
+   "total": 29
+  },
+  {
+   "cat_id": 3,
+   "total": 441
+  },
+  {
+   "cat_id": 4,
+   "total": 135
+  },
+  {
+   "cat_id": 5,
+   "total": 42
+  },
+  {
+   "cat_id": 6,
+   "total": 58
+  },
+  {
+   "cat_id": 7,
+   "total": 56
+  },
+  {
+   "cat_id": 10,
+   "total": 45
+  },
+  {
+   "cat_id": 11,
+   "total": 43
+  },
+  {
+   "cat_id": 465,
+   "total": 195
+  },
+  {
+   "cat_id": 738,
+   "total": 73
+  },
+  {
+   "cat_id": 261,
+   "total": 0
+  },
+  {
+   "cat_id": 262,
+   "total": 0
+  },
+  {
+   "cat_id": 263,
+   "total": 0
+  },
+  {
+   "cat_id": 264,
+   "total": 0
+  },
+  {
+   "cat_id": 265,
+   "total": 0
+  },
+  {
+   "cat_id": 266,
+   "total": 0
+  },
+  {
+   "cat_id": 267,
+   "total": 0
+  }
+ ]
+}

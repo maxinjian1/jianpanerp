@@ -1,0 +1,110 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/admin/good/2b/info",
+  "body": {
+   "good_id": 36474,
+   "view_id": 2
+  }
+ },
+ "response": {
+  "code": 0,
+  "message": "SUCCESS",
+  "data": {
+   "good_id": 36474,
+   "from_platform": "xbuy:21",
+   "from_good_id": "36437",
+   "mailing_mode": 2,
+   "shop_id": 1,
+   "cat_id": 10,
+   "title": "液压桌面升降机 载重150kg 折叠式 / 液压升降台车 升降台车 Z0535320",
+   "desc": "<p>仓库作业的强大助手 这次居然是折叠式</p>\n<p>高度调节轻松的脚踏板，带刹车的万能脚轮 重物的上下、移动！</p>\n<p>可以折叠，不占地方，适合家庭和商业用途，广泛多功能活跃！</p>\n<p> </p>\n<p>升降方式：一体式液压 脚踏单元</p>\n<p>提升范围：(约)220mm - 725mm</p>\n<p>桌面尺寸：(约)700mm × 450mm</p>\n<p>承载重量：最多150kg</p>\n<p>本体重量：42kg</p>\n<p> </p>\n<p>※根据入货时间，颜色可能会有所不同。</p>\n<p><img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc7on7l52lh2sy7nw.jpg\"/> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daogucdu1nkj2lqwucokj.jpg\"/> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc8z1van2lnv71810.jpg\"/> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc8xc6ey2lmi1o6bg.jpg\"/> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc81ural2lk1iti4f.jpg\"/> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc778zgs2ldbfl8ze.jpg\"/> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc7k8uay2lfc6nn49.jpg\"/> </p>",
+   "keywords": "",
+   "note": "福冈仓 12:00前下单当日发送 偏远地区加收派费（周六日/日本红日子不发货",
+   "video_url": "",
+   "image_url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc7k8uay2lfc6nn49.jpg",
+   "image_url_1": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc7on7l52lh2sy7nw.jpg",
+   "image_url_2": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc778zgs2ldbfl8ze.jpg",
+   "image_url_3": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc8z1van2lnv71810.jpg",
+   "image_url_4": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc8xc6ey2lmi1o6bg.jpg",
+   "image_url_5": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc81ural2lk1iti4f.jpg",
+   "image_url_6": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daogucdu1nkj2lqwucokj.jpg",
+   "image_url_7": "",
+   "image_url_8": "",
+   "image_url_9": "",
+   "on_shelves": 1,
+   "estimated_time": null,
+   "create_time": null,
+   "update_time": "2025-07-31 06:22:48",
+   "view_id": 2,
+   "slug": "油圧テーブルリフト 積載荷重150kg 折りたたみ式 / 油圧式昇降台車 リフト台車  Z0535320",
+   "cid": 21,
+   "rate": 5,
+   "sub_title": "福冈仓 12:00前下单当日发送 偏远地区加收派费（周六日/日本红日子不发货）",
+   "sales_num": 0,
+   "weight": 0,
+   "is_gift": 0,
+   "ai": 1,
+   "out_id": "",
+   "shipping_period": 1,
+   "is_supply_operation": false,
+   "source_language": "ja-JP",
+   "skus": [
+    {
+     "sku_id": 88957,
+     "shop_id": 1,
+     "good_id": 36474,
+     "props_ids": "47135:117417",
+     "price": 29969,
+     "purchase_price": 0,
+     "stock_num": 0,
+     "out_id": "Z0535320",
+     "barcode": "",
+     "barcode_type": "",
+     "tax_rate": 0,
+     "sku_image": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/20/2025-06-17/1sy3y631000daoguc778zgs2ldbfl8ze.jpg",
+     "is_for_sale": 0,
+     "from_sku_id": 87916,
+     "extra_fee": 0,
+     "available_stock": 0,
+     "original_price": 0,
+     "view_id": 0,
+     "is_filing": 0,
+     "zhan_yong_stock_num": 0
+    }
+   ],
+   "sku_props": [
+    {
+     "prop_id": 47135,
+     "prop_name": "载重",
+     "img_url": "",
+     "view_id": 2,
+     "ai": 1,
+     "sort": 0,
+     "values": [
+      {
+       "value_id": 117417,
+       "prop_value": "150kg",
+       "img_url": "",
+       "view_id": 2,
+       "ai": 1,
+       "sort": 0
+      }
+     ]
+    }
+   ],
+   "good_infos": null,
+   "cats": {
+    "cat_id": 10,
+    "shop_id": 1,
+    "name": "家具・家居",
+    "p_cat_id": 0,
+    "weight": 1,
+    "image_url": "http",
+    "view_id": 0,
+    "slug": "",
+    "ai": 1
+   }
+  }
+ }
+}

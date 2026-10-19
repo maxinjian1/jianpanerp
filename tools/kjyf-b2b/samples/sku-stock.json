@@ -1,0 +1,22 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/admin/sku/stock/new/2b/get",
+  "body": {
+   "out_id": "sl106-d"
+  }
+ },
+ "response": {
+  "code": 0,
+  "message": "SUCCESS",
+  "data": {
+   "warehouse_country_list": [
+    "JP"
+   ],
+   "available_stock": 440,
+   "lock_stock": 0,
+   "physical_stock": 440,
+   "reserved_stock": 0
+  }
+ }
+}

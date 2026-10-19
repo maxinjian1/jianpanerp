@@ -1,0 +1,16 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/admin/good/wholesale/2b/get",
+  "body": {
+   "good_id": 39426
+  }
+ },
+ "response": {
+  "code": 0,
+  "message": "SUCCESS",
+  "data": {
+   "list": null
+  }
+ }
+}

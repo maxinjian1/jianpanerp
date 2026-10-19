@@ -1,0 +1,110 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/admin/good/2b/info",
+  "body": {
+   "good_id": 39479,
+   "view_id": 2
+  }
+ },
+ "response": {
+  "code": 0,
+  "message": "SUCCESS",
+  "data": {
+   "good_id": 39479,
+   "from_platform": "",
+   "from_good_id": "",
+   "mailing_mode": 0,
+   "shop_id": 1,
+   "cat_id": 11,
+   "title": "ヘルメットインナーキャップ インナーキャップ 2枚セット 吸汗速乾 UVカット 伸縮性 フリーサイズ ヘルメット用 バイク 自転車 サイクリング スキー スノーボード アウトドア zk168",
+   "desc": "<p><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">■　汗を素早く吸収し、ベタつき解消</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">■　全面メッシュ素材で、頭部の蒸れを防止</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">■　伸縮性に優れ、男女問わずぴったりフィット</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">■　UVカット機能で、頭皮を紫外線から守る</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">■　薄手設計で、ヘルメットの下でも目立たない</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">【商品名】：ヘルメットインナーキャップ</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">【サイズ】：(約)26cm&times;15cm(平置き採寸)</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">【重量】：(約)15g/枚</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">【材質】：ポリエステル</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">○使用上の注意事項○</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">※改造/本来の目的以外/強い衝撃などはお控え下さい。</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">※仕様は入荷時期により予告なく変更する場合があります。</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">※ディスプレイ画面等の環境上、写真と実際の商品の色とは多少違う場合がございます。</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">※海外輸入商品により、汚れ/ダメージ等がついている場合がございます。</span><br style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\" /><span style=\"color: #0c6442; font-family: 'Noto Sans JP', sans-serif; font-size: 14.4px; background-color: #ffffff;\">○以上、ご同意の上ご購入ください！○</span></p>",
+   "keywords": "",
+   "note": "⚠️本链接为VIP专属，非VIP订单不处理。 福冈仓11:00前下单当日发，偏远地区加派费，离岛不发。（周末及节假日休）",
+   "video_url": "",
+   "image_url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2026-09-11/1sy3y611000dlc6cc5bfo74ie89zctsz.jpg",
+   "image_url_1": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2026-09-11/1sy3y611000dlc5yyi02qzofgz6614ax.jpg",
+   "image_url_2": "",
+   "image_url_3": "",
+   "image_url_4": "",
+   "image_url_5": "",
+   "image_url_6": "",
+   "image_url_7": "",
+   "image_url_8": "",
+   "image_url_9": "",
+   "on_shelves": 1,
+   "estimated_time": null,
+   "create_time": null,
+   "update_time": "2026-09-11 07:47:49",
+   "view_id": 2,
+   "slug": "",
+   "cid": 21,
+   "rate": 5,
+   "sub_title": "⚠️本链接为VIP专属，非VIP订单不处理。福冈仓11:00前下单当日发，偏远地区加派费，离岛不发。（周末及节假日休）",
+   "sales_num": 0,
+   "weight": 0,
+   "is_gift": 0,
+   "ai": 1,
+   "out_id": "",
+   "shipping_period": 1,
+   "is_supply_operation": false,
+   "source_language": "ja-JP",
+   "skus": [
+    {
+     "sku_id": 97182,
+     "shop_id": 1,
+     "good_id": 39479,
+     "props_ids": "50594:125629",
+     "price": 699,
+     "purchase_price": 0,
+     "stock_num": 9,
+     "out_id": "zk168",
+     "barcode": "",
+     "barcode_type": "GTIN",
+     "tax_rate": 0,
+     "sku_image": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2026-09-11/1sy3y611000dlc6cc5bfo74ie89zctsz.jpg",
+     "is_for_sale": 0,
+     "from_sku_id": 0,
+     "extra_fee": 0,
+     "available_stock": 0,
+     "original_price": 0,
+     "view_id": 0,
+     "is_filing": 0,
+     "zhan_yong_stock_num": 0
+    }
+   ],
+   "sku_props": [
+    {
+     "prop_id": 50594,
+     "prop_name": "颜色",
+     "img_url": "",
+     "view_id": 2,
+     "ai": 1,
+     "sort": 0,
+     "values": [
+      {
+       "value_id": 125629,
+       "prop_value": "黑色",
+       "img_url": "",
+       "view_id": 2,
+       "ai": 1,
+       "sort": 0
+      }
+     ]
+    }
+   ],
+   "good_infos": null,
+   "cats": {
+    "cat_id": 11,
+    "shop_id": 1,
+    "name": "旅行・露营用品",
+    "p_cat_id": 0,
+    "weight": 1,
+    "image_url": "http",
+    "view_id": 0,
+    "slug": "",
+    "ai": 1
+   }
+  }
+ }
+}

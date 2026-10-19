@@ -1,0 +1,284 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/admin/product/2b/search",
+  "body": {
+   "viewId": 2,
+   "page": 1,
+   "limit": 2,
+   "cat_id": 2,
+   "order_type": "desc",
+   "on_shelves": 1
+  }
+ },
+ "response": {
+  "code": 0,
+  "message": "SUCCESS",
+  "data": {
+   "currency": "JPY",
+   "list": [
+    {
+     "good_id": 39426,
+     "shop_id": 1,
+     "view_id": 2,
+     "cid": 0,
+     "cat_id": 0,
+     "title": "",
+     "sub_title": "⚠️本链接为VIP专属，非VIP订单不处理。福冈仓11:00前下单当日发，偏远地区加派费，离岛不发。（周末及节假日休）",
+     "desc": "",
+     "note": "",
+     "video_url": "",
+     "image_url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2026-08-21/1sy3y611000dku94q1tj0qpxl027ulxu.jpg",
+     "image_url_1": "",
+     "image_url_2": "",
+     "image_url_3": "",
+     "image_url_4": "",
+     "image_url_5": "",
+     "image_url_6": "",
+     "image_url_7": "",
+     "image_url_8": "",
+     "image_url_9": "",
+     "slug": "",
+     "language": "zh-CN",
+     "delivery_country": "",
+     "on_shelves": 0,
+     "isgift": 0,
+     "rate": 0,
+     "sales_num": 0,
+     "weight": 0,
+     "out_ids": null,
+     "delivery_countries": [
+      {
+       "id": 3674,
+       "shop_id": 1,
+       "goods_id": 39426,
+       "delivery_country": "JP"
+      }
+     ],
+     "scats": {
+      "cid": 0,
+      "name": "default classification",
+      "deduction_ratio": 0,
+      "is_rich_text": 0,
+      "parent_id": 0
+     },
+     "mailing_mode": 0,
+     "price_min": 1880,
+     "price_max": 1880,
+     "discount_price_min": 0,
+     "discount_price_max": 0,
+     "skus": [
+      {
+       "sku_id": 97058,
+       "shop_id": 1,
+       "good_id": 39426,
+       "props_ids": "50526:125504",
+       "price": 1880,
+       "purchase_price": 0,
+       "stock_num": 440,
+       "out_id": "sl106-d",
+       "barcode": "",
+       "barcode_type": "GTIN",
+       "tax_rate": 0,
+       "sku_image": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2026-08-21/1sy3y611000dku94q1tj0qpxl027ulxu.jpg",
+       "is_for_sale": 0,
+       "from_sku_id": 0,
+       "extra_fee": 0,
+       "available_stock": 440,
+       "original_price": 0,
+       "view_id": 0,
+       "is_filing": 0,
+       "zhan_yong_stock_num": 0
+      },
+      {
+       "sku_id": 97059,
+       "shop_id": 1,
+       "good_id": 39426,
+       "props_ids": "50526:125505",
+       "price": 1880,
+       "purchase_price": 0,
+       "stock_num": 330,
+       "out_id": "sl106-el",
+       "barcode": "",
+       "barcode_type": "GTIN",
+       "tax_rate": 0,
+       "sku_image": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2026-08-21/1sy3y611000dku94q1tj0qpxl027ulxu.jpg",
+       "is_for_sale": 0,
+       "from_sku_id": 0,
+       "extra_fee": 0,
+       "available_stock": 330,
+       "original_price": 0,
+       "view_id": 0,
+       "is_filing": 0,
+       "zhan_yong_stock_num": 0
+      }
+     ],
+     "sku_props": [
+      {
+       "prop_id": 50526,
+       "prop_name": "颜色",
+       "img_url": "",
+       "view_id": 2,
+       "ai": 1,
+       "sort": 0,
+       "values": [
+        {
+         "value_id": 125504,
+         "prop_value": "昼光色",
+         "img_url": "",
+         "view_id": 2,
+         "ai": 1,
+         "sort": 0
+        },
+        {
+         "value_id": 125505,
+         "prop_value": "电球色",
+         "img_url": "",
+         "view_id": 2,
+         "ai": 1,
+         "sort": 1
+        }
+       ]
+      }
+     ],
+     "deduction_ratio": 0,
+     "discount_ratio": 0,
+     "shipping_period": 0,
+     "isDownLoad": false,
+     "source_language": ""
+    },
+    {
+     "good_id": 39420,
+     "shop_id": 1,
+     "view_id": 2,
+     "cid": 0,
+     "cat_id": 0,
+     "title": "",
+     "sub_title": "埼玉仓 11:30前下单当日发送 偏远地区加收派费（周末和节假日除外）",
+     "desc": "",
+     "note": "",
+     "video_url": "",
+     "image_url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-08-14/1sy3y611000dkoimo1s74ee28y3v493x.jpg",
+     "image_url_1": "",
+     "image_url_2": "",
+     "image_url_3": "",
+     "image_url_4": "",
+     "image_url_5": "",
+     "image_url_6": "",
+     "image_url_7": "",
+     "image_url_8": "",
+     "image_url_9": "",
+     "slug": "",
+     "language": "zh-CN",
+     "delivery_country": "",
+     "on_shelves": 0,
+     "isgift": 0,
+     "rate": 0,
+     "sales_num": 83,
+     "weight": 0,
+     "out_ids": null,
+     "delivery_countries": [
+      {
+       "id": 3665,
+       "shop_id": 1,
+       "goods_id": 39420,
+       "delivery_country": "JP"
+      }
+     ],
+     "scats": {
+      "cid": 0,
+      "name": "default classification",
+      "deduction_ratio": 0,
+      "is_rich_text": 0,
+      "parent_id": 0
+     },
+     "mailing_mode": 0,
+     "price_min": 1409,
+     "price_max": 1699,
+     "discount_price_min": 0,
+     "discount_price_max": 0,
+     "skus": [
+      {
+       "sku_id": 97162,
+       "shop_id": 1,
+       "good_id": 39420,
+       "props_ids": "50584:125609",
+       "price": 1409,
+       "purchase_price": 0,
+       "stock_num": 35,
+       "out_id": "128-UP",
+       "barcode": "",
+       "barcode_type": "",
+       "tax_rate": 0,
+       "sku_image": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-08-14/1sy3y611000dkoimnwd6cyx28q9ordzh.jpg",
+       "is_for_sale": 0,
+       "from_sku_id": 97032,
+       "extra_fee": 0,
+       "available_stock": 35,
+       "original_price": 0,
+       "view_id": 0,
+       "is_filing": 0,
+       "zhan_yong_stock_num": 0
+      },
+      {
+       "sku_id": 97163,
+       "shop_id": 1,
+       "good_id": 39420,
+       "props_ids": "50584:125610",
+       "price": 1699,
+       "purchase_price": 0,
+       "stock_num": 0,
+       "out_id": "512-UP",
+       "barcode": "",
+       "barcode_type": "",
+       "tax_rate": 0,
+       "sku_image": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-08-14/1sy3y611000dkoimnwd6cyx28q9ordzh.jpg",
+       "is_for_sale": 0,
+       "from_sku_id": 97033,
+       "extra_fee": 0,
+       "available_stock": 0,
+       "original_price": 0,
+       "view_id": 0,
+       "is_filing": 0,
+       "zhan_yong_stock_num": 0
+      }
+     ],
+     "sku_props": [
+      {
+       "prop_id": 50584,
+       "prop_name": "规格",
+       "img_url": "",
+       "view_id": 2,
+       "ai": 1,
+       "sort": 0,
+       "values": [
+        {
+         "value_id": 125609,
+         "prop_value": "128GB",
+         "img_url": "",
+         "view_id": 0,
+         "ai": 0,
+         "sort": 0
+        },
+        {
+         "value_id": 125610,
+         "prop_value": "512GB",
+         "img_url": "",
+         "view_id": 2,
+         "ai": 1,
+         "sort": 0
+        }
+       ]
+      }
+     ],
+     "deduction_ratio": 0,
+     "discount_ratio": 0,
+     "shipping_period": 0,
+     "isDownLoad": false,
+     "source_language": ""
+    }
+   ],
+   "total": 29
+  }
+ }
+}

@@ -1,0 +1,170 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/admin/good/2b/info",
+  "body": {
+   "good_id": 927,
+   "view_id": 2
+  }
+ },
+ "response": {
+  "code": 0,
+  "message": "SUCCESS",
+  "data": {
+   "good_id": 927,
+   "from_platform": "",
+   "from_good_id": "0",
+   "mailing_mode": 0,
+   "shop_id": 1,
+   "cat_id": 5,
+   "title": "大容量 轻巧感觉 商务 背包 防水 雨衣 带胸带 附带 男士 A3 尺寸 笔记本电脑 自行车 上下班 通学 出差 旅行 收纳 背包 背包 黑色 黑色 PC背包 B-12",
+   "desc": "<p>&nbsp;</p>\n<p><img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm40s8msso2t4nhafgx.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41cm18yl2tancnexn.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41a10ide2t6ud4z2t.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41bbfe282t8v1xaxo.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41fdz2p02te45vgst.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41eaqlyn2tcqjlwzq.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41j3rffd2tg3j96sf.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41oos1j52ti4rbl65.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41vmm0wo2tonc4w5k.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm4213jqa82tsh1ace2.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm42chxy3r2u6g3udhf.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41tuvvlw2tk4x729u.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41tz7ohw2tm44uc2j.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm429167gq2u183cmci.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm426imgqw2txexb3bm.jpg\" /> <img style=\"width: 100%;\" src=\"https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41ypdpaw2tqyusg9p.jpg\" />&nbsp;</p>",
+   "keywords": "",
+   "note": "埼玉仓 12:00前下单当日发送 偏远地区加收派费（周六11:00前下单当日发送 | 周日不发）",
+   "video_url": "",
+   "image_url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm42p4hgh02ug8tx3y2.jpg",
+   "image_url_1": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm40s8msso2t4nhafgx.jpg",
+   "image_url_2": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41cm18yl2tancnexn.jpg",
+   "image_url_3": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41a10ide2t6ud4z2t.jpg",
+   "image_url_4": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41bbfe282t8v1xaxo.jpg",
+   "image_url_5": "",
+   "image_url_6": "",
+   "image_url_7": "",
+   "image_url_8": "",
+   "image_url_9": "",
+   "on_shelves": 1,
+   "estimated_time": null,
+   "create_time": null,
+   "update_time": "2026-08-18 08:11:16",
+   "view_id": 2,
+   "slug": "",
+   "cid": 21,
+   "rate": 5,
+   "sub_title": "B-12 埼玉仓 12:00前下单当日发送 偏远地区加收派费（休息日11:00前下单当日发送）",
+   "sales_num": 40,
+   "weight": 0,
+   "is_gift": 0,
+   "ai": 1,
+   "out_id": "",
+   "shipping_period": 0,
+   "is_supply_operation": false,
+   "source_language": "ja-JP",
+   "skus": [
+    {
+     "sku_id": 6015,
+     "shop_id": 1,
+     "good_id": 927,
+     "props_ids": "1106:4074",
+     "price": 1923,
+     "purchase_price": 0,
+     "stock_num": 4,
+     "out_id": "B-12-B",
+     "barcode": "B-12-B",
+     "barcode_type": "GTIN",
+     "tax_rate": 0,
+     "sku_image": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm426imgqw2txexb3bm.jpg",
+     "is_for_sale": 0,
+     "from_sku_id": 0,
+     "extra_fee": 0,
+     "available_stock": 0,
+     "original_price": 0,
+     "view_id": 0,
+     "is_filing": 0,
+     "zhan_yong_stock_num": 0
+    },
+    {
+     "sku_id": 6016,
+     "shop_id": 1,
+     "good_id": 927,
+     "props_ids": "1106:4075",
+     "price": 1923,
+     "purchase_price": 0,
+     "stock_num": 1,
+     "out_id": "B-12-C",
+     "barcode": "B-12-C",
+     "barcode_type": "GTIN",
+     "tax_rate": 0,
+     "sku_image": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm429167gq2u183cmci.jpg",
+     "is_for_sale": 0,
+     "from_sku_id": 0,
+     "extra_fee": 0,
+     "available_stock": 0,
+     "original_price": 0,
+     "view_id": 0,
+     "is_filing": 0,
+     "zhan_yong_stock_num": 0
+    },
+    {
+     "sku_id": 6017,
+     "shop_id": 1,
+     "good_id": 927,
+     "props_ids": "1106:4073",
+     "price": 1923,
+     "purchase_price": 0,
+     "stock_num": 10,
+     "out_id": "B-12-A",
+     "barcode": "B-12-A",
+     "barcode_type": "GTIN",
+     "tax_rate": 0,
+     "sku_image": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2024-01-12/1sy3y621000cycm41ypdpaw2tqyusg9p.jpg",
+     "is_for_sale": 0,
+     "from_sku_id": 0,
+     "extra_fee": 0,
+     "available_stock": 0,
+     "original_price": 0,
+     "view_id": 0,
+     "is_filing": 0,
+     "zhan_yong_stock_num": 0
+    }
+   ],
+   "sku_props": [
+    {
+     "prop_id": 1106,
+     "prop_name": "颜色",
+     "img_url": "",
+     "view_id": 2,
+     "ai": 1,
+     "sort": 0,
+     "values": [
+      {
+       "value_id": 4074,
+       "prop_value": "灰色",
+       "img_url": "",
+       "view_id": 2,
+       "ai": 1,
+       "sort": 0
+      },
+      {
+       "value_id": 4075,
+       "prop_value": "海军蓝",
+       "img_url": "",
+       "view_id": 2,
+       "ai": 1,
+       "sort": 0
+      },
+      {
+       "value_id": 4073,
+       "prop_value": "黑色",
+       "img_url": "",
+       "view_id": 2,
+       "ai": 1,
+       "sort": 0
+      }
+     ]
+    }
+   ],
+   "good_infos": null,
+   "cats": {
+    "cat_id": 5,
+    "shop_id": 1,
+    "name": "时尚·箱包",
+    "p_cat_id": 0,
+    "weight": 1,
+    "image_url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2023-07-25/1sy3y7a1000cuavfm0xnhykfx0f0d58o.png",
+    "view_id": 0,
+    "slug": "",
+    "ai": 0
+   }
+  }
+ }
+}

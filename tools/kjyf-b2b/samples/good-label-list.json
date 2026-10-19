@@ -1,0 +1,17 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/admin/label/2b/good/label/list",
+  "body": {
+   "good_id": 39426,
+   "view_id": 2
+  }
+ },
+ "response": {
+  "code": 0,
+  "message": "SUCCESS",
+  "data": {
+   "list": []
+  }
+ }
+}

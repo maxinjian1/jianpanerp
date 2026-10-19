@@ -1,0 +1,205 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/admin/cat/2b/list",
+  "body": {
+   "show_main": false,
+   "view_id": 2
+  }
+ },
+ "response": {
+  "code": 0,
+  "message": "SUCCESS",
+  "data": {
+   "list": [
+    {
+     "cat_id": 744,
+     "shop_id": 1,
+     "name": " 📦仓库耗材📦",
+     "p_cat_id": 0,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 0,
+     "slug": "",
+     "ai": 0
+    },
+    {
+     "cat_id": 264,
+     "shop_id": 1,
+     "name": "户外运动",
+     "p_cat_id": 261,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 2,
+     "slug": "",
+     "ai": 1
+    },
+    {
+     "cat_id": 263,
+     "shop_id": 1,
+     "name": "家居家具",
+     "p_cat_id": 261,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 2,
+     "slug": "",
+     "ai": 1
+    },
+    {
+     "cat_id": 2,
+     "shop_id": 1,
+     "name": "手机・平板电脑用品",
+     "p_cat_id": 0,
+     "weight": 1,
+     "image_url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2023-07-25/1sy3y7a1000cuavcu5pu8e1f40bah38u.png",
+     "view_id": 2,
+     "slug": "手机・平板电脑用品",
+     "ai": 0
+    },
+    {
+     "cat_id": 5,
+     "shop_id": 1,
+     "name": "时尚·箱包",
+     "p_cat_id": 0,
+     "weight": 1,
+     "image_url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2023-07-25/1sy3y7a1000cuavfm0xnhykfx0f0d58o.png",
+     "view_id": 2,
+     "slug": "时尚·箱包",
+     "ai": 0
+    },
+    {
+     "cat_id": 266,
+     "shop_id": 1,
+     "name": "婴儿用品",
+     "p_cat_id": 261,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 2,
+     "slug": "",
+     "ai": 1
+    },
+    {
+     "cat_id": 4,
+     "shop_id": 1,
+     "name": "母婴",
+     "p_cat_id": 0,
+     "weight": 1,
+     "image_url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2023-07-25/1sy3y7a1000cuavf32jzn6afp0mv233x.png",
+     "view_id": 2,
+     "slug": "母婴",
+     "ai": 0
+    },
+    {
+     "cat_id": 6,
+     "shop_id": 1,
+     "name": "宠物・宠物用品",
+     "p_cat_id": 0,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 2,
+     "slug": "宠物・宠物用品",
+     "ai": 1
+    },
+    {
+     "cat_id": 265,
+     "shop_id": 1,
+     "name": "宠物用品",
+     "p_cat_id": 261,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 2,
+     "slug": "",
+     "ai": 1
+    },
+    {
+     "cat_id": 7,
+     "shop_id": 1,
+     "name": "健康减肥",
+     "p_cat_id": 0,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 2,
+     "slug": "",
+     "ai": 1
+    },
+    {
+     "cat_id": 10,
+     "shop_id": 1,
+     "name": "家具・家居",
+     "p_cat_id": 0,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 2,
+     "slug": "",
+     "ai": 1
+    },
+    {
+     "cat_id": 11,
+     "shop_id": 1,
+     "name": "旅行・露营用品",
+     "p_cat_id": 0,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 2,
+     "slug": "",
+     "ai": 1
+    },
+    {
+     "cat_id": 267,
+     "shop_id": 1,
+     "name": "旅行用品",
+     "p_cat_id": 261,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 2,
+     "slug": "",
+     "ai": 1
+    },
+    {
+     "cat_id": 262,
+     "shop_id": 1,
+     "name": "日用品",
+     "p_cat_id": 261,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 2,
+     "slug": "",
+     "ai": 1
+    },
+    {
+     "cat_id": 3,
+     "shop_id": 1,
+     "name": "日用品杂货",
+     "p_cat_id": 0,
+     "weight": 1,
+     "image_url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/1/2023-07-25/1sy3y7a1000cuaveisn0r5lfd0911r1x.png",
+     "view_id": 2,
+     "slug": "日用品杂货",
+     "ai": 0
+    },
+    {
+     "cat_id": 465,
+     "shop_id": 1,
+     "name": "衣物 · 配饰 · 珠宝",
+     "p_cat_id": 0,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 2,
+     "slug": "",
+     "ai": 1
+    },
+    {
+     "cat_id": 738,
+     "shop_id": 1,
+     "name": "🎉 サプライズセール🎉",
+     "p_cat_id": 0,
+     "weight": 1,
+     "image_url": "http",
+     "view_id": 0,
+     "slug": "",
+     "ai": 0
+    }
+   ]
+  }
+ }
+}

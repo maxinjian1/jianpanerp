@@ -1,0 +1,40 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/admin/shop/view/2b/list",
+  "body": {
+   "limit": 100,
+   "main_shop_id": 1,
+   "page": 1
+  }
+ },
+ "response": {
+  "code": 0,
+  "message": "SUCCESS",
+  "data": {
+   "list": [
+    {
+     "view_id": 0,
+     "shop_id": 1,
+     "name": "JP",
+     "language": "ja-JP",
+     "currency": "JPY",
+     "auto_trans": 0,
+     "is_default": 1
+    },
+    {
+     "view_id": 2,
+     "shop_id": 1,
+     "name": "CN",
+     "language": "zh-CN",
+     "currency": "CNY",
+     "auto_trans": 1,
+     "is_default": 0
+    }
+   ],
+   "page": 1,
+   "limit": 100,
+   "total_count": 2
+  }
+ }
+}
