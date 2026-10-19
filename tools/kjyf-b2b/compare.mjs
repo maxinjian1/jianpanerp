@@ -3,13 +3,15 @@
  * anetmc.com（Shopify vendor=ANET）全店 と kjyf B2B 全量の SKU 単位対比（読み取りのみ。何も書き込まない）。
  *   node tools/kjyf-b2b/sync.mjs fetch          # 先に B2B 最新化（out/b2b-full.json）
  *   node tools/kjyf-b2b/compare.mjs             # → out/compare.json（docs/anetmc-vs-b2b-对比.md はこれを元に書く）
- * B2B 下架（on_shelves=2）一覧は匿名 search で取得（間隔 1.1 秒）。店面抽查は公開ページを GET するだけ（カート・決済は触らない）。
+ *   --view 2：下架一覧を B2B（view 2）で取る。既定は view 0（日文站。2026-10-19 から在售/下架の基準）。b2b-full.json も同じ view で fetch しておく。
+ * 下架（on_shelves=2）一覧は匿名 search で取得（間隔 1.1 秒）。店面抽查は公開ページを GET するだけ（カート・決済は触らない）。
  */
 import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '../..');
 const OUT = path.join(ROOT, 'tools/kjyf-b2b/out');
+const VIEW = (() => { const i = process.argv.indexOf('--view'); return i >= 0 ? Number(process.argv[i + 1]) : 0; })();
 const env = Object.fromEntries(fs.readFileSync(path.join(ROOT, '.env'), 'utf8').split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith('#') && l.includes('=')).map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^"|"$/g, '')]; }));
 const SHOP = env.SHOPIFY_STORE_DOMAIN, VER = env.SHOPIFY_API_VERSION || '2026-10', STORE = 'https://anetmc.com';
 const MARKUP = Number(env.KJYF_MARKUP || 1.15);
@@ -47,8 +49,8 @@ async function gql(query, variables = {}) {
 
 // ── データ ──
 const B = J(path.join(OUT, 'b2b-full.json'));
-log('B2B on sale', B.list.length, 'fetchedAt', B.fetchedAt);
-const off = []; for (let page = 1; ; page++) { const d = await b2b('/admin/product/2b/search', { viewId: 2, page, limit: 50, order_type: 'desc', on_shelves: 2 }); off.push(...d.list); if (!d.list.length || off.length >= d.total) break; }
+log('on sale (view', B.view ?? 2, ')', B.list.length, 'fetchedAt', B.fetchedAt); if ((B.view ?? 2) !== VIEW) log('警告: b2b-full.json の view', B.view ?? 2, '≠ --view', VIEW);
+const off = []; for (let page = 1; ; page++) { const d = await b2b('/admin/product/2b/search', { viewId: VIEW, page, limit: 50, order_type: 'desc', on_shelves: 2 }); off.push(...d.list); if (!d.list.length || off.length >= d.total) break; }
 log('B2B off shelf', off.length);
 const S = []; let c = null;
 for (;;) { const d = await gql(`query($c:String){ products(first:50, after:$c, query:"vendor:ANET"){ pageInfo{hasNextPage endCursor} nodes{ id handle title status vendor descriptionHtml mediaCount{count} variants(first:100){ nodes{ id sku price } } } } }`, { c }); S.push(...d.products.nodes.filter((p) => p.vendor === 'ANET')); if (!d.products.pageInfo.hasNextPage) break; c = d.products.pageInfo.endCursor; }

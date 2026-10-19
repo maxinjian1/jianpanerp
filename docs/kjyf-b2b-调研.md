@@ -1,5 +1,7 @@
 # kjyf B2B（beehole.kuajingyifan.com/b2b）只读调研
 
+> **2026-10-19 规则变更（用户决定）：商品在售/下架以日文站（view 0，www.kuajingyifan.com/ja-JP）为准，B2B（view 2）只作参考。** `tools/kjyf-b2b/sync.mjs fetch` 和 `compare.mjs` 默认用 view 0，加 `--view 2` 可切回 B2B。
+
 2026-10-19，Windows 上的 Chrome（CDP 9224，profile `kjyf-b2b`，用户本人登录）完成。
 只读：没有下单、没有加购物车、没有改设置。token 和 cookie 的值没有打印、也没有保存。
 API 在登录页的页面上下文里调用，每次请求间隔 1.1 秒以上；共调用约 90 次，另外匿名抓取旧站 20 页。

@@ -1,5 +1,7 @@
 # anetmc.com 全店 vs 批发后台 B2B 对比（只读）
 
+> **2026-10-19 规则变更（用户决定）：商品在售/下架以日文站（view 0，www.kuajingyifan.com/ja-JP）为准，B2B（view 2）只作参考。** `tools/kjyf-b2b/sync.mjs fetch` 和 `compare.mjs` 默认用 view 0，加 `--view 2` 可切回 B2B。
+
 2026-10-19 17:43 JST 生成。这次只做了读取，Shopify 和 B2B 都没有改动。
 - **数据来源**
   - B2B：`sync.mjs fetch` 在 17:35 JST 重新抓取的在售全量（view 2，`on_shelves=1`），另外匿名抓取了下架列表（`on_shelves=2`）。

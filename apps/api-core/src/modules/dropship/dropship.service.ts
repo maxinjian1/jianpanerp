@@ -5,6 +5,14 @@ import { LlmGatewayService } from '../llm-gateway/llm-gateway.service';
 import { ShopifyService } from '../shopify/shopify.service';
 
 /** 採集スクリプト（tools/kjyf-scraper）が送ってくる 1 商品 */
+// 批发商模板型号（YB-05、C-44、YKOGH-01、TEMU-xxxx 等）：标题末尾的去掉。规则与 tools/market-research/fix-catalog.mjs 相同，
+// 真实型号（DSHJ-S-2128-JP、R1004 等）保留（2026-10-19 用户决定：新建时自动去型番）
+const TEMPLATE_CODE = /(?:\s*[（(]?\s*(?<![A-Za-z0-9])(?:YB-05|[A-Z]{1,6}-\d{2}(?:-[A-Z]+)?|TEMU-\d{3,4}(?:-[A-Z])?|sg\d{3}(?:-[a-z])?|ny\d{3}|de\d{3}|zk\d{3}|sl\d{3})\s*[)）]?)+\s*$/;
+export const stripTemplateCode = (t: string) => {
+  const s = t.replace(/\s+/g, ' ').trim();
+  return s.replace(TEMPLATE_CODE, '').replace(/\s+/g, ' ').trim() || s;
+};
+
 export interface ScrapedProduct {
   externalId: string;
   sourceUrl: string;
@@ -163,7 +171,7 @@ export class DropshipService {
 
     try {
       const result = await this.shopify.createProduct({
-        title: fresh.titleJa!,
+        title: stripTemplateCode(fresh.titleJa!),
         descriptionHtml,
         vendor: this.vendor,
         productType: fresh.category ?? undefined,
@@ -187,11 +195,11 @@ export class DropshipService {
           });
         })(),
       });
-      // 販売チャネル（オンラインストア）へ公開。スコープ不足等で失敗しても出品自体は成功扱い、lastError に残す
+      // 販売チャネル（オンラインストア + Headless）へ公開。スコープ不足等で失敗しても出品自体は成功扱い、lastError に残す
       let channelError: string | null = null;
       if (status === 'ACTIVE') {
         try {
-          await this.shopify.publishToOnlineStore(result.productId);
+          await this.shopify.publishToSalesChannels(result.productId);
         } catch (e) {
           channelError = `channel: ${String(e).slice(0, 300)}`;
           this.logger.warn(`${fresh.externalId} ${channelError}`);
@@ -211,7 +219,7 @@ export class DropshipService {
   /**
    * 出品済み商品の修復：
    *  - media: 失敗した画像（FAILED）を削除し、ステージドアップロードで再登録
-   *  - channel: オンラインストアへ公開
+   *  - channel: オンラインストア + Headless へ公開
    */
   async repairPublished(opts: { limit?: number; offset?: number; media?: boolean; channel?: boolean; ids?: string[]; reprocess?: boolean } = {}) {
     const limit = opts.limit ?? 500;
@@ -251,7 +259,7 @@ export class DropshipService {
       }
       if (doChannel) {
         try {
-          await this.shopify.publishToOnlineStore(pid);
+          await this.shopify.publishToSalesChannels(pid);
           row.channel = 'published';
         } catch (e) {
           row.channel = `error: ${String(e).slice(0, 200)}`;

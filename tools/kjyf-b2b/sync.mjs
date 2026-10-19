@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /**
- * kjyf B2B（view 2・上架中）を正として Shopify（vendor=ANET）を「原地更新」同期する。画像は一切触らない。
+ * kjyf 日文站（view 0 = www.kuajingyifan.com/ja-JP・上架中）を正として Shopify（vendor=ANET）を「原地更新」同期する。画像は一切触らない。
+ * 2026-10-19 ユーザー決定：在售/下架の基準は日文站（view 0）。B2B（view 2）は参考のみ（--view 2 で旧基準に切替可）。
  * Windows のリポジトリ直下で実行。.env の SHOPIFY_* / ERP_* を読む（値はログにもファイルにも出さない）。
  *
- *   node tools/kjyf-b2b/sync.mjs fetch                 # A1 B2B 全量（search view2 + info view0=日本語）→ out/b2b-full.json（途中再開可）
+ *   node tools/kjyf-b2b/sync.mjs fetch [--view 2]      # A1 全量（search view0（既定）+ info view0=日本語）→ out/b2b-full.json（途中再開可）
  *   node tools/kjyf-b2b/sync.mjs backup                # A2 Shopify ANET 全商品 → out/shopify-backup-<時刻>.json（ロールバック用）
  *   node tools/kjyf-b2b/sync.mjs plan [--backup f]     # A3 突き合わせ → out/sync-plan.json + docs/kjyf-b2b-同步计划.md
  *   node tools/kjyf-b2b/sync.mjs apply [--only draft|update|create] [--limit N] [--stock]   # B 段：draft → update → create
@@ -31,6 +32,7 @@ const opt = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 && argv[
 const env = Object.fromEntries(fs.readFileSync(path.join(ROOT, '.env'), 'utf8').split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith('#') && l.includes('=')).map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^"|"$/g, '')]; }));
 const SHOP = env.SHOPIFY_STORE_DOMAIN, VER = env.SHOPIFY_API_VERSION || '2026-10';
 const MARKUP = Number(env.KJYF_MARKUP || 1.15);
+const VIEW = Number(opt('view', 0)); // 在售判定の基準ビュー：0=日文站（既定）, 2=B2B
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const J = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
@@ -60,7 +62,7 @@ async function fetchB2B() {
   const prev = fs.existsSync(file) ? J(file) : null;
   const list = []; let total = Infinity;
   for (let page = 1; list.length < total; page++) {
-    const d = await b2b('/admin/product/2b/search', { viewId: 2, page, limit: 50, order_type: 'desc', on_shelves: 1 });
+    const d = await b2b('/admin/product/2b/search', { viewId: VIEW, page, limit: 50, order_type: 'desc', on_shelves: 1 });
     total = d.total; list.push(...d.list); log('search page', page, list.length, '/', total);
     if (!d.list.length) break;
   }
@@ -73,10 +75,10 @@ async function fetchB2B() {
     if (!d) { d = await b2b('/admin/good/2b/info', { good_id: g.good_id, view_id: 2 }, { nullOk: true }); lang = 'view2'; }
     if (!d) { d = { title: g.title || g.sub_title || '', desc: '', skus: g.skus, sku_props: g.sku_props }; lang = 'view2'; } // 詳細 API が null を返す商品は検索結果だけで扱う（タイトル等は変更しない）
     info[key] = { lang, title: d.title, desc: d.desc, cat: d.cats?.name ?? '', sku_props: d.sku_props, skus: (d.skus ?? []).map((s) => ({ sku_id: s.sku_id, out_id: s.out_id, props_ids: s.props_ids })), images: ['image_url', ...Array.from({ length: 9 }, (_, i) => `image_url_${i + 1}`)].map((k) => d[k]).filter(Boolean), on_shelves: d.on_shelves, update_time: d.update_time };
-    if (++n % 50 === 0) { log('info', n); W(file, { fetchedAt: new Date().toISOString(), total, list: list.map(slim), info, listById: Object.fromEntries(list.map((x) => [x.good_id, { update_sig: sig(x) }])) }); }
+    if (++n % 50 === 0) { log('info', n); W(file, { fetchedAt: new Date().toISOString(), view: VIEW, total, list: list.map(slim), info, listById: Object.fromEntries(list.map((x) => [x.good_id, { update_sig: sig(x) }])) }); }
   }
-  W(file, { fetchedAt: new Date().toISOString(), total, list: list.map(slim), info, listById: Object.fromEntries(list.map((x) => [x.good_id, { update_sig: sig(x) }])) });
-  log('b2b-full.json', list.length, 'goods, info fetched now', n);
+  W(file, { fetchedAt: new Date().toISOString(), view: VIEW, total, list: list.map(slim), info, listById: Object.fromEntries(list.map((x) => [x.good_id, { update_sig: sig(x) }])) });
+  log('b2b-full.json view', VIEW, list.length, 'goods, info fetched now', n);
 }
 const slim = (g) => ({ good_id: g.good_id, cat_id: g.cat_id, title_zh: g.title, skus: g.skus.map((s) => ({ sku_id: s.sku_id, out_id: s.out_id, price: s.price, stock_num: s.stock_num, props_ids: s.props_ids })) });
 const sig = (g) => g.skus.map((s) => `${s.sku_id}:${s.out_id}:${s.props_ids}`).join('|');
@@ -169,18 +171,18 @@ function plan() {
     stockUntrackedNow: update.reduce((s, u) => s + u.stock.filter((x) => !x.tracked).length, 0), stockZero: update.reduce((s, u) => s + u.stock.filter((x) => x.to === 0).length, 0),
   };
   W(path.join(OUT, 'sync-plan.json'), { createdAt: new Date().toISOString(), summary: sum, update, draft, create, hold, duplicate, manual });
-  writeDoc(sum, update, draft, create, hold, manual, duplicate);
+  writeDoc(sum, update, draft, create, hold, manual, duplicate, B);
   console.log(JSON.stringify(sum, null, 1));
 }
-function writeDoc(sum, update, draft, create, hold, manual, duplicate) {
+function writeDoc(sum, update, draft, create, hold, manual, duplicate, B) {
   const t = (s, n = 50) => String(s ?? '').replace(/\|/g, '／').replace(/\s+/g, ' ').slice(0, n);
   const L = [];
-  L.push('# kjyf B2B → Shopify 同期計画', '', `生成：${new Date().toISOString()}（\`node tools/kjyf-b2b/sync.mjs plan\`）。基準＝B2B view 2・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。`, '');
+  L.push('# kjyf B2B → Shopify 同期計画', '', `生成：${new Date().toISOString()}（\`node tools/kjyf-b2b/sync.mjs plan\`）。基準＝view ${B.view ?? 2}（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。`, '');
   L.push('## 集計', '', '| 項目 | 件数 |', '|---|---|', ...Object.entries(sum).map(([k, v]) => `| ${k} | ${v} |`), '');
   L.push('- update は status を変えない（現在 DRAFT のもの、W杯等 IP で DRAFT にした 6 件を含めて、DRAFT のまま）。', '- 在庫：現在 Shopify は在庫を追跡していない（tracked=false）。アプリに在庫スコープが無いため在庫同期は既定 OFF（`--stock` で有効）。stockZero は B2B 在庫 0 の SKU 数（参考）。', '');
   const sec = (h, rows, head, f) => { L.push(`## ${h}（${rows.length} 件、先頭 50）`, '', head, head.replace(/[^|]+/g, '---'), ...rows.slice(0, 50).map(f), ''); };
-  sec('draft（B2B に無い → DRAFT）', draft, '| handle | 現在 | タイトル | SKU |', (r) => `| ${t(r.handle, 40)} | ${r.status} | ${t(r.title)} | ${t(r.skus.join(','), 40)} |`);
-  sec('create（B2B にあり Shopify に無い）', create, '| good_id | 分類 | タイトル | SKU 数 | 最低卸価格 |', (r) => `| ${r.good_id} | ${t(r.cat, 16)} | ${t(r.title)} | ${r.skus} | ${r.minPrice} |`);
+  sec('draft（基準ビューに無い → DRAFT）', draft, '| handle | 現在 | タイトル | SKU |', (r) => `| ${t(r.handle, 40)} | ${r.status} | ${t(r.title)} | ${t(r.skus.join(','), 40)} |`);
+  sec('create（基準ビューにあり Shopify に無い）', create, '| good_id | 分類 | タイトル | SKU 数 | 最低卸価格 |', (r) => `| ${r.good_id} | ${t(r.cat, 16)} | ${t(r.title)} | ${r.skus} | ${r.minPrice} |`);
   sec('hold（上架しない）', hold, '| good_id | 理由 | タイトル |', (r) => `| ${r.good_id} | ${r.reason} | ${t(r.title, 70)} |`);
   sec('B2B 側の重複出品（SKU が既に Shopify にある → 作成しない）', duplicate, '| good_id | 同じ SKU の good_id | タイトル |', (r) => `| ${r.good_id} | ${r.sameSkuAs.join(',')} | ${t(r.title, 60)} |`);
   sec('価格変更', update.filter((u) => u.priceChanges.length), '| handle | SKU: 旧→新（卸） |', (u) => `| ${t(u.handle, 40)} | ${t(u.priceChanges.map((c) => `${c.sku}: ${c.from}→${c.to}（${c.wholesale}）`).join('; '), 160)} |`);

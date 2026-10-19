@@ -218,27 +218,31 @@ export class ShopifyService {
 
   // ───────────────────────── 販売チャネル ─────────────────────────
 
-  private onlineStorePublicationId?: string;
+  private salesPublicationIds?: string[];
 
-  /** オンラインストアの publication id（read_publications スコープが必要） */
-  async getOnlineStorePublicationId(): Promise<string> {
-    if (this.onlineStorePublicationId) return this.onlineStorePublicationId;
+  /**
+   * 公開先の publication id：オンラインストア + Headless（App「安い」用 Storefront）（read_publications スコープが必要）
+   * 2026-10-19 ユーザー決定：新規出品は両チャネルに公開する。Headless チャネルが無い店ではオンラインストアだけ。
+   */
+  async getSalesPublicationIds(): Promise<string[]> {
+    if (this.salesPublicationIds) return this.salesPublicationIds;
     const r = await this.graphql<{ publications: { nodes: Array<{ id: string; name: string }> } }>(
       `{ publications(first: 25) { nodes { id name } } }`,
     );
     const nodes = r.publications.nodes;
-    const hit = nodes.find((p) => /online store|オンラインストア/i.test(p.name)) ?? nodes[0];
-    if (!hit) throw new Error('No publications found');
-    this.onlineStorePublicationId = hit.id;
-    return hit.id;
+    const online = nodes.find((p) => /online store|オンラインストア/i.test(p.name)) ?? nodes[0];
+    if (!online) throw new Error('No publications found');
+    const headless = nodes.filter((p) => /headless/i.test(p.name));
+    this.salesPublicationIds = [online.id, ...headless.map((p) => p.id)];
+    return this.salesPublicationIds;
   }
 
-  /** 商品をオンラインストア（販売チャネル）に公開（write_publications スコープが必要） */
-  async publishToOnlineStore(productId: string) {
-    const publicationId = await this.getOnlineStorePublicationId();
+  /** 商品を販売チャネル（オンラインストア + Headless）に公開（write_publications スコープが必要） */
+  async publishToSalesChannels(productId: string) {
+    const ids = await this.getSalesPublicationIds();
     const r = await this.graphql<{ publishablePublish: { userErrors: Array<{ message: string }> } }>(
       `mutation($id: ID!, $input: [PublicationInput!]!) { publishablePublish(id: $id, input: $input) { userErrors { field message } } }`,
-      { id: productId, input: [{ publicationId }] },
+      { id: productId, input: ids.map((publicationId) => ({ publicationId })) },
     );
     if (r.publishablePublish.userErrors.length) throw new Error(`publishablePublish: ${JSON.stringify(r.publishablePublish.userErrors)}`);
   }

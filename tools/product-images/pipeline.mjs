@@ -250,7 +250,7 @@ async function prune(p) {
   log('pruned', p.handle, del.productDeleteMedia.deletedMediaIds.length, 'stale, kept', keep.length);
 }
 // ========== rollback：改図前の元画像に戻す ==========
-// 元画像は download() が保存した out/<handle>/src/NN.jpg（元の並び順）を優先して再アップロード。無ければ旧 CDN URL。
+// 元画像は download() が保存した out/<handle>/src/NN.jpg（bak.localDir があればそのフォルダ）（元の並び順）を優先して再アップロード。無ければ旧 CDN URL。
 // 復元後「今 Shopify にある画像 − 復元画像」を全部削除し、復元画像を元の順に並べる。完了したら media-backup.rolledback.json に改名（再実行で skip）。
 const sniff = (b) => b[0] === 0x89 && b[1] === 0x50 ? 'image/png' : b[0] === 0xff && b[1] === 0xd8 ? 'image/jpeg' : b.slice(8, 12).toString() === 'WEBP' ? 'image/webp' : b.slice(0, 3).toString() === 'GIF' ? 'image/gif' : 'image/jpeg';
 async function rollback(p) {
@@ -259,7 +259,8 @@ async function rollback(p) {
   if (!old.length) throw new Error('backup has no old images');
   if (args.dry) { log('[dry] would restore', old.length, 'images of', p.handle); return; }
   // 1) 復元元：ローカル src → staged upload、無ければ CDN URL
-  const srcs = old.map((o, i) => { const f = path.join(OUT, p.handle, 'src', `${String(i + 1).padStart(2, '0')}.jpg`); return fs.existsSync(f) && fs.statSync(f).size > 1000 ? { file: f } : { url: o.url }; });
+  // bak.localDir：置き換え直前に保存した旧画像（例 ja-replace-old、2026-10-19 日文站の画像へ置換）。無ければ download() の src
+  const srcs = old.map((o, i) => { const f = path.join(OUT, p.handle, bak.localDir ?? 'src', `${String(i + 1).padStart(2, '0')}.jpg`); return fs.existsSync(f) && fs.statSync(f).size > 1000 ? { file: f } : { url: o.url }; });
   const locals = srcs.filter((x) => x.file);
   if (locals.length) {
     const st = await gql(`mutation($i:[StagedUploadInput!]!){ stagedUploadsCreate(input:$i){ stagedTargets{ url resourceUrl parameters{ name value } } userErrors{ message } } }`, { i: locals.map((x) => { const b = fs.readFileSync(x.file); x.mime = sniff(b); x.name = path.basename(x.file).replace(/\.jpg$/, { 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif' }[x.mime] ?? '.jpg'); return { filename: x.name, mimeType: x.mime, resource: 'IMAGE', httpMethod: 'POST', fileSize: String(b.length) }; }) });
