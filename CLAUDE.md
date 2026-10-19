@@ -57,6 +57,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-10-19 晚 用户决定（日文站对比 `docs/anetmc-vs-kuajingyifan-ja.md`）：**在售/下架以批发商日文站 www.kuajingyifan.com/ja-JP（view 0）为准**，B2B view 2 只作参考；日文站公开批发价、anetmc 贵 15–17%，**用户决定不调价**（维持 ×1.15）；上午转 DRAFT 但日文站在售的商品（除 IP 风险）恢复 ACTIVE；「建议上架」新品上架；新旧上架都同时发布 Online Store + Headless（App）；日文站换图的 20 件换成日文站当前图；商品页删掉「配送料はチェックアウト時に計算されます」只留「全国送料無料」。
 - 2026-10-19 用户决定（B2B 同步第二轮）：**标题保持 Shopify 现有，不用 B2B 标题**；**说明先用 B2B 原文覆盖（只改 descriptionHtml），以后再换**；**库存不同步**（不给 app 加库存权限）；24 件补 B2B 多出的规格；hold 2 件由 AI 补日文标题/单规格后上架；298 件 B2B 重复商品不处理。**批发价 = 含税价**（用户确认，定价公式不变：Shopify = ceil(批发价×1.15/10)×10）。
 - 2026-10-19 14:05 JST：**kjyf B2B 调研 + Shopify 同步完成**。B2B（beehole.kuajingyifan.com/b2b，view 2）与旧站是同一后台：good_id/SKU/价格一致，登录不改变价格，无重量/尺寸/JAN（`docs/kjyf-b2b-调研.md`）。用户选「原地更新」：`tools/kjyf-b2b/sync.mjs`（fetch→backup→plan→apply→rollback）以 B2B 在售 1135 件为准：DRAFT 56（B2B 已下架）、更新 1131（99 SKU/27 品改价 = ceil(B2B×1.15/10)×10，variant +5/−2）、新建 5，0 失败，重跑 plan 差分为 0。**未做（待用户决定）**：标题/说明覆盖（B2B 标题关键词堆砌、说明多为批发商图片，`--content`）、库存同步（Shopify app 缺 inventory/locations scope，开启后 733 个 0 库存 SKU 会无法购买，`--stock`）、24 件需手工补 SKU、hold 2。回滚备份 `tools/kjyf-b2b/out/shopify-backup-2026-10-19T04-19-45.json`（Windows）。批发价是否含税待问批发商。
 - 2026-10-19：**用户定规则：japanerp.com 在 AWS 上做轻量静态展示站，只做展示、秒开；其他后台全部在 V64**（见核心决定 7、三层拓扑展示层）。起因：Windows 上 web-client/api-core 停了，反代等 5s 才回退静态页导致很慢；当天已让 Windows 先重启服务。待做：把展示页改为 Lightsail 本地静态托管（去掉首页 proxy_pass）。
