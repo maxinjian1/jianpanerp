@@ -57,6 +57,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-10-20 用户指示（覆盖前一条的 DRAFT 审核方式）：箱包 5 件按 Amazon 要求做完后**直接在 anetmc.com 展示**——原商品换成 A 案图（先备份可回滚，加入 approved.txt），tag `amazon-pick`，自动集合「Amazon おすすめ」(`amazon-osusume`) 放首页；B 案留在【Amazon審査】DRAFT 备 A/B；**Amazon 先不上架**，只准备好出品数据（dry-run）。6kpro 现统一回报模型 `dsv41`（GLM-5.3-Flash/glm53 为别名，1M 上下文、支持视觉），底模可能已换 DeepSeek 系，待 leosma 确认；10-19 北京时间 10-20 0:00〜2:34 vLLM 停过（`docs/6kpro-诊断-2026-10-20.md`）。
 - 2026-10-20 用户决定：**Amazon 上架前的画像处理走 SOP**（skill `.claude/skills/amazon-visual-sop/`：对标竞品 → 拆解竞品图找表达空缺 → 用评论定视觉重点（差评=顾虑、好评=需求，图中承诺必须有商品事实支撑）→ A/B 两套）。**审核后台 = Shopify 管理画面**：每个候选建【Amazon審査】DRAFT（不公开，tag `amazon-review`），用户加 tag `amazon-approved-a`/`-b` 即「点击上架 Amazon」，Windows 监视并上架后改 `amazon-listed`；`amazon-redo` = 重做。试点：时尚·箱包 5 件。第一版不用生成式 AI（FLUX Fill 非商用），主图 = 原图抠图白底，A/B 用不同原图角度，文字由代码渲染。
 - 2026-10-19 深夜 用户决定：Shopify 内部重复出品「对比，不一样的留、一样的下架」（同组标题+图片相同只留 1 件，不同的保留）；マットレス 2 SKU 6250→6330；YKOGH-01〜05 标题去型番，新建流程自动去型番；说明 217 件差异只查原因。**待再确认**：79 件全 SKU 缺货是否下架、App React 版本冲突（用户回复不清楚）。
 - 2026-10-19 晚 用户决定（日文站对比 `docs/anetmc-vs-kuajingyifan-ja.md`）：**在售/下架以批发商日文站 www.kuajingyifan.com/ja-JP（view 0）为准**，B2B view 2 只作参考；日文站公开批发价、anetmc 贵 15–17%，**用户决定不调价**（维持 ×1.15）；上午转 DRAFT 但日文站在售的商品（除 IP 风险）恢复 ACTIVE；「建议上架」新品上架；新旧上架都同时发布 Online Store + Headless（App）；日文站换图的 20 件换成日文站当前图；商品页删掉「配送料はチェックアウト時に計算されます」只留「全国送料無料」。
