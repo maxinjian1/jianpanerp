@@ -101,7 +101,7 @@ function keywords(p, spec) {
   return s;
 }
 // check-main-images --all の結果：合格した原図をメインに並べ替える（画像は編集しない）。null＝合格なし → build で除外
-const NO_MAIN = [], NO_PT = []; const PICK = fs.existsSync(path.join(OUT, 'main-image-pick.json')) ? JSON.parse(fs.readFileSync(path.join(OUT, 'main-image-pick.json'), 'utf8')) : {};
+const NO_MAIN = [], NO_PT = [], MISSING = []; let NO_DIMS = 0; const PICK = fs.existsSync(path.join(OUT, 'main-image-pick.json')) ? JSON.parse(fs.readFileSync(path.join(OUT, 'main-image-pick.json'), 'utf8')) : {};
 function images(p) {
   let urls = (p.media?.nodes ?? []).filter((m) => m.image?.url).map((m) => m.image.url);
   const pk = PICK[p.handle]; if (pk && urls.includes(pk)) urls = [pk, ...urls.filter((u) => u !== pk)];
@@ -198,13 +198,25 @@ function resolveProductType(type, title) {
   const browse_node = hit.browse_node ?? list.reduce((best, n) => (score(n) > score(best) ? n : best), list[0] ?? '');
   return { template, product_type: hit.product_type, browse_node };
 }
-// spec.dimensions（w/h/d は「約170cm」「—」など）から cm の数値だけ取る。無い辺は Shopify 説明文の「W×D×H cm」を使う。重量は説明文の「重量…kg/g」だけ。
-// どこにも書かれていなければ空欄（推測しない）。Amazon は具体的な商品タイプで重量・寸法の数値を必須にするため、空欄の商品は 99022 で失敗する
-const dimsOf = (spec, desc = '') => {
-  const n = (v) => String(v ?? '').match(/([\d.]+)\s*cm/)?.[1] ?? ''; const d = spec?.dimensions ?? {}; let w = n(d.w), h = n(d.h), dd = n(d.d);
-  const m = desc.match(/([\d.]+)\s*[×xX＊*]\s*([\d.]+)\s*[×xX＊*]\s*([\d.]+)\s*(cm|mm)/); if (m) { const k = m[4] === 'mm' ? 0.1 : 1, f = (x) => String(Math.round(Number(x) * k * 10) / 10); w ||= f(m[1]); dd ||= f(m[2]); h ||= f(m[3]); }
-  const wm = desc.match(/(?:本体重量|重量|重さ|質量)[^0-9]{0,6}([\d.]+)\s*(kg|ｋｇ|g)(?![a-z])/i); const kg = wm ? (/g$/i.test(wm[2]) && !/k/i.test(wm[2]) ? Number(wm[1]) / 1000 : Number(wm[1])) : 0;
-  return { dim_w: w, dim_h: h, dim_d: dd, weight_kg: kg ? String(Math.round(kg * 100) / 100) : '', dims_text: [w && `幅${w}cm`, dd && `奥行${dd}cm`, h && `高さ${h}cm`].filter(Boolean).join('×') }; };
+// 商品本体の重量・寸法（cm / kg）。批発商の __NUXT__ には重量・寸法の項目が無い（2026-10-19 確認）ので、書かれている値だけを次の順で使う：
+//   ① Shopify 説明文の「W×D×H cm/mm」「重量…kg/g」 ② read-specs.mjs が批発商の画像から読んだ値（out/spec-values.json、画像 URL 付き） ③ spec.json の dimensions
+// どこにも無ければ空欄（推測しない）。Amazon は具体的な商品タイプで重量・寸法の数値を必須にする（99022）→ --require-dims で欠けた商品を除外し out/missing-dims.tsv に出す
+const SPECV = fs.existsSync(path.join(OUT, 'spec-values.json')) ? JSON.parse(fs.readFileSync(path.join(OUT, 'spec-values.json'), 'utf8')) : {};
+const norm = (s) => String(s ?? '').toLowerCase().replace(/[\s　()（）\-‐・]/g, '');
+// 画像の表に行ラベル（サイズ・型番）がある時はバリエーションの値と照合。ラベル無しの 1 行だけなら、サイズ違いのバリエーションが無い商品に限り全体に使う
+function imageDims(p, v, hasSizeOpt) {
+  const items = SPECV[p.handle]?.items ?? []; const vals = (v?.selectedOptions ?? []).map((o) => norm(o.value)).filter((x) => x && x !== 'defaulttitle');
+  const hit = items.find((it) => it.label && vals.some((x) => x.includes(norm(it.label)) || norm(it.label).includes(x)));
+  return hit ?? (items.length === 1 && !hasSizeOpt ? items[0] : null);
+}
+const dimsOf = (spec, desc = '', img = null) => {
+  const r1 = (x) => (x == null || x === '' ? '' : String(Math.round(Number(x) * 10) / 10));
+  let w = '', h = '', dd = '', kg = '';
+  const m = desc.match(/([\d.]+)\s*[×xX＊*]\s*([\d.]+)\s*[×xX＊*]\s*([\d.]+)\s*(cm|mm)/); if (m) { const k = m[4] === 'mm' ? 0.1 : 1; w = r1(m[1] * k); dd = r1(m[2] * k); h = r1(m[3] * k); }
+  const wm = desc.match(/(?:本体重量|重量|重さ|質量)[^0-9]{0,6}([\d.]+)\s*(kg|ｋｇ|g)(?![a-z])/i); if (wm) kg = String(Math.round((/^g$/i.test(wm[2]) ? wm[1] / 1000 : Number(wm[1])) * 100) / 100);
+  if (img) { w ||= r1(img.w); dd ||= r1(img.d); h ||= r1(img.h); kg ||= img.weight_kg == null ? '' : String(img.weight_kg); }
+  const n = (x) => String(x ?? '').match(/([\d.]+)\s*cm/)?.[1] ?? ''; const sd = spec?.dimensions ?? {}; w ||= n(sd.w); h ||= n(sd.h); dd ||= n(sd.d);
+  return { dim_w: w, dim_h: h, dim_d: dd, weight_kg: kg, dims_text: [w && `幅${w}cm`, dd && `奥行${dd}cm`, h && `高さ${h}cm`].filter(Boolean).join('×') }; };
 // 色は親行・単品でも必須：単品はオプション値（色系の名前を優先）、無ければマルチカラー
 const vs1Color = (p) => { const vs = p.variants?.nodes ?? []; const so = vs[0]?.selectedOptions ?? []; const o = so.find((x) => COLORISH.test(x.name)) ?? (vs.length === 1 ? so.find((x) => x.value !== 'Default Title') : null); return o?.value ?? ''; };
 // 電池・充電式の商品は電池属性（種類・重量・リチウム量）が必要 → 自動では出さない
@@ -212,18 +224,20 @@ const BATTERY_RE = /電池|バッテリー|充電|USB|ソーラー|LED|電動|�
 function rowsFor(p, cat) {
   const spec = specOf(p); const img = images(p); const vt = variationTheme(p);
   const base = { feed_product_type: cat.feed_product_type, brand_name: BRAND, manufacturer: BRAND, recommended_browse_nodes: cat.browse_node, item_type_keyword: cat.item_type_keyword ?? '', update_delete: 'Update', currency: 'JPY', condition_type: 'New', country_of_origin: args.origin ?? 'CN', is_adult_product: 'FALSE',
-    product_description: description(p, spec), included_components: cut((spec?.setContents ?? []).join('、'), 100), color_fallback: vs1Color(p), model_name: cut(spec?.shortTitle || p.title, 50), ...dimsOf(spec, p.description ?? ""), generic_keywords: keywords(p, spec), manufacturer_contact_information: args.contact ?? '', ...Object.fromEntries(bullets(p, spec).map((b, i) => [`bullet_point${i + 1}`, b])) };
+    product_description: description(p, spec), included_components: cut((spec?.setContents ?? []).join('、'), 100), color_fallback: vs1Color(p), model_name: cut(spec?.shortTitle || p.title, 50),  generic_keywords: keywords(p, spec), manufacturer_contact_information: args.contact ?? '', ...Object.fromEntries(bullets(p, spec).map((b, i) => [`bullet_point${i + 1}`, b])) };
   const imgs = { main_image_url: img.main, ...Object.fromEntries(img.others.map((u, i) => [`other_image_url${i + 1}`, u])) };
   const sell = (v) => { const a = amazonPrice(v.price, cat.feed_product_type); PRICING.push({ handle: p.handle, variant: v.title ?? '', type: cat.feed_product_type, shopify: Math.round(Number(v.price)), ...a }); return { standard_price: String(a.price), quantity: String(QTY), fulfillment_latency: String(LATENCY), merchant_shipping_group_name: SHIPPING, part_number: `A${numId(v.id)}`.slice(0, 15), number_of_items: '1', item_package_quantity: '1' }; };
-  const vs = p.variants?.nodes ?? [];
-  if (!vt || vs.length <= 1) return [{ ...base, ...imgs, ...sell(vs[0] ?? { price: 0, id: p.id }), item_sku: `ANET-V${numId(vs[0]?.id ?? p.id)}`, item_name: title(p, spec), parent_child: '', parent_sku: '', relationship_type: '', variation_theme: '' }];
+  const vs = p.variants?.nodes ?? []; const sized = !!vt?.sizeOpt && vs.length > 1;
+  // サイズ違いがある商品は、商品全体の値（説明文・spec）をバリエーションに流用しない（画像のサイズ別の表だけ使う）
+  const dimsFor = (v) => (sized ? dimsOf(null, '', imageDims(p, v, true)) : dimsOf(spec, p.description ?? '', imageDims(p, v, false)));
+  if (!vt || vs.length <= 1) return [{ ...base, ...imgs, ...dimsFor(vs[0]), ...sell(vs[0] ?? { price: 0, id: p.id }), item_sku: `ANET-V${numId(vs[0]?.id ?? p.id)}`, item_name: title(p, spec), parent_child: '', parent_sku: '', relationship_type: '', variation_theme: '' }];
   const parentSku = `ANET-P${numId(p.id)}`;
   const parent = { ...base, ...imgs, item_sku: parentSku, item_name: title(p, spec), parent_child: 'parent', variation_theme: vt.theme, parent_sku: '', relationship_type: '', standard_price: '', quantity: '', fulfillment_latency: '', merchant_shipping_group_name: '', part_number: '' };
   const children = vs.map((v) => {
     const so = Object.fromEntries((v.selectedOptions ?? []).map((o) => [o.name, o.value]));
     const color = vt.colorOpt ? so[vt.colorOpt] ?? '' : '', size = vt.sizeOpt ? so[vt.sizeOpt] ?? '' : '';
     const suffix = [color, size].filter(Boolean).join(' ');
-    return { ...base, ...imgs, ...sell(v), item_sku: `ANET-V${numId(v.id)}`, item_name: cut(`${title(p, spec)} ${suffix}`, TITLE_MAX + 20), parent_child: 'child', parent_sku: parentSku, relationship_type: 'Variation', variation_theme: vt.theme, color_name: color, size_name: size };
+    return { ...base, ...imgs, ...dimsFor(v), ...sell(v), item_sku: `ANET-V${numId(v.id)}`, item_name: cut(`${title(p, spec)} ${suffix}`, TITLE_MAX + 20), parent_child: 'child', parent_sku: parentSku, relationship_type: 'Variation', variation_theme: vt.theme, color_name: color, size_name: size };
   });
   return [parent, ...children];
 }
@@ -264,7 +278,13 @@ const run = {
       if (p.handle in PICK && !PICK[p.handle]) { log('skip（メイン画像に使える原図なし：文字・ロゴ等）', p.handle); NO_MAIN.push(p.handle); continue; }
       if (BATTERY_RE.test(p.title)) { log('skip（電池・充電式の可能性：電池属性が必要）', p.handle); continue; }
       const pt = resolveProductType(c.feed_product_type, p.title); if (!pt) { log('skip（対応する商品タイプのテンプレートなし）', c.feed_product_type, p.handle); NO_PT.push([c.feed_product_type, p.handle, p.title].join('\t')); continue; }
-      if (n++ >= max) break; (groups[pt.template] ??= []).push(...rowsFor(p, { ...c, browse_node: pt.browse_node || c.browse_node }).map((r) => ({ ...r, product_type_code: pt.product_type }))); }
+      const rows = rowsFor(p, { ...c, browse_node: pt.browse_node || c.browse_node }).map((r) => ({ ...r, product_type_code: pt.product_type }));
+      const lack = rows.filter((r) => r.parent_child !== 'parent').map((r) => [r.item_sku, ['weight_kg', 'dim_w', 'dim_d', 'dim_h'].filter((k) => !r[k]).join(',')]).filter(([, m]) => m);
+      if (lack.length) MISSING.push(...lack.map(([sku, m]) => [c.feed_product_type, pt.product_type, p.handle, sku, m, p.title].join('\t')));
+      if (lack.length && args['require-dims']) { NO_DIMS++; continue; }
+      if (n++ >= max) break; (groups[pt.template] ??= []).push(...rows); }
+    fs.writeFileSync(path.join(OUT, 'missing-dims.tsv'), '﻿' + ['category\tproduct_type\thandle\tsku\tmissing\ttitle', ...MISSING].join('\r\n') + '\r\n');
+    log('重量・寸法が欠けた SKU', MISSING.length, args['require-dims'] ? `（${NO_DIMS} 商品を除外）` : '（--require-dims で除外）', '→ out/missing-dims.tsv');
     if (NO_PT.length) { fs.writeFileSync(path.join(OUT, 'no-product-type.tsv'), '﻿' + ['type\thandle\ttitle', ...NO_PT].join('\r\n') + '\r\n'); log('商品タイプ未対応で除外', NO_PT.length, '→ out/no-product-type.tsv'); }
     if (NO_MAIN.length) { fs.writeFileSync(path.join(OUT, 'main-image-none.tsv'), '﻿' + ['handle\ttitle', ...NO_MAIN.map((h) => `${h}\t${ps.find((p) => p.handle === h)?.title ?? ''}`)].join('\r\n') + '\r\n'); log('メイン画像なしで除外', NO_MAIN.length, '→', path.relative(ROOT, path.join(OUT, 'main-image-none.tsv'))); }
     const summary = [];
