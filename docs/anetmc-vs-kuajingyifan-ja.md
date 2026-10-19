@@ -349,3 +349,11 @@ anetmc 缺图或图片不一样的 20 件如下（完整的见 `docs/anetmc-vs-j
 2. 重新 build 并重启 api-core，让两个频道发布和标题去型番在 api-core 里也生效（publish-loop 已经兜底，不急）。
 3. 运费文案：按上面的步骤在后台改。
 4. 剩下 8 件图片要不要继续换？ロフトベッド的大图要不要先缩小再上传？
+
+### 追记（10-19 18:40 以后）：LLM 恢复后的新品出品
+
+- 6kpro 的 LLM 恢复后，publish-loop 跑完：6 件里 **5 件已出品**（39524 ペットカート YB-05、39535〜39538 CKHC-05〜08），ACTIVE，Online Store + Headless 两个频道都已发布。
+- 5 件标题末尾的型番已用 `fix-catalog.mjs` 去掉，同时把 4 件的分类「📦仓库耗材📦」改成「日用品雑貨」。备份：`tools/market-research/out/catalog-backup.json`（可 `--rollback`）。
+- **39539 失败**：ERP 状态为 error（`SyntaxError: Unexpected end of JSON input`，LLM 返回了不完整的 JSON）。没有重试，需要人决定是否重置为 scraped 后再跑一次 publish-loop。
+- 5 件各只有 1 张图（批发站数据如此），未额外处理。
+- 已不需要「需要人做的」第 1 项（LLM 恢复）；第 2〜4 项仍待处理。
