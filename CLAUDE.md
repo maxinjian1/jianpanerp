@@ -12,7 +12,7 @@ Monorepo：`apps/api-core`(NestJS :4000) · `apps/web-client`(Next :3000) · `ap
 ## 三层拓扑（2026-10-14 确认，以此为准）
 | 层 | 机器 | 角色 | 数据级别 |
 |---|---|---|---|
-| **展示层** | AWS Lightsail 东京 `13.158.114.4`，域名 **japanerp.com** | **只做公网入口（2026-10-15 已上线）**：haproxy→nginx 容器 `proxy_pass` 到 Windows（Tailscale `100.120.180.90`）:3000/:4000，Windows 不在线时回退 `web-static/` 静态页。配置源在 `deploy/lightsail/`。**Lightsail 上不跑 Node、不编译**（2026-10-14 用户决定：412MiB 内存不升级） | 无数据落在 Lightsail |
+| **展示层** | AWS Lightsail 东京 `13.158.114.4`，域名 **japanerp.com** | **轻量展示站（2026-10-19 用户定为规则）**：japanerp.com 在 Lightsail 上直接由 nginx 提供**轻量静态展示页**（预先构建好的 HTML/CSS/图片，压缩+缓存），目标是任何人打开都秒开；**不再把首页反代到 Windows/V64**（之前反代 Windows 时 Windows 一停就要等 5s 才回退，很慢）。ERP、API、AI、数据库等**全部后台在 V64 上**（V64 到货前由 Windows 模拟），通过 Tailscale 访问，不经 japanerp.com 首页。静态页在 Windows/云端构建后上传，配置源在 `deploy/lightsail/`。**Lightsail 上不跑 Node、不编译**（412MiB 内存不升级） | 无数据落在 Lightsail |
 | **产品层（交付给客户）** | **ANET V64**（Ubuntu 24.04 + CUDA 12.x，4×Tesla V100 16GB NVLink，64GB HBM2，600W） | 真正的运行主机：ERP Hub + AI Gateway + 本地模型（Qwen3.5-35B-A3B Q8，约 90–130 tok/s）+ Whisper + Open WebUI。**客户从 Mac 远程使用** | 全部客户数据、订单、客服、聊天都在这台机器上 |
 | **开发/模拟层** | 用户的 Windows 电脑 | **模拟 V64** 做开发测试；没有 V100 时本地模型用 Ollama 小模型或假名化+中国 API 代替 | 测试数据 |
 
@@ -25,6 +25,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 4. 通知用 LINE Messaging API / Slack，**不用 LINE Notify**（已停服）。
 5. 调度用 BullMQ（Redis），不上 n8n。
 6. **远程网络统一用 Tailscale**（2026-10-14 用户决定）：Windows / Lightsail / V64 / 用户 Mac / 客户 Mac 都加入同一 tailnet，不开公网端口；V64 镜像目标：客户不敲命令——全部服务 Docker Compose + Web 管理面板 + 一键更新/恢复；Mac 远程通过 Tailscale 访问 `http://v64:3000`（ERP）与 `:8080`（Open WebUI）。
+7. **japanerp.com = AWS Lightsail 轻量展示站，后台全部在 V64**（2026-10-19 用户决定）：展示页只做「快速给人看」，静态、轻量、秒开；任何业务功能（ERP/订单/客服/AI/管理后台）不放在 Lightsail，也不让展示页依赖后台在线。
 
 ## 环境地图
 | 环境 | 怎么连 |
@@ -56,6 +57,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-10-19：**用户定规则：japanerp.com 在 AWS 上做轻量静态展示站，只做展示、秒开；其他后台全部在 V64**（见核心决定 7、三层拓扑展示层）。起因：Windows 上 web-client/api-core 停了，反代等 5s 才回退静态页导致很慢；当天已让 Windows 先重启服务。待做：把展示页改为 Lightsail 本地静态托管（去掉首页 proxy_pass）。
 - 2026-10-18 23:07 JST：**Amazon 子 SKU 标题规则修正完成**（`optimize.mjs fix --titles`，经 カテゴリー別出品レポート 部分更新只填 item_name）：试点+5 批+补修批共 1356 行成功、标题类错误 0；ALAIX 52 个 SKU 因 18299（该品牌需出品許可）未生效；其他非标题错误（图片 100581/100588 等 30、属性 22、价格 1）在 Windows `tools/amazon-listing/out/fix-upload/other-errors.tsv`。自有亲 SKU 10 个已更新（8 无错）。**121 个亲 ASIN 账户里无 SKU，无法上传改**——Seller Support 表单已填好（附 parent-title-corrections.xlsx）但只能人工在线聊天，或用户登录 Brand Registry 后再试直接编辑。回滚：原报告 xlsm + 各 batch json 的新旧标题。2026 新系列 Amazon 仍保留「[SARADEMUNT]」括号显示。
 - 2026-10-18 14:43 JST：**Amazon 只读审计完成**（`docs/amazon-audit-report.md`，1415 ASIN，另 32 件只有 JAN 未审）：1052 件 90 天零流量、87 件有流量零单、276 件有订单（共 2097 单）。全店共性问题：标题「サラデマント〕」括号错 1045 件、标题带型番 869、箇条書き缺尺寸 1385、说明文混入 CSS/JS 709、合规高风险 166（UV/UPF 164、着痩せ/补正 127）、他牌名（slenderlady 66 / ALAIX 52）。修改仍暂停，等用户定优先级。ComfyUI 试点：用户审核チューブベンダー主图通过并已上线（approved.txt），タンブラー 中文 VIP 防盗图已删（备份 media-backup.comfy.json）。1688 仍等用户拖滑块（315 品待找）。
 - 2026-10-18：**用户批准 ComfyUI 改图试点**：`tools/comfy/`（6kpro 看图定操作 → ComfyUI 只生成背景/补边/擦字 → compose.py 把原商品像素贴回 → 6kpro 质检 → 前后对比图 out-preview/ 给用户审核；发布仍只认 approved.txt）。先在 Windows 4080 装 ComfyUI（C:\ComfyUI，:8188，FLUX Fill GGUF Q8 + 4x-UltraSharp），样品 = タンブラー + チューブベンダー；V64 到货后 4 卡各一实例量产。FLUX Fill dev 权重非商业许可，量产前确认或换 Qwen-Image-Edit（Apache-2.0）。
