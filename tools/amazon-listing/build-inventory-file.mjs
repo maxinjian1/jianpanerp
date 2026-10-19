@@ -127,7 +127,7 @@ const DEFAULT_LABELS = { feed_product_type: '商品タイプ', item_sku: '出品
 // 新形式テンプレート（2026 年版：5 行ヘッダ、5 行目が属性パス contribution_sku#1.value …、データは 7 行目から）。
 // 値は表示ラベル（「親」「新品」等）で入れる。ラベルは category-map.json の flatFileValues で上書きできる（テンプレートの「有効な値」シートで確認すること）。
 const MP = '[marketplace_id=A1VC38T7YXB528]', JA = '[language_tag=ja_JP]';
-const FV = { create: '作成または置換 (完全更新)', parent: '親', child: '子供', condition: '新品', channel: '出品者出荷（デフォルト）', origin: '中国', productIdType: 'GTIN免除', dgRegulation: '該当なし', variationTheme: { Size: 'サイズ', Color: '色', SizeColor: 'サイズ/色' }, exclusive: 'いいえ', noBattery: 'いいえ', components: '本体', multiColor: 'マルチカラー', ...(MAP.flatFileValues ?? {}) };
+const FV = { create: '作成または置換 (完全更新)', parent: '親', child: '子供', condition: '新品', channel: '出品者出荷（デフォルト）', origin: '中国', productIdType: 'GTIN免除', dgRegulation: '該当なし', variationTheme: { Size: 'サイズ', Color: '色', SizeColor: 'サイズ/色' }, exclusive: 'いいえ', noBattery: 'いいえ', components: '本体', multiColor: 'マルチカラー', directions: '取扱説明書をご確認のうえご使用ください。', ...(MAP.flatFileValues ?? {}) };
 function newFormatRow(r, type) {
   const o = {
     'contribution_sku#1.value': r.item_sku, 'product_type#1.value': r.product_type_code || (typeof MAP.productTypes?.[type] === 'string' ? MAP.productTypes[type] : type), '::record_action': FV.create,
@@ -148,8 +148,30 @@ function newFormatRow(r, type) {
   if (r.parent_child !== 'parent') Object.assign(o, { // 親行は売買しない（価格・在庫は子に付ける）
     [`condition_type${MP}#1.value`]: FV.condition, 'fulfillment_availability#1.fulfillment_channel_code': FV.channel, 'fulfillment_availability#1.quantity': r.quantity,
     'fulfillment_availability#1.lead_time_to_ship_max_days': r.fulfillment_latency, [`purchasable_offer${MP}[audience=ALL]#1.our_price#1.schedule#1.value_with_tax`]: r.standard_price,
-    [`merchant_shipping_group${MP}#1.value`]: r.merchant_shipping_group_name });
+    [`merchant_shipping_group${MP}#1.value`]: r.merchant_shipping_group_name, [`list_price${MP}#1.value`]: r.standard_price }); // 参考価格は販売価格と同額（割引表示を作らない）
+  Object.assign(o, typeAttrs(r, type, o['product_type#1.value']));
   return o;
+}
+// 具体的な商品タイプ（HOME_PARTS 以外）で 90220「必須ですが、入力されていません」になった属性（2026-10-19 試点の処理レポート）。
+// 選択式は templates/<template>.values.json にあるその商品タイプの有効値だけを使う（無効なら空欄）。重量・寸法の数値は spec に無ければ空欄。
+const VALUES = {}, HF = {}; const valuesOf = (tpl) => (VALUES[tpl] ??= fs.existsSync(path.join(TPL, `${tpl}.values.json`)) ? JSON.parse(fs.readFileSync(path.join(TPL, `${tpl}.values.json`), 'utf8')) : {});
+function typeAttrs(r, tpl, pt) {
+  const pick = (key, cands) => { const list = valuesOf(tpl)[key]?.[pt]; const c = cands.filter(Boolean); return !list?.length ? c[0] ?? '' : c.find((x) => list.includes(x)) ?? ''; };
+  const text = `${r.item_name} ${r.product_description ?? ''}`, sizeKey = `size${MP}${JA}#1.value`, cm = 'センチメートル';
+  const sizeList = valuesOf(tpl)[sizeKey]?.[pt] ?? [];
+  const o = {
+    [`model_name${MP}${JA}#1.value`]: r.model_name ?? '', [`number_of_items${MP}#1.value`]: '1', [`unit_count${MP}#1.value`]: '1',
+    [`unit_count${MP}#1.type${JA}.value`]: pick(`unit_count${MP}#1.type${JA}.value`, ['個', 'カウント']),
+    [sizeKey]: r.size_name || pick(sizeKey, [...sizeList.filter((v) => v.length >= 2 && r.item_name.includes(v)), r.dims_text, 'ワンサイズ', 'フリーサイズ']),
+    [`distribution_designation${MP}#1.value`]: pick(`distribution_designation${MP}#1.value`, ['正規品']),
+    [`specific_uses_for_product${MP}${JA}#1.value`]: pick(`specific_uses_for_product${MP}${JA}#1.value`, /屋外|ガーデン|アウトドア|ベランダ|庭/.test(text) ? ['屋外', 'アウトドア'] : ['インドア', '室内']),
+    [`is_assembly_required${MP}#1.value`]: pick(`is_assembly_required${MP}#1.value`, [/組み?立て?(式|が必要|て使用|品)|要組立/.test(text) && !/組立不要|組み立て不要|完成品/.test(text) ? 'はい' : 'いいえ']),
+    [`is_fragile${MP}#1.value`]: pick(`is_fragile${MP}#1.value`, [/ガラス|陶器|陶磁器|セラミック/.test(text) ? 'はい' : 'いいえ']),
+    [`item_weight${MP}#1.unit`]: pick(`item_weight${MP}#1.unit`, ['キログラム']), [`item_weight${MP}#1.value`]: r.weight_kg ?? '',
+    [`directions${MP}${JA}#1.value`]: FV.directions, [`warranty_description${MP}${JA}#1.value`]: FV.warranty ?? '',
+  };
+  for (const [k, v] of [['length', r.dim_d], ['width', r.dim_w], ['height', r.dim_h]]) for (const a of ['item_length_width_height', 'item_dimensions', 'item_length_width']) { o[`${a}${MP}#1.${k}.unit`] = cm; o[`${a}${MP}#1.${k}.value`] = v ?? ''; }
+  const have = (HF[tpl] ??= new Set(headerRows(tpl).fields)); return Object.fromEntries(Object.entries(o).filter(([k]) => have.has(k))); // テンプレートに無い列は出さない
 }
 
 function headerRows(type) {
@@ -176,6 +198,13 @@ function resolveProductType(type, title) {
   const browse_node = hit.browse_node ?? list.reduce((best, n) => (score(n) > score(best) ? n : best), list[0] ?? '');
   return { template, product_type: hit.product_type, browse_node };
 }
+// spec.dimensions（w/h/d は「約170cm」「—」など）から cm の数値だけ取る。無い辺は Shopify 説明文の「W×D×H cm」を使う。重量は説明文の「重量…kg/g」だけ。
+// どこにも書かれていなければ空欄（推測しない）。Amazon は具体的な商品タイプで重量・寸法の数値を必須にするため、空欄の商品は 99022 で失敗する
+const dimsOf = (spec, desc = '') => {
+  const n = (v) => String(v ?? '').match(/([\d.]+)\s*cm/)?.[1] ?? ''; const d = spec?.dimensions ?? {}; let w = n(d.w), h = n(d.h), dd = n(d.d);
+  const m = desc.match(/([\d.]+)\s*[×xX＊*]\s*([\d.]+)\s*[×xX＊*]\s*([\d.]+)\s*(cm|mm)/); if (m) { const k = m[4] === 'mm' ? 0.1 : 1, f = (x) => String(Math.round(Number(x) * k * 10) / 10); w ||= f(m[1]); dd ||= f(m[2]); h ||= f(m[3]); }
+  const wm = desc.match(/(?:本体重量|重量|重さ|質量)[^0-9]{0,6}([\d.]+)\s*(kg|ｋｇ|g)(?![a-z])/i); const kg = wm ? (/g$/i.test(wm[2]) && !/k/i.test(wm[2]) ? Number(wm[1]) / 1000 : Number(wm[1])) : 0;
+  return { dim_w: w, dim_h: h, dim_d: dd, weight_kg: kg ? String(Math.round(kg * 100) / 100) : '', dims_text: [w && `幅${w}cm`, dd && `奥行${dd}cm`, h && `高さ${h}cm`].filter(Boolean).join('×') }; };
 // 色は親行・単品でも必須：単品はオプション値（色系の名前を優先）、無ければマルチカラー
 const vs1Color = (p) => { const vs = p.variants?.nodes ?? []; const so = vs[0]?.selectedOptions ?? []; const o = so.find((x) => COLORISH.test(x.name)) ?? (vs.length === 1 ? so.find((x) => x.value !== 'Default Title') : null); return o?.value ?? ''; };
 // 電池・充電式の商品は電池属性（種類・重量・リチウム量）が必要 → 自動では出さない
@@ -183,7 +212,7 @@ const BATTERY_RE = /電池|バッテリー|充電|USB|ソーラー|LED|電動|�
 function rowsFor(p, cat) {
   const spec = specOf(p); const img = images(p); const vt = variationTheme(p);
   const base = { feed_product_type: cat.feed_product_type, brand_name: BRAND, manufacturer: BRAND, recommended_browse_nodes: cat.browse_node, item_type_keyword: cat.item_type_keyword ?? '', update_delete: 'Update', currency: 'JPY', condition_type: 'New', country_of_origin: args.origin ?? 'CN', is_adult_product: 'FALSE',
-    product_description: description(p, spec), included_components: cut((spec?.setContents ?? []).join('、'), 100), color_fallback: vs1Color(p), generic_keywords: keywords(p, spec), manufacturer_contact_information: args.contact ?? '', ...Object.fromEntries(bullets(p, spec).map((b, i) => [`bullet_point${i + 1}`, b])) };
+    product_description: description(p, spec), included_components: cut((spec?.setContents ?? []).join('、'), 100), color_fallback: vs1Color(p), model_name: cut(spec?.shortTitle || p.title, 50), ...dimsOf(spec, p.description ?? ""), generic_keywords: keywords(p, spec), manufacturer_contact_information: args.contact ?? '', ...Object.fromEntries(bullets(p, spec).map((b, i) => [`bullet_point${i + 1}`, b])) };
   const imgs = { main_image_url: img.main, ...Object.fromEntries(img.others.map((u, i) => [`other_image_url${i + 1}`, u])) };
   const sell = (v) => { const a = amazonPrice(v.price, cat.feed_product_type); PRICING.push({ handle: p.handle, variant: v.title ?? '', type: cat.feed_product_type, shopify: Math.round(Number(v.price)), ...a }); return { standard_price: String(a.price), quantity: String(QTY), fulfillment_latency: String(LATENCY), merchant_shipping_group_name: SHIPPING, part_number: `A${numId(v.id)}`.slice(0, 15), number_of_items: '1', item_package_quantity: '1' }; };
   const vs = p.variants?.nodes ?? [];
