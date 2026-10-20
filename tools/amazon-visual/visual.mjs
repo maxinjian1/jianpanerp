@@ -751,12 +751,21 @@ async function approveAndPublish(p) {
   if (!have.has(p.handle)) fs.appendFileSync(APPROVED, `${p.handle}\n`);
   await publishA(p);
 }
+// 6kpro（第三方）が止まっている間は失敗扱いにせず待つ（5 分おきに /health、最長 --wait-hours 時間、既定 12）
+const llmUp = async () => { try { const r = await fetch(`${LLM.replace(/\/v1$/, '')}/health`, { signal: AbortSignal.timeout(10000) }); return r.ok; } catch { return false; } };
+let llmWait = null;
+async function waitLLM() {
+  if (await llmUp()) return;
+  llmWait ??= (async () => { const until = Date.now() + Number(args['wait-hours'] ?? 12) * 3600e3; log('6kpro 停止中 → 復旧待ち'); while (Date.now() < until) { await sleep(300e3); if (await llmUp()) { log('6kpro 復旧'); return; } } throw new Error('6kpro が復旧しない（待ち時間切れ）'); })().finally(() => { llmWait = null; });
+  await llmWait;
+}
 async function bulk() {
   args.set ??= 'all'; if (!fs.existsSync(SETF())) await pickAll();
   if (args['full-retry']) for (const p of pilot()) { const b = brief(p); if (/CAPTCHA|BLOCKED/.test(b.lite ?? '')) { delete b.lite; delete b.plan; delete b.render; delete b.check; saveBrief(p, b); } }
   const toLite = (p, why) => { const b = brief(p); b.lite = why; saveBrief(p, b); log('→ lite', p.handle.slice(0, 30), why); };
   const SOFT = /BLOCKED|竞品が|レビューが|competitors 無し/;
-  await each(async (p) => {
+  await each(async (p) => { for (let k = 0; ; k++) { await waitLLM(); try { return await bulkOne(p); } catch (e) { if (k < 2 && !(await llmUp())) { log('6kpro 途中停止', p.handle.slice(0, 30), '→ 復旧後にやり直し'); continue; } throw e; } } }, 'bulk');
+  async function bulkOne(p) {
     if (!lite(p)) {
       if (amazonBlocked) toLite(p, 'Amazon CAPTCHA 中（後で --full-retry）');
       else {
@@ -767,7 +776,7 @@ async function bulk() {
     if (lite(p)) { await compete(p); await teardown(p); await reviews(p); }
     await render(p); await check(p); await listing(p);
     if (args.publish) await approveAndPublish(p);
-  }, 'bulk');
+  }
 }
 
 // ---------- CLI ----------
