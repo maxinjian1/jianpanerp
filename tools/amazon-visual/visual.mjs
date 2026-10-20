@@ -16,7 +16,10 @@
  *   node tools/amazon-visual/visual.mjs all                   # pick〜render
  * 全商品（lite＝竞品調査なし、自社の事実だけ。Amazon ページは読まない）：
  *   node tools/amazon-visual/visual.mjs pick --all            # ACTIVE・日文站在售・IP 除外・原図≥2 → out/set-all.json ＋原図 DL
- *   node tools/amazon-visual/visual.mjs bulk --set all --conc 3 [--from 0 --limit 100]   # 1 商品ずつ keywords→own→facts/plan→render→check→listing。失敗 2% 超で停止
+ *   node tools/amazon-visual/visual.mjs bulk --set all --conc 3 [--from 0 --limit 100]
+ *        # 試点と同じ：compete（Amazon、直列）→ teardown → reviews → render → check → listing。anetmc・Amazon には書かない
+ *        # 竞品が取れない／CAPTCHA の商品は lite（自社の事実だけ）に落とす。CAPTCHA は突破しない（--full-retry で後でやり直し）。失敗 2% 超で停止
+ *   node tools/amazon-visual/visual.mjs publish --set all     # approved.txt（用户が認めた分）＋合格 → A 案 7 枚を anetmc に（tag amazon-ready）
  *   node tools/amazon-visual/visual.mjs sheet --set all       # 12 商品/枚の一覧 → docs/amazon-visual/all/sheet-NNN.jpg
  *   node tools/amazon-visual/visual.mjs status --set all      # 進捗・合格数・不合格理由 → docs/amazon-visual/all-status.md
  * 共通：--handle <h>（1 件だけ）/ --force（作り直し）/ --cdp http://127.0.0.1:9224（公開ページのみ、ログインしない）
@@ -101,7 +104,8 @@ async function chatJson(messages, { maxTokens = 6000, model = MODEL, retries = 3
 const b64 = (p) => `data:image/jpeg;base64,${fs.readFileSync(p).toString('base64')}`;
 let pyN = 0;
 function py(cmd, jobs) { if (!jobs.length) return; const f = path.join(OUT, `_jobs-${cmd}-${process.pid}-${++pyN}.json`); fs.writeFileSync(f, JSON.stringify(jobs)); const r = spawnSync(PY, [path.join(ROOT, 'tools/product-images/imgtool.py'), cmd, f], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], maxBuffer: 1 << 26 }); fs.unlinkSync(f); if (r.status !== 0) throw new Error(`imgtool ${cmd} failed`); }
-async function download(url, file) { if (fs.existsSync(file)) return file; const r = await fetch(url); if (!r.ok) throw new Error(`img ${r.status} ${url.slice(0, 80)}`); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, Buffer.from(await r.arrayBuffer())); return file; }
+// CDN の一時的な 5xx/429/通信エラーは 3 回まで再試行
+async function download(url, file) { if (fs.existsSync(file)) return file; let r; for (let k = 1; ; k++) { r = await fetch(url).catch((e) => ({ ok: false, status: e.message })); if (r.ok || k >= 4 || !(r.status >= 500 || r.status === 429 || typeof r.status === 'string')) break; await sleep(2000 * k); } if (!r.ok) throw new Error(`img ${r.status} ${url.slice(0, 80)}`); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, Buffer.from(await r.arrayBuffer())); return file; }
 
 // ---------- 対象 ----------
 const PILOT = path.join(OUT, 'pilot.json');
@@ -111,12 +115,15 @@ const brief = (p) => (fs.existsSync(briefF(p)) ? J(briefF(p)) : { handle: p.hand
 const saveBrief = (p, b) => W(briefF(p), b);
 // --set all：全商品（out/set-all.json、pick --all で作る）。--from N --limit M でバッチ。lite＝竞品調査なし（自社の事実だけで Amazon 規格の画像・出品データ）
 const SETF = () => (args.set ? path.join(OUT, `set-${args.set}.json`) : PILOT);
-const lite = (p) => Boolean(p.lite || args.lite);
+// 全商品も試点と同じ完全 SOP（竞品・評論・A/B）。竞品が取れない（CAPTCHA／竞品 3 件未満／レビュー 5 件未満）商品だけ brief.lite に理由を残して lite に落とす
+const lite = (p) => Boolean(args.lite || brief(p).lite);
+let amazonBlocked = false; let bLock = Promise.resolve();
+const withBrowser = (fn) => { const r = bLock.then(fn); bLock = r.catch(() => {}); return r; }; // CDP のタブは 1 つ → ブラウザを使う段だけ直列
 function pilot() { const f = SETF(); if (!fs.existsSync(f)) throw new Error(`${path.relative(ROOT, f)} が無い：先に pick${args.set ? ' --all' : ''}`); let ps = J(f).items; if (args.handle) ps = ps.filter((p) => p.handle === args.handle); const from = Number(args.from ?? 0); return ps.slice(from, args.limit ? from + Number(args.limit) : undefined); }
 // --conc N：並列数（ブラウザを使う段は 1）。失敗が 2% を超えたら止める（最低 2 件までは続行）
 async function each(fn, name = stage) {
   const ps = pilot(); let ok = 0, i = 0, stop = false; const errs = []; const max = Math.max(2, Math.floor(ps.length * 0.02));
-  const worker = async () => { while (!stop && i < ps.length) { const p = ps[i++]; try { await fn(p); ok++; } catch (e) { log('ERR', p.handle.slice(0, 30), e.message); errs.push({ handle: p.handle, err: e.message.slice(0, 300) }); if (/BLOCKED/.test(e.message)) stop = true; if (errs.length > max) { stop = true; log(`失敗 ${errs.length} 件 > 2%（${max}）→ 停止`); } } } };
+  const worker = async () => { while (!stop && i < ps.length) { const p = ps[i++]; try { await fn(p); ok++; } catch (e) { log('ERR', p.handle.slice(0, 30), e.message); errs.push({ handle: p.handle, err: e.message.slice(0, 300) }); if (/BLOCKED/.test(e.message) && name !== 'bulk') stop = true; if (errs.length > max) { stop = true; log(`失敗 ${errs.length} 件 > 2%（${max}）→ 停止`); } } } };
   await Promise.all(Array.from({ length: Math.max(1, Number(args.conc ?? 1)) }, worker));
   log(`${name}: ok ${ok} / ${ps.length}`); if (errs.length) { W(path.join(OUT, `errors-${name}${args.set ? `-${args.set}` : ''}.json`), { at: new Date().toISOString(), errs }); process.exitCode = 1; }
   if (stop) throw new Error(`${name} 停止（失敗 ${errs.length}）`);
@@ -174,11 +181,11 @@ async function pickAll() {
     const why = p.title.startsWith('【Amazon審査】') ? '審査用 DRAFT' : HOLD_RE.test(`${p.title} ${p.description} ${g?.title ?? ''}`) ? '他社ブランド/IP' : !g ? '日文站に無い' : imgs.length < 2 ? `原図 ${imgs.length} 枚` : null;
     if (why) { skipped.push({ handle: p.handle, title: p.title, why }); continue; }
     const price = Math.min(...p.variants.nodes.map((v) => Number(v.price))); const cat = categorize(p);
-    items.push({ handle: p.handle, id: p.id, title: p.title, productType: p.productType, lite: true, price, amazon: { type: cat.feed_product_type, ...amazonPrice(price, cat.feed_product_type) }, options: p.options, variants: p.variants.nodes, images: imgs, description: p.description,
+    items.push({ handle: p.handle, id: p.id, title: p.title, productType: p.productType, price, amazon: { type: cat.feed_product_type, ...amazonPrice(price, cat.feed_product_type) }, options: p.options, variants: p.variants.nodes, images: imgs, description: p.description,
       ja: { good_id: g.good_id, title: g.title, sub_title: g.sub_title, desc: text(g.desc), skus: g.skus, fetchedAt: ja.fetchedAt } });
   }
   items.sort((a, z) => String(a.productType).localeCompare(String(z.productType)) || a.handle.localeCompare(z.handle)); // 分類ごとにバッチを切りやすく
-  W(f, { at: new Date().toISOString(), rule: 'ACTIVE・日文站在售・他社ブランド/IP 除外・原図≥2・lite（竞品調査なし）', items, skipped });
+  W(f, { at: new Date().toISOString(), rule: 'ACTIVE・日文站在售・他社ブランド/IP 除外・原図≥2（試点と同じ SOP、竞品が取れない商品は lite）', items, skipped });
   log('pick --all', items.length, '件', 'skip', skipped.length, Object.entries(skipped.reduce((a, x) => ((a[x.why] = (a[x.why] ?? 0) + 1), a), {})).map(([k, v]) => `${k} ${v}`).join(' / '));
   return downloadOwn();
 }
@@ -187,9 +194,11 @@ async function downloadOwn() {
 }
 
 // ================= 2. compete =================
-async function bagLists() {
-  const f = path.join(OUT, '_lists.json'); if (fs.existsSync(f) && !args.force) return J(f);
-  const c = CATS.luggage; const items = new Map();
+// Amazon 出品カテゴリ → ランキングのカテゴリ（research.mjs CATS）
+const CAT_KEY = { Home: 'home', HomeFurnitureAndDecor: 'home', Lighting: 'home', Kitchen: 'kitchen', Luggage: 'luggage', Jewelry: 'jewelry', Watch: 'watch', Toys: 'toys', Beauty: 'beauty', HealthAndPersonalCare: 'hpc', Automotive: 'automotive', Clothing: 'fashion', Tools: 'diy', CE: 'electronics', Grocery: 'grocery', SportingGoods: 'sports' };
+async function catLists(key = 'luggage') {
+  const f = path.join(OUT, key === 'luggage' ? '_lists.json' : `_lists-${key}.json`); if (fs.existsSync(f) && !args['force-lists']) return J(f);
+  const c = CATS[key] ?? CATS.home; const items = new Map();
   for (const [kind, url] of Object.entries(listUrls(c))) { if (kind === 'movers') continue; const page = await visit(url); for (let y = 0; y < 6; y++) { await page.mouse.wheel(0, 1500); await sleep(500); } for (const g of await readList(page)) if (!items.has(g.asin)) items.set(g.asin, { ...g, source: kind }); log('list', kind, items.size); }
   const out = { at: new Date().toISOString(), category: c.name, items: [...items.values()] }; W(f, out); return out;
 }
@@ -204,7 +213,7 @@ async function compete(p) {
     b.keywords = (j.keywords ?? []).slice(0, 4); b.form = j.form; b.segment = j.segment; saveBrief(p, b);
   }
   if (lite(p)) return; // lite：キーワード・版型・客群だけ（出品データ用）。Amazon ページは読まない
-  const lists = await bagLists(); const cand = new Map();
+  const lists = await catLists(CAT_KEY[p.amazon?.type] ?? 'home'); const cand = new Map();
   for (const kw of b.keywords) { const page = await visit(`https://www.amazon.co.jp/s?k=${encodeURIComponent(kw)}`); for (const x of (await readSearch(page)).slice(0, 24)) if (!cand.has(x.asin)) cand.set(x.asin, { ...x, source: `検索「${kw}」${x.sponsored ? '(広告)' : ''} ${x.pos}位` }); log('search', kw, cand.size); }
   for (const x of lists.items) if (!cand.has(x.asin)) cand.set(x.asin, { ...x, source: `${x.source === 'bestsellers' ? 'ベストセラー' : '新着'} ${x.rank ?? ''}位` });
   const target = p.amazon.price; let band = 0.3; let pool = [];
@@ -624,7 +633,9 @@ async function publishA(p) {
     if (del.productDeleteMedia.mediaUserErrors.length) throw new Error(del.productDeleteMedia.mediaUserErrors[0].message);
     log('published A', p.handle.slice(0, 30), `${ids.length} new / ${live.length} removed (backup old ${old.length})`);
   }
-  if (!cur.tags.includes('amazon-pick')) { const t = await gql(`mutation($id:ID!){ tagsAdd(id:$id, tags:["amazon-pick"]){ userErrors{ message } } }`, { id: p.id }); if (ue(t.tagsAdd)) throw new Error(ue(t.tagsAdd)); log('tag amazon-pick', p.handle.slice(0, 30)); }
+  // 試点 5 件＝amazon-pick（「Amazon おすすめ」集合）、全商品＝amazon-ready（集合には入れない）
+  const tag = args.set ? 'amazon-ready' : 'amazon-pick';
+  if (!cur.tags.includes(tag)) { const t = await gql(`mutation($id:ID!,$t:[String!]!){ tagsAdd(id:$id, tags:$t){ userErrors{ message } } }`, { id: p.id, t: [tag] }); if (ue(t.tagsAdd)) throw new Error(ue(t.tagsAdd)); log('tag', tag, p.handle.slice(0, 30)); }
 }
 
 // ================= collection「Amazon おすすめ」（tag = amazon-pick の自動集合）→ Online Store + Headless =================
@@ -730,9 +741,23 @@ async function status() {
   fs.mkdirSync(DOCS, { recursive: true }); fs.writeFileSync(path.join(DOCS, 'all-status.md'), md + '\n'); log('status', JSON.stringify(st));
 }
 // 1 商品ずつ全段（--conc で並列）。Shopify の公開商品・Amazon には何も書かない
+// anetmc への公開はここでは行わない：用户が sheet を見て認めた商品を approved.txt に入れ、publish --set all で公開
 async function bulk() {
   args.set ??= 'all'; if (!fs.existsSync(SETF())) await pickAll();
-  await each(async (p) => { for (const fn of [compete, teardown, reviews, render, check, listing]) await fn(p); }, 'bulk');
+  if (args['full-retry']) for (const p of pilot()) { const b = brief(p); if (/CAPTCHA|BLOCKED/.test(b.lite ?? '')) { delete b.lite; delete b.plan; delete b.render; delete b.check; saveBrief(p, b); } }
+  const toLite = (p, why) => { const b = brief(p); b.lite = why; saveBrief(p, b); log('→ lite', p.handle.slice(0, 30), why); };
+  const SOFT = /BLOCKED|竞品が|レビューが|competitors 無し/;
+  await each(async (p) => {
+    if (!lite(p)) {
+      if (amazonBlocked) toLite(p, 'Amazon CAPTCHA 中（後で --full-retry）');
+      else {
+        try { await withBrowser(() => compete(p)); await teardown(p); await reviews(p); }
+        catch (e) { if (!SOFT.test(e.message)) throw e; if (/BLOCKED/.test(e.message)) { amazonBlocked = true; log('Amazon CAPTCHA → 以降は lite（突破しない）'); } toLite(p, e.message.slice(0, 120)); }
+      }
+    }
+    if (lite(p)) { await compete(p); await teardown(p); await reviews(p); }
+    await render(p); await check(p); await listing(p);
+  }, 'bulk');
 }
 
 // ---------- CLI ----------
