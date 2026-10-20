@@ -14,6 +14,11 @@
  *   node tools/amazon-visual/visual.mjs collection            # 自動集合「Amazon おすすめ」（amazon-osusume、tag=amazon-pick）→ Online Store + Headless
  *   node tools/amazon-visual/visual.mjs listing               # Amazon 出品データ（SARADEMUNT 商品名・箇条書き 5・説明・キーワード・amazonPrice）→ out/<h>/amazon-listing.json + docs/amazon-visual/<h>.md ＋ 在庫ファイル dry-run
  *   node tools/amazon-visual/visual.mjs all                   # pick〜render
+ * 全商品（lite＝竞品調査なし、自社の事実だけ。Amazon ページは読まない）：
+ *   node tools/amazon-visual/visual.mjs pick --all            # ACTIVE・日文站在售・IP 除外・原図≥2 → out/set-all.json ＋原図 DL
+ *   node tools/amazon-visual/visual.mjs bulk --set all --conc 3 [--from 0 --limit 100]   # 1 商品ずつ keywords→own→facts/plan→render→check→listing。失敗 2% 超で停止
+ *   node tools/amazon-visual/visual.mjs sheet --set all       # 12 商品/枚の一覧 → docs/amazon-visual/all/sheet-NNN.jpg
+ *   node tools/amazon-visual/visual.mjs status --set all      # 進捗・合格数・不合格理由 → docs/amazon-visual/all-status.md
  * 共通：--handle <h>（1 件だけ）/ --force（作り直し）/ --cdp http://127.0.0.1:9224（公開ページのみ、ログインしない）
  * 再実行可：各段は out/<handle>/ のファイルがあれば飛ばす。出力 out/ は git に入れない（preview は docs/amazon-visual/ にコピー）。
  * 鉄則：画像内の数字は facts（日文站の説明・SKU・原図内の表記）にあるものだけ。最強/No.1/絶対/日本一/医療効果/他社ブランドは使わない。
@@ -94,7 +99,8 @@ async function chatJson(messages, { maxTokens = 6000, model = MODEL, retries = 3
   }
 }
 const b64 = (p) => `data:image/jpeg;base64,${fs.readFileSync(p).toString('base64')}`;
-function py(cmd, jobs) { if (!jobs.length) return; const f = path.join(OUT, `_jobs-${cmd}-${process.pid}.json`); fs.writeFileSync(f, JSON.stringify(jobs)); const r = spawnSync(PY, [path.join(ROOT, 'tools/product-images/imgtool.py'), cmd, f], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], maxBuffer: 1 << 26 }); fs.unlinkSync(f); if (r.status !== 0) throw new Error(`imgtool ${cmd} failed`); }
+let pyN = 0;
+function py(cmd, jobs) { if (!jobs.length) return; const f = path.join(OUT, `_jobs-${cmd}-${process.pid}-${++pyN}.json`); fs.writeFileSync(f, JSON.stringify(jobs)); const r = spawnSync(PY, [path.join(ROOT, 'tools/product-images/imgtool.py'), cmd, f], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], maxBuffer: 1 << 26 }); fs.unlinkSync(f); if (r.status !== 0) throw new Error(`imgtool ${cmd} failed`); }
 async function download(url, file) { if (fs.existsSync(file)) return file; const r = await fetch(url); if (!r.ok) throw new Error(`img ${r.status} ${url.slice(0, 80)}`); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, Buffer.from(await r.arrayBuffer())); return file; }
 
 // ---------- 対象 ----------
@@ -103,8 +109,18 @@ const pdir = (p, ...sub) => { const d = path.join(OUT, p.handle, ...sub); fs.mkd
 const briefF = (p) => path.join(OUT, p.handle, 'brief.json');
 const brief = (p) => (fs.existsSync(briefF(p)) ? J(briefF(p)) : { handle: p.handle, title: p.title });
 const saveBrief = (p, b) => W(briefF(p), b);
-function pilot() { if (!fs.existsSync(PILOT)) throw new Error('out/pilot.json が無い：先に pick'); let ps = J(PILOT).items; if (args.handle) ps = ps.filter((p) => p.handle === args.handle); return ps; }
-async function each(fn) { const ps = pilot(); let ok = 0; const errs = []; for (const p of ps) { try { await fn(p); ok++; } catch (e) { log('ERR', p.handle.slice(0, 30), e.message); errs.push(p.handle); if (/BLOCKED/.test(e.message)) break; } } log(`${stage}: ok ${ok} / ${ps.length}`); if (errs.length) process.exitCode = 1; }
+// --set all：全商品（out/set-all.json、pick --all で作る）。--from N --limit M でバッチ。lite＝竞品調査なし（自社の事実だけで Amazon 規格の画像・出品データ）
+const SETF = () => (args.set ? path.join(OUT, `set-${args.set}.json`) : PILOT);
+const lite = (p) => Boolean(p.lite || args.lite);
+function pilot() { const f = SETF(); if (!fs.existsSync(f)) throw new Error(`${path.relative(ROOT, f)} が無い：先に pick${args.set ? ' --all' : ''}`); let ps = J(f).items; if (args.handle) ps = ps.filter((p) => p.handle === args.handle); const from = Number(args.from ?? 0); return ps.slice(from, args.limit ? from + Number(args.limit) : undefined); }
+// --conc N：並列数（ブラウザを使う段は 1）。失敗が 2% を超えたら止める（最低 2 件までは続行）
+async function each(fn, name = stage) {
+  const ps = pilot(); let ok = 0, i = 0, stop = false; const errs = []; const max = Math.max(2, Math.floor(ps.length * 0.02));
+  const worker = async () => { while (!stop && i < ps.length) { const p = ps[i++]; try { await fn(p); ok++; } catch (e) { log('ERR', p.handle.slice(0, 30), e.message); errs.push({ handle: p.handle, err: e.message.slice(0, 300) }); if (/BLOCKED/.test(e.message)) stop = true; if (errs.length > max) { stop = true; log(`失敗 ${errs.length} 件 > 2%（${max}）→ 停止`); } } } };
+  await Promise.all(Array.from({ length: Math.max(1, Number(args.conc ?? 1)) }, worker));
+  log(`${name}: ok ${ok} / ${ps.length}`); if (errs.length) { W(path.join(OUT, `errors-${name}${args.set ? `-${args.set}` : ''}.json`), { at: new Date().toISOString(), errs }); process.exitCode = 1; }
+  if (stop) throw new Error(`${name} 停止（失敗 ${errs.length}）`);
+}
 
 // ---------- ブラウザ（既存の CDP Chrome に新しいタブを 1 つ。ウィンドウは閉じない）----------
 let BR;
@@ -119,6 +135,7 @@ async function visit(url) {
 const BAG = /ショルダー|トート|ポシェット|斜め掛け|ハンドバッグ|サコッシュ|ボディバッグ/;
 const NOT_FASHION = /リュック|ポーチ|トラベル|ボストン|シューズ|財布|ランチ|コスメ|保冷|キッズ|ベビー|スーツケース|プリズム|収納/;
 async function pick() {
+  if (args.all) return pickAll();
   if (fs.existsSync(PILOT) && !args.force) { log('pilot.json あり（--force で選び直し）'); return downloadOwn(); }
   const ja = J(path.join(ROOT, 'tools/kjyf-b2b/out/ja-full.json')); const onSku = new Map(); for (const g of ja.on) for (const s of g.skus) onSku.set(K(s.out_id), g);
   const all = []; let c = null;
@@ -144,8 +161,29 @@ async function pick() {
   for (const x of items) log('pick', x.type, x.images.length, '枚', x.ja?.good_id, x.title.slice(0, 40), `Amazon ¥${x.amazon.price}`);
   return downloadOwn();
 }
+// 全商品（2026-10-20 用户「把所有产品修改成amazon可上架模式」）：ACTIVE・日文站在售・他社ブランド/IP 除外・原図 2 枚以上 → out/set-all.json（lite）
+async function pickAll() {
+  args.set = 'all'; const f = SETF();
+  if (fs.existsSync(f) && !args.force) { log('set-all.json あり（--force で選び直し）'); return downloadOwn(); }
+  const ja = J(path.join(ROOT, 'tools/kjyf-b2b/out/ja-full.json')); const onSku = new Map(); for (const g of ja.on) for (const s of g.skus) onSku.set(K(s.out_id), g);
+  const all = []; let c = null;
+  for (;;) { const d = await gql(`query($c:String){ products(first:50, after:$c, query:"vendor:ANET status:active"){ pageInfo{hasNextPage endCursor} nodes{ id handle title productType description tags options{ name values } variants(first:50){ nodes{ id title sku price compareAtPrice selectedOptions{ name value } } } media(first:20){ nodes{ ... on MediaImage{ image{ url width height } } } } } } }`, { c }); all.push(...d.products.nodes); if (!d.products.pageInfo.hasNextPage) break; c = d.products.pageInfo.endCursor; }
+  const items = [], skipped = [];
+  for (const p of all) {
+    const imgs = p.media.nodes.filter((m) => m.image?.url).map((m) => m.image.url); const g = p.variants.nodes.map((v) => onSku.get(K(v.sku))).find(Boolean);
+    const why = p.title.startsWith('【Amazon審査】') ? '審査用 DRAFT' : HOLD_RE.test(`${p.title} ${p.description} ${g?.title ?? ''}`) ? '他社ブランド/IP' : !g ? '日文站に無い' : imgs.length < 2 ? `原図 ${imgs.length} 枚` : null;
+    if (why) { skipped.push({ handle: p.handle, title: p.title, why }); continue; }
+    const price = Math.min(...p.variants.nodes.map((v) => Number(v.price))); const cat = categorize(p);
+    items.push({ handle: p.handle, id: p.id, title: p.title, productType: p.productType, lite: true, price, amazon: { type: cat.feed_product_type, ...amazonPrice(price, cat.feed_product_type) }, options: p.options, variants: p.variants.nodes, images: imgs, description: p.description,
+      ja: { good_id: g.good_id, title: g.title, sub_title: g.sub_title, desc: text(g.desc), skus: g.skus, fetchedAt: ja.fetchedAt } });
+  }
+  items.sort((a, z) => String(a.productType).localeCompare(String(z.productType)) || a.handle.localeCompare(z.handle)); // 分類ごとにバッチを切りやすく
+  W(f, { at: new Date().toISOString(), rule: 'ACTIVE・日文站在售・他社ブランド/IP 除外・原図≥2・lite（竞品調査なし）', items, skipped });
+  log('pick --all', items.length, '件', 'skip', skipped.length, Object.entries(skipped.reduce((a, x) => ((a[x.why] = (a[x.why] ?? 0) + 1), a), {})).map(([k, v]) => `${k} ${v}`).join(' / '));
+  return downloadOwn();
+}
 async function downloadOwn() {
-  for (const p of pilot()) { const jobs = []; for (const [i, u] of p.images.entries()) { const f = await download(u, path.join(pdir(p, 'src'), `${pad(i + 1)}.jpg`)); const t = path.join(pdir(p, 'thumbs'), `${pad(i + 1)}.jpg`); if (!fs.existsSync(t)) jobs.push({ src: f, out: t, max: 768 }); } py('thumbs', jobs); }
+  for (const p of pilot()) { if (fs.existsSync(path.join(OUT, p.handle, 'thumbs', `${pad(p.images.length)}.jpg`))) continue; const jobs = []; for (const [i, u] of p.images.entries()) { const f = await download(u, path.join(pdir(p, 'src'), `${pad(i + 1)}.jpg`)); const t = path.join(pdir(p, 'thumbs'), `${pad(i + 1)}.jpg`); if (!fs.existsSync(t)) jobs.push({ src: f, out: t, max: 768 }); } py('thumbs', jobs); }
 }
 
 // ================= 2. compete =================
@@ -161,10 +199,11 @@ async function compete(p) {
     for (const c of b.competitors) { const f = path.join(OUT, p.handle, 'comp', `${c.asin}.json`); const old = J(f); if (old.rv === 2) continue; const page = await visit(`https://www.amazon.co.jp/dp/${c.asin}?th=1&psc=1`); const d = await readDetail(page); W(f, { ...old, ...d, rv: 2, fetchedAt: new Date().toISOString() }); log('refetch', c.asin, d.images.length, 'img', d.reviews.filter((r) => r.body).length, 'rev'); }
     return;
   }
-  if (!b.keywords) {
+  if (!b.keywords || (lite(p) && args.force)) {
     const j = await chatJson([{ role: 'system', content: 'あなたは Amazon.co.jp の検索担当です。商品について、日本の買い手が Amazon で実際に検索する核心キーワードを 2〜4 個（型番・誇張語・色名を除く、短い日本語の組み合わせ）と、版型（形・サイズ感）・客群を答えます。JSON: {"keywords":["…"],"form":"版型 15字","segment":"客群 15字"}' }, { role: 'user', content: `商品名: ${p.title}\n卸の商品名: ${p.ja?.title ?? ''}\n説明: ${(p.ja?.desc || p.description).slice(0, 800)}` }], { maxTokens: 800 });
     b.keywords = (j.keywords ?? []).slice(0, 4); b.form = j.form; b.segment = j.segment; saveBrief(p, b);
   }
+  if (lite(p)) return; // lite：キーワード・版型・客群だけ（出品データ用）。Amazon ページは読まない
   const lists = await bagLists(); const cand = new Map();
   for (const kw of b.keywords) { const page = await visit(`https://www.amazon.co.jp/s?k=${encodeURIComponent(kw)}`); for (const x of (await readSearch(page)).slice(0, 24)) if (!cand.has(x.asin)) cand.set(x.asin, { ...x, source: `検索「${kw}」${x.sponsored ? '(広告)' : ''} ${x.pos}位` }); log('search', kw, cand.size); }
   for (const x of lists.items) if (!cand.has(x.asin)) cand.set(x.asin, { ...x, source: `${x.source === 'bestsellers' ? 'ベストセラー' : '新着'} ${x.rank ?? ''}位` });
@@ -199,9 +238,9 @@ async function visionBatch(sys, files, intro) {
 }
 function ownClassify(p) { const f = path.join(OUT, p.handle, 'own.json'); return fs.existsSync(f) ? J(f) : null; }
 async function teardown(p) {
-  const b = brief(p); if (!b.competitors?.length) throw new Error('competitors 無し：先に compete');
+  const b = brief(p); if (!lite(p) && !b.competitors?.length) throw new Error('competitors 無し：先に compete');
   if (!ownClassify(p) || args.force) { const th = pdir(p, 'thumbs'); const files = fs.readdirSync(th).filter((f) => f.endsWith('.jpg')).sort().map((f) => path.join(th, f)); W(path.join(OUT, p.handle, 'own.json'), { images: await visionBatch(OWN_SYS, files, `商品名: ${p.title}`) }); log('own classified', files.length); }
-  if (b.gaps?.length && !args.force) return;
+  if (lite(p) || (b.gaps?.length && !args.force)) return;
   const per = {};
   for (const c of b.competitors) {
     const f = path.join(pdir(p, 'comp'), `${c.asin}.tear.json`);
@@ -267,21 +306,24 @@ JSON:
   "scene":{"tag":"シーン 8 字","headline":"","sub":"","img":番号},
   "set":{"headline":"セット内容","items":[{"t":"","factIds":[]}],"notes":[{"t":"発送など","factIds":[]}]}}}`;
 async function reviews(p) {
-  const b = brief(p); if (!b.competitors?.length) throw new Error('competitors 無し'); if (!ownClassify(p)) throw new Error('own.json 無し：先に teardown'); if (b.plan && !args.force) return;
+  const b = brief(p); const L = lite(p); if (!L && !b.competitors?.length) throw new Error('competitors 無し'); if (!ownClassify(p)) throw new Error('own.json 無し：先に teardown'); if (b.plan && !args.force) return;
   // 4-1 事実
   // facts の ID は plan-override から参照されるので --force では作り直さない（--refacts で作り直す）
   if (!b.facts || args.refacts) { const r = await facts(p); b.facts = r.facts; b.factsDropped = r.dropped.map((f) => `${f.k}: ${f.v}（${f.src}）`); saveBrief(p, b); log('facts', b.facts.length, 'dropped', r.dropped.length); }
   // 4-2 レビュー（商品ページの上位レビュー。★別の一覧ページはログインが要るので使わない）
+  let low = [], high = [], T = [];
+  if (!L) {
   const revs = []; for (const c of b.competitors) { const d = J(path.join(OUT, p.handle, 'comp', `${c.asin}.json`)); for (const r of d.reviews ?? []) if (r.body) revs.push({ asin: c.asin, star: starOf(r.star), title: r.title, body: r.body }); }
-  const low = revs.filter((r) => r.star && r.star <= 3), high = revs.filter((r) => r.star && r.star >= 4); const use = [...low, ...high];
+  low = revs.filter((r) => r.star && r.star <= 3); high = revs.filter((r) => r.star && r.star >= 4); const use = [...low, ...high];
   if (use.length < 5) throw new Error(`レビューが ${use.length} 件しか取れない`);
   const rj = await chatJson([{ role: 'system', content: REV_SYS }, { role: 'user', content: use.map((r, i) => `#${i} ★${r.star} ${r.title} — ${r.body.slice(0, 300)}`).join('\n') }], { maxTokens: 5000 });
   const topics = (rj.topics ?? []).map((t) => ({ ...t, count: 0, asins: new Set(), examples: [] }));
   for (const l of rj.labels ?? []) { const r = use[l.i]; if (!r) continue; for (const id of l.topics ?? []) { const t = topics.find((x) => x.id === id); if (!t) continue; if ((t.type === 'concern') !== (r.star <= 3)) continue; t.count++; t.asins.add(r.asin); if (t.examples.length < 2) t.examples.push(`★${r.star} ${r.title}`.slice(0, 60)); } }
-  const T = topics.filter((t) => t.count > 0).map((t) => ({ ...t, asins: [...t.asins] })).sort((a, z) => z.count - a.count);
+  T = topics.filter((t) => t.count > 0).map((t) => ({ ...t, asins: [...t.asins] })).sort((a, z) => z.count - a.count);
+  }
   // 4-3 plan
   const own = ownClassify(p).images;
-  const pj = await chatJson([{ role: 'system', content: PLAN_SYS }, { role: 'user', content: `商品: ${p.title}\n客群: ${b.segment}\n\n顧慮（差評 ${low.length} 件から、件数順）:\n${T.filter((t) => t.type === 'concern').map((t) => `${t.id} ${t.ja}（${t.label}） ${t.count}件`).join('\n') || 'なし'}\n\n需求（好評 ${high.length} 件から）:\n${T.filter((t) => t.type === 'need').map((t) => `${t.id} ${t.ja}（${t.label}） ${t.count}件`).join('\n')}\n\n竞品画像の空白:\n${(b.gaps ?? []).map((g) => `- ${g.observation} → ${g.ours}（原図 ${g.useImages?.join(',')}）`).join('\n')}\n\nfacts:\n${b.facts.filter((f) => !/注意|ブランド|商品番号|型番|品番/.test(f.k)).map((f) => `${f.id} ${f.k}: ${f.v}`).join('\n')}\n\n自社原図:\n${own.map((x) => `${x.n}. ${x.kind} ${x.angle} ${x.hasText ? '文字あり' : '文字なし'} ${x.hasPerson ? '人物' : ''} ${x.hasBrandLogo ? '他社ロゴ' : ''} ${x.caption}`).join('\n')}` }], { maxTokens: 5000 });
+  const pj = await chatJson([{ role: 'system', content: PLAN_SYS }, { role: 'user', content: `商品: ${p.title}\n客群: ${b.segment}\n${L ? '\n（竞品調査なし：concern1/concern2 は顧慮への回答ではなく、商品の細部・構造・機能を facts で見せる。worry は空にする。answers・unanswered は空でよい）\n' : ''}\n顧慮（差評 ${low.length} 件から、件数順）:\n${T.filter((t) => t.type === 'concern').map((t) => `${t.id} ${t.ja}（${t.label}） ${t.count}件`).join('\n') || 'なし'}\n\n需求（好評 ${high.length} 件から）:\n${T.filter((t) => t.type === 'need').map((t) => `${t.id} ${t.ja}（${t.label}） ${t.count}件`).join('\n')}\n\n竞品画像の空白:\n${(b.gaps ?? []).map((g) => `- ${g.observation} → ${g.ours}（原図 ${g.useImages?.join(',')}）`).join('\n')}\n\nfacts:\n${b.facts.filter((f) => !/注意|ブランド|商品番号|型番|品番/.test(f.k)).map((f) => `${f.id} ${f.k}: ${f.v}`).join('\n')}\n\n自社原図:\n${own.map((x) => `${x.n}. ${x.kind} ${x.angle} ${x.hasText ? '文字あり' : '文字なし'} ${x.hasPerson ? '人物' : ''} ${x.hasBrandLogo ? '他社ロゴ' : ''} ${x.caption}`).join('\n')}` }], { maxTokens: 5000 });
   // 人が直した内容（out/<h>/plan-override.json：slides の一部・unanswered）を重ねてから同じ検証にかける
   const ovF = path.join(OUT, p.handle, 'plan-override.json'); if (fs.existsSync(ovF)) { const ov = J(ovF); pj.slides = { ...(pj.slides ?? {}), ...(ov.slides ?? {}) }; const tid = (o) => ({ ...o, topic: o.topic ?? T.find((t) => o.topicLike && t.label.includes(o.topicLike))?.id ?? o.topicLike }); if (ov.answers) pj.answers = [...(pj.answers ?? []).filter((a) => !ov.answers.some((o) => o.slide === a.slide)), ...ov.answers.map(tid)]; if (ov.unanswered) { const un = ov.unanswered.map(tid); pj.unanswered = [...(pj.unanswered ?? []).filter((u) => !un.some((x) => x.topic === u.topic)), ...un]; pj.answers = (pj.answers ?? []).filter((a) => !un.some((x) => x.topic === a.topic)); } log('plan-override 適用', Object.keys(ov.slides ?? {}).join(',')); }
   const v = validatePlan(pj, b.facts, own); await verifyClaims(v, b.facts);
@@ -290,7 +332,7 @@ async function reviews(p) {
   b.needs = T.filter((t) => t.type === 'need').map((t) => ({ id: t.id, topic: t.label, ja: t.ja, count: t.count, asins: t.asins, examples: t.examples, answeredBy: answeredBy(t) }));
   const answered = new Set(b.concerns.filter((c) => c.answeredBy.length).map((c) => c.id));
   b.unanswered = [...(v.unanswered ?? []).filter((u) => !answered.has(u.topic)).map((u) => ({ ...u, topic: T.find((t) => t.id === u.topic)?.label ?? u.topic })), ...b.concerns.filter((c) => !c.answeredBy.length && !(v.unanswered ?? []).some((u) => u.topic === c.id)).map((c) => ({ topic: c.topic, why: '自家事实里没有可回答的数据' }))];
-  b.reviewsUsed = { low: low.length, high: high.length, note: '竞品商品页上的上位评论（按星级的评论列表需要登录，未使用）' };
+  b.reviewsUsed = { low: low.length, high: high.length, note: L ? 'lite：未做竞品调查（只用自家事实）' : '竞品商品页上的上位评论（按星级的评论列表需要登录，未使用）' };
   b.plan = { mainA: v.mainA, mainB: v.mainB, slides: v.slides, removed: v.removed, logoWarn: v.logoWarn, raw: v.raw,
     A: ['main', 'value', 'concern1', 'concern2', 'size', 'scene', 'set'], B: ['main', 'valueB', 'scene', 'concern1', 'concern2', 'size', 'set'] };
   b.tests = b.tests ?? [];
@@ -442,7 +484,7 @@ async function preview(p, b) {
   const w = 60 + 7 * (tile + 10) + 50;
   const html = `<!doctype html><html><head><meta charset="utf-8">${fontLinks()}<style>body{margin:0;padding:20px;font-family:"Noto Sans JP",sans-serif;background:#fff;width:${w}px}</style></head><body><div style="font-size:22px;font-weight:700">${esc(p.title)}　<span style="color:#888;font-size:18px">Amazon 想定 ¥${p.amazon.price}｜A=顧慮先 / B=シーン先</span></div>${row('A', b.render.A)}${row('B', b.render.B)}</body></html>`;
   const out = path.join(OUT, p.handle, 'preview.jpg'); await renderHtml([{ html, out, w, h: 2 * (tile + 40) + 80, scale: 1 }]);
-  fs.mkdirSync(DOCS, { recursive: true }); fs.copyFileSync(out, path.join(DOCS, `${String(p.id).split('/').pop()}-preview.jpg`));
+  if (!lite(p)) { fs.mkdirSync(DOCS, { recursive: true }); fs.copyFileSync(out, path.join(DOCS, `${String(p.id).split('/').pop()}-preview.jpg`)); } // 全商品分は git に入れない（sheet で一覧）
 }
 
 // ================= 6. review（Shopify DRAFT）=================
@@ -459,7 +501,7 @@ function summaryHtml(p, b, bUrls) {
   return [`<p><b>【Amazon 审核用 DRAFT】</b>不公开、不在任何销售渠道。原商品：<code>${e(p.handle)}</code>（不改动）。<br>采用：加 tag <b>amazon-approved-a</b> 或 <b>amazon-approved-b</b>；重做：加 <b>amazon-redo</b> 并在备注写原因。</p>`,
     `<p><b>预计 Amazon 售价</b>：¥${p.amazon.price}（Shopify ¥${p.price}，类目 ${p.amazon.type}，手续费 ${Math.round(p.amazon.fee * 100)}%，税抜利益约 ¥${p.amazon.profitEx}；amazonPrice()）</p>`,
     `<h3>核心关键词</h3><p>${(b.keywords ?? []).map(e).join(' / ')}　版型：${e(b.form)}　客群：${e(b.segment)}</p>`,
-    `<h3>对标竞品（${b.competitors.length}）</h3><p>${e(b.competeNote)}</p>${li(b.competitors.map((c) => `<a href="${c.url}">${c.asin}</a> ${e(c.title.slice(0, 40))}｜${e(c.price)}｜★${c.rating ?? '-'}（${c.reviews ?? '-'}）｜${e(c.source)}｜${e(c.reason)}`))}`,
+    `<h3>对标竞品（${b.competitors?.length ?? 0}）</h3><p>${e(b.competeNote ?? 'lite：未做竞品调查')}</p>${li((b.competitors ?? []).map((c) => `<a href="${c.url}">${c.asin}</a> ${e(c.title.slice(0, 40))}｜${e(c.price)}｜★${c.rating ?? '-'}（${c.reviews ?? '-'}）｜${e(c.source)}｜${e(c.reason)}`))}`,
     `<h3>竞品图：大家都一样的</h3>${li((b.teardown?.same ?? []).map(e))}<h3>没人展示的（我们的差异）</h3>${li((b.gaps ?? []).map((g) => `${e(g.observation)} → ${e(g.ours)}（原图 ${(g.useImages ?? []).join(',')}）`))}`,
     `<h3>顾虑（差评 ${b.reviewsUsed.low} 条）→ 对应图片</h3>${li(b.concerns.map((c) => `${e(c.topic)} ${c.count} 条 → ${c.answeredBy.length ? slideOf(c.answeredBy) : '<i>未回答</i>'}`))}`,
     `<h3>需求（好评 ${b.reviewsUsed.high} 条）→ 对应图片</h3>${li(b.needs.map((c) => `${e(c.topic)} ${c.count} 条 → ${c.answeredBy.length ? slideOf(c.answeredBy) : '—'}`))}`,
@@ -636,13 +678,13 @@ async function listing(p) {
   // docs：中文摘要 + 日文原文
   const id = String(p.id).split('/').pop(); const r = fs.existsSync(path.join(OUT, p.handle, 'review.json')) ? J(path.join(OUT, p.handle, 'review.json')) : {};
   const md = [`# ${p.title}`, '', `- anetmc.com：https://anetmc.com/products/${p.handle}`, `- 审核用 DRAFT（B 案保留）：${r.adminUrl ?? '-'}`, `- A/B 对比：[preview](${id}-preview.jpg)`, `- Amazon 预计价：${[...new Set(prices.map((x) => `¥${x.price}`))].join(' / ')}（Shopify ${[...new Set(prices.map((x) => `¥${x.shopify}`))].join(' / ')}，类目 ${cat.feed_product_type}，手续费 ${Math.round(prices[0].fee * 100)}%）；**未上传 Amazon**`, '',
-    '## 中文摘要', '', `- 关键词：${b.keywords.join(' / ')}；版型 ${b.form}；客群 ${b.segment}`, `- 竞品 ${b.competitors.length} 件：${b.competitors.map((c) => `${c.asin}（${c.price}，★${c.rating ?? '-'}，${c.reviews ?? '-'} 评）`).join('、')}`, `- 大家都一样：${(b.teardown?.same ?? []).join('；')}`, `- 没人展示：${(b.gaps ?? []).map((g) => g.observation).join('；')}`,
+    '## 中文摘要', '', `- 关键词：${(b.keywords ?? []).join(' / ')}；版型 ${b.form}；客群 ${b.segment}`, `- 竞品 ${b.competitors?.length ?? 0} 件：${(b.competitors ?? []).map((c) => `${c.asin}（${c.price}，★${c.rating ?? '-'}，${c.reviews ?? '-'} 评）`).join('、')}`, `- 大家都一样：${(b.teardown?.same ?? []).join('；')}`, `- 没人展示：${(b.gaps ?? []).map((g) => g.observation).join('；')}`,
     `- 顾虑：${b.concerns.map((c) => `${c.topic} ${c.count}${c.answeredBy.length ? '' : '（未答）'}`).join('、') || '无'}`, `- 需求：${b.needs.map((c) => `${c.topic} ${c.count}`).join('、')}`, `- 答不了（要问供应商）：${b.unanswered.map((u) => u.topic).join('、') || '无'}`,
     `- A 案（已上 anetmc.com）：${b.plan.A.map((k, i) => `${i + 1}.${SLIDE_ZH[k]}`).join(' / ')}，主图原图 ${b.plan.mainA.img}；B 案（留在 DRAFT）：${b.plan.B.map((k, i) => `${i + 1}.${SLIDE_ZH[k]}`).join(' / ')}，主图原图 ${b.plan.mainB.img}`,
     `- 自检：${b.check?.pass ? '合格' : '不合格'}${b.check?.issues?.length ? '（' + b.check.issues.join('；') + '）' : ''}${b.check?.warn?.length ? '；注意：' + b.check.warn.join('；') : ''}`, ...(removed.length ? [`- 出品文案里被自动删掉的：${removed.join('；')}`] : []), '',
     '## Amazon 出品データ（日本語原文）', '', `**商品名**（${title.length} 字）`, '', title, '', '**箇条書き**', '', ...bullets.map((x) => `- ${x.t}（根拠 ${x.factIds.join(',') || '—'}）`), '', '**商品説明**', '', description, '', `**検索キーワード**（${Buffer.byteLength(keywords)} バイト）`, '', keywords, '',
     '**根拠（facts）**', '', ...b.facts.map((x) => `- ${x.id} ${x.k}：${x.v}（${x.src}）`), ''].join('\n');
-  fs.mkdirSync(DOCS, { recursive: true }); fs.writeFileSync(path.join(DOCS, `${p.handle}.md`), md);
+  if (lite(p)) fs.writeFileSync(path.join(OUT, p.handle, 'amazon-listing.md'), md); else { fs.mkdirSync(DOCS, { recursive: true }); fs.writeFileSync(path.join(DOCS, `${p.handle}.md`), md); }
 }
 // 在庫ファイル（dry-run）：amazon-pick の原商品＋ listing.json → build-inventory-file（アップロードしない）
 async function listingFile() {
@@ -660,10 +702,44 @@ async function listingFile() {
   log(`dry-run：${path.relative(ROOT, dir)}/inventory-*.tsv（アップロードしていない）`);
 }
 
+// ================= 全商品：一覧と進捗 =================
+const SLIDES_SHORT = 7;
+// 1 枚に 12 商品（A 案 7 枚の縮小＋自己点検の結果）→ docs/amazon-visual/all/sheet-NNN.jpg（用户がバッチ単位で見る）
+async function sheet() {
+  const ps = pilot().filter((p) => brief(p).render); const per = 12; const tile = 150; const dir = path.join(DOCS, 'all'); fs.mkdirSync(dir, { recursive: true }); const from = Number(args.from ?? 0);
+  const shots = [];
+  for (let i = 0; i < ps.length; i += per) {
+    const rows = ps.slice(i, i + per).map((p, k) => { const b = brief(p); const c = b.check; const badge = !c ? '<b style="color:#888">未检</b>' : c.pass ? '<b style="color:#1a7f37">合格</b>' : `<b style="color:#c00">不合格</b> ${esc((c.issues ?? []).join(' / ').slice(0, 80))}`;
+      return `<div style="display:flex;gap:6px;align-items:flex-start;margin-top:10px"><div style="width:260px;font-size:14px;line-height:1.35"><b>${from + i + k + 1}.</b> ${esc(p.title.slice(0, 48))}<br><span style="color:#666">${esc(p.productType ?? '')}｜¥${p.amazon.price}</span><br>${badge}</div>${(b.render.A ?? []).slice(0, SLIDES_SHORT).map((x) => `<img src="${furl(path.join(OUT, p.handle, x.file))}" style="width:${tile}px;height:${tile}px;border:1px solid #ddd">`).join('')}</div>`; });
+    const w = 280 + SLIDES_SHORT * (tile + 8) + 30;
+    shots.push({ html: `<!doctype html><html><head><meta charset="utf-8">${fontLinks()}<style>body{margin:0;padding:14px;font-family:"Noto Sans JP",sans-serif;background:#fff;width:${w}px}</style></head><body><div style="font-size:18px;font-weight:700">Amazon 規格（A 案）一覧 ${from + i + 1}〜${from + i + rows.length}</div>${rows.join('')}</body></html>`, out: path.join(dir, `sheet-${String(Math.floor((from + i) / per) + 1).padStart(3, '0')}.jpg`), w, h: 50 + rows.length * (tile + 12), scale: 1 });
+  }
+  await renderHtml(shots); log('sheet', shots.length, '枚 →', path.relative(ROOT, dir));
+}
+// 進捗と自己点検の集計 → docs/amazon-visual/all-status.md（不合格の理由つき）
+async function status() {
+  const f = SETF(); const set = J(f); const ps = set.items; const st = { 対象: ps.length, 除外: set.skipped?.length ?? 0, keywords: 0, own: 0, plan: 0, render: 0, 合格: 0, 不合格: 0, listing: 0 }; const fails = []; const reasons = {}; const byType = {};
+  for (const p of ps) { const b = brief(p); const t = (byType[p.productType || '—'] ??= { n: 0, ok: 0 }); t.n++;
+    if (b.keywords) st.keywords++; if (ownClassify(p)) st.own++; if (b.plan) st.plan++; if (b.render) st.render++; if (fs.existsSync(path.join(OUT, p.handle, 'amazon-listing.json'))) st.listing++;
+    if (b.check?.pass) { st.合格++; t.ok++; } else if (b.check) { st.不合格++; fails.push(`- ${p.handle}｜${p.title.slice(0, 40)}｜${b.check.issues.join(' / ')}`); for (const x of b.check.issues) { const k = x.replace(/[0-9.]+/g, 'n').replace(/（.*$/, ''); reasons[k] = (reasons[k] ?? 0) + 1; } } }
+  const md = ['# 全商品 Amazon 規格化 進捗', '', `更新 ${new Date().toISOString()}｜対象 ${set.rule}`, '', '| 項目 | 件数 |', '|---|---|', ...Object.entries(st).map(([k, v]) => `| ${k} | ${v} |`), '',
+    '## 分類別（合格 / 対象）', '', ...Object.entries(byType).sort((a, z) => z[1].n - a[1].n).map(([k, v]) => `- ${k}：${v.ok} / ${v.n}`), '',
+    '## 不合格の理由（件数）', '', ...Object.entries(reasons).sort((a, z) => z[1] - a[1]).map(([k, v]) => `- ${k}：${v}`), '',
+    '## 除外', '', ...Object.entries((set.skipped ?? []).reduce((a, x) => ((a[x.why] = (a[x.why] ?? 0) + 1), a), {})).map(([k, v]) => `- ${k}：${v}`), '',
+    '## 不合格一覧', '', ...fails].join('\n');
+  fs.mkdirSync(DOCS, { recursive: true }); fs.writeFileSync(path.join(DOCS, 'all-status.md'), md + '\n'); log('status', JSON.stringify(st));
+}
+// 1 商品ずつ全段（--conc で並列）。Shopify の公開商品・Amazon には何も書かない
+async function bulk() {
+  args.set ??= 'all'; if (!fs.existsSync(SETF())) await pickAll();
+  await each(async (p) => { for (const fn of [compete, teardown, reviews, render, check, listing]) await fn(p); }, 'bulk');
+}
+
 // ---------- CLI ----------
 const run = { pick, compete: () => each(compete), teardown: () => each(teardown), reviews: () => each(reviews), render: () => each(render), review: () => each(review), watch,
   check: () => each(check), publish: () => each(publishA), collection, listing: async () => { await each(listing); await listingFile(); },
-  all: async () => { await pick(); for (const s of [compete, teardown, reviews, render]) await each(s); } };
-if (!run[stage]) { console.error('usage: pick | compete | teardown | reviews | render | review [--dry] | check | publish [--dry] | collection | listing | watch [--mark-listed --handles …] | all  (--handle h / --force / --cdp url)'); process.exit(2); }
+  all: async () => { await pick(); for (const s of [compete, teardown, reviews, render]) await each(s); },
+  bulk: async () => { try { await bulk(); } finally { await listingFile().catch((e) => log('listingFile', e.message)); await status(); await sheet(); } }, sheet, status };
+if (!run[stage]) { console.error('usage: pick | compete | teardown | reviews | render | review [--dry] | check | publish [--dry] | collection | listing | watch [--mark-listed --handles …] | all | bulk | sheet | status  (--handle h / --force / --cdp url / --set all --from N --limit M --conc N --lite)'); process.exit(2); }
 // CDP ブラウザは自分のタブだけ閉じる（ウィンドウ・ブラウザは閉じない）。最後は process.exit
 Promise.resolve(run[stage]()).then(async () => { if (BR) await BR.page.close().catch(() => {}); log('done', stage); process.exit(process.exitCode ?? 0); }, async (e) => { console.error(e); if (BR) await BR.page.close().catch(() => {}); process.exit(1); });
