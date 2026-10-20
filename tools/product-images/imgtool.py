@@ -3,6 +3,7 @@
   python imgtool.py thumbs  jobs.json   # [{src,out,max}] 縮小 JPEG（ビジョンモデル用）
   python imgtool.py crop    jobs.json   # [{src,out,box:[x0,y0,x1,y1] (0-1 の割合)}]
   python imgtool.py cutout  jobs.json   # [{src,out,box?}] 背景除去 → 透過 PNG（bbox で自動トリミング）
+  python imgtool.py scenefix jobs.json   # [{src,out,boxes:[[x0,y0,x1,y1]],band:[y0,y1],xband:[x0,x1]}] 文字の帯（上下左右）を切り落とし、残りの文字領域は周囲の平均色で塗る（シーン写真用）
   python imgtool.py whitecheck jobs.json # [{src,out}] Amazon 主图の点検（サイズ・形式・外周の純白率・商品の占有率）→ out に JSON
 """
 import json, sys, time
@@ -40,6 +41,16 @@ def whitecheck(jobs):
         ratio = max((bb[2] - bb[0]) / W, (bb[3] - bb[1]) / H) if bb else 0
         json.dump({'format': fmt, 'mode': mode, 'icc': icc, 'w': W, 'h': H, 'borderPureWhite': round(pure, 4), 'bbox': bb, 'longSideRatio': round(ratio, 3)}, open(j['out'], 'w'))
 
+def scenefix(jobs):
+    from PIL import ImageDraw, ImageStat
+    for j in jobs:
+        im = load(j['src']).convert('RGB'); W, H = im.size; d = ImageDraw.Draw(im)
+        for x0, y0, x1, y1 in j.get('boxes', []):
+            bx = (int(x0 * W), int(y0 * H), int(x1 * W), int(y1 * H))
+            ring = im.crop((max(0, bx[0] - 8), max(0, bx[1] - 8), min(W, bx[2] + 8), min(H, bx[3] + 8)))
+            d.rectangle(bx, fill=tuple(int(v) for v in ImageStat.Stat(ring).median))
+        y0, y1 = j.get('band', [0, 1]); x0, x1 = j.get('xband', [0, 1]); im.crop((int(x0 * W), int(y0 * H), int(x1 * W), int(y1 * H))).save(j['out'], quality=92)
+
 def cutout(jobs):
     try:  # onnxruntime-gpu 1.31 需要 CUDA 13 运行库（pip 的 onnxruntime-gpu[cuda,cudnn]），必须先 preload 否则静默回退 CPU（7s/张 vs GPU 约 0.5s）
         import onnxruntime as ort; ort.preload_dlls()
@@ -63,5 +74,5 @@ def cutout(jobs):
 if __name__ == '__main__':
     cmd, jobfile = sys.argv[1], sys.argv[2]
     jobs = json.load(open(jobfile, encoding='utf-8'))
-    {'thumbs': thumbs, 'crop': crop, 'cutout': cutout, 'sheet': sheet, 'whitecheck': whitecheck}[cmd](jobs)
+    {'thumbs': thumbs, 'crop': crop, 'cutout': cutout, 'sheet': sheet, 'whitecheck': whitecheck, 'scenefix': scenefix}[cmd](jobs)
     print(json.dumps({'done': len(jobs)}))

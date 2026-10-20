@@ -46,6 +46,19 @@ const K = (x) => String(x ?? '').trim().toUpperCase().replace(/^0+(?=[A-Z])/, ''
 const pad = (n) => String(n).padStart(2, '0');
 const text = (h) => String(h ?? '').replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/gi, ' ').replace(/<\/(p|li|h\d|div|tr)>|<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&times;/g, '×').replace(/&hellip;/g, '…').replace(/&amp;/g, '&').replace(/&[a-z]+;|&#\d+;/gi, ' ').replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n').trim();
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&lt;br\s*\/?&gt;/g, '<br>');
+// 日本語の改行位置：Intl.Segmenter の単語を文節っぽくまとめ、まとまりの間にだけ <wbr>（CSS は word-break:keep-all）
+const SEG = new Intl.Segmenter('ja', { granularity: 'word' });
+const kind = (w) => /^[ァ-ヺー]+$/.test(w) ? 'K' : /^[一-龯々〆]+$/.test(w) ? 'C' : /^[ぁ-ゖー]+$/.test(w) ? 'H' : /^[0-9A-Za-z.%]+$/.test(w) ? 'N' : /^[\s、。・，．）」』】〕！？!?:：/／〜~×]+$/.test(w) ? 'P' : 'M';
+function jaPhrases(t) {
+  const g = []; let pk = null;
+  for (const { segment: w } of SEG.segment(t)) {
+    const k = kind(w); const prev = g[g.length - 1];
+    const glue = prev !== undefined && !/^[ごお]$/.test(w) && ((k === pk && (k === 'K' || k === 'C' || k === 'N')) || k === 'H' && (pk !== 'H' || w.length === 1) || k === 'P' || (k === 'C' && w.length === 1 && (pk === 'M' || pk === 'C')) || /^[ごお]$/.test(prev) || /[（「『【〔(]$/.test(prev) || /[0-9×〜~]$/.test(prev) || (k === 'N' && pk === 'P'));
+    if (glue) g[g.length - 1] += w; else g.push(w); pk = k;
+  }
+  return g;
+}
+const jw = (s) => String(s ?? '').split(/<br\s*\/?>/).map((p) => jaPhrases(p).map((x) => esc(x)).join('<wbr>')).join('<br>');
 const yen = (s) => Number(String(s ?? '').replace(/[^0-9]/g, '')) || null;
 const starOf = (s) => Number((String(s).match(/(?:うち|中)\s*([0-9.]+)/) || String(s).match(/([0-9.]+)/) || [])[1]) || null; // 「5つ星のうち4.0」「星5つ中4つ」
 // 他社ブランド・IP（kjyf-b2b/compare-ja.mjs と同じ）
@@ -316,6 +329,35 @@ function validatePlan(pj, facts, own) {
   return { answers, unanswered: pj.unanswered ?? [], slides: out, removed, logoWarn, raw: pj, mainA: { img: mA, why: Number(pj.mainA?.img) === mA ? pj.mainA?.why : '自動選択（文字なしの商品単体）' }, mainB: { img: mB, why: Number(pj.mainB?.img) === mB ? pj.mainB?.why : '自動選択（A と別の原図）' } };
 }
 
+function jpegSize(f) { const b = fs.readFileSync(f); for (let i = 2; i < b.length - 9;) { if (b[i] !== 0xff) { i++; continue; } const m = b[i + 1], len = b.readUInt16BE(i + 2); if (m >= 0xc0 && m <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(m)) return { h: b.readUInt16BE(i + 5), w: b.readUInt16BE(i + 7) }; i += 2 + len; } return { w: 1000, h: 1000 }; }
+// シーン写真：人物・生活背景のある原図（scene/model）を使う。卸の文字は帯なら切り落とし、中ほどは周囲の色で塗る → 6kpro で残りを確認
+async function sceneSource(p, b, own, work) {
+  const want = b.plan.slides.scene?.img; const src = (n) => path.join(OUT, p.handle, 'src', `${pad(n)}.jpg`);
+  const cands = own.filter((o) => ['scene', 'model'].includes(o.kind)).sort((a, z) => Number(z.n === want) - Number(a.n === want) || Number(a.hasText) - Number(z.hasText) || Number(z.kind === 'scene') - Number(a.kind === 'scene'));
+  if (!cands.length) return { file: null, note: '原图里没有生活场景/着用图，场景页用了抠图（需要补拍或换图）' };
+  const cf = path.join(work, 'scenefix.json'); const cache = fs.existsSync(cf) && !args.force ? J(cf) : {};
+  for (const x of cands.slice(0, 4)) {
+    if (!x.hasText) return { file: src(x.n), note: `原图 ${x.n}（无文字）` };
+    const out = path.join(work, `scene-${pad(x.n)}.jpg`); let c = cache[x.n];
+    if (!c) {
+      const th = path.join(OUT, p.handle, 'thumbs', `${pad(x.n)}.jpg`);
+      const r = await chatJson([{ role: 'system', content: '画像編集で後から載せた文字・図形（キャッチコピー・説明文・ラベル・ロゴ透かし・色名の帯・はめ込みの小画像）の領域を全部、矩形で返す。商品本体・服・看板など写真に写っている物の印字は含めない。座標は 0〜1。JSON: {"boxes":[[x0,y0,x1,y1]]}' }, { role: 'user', content: [{ type: 'image_url', image_url: { url: b64(th) } }] }], { model: VISION, maxTokens: 800 }).catch(() => ({ boxes: null }));
+      const sz = jpegSize(th); const norm = (q) => { const m = Math.max(...q); if (m <= 1.0001) return q; const fit = q[0] <= sz.w && q[2] <= sz.w && q[1] <= sz.h && q[3] <= sz.h && m > 1000 === false && (q[2] > 1000 || q[3] > 1000 || sz.w !== 1000); return fit ? [q[0] / sz.w, q[1] / sz.h, q[2] / sz.w, q[3] / sz.h] : q.map((v) => v / 1000); }; // モデルが 0〜1 でなくピクセル/千分率で返すことがある
+      const boxes = (r.boxes ?? []).filter(okBox).map(norm).filter(okBox).map((q) => [Math.max(0, q[0] - 0.02), Math.max(0, q[1] - 0.02), Math.min(1, q[2] + 0.02), Math.min(1, q[3] + 0.02)]);
+      // 上下の帯にある文字は切り落とす（残す高さ 60% 以上のとき）。中ほどの文字は塗る
+      // 上下・左右の端にある文字は帯ごと切り落とす（高さ 60%・幅 50% 以上残るとき）。中ほどの文字だけ塗る
+      let y0 = 0, y1 = 1, x0 = 0, x1 = 1; for (const q of boxes) { if (q[3] <= 0.35) y0 = Math.max(y0, q[3]); else if (q[1] >= 0.65) y1 = Math.min(y1, q[1]); else if (q[0] >= 0.5) x1 = Math.min(x1, q[0]); else if (q[2] <= 0.5) x0 = Math.max(x0, q[2]); }
+      if (y1 - y0 < 0.6) { y0 = 0; y1 = 1; } if (x1 - x0 < 0.5) { x0 = 0; x1 = 1; }
+      const fill = boxes.filter((q) => !(q[3] <= y0 || q[1] >= y1 || q[2] <= x0 || q[0] >= x1)).map((q) => [(Math.max(q[0], x0) - x0) / (x1 - x0), (Math.max(q[1], y0) - y0) / (y1 - y0), (Math.min(q[2], x1) - x0) / (x1 - x0), (Math.min(q[3], y1) - y0) / (y1 - y0)]);
+      py('scenefix', [{ src: src(x.n), out, boxes: fill.map((q) => [q[0] * (x1 - x0) + x0, q[1] * (y1 - y0) + y0, q[2] * (x1 - x0) + x0, q[3] * (y1 - y0) + y0]), band: [y0, y1], xband: [x0, x1] }]);
+      const t = out.replace(/\.jpg$/, '-t.jpg'); py('thumbs', [{ src: out, out: t, max: 512 }]);
+      const v = (await visionBatch('画像編集で後から載せた文字（説明文・キャッチコピー・色名ラベル・透かし）が残っているか。商品本体・服・看板など写真に写っている物の印字は除く。JSON: {"images":[{"n":1,"hasText":bool,"what":"20字"}]}', [t], 'シーン写真'))[0] ?? { hasText: true };
+      c = cache[x.n] = { boxes: boxes.length, band: [y0, y1], xband: [x0, x1], filled: fill.length, left: !!v.hasText, what: v.what ?? '' }; W(cf, cache);
+    }
+    if (!c.left && fs.existsSync(out)) return { file: out, note: `原图 ${x.n}：${c.band[0] > 0 || c.band[1] < 1 || c.xband?.[0] > 0 || c.xband?.[1] < 1 ? `裁掉文字带(y ${c.band.map((v) => v.toFixed(2)).join('–')} / x ${(c.xband ?? [0, 1]).map((v) => v.toFixed(2)).join('–')})` : ''}${c.filled ? ` 色块盖住 ${c.filled} 处文字` : ''}` };
+  }
+  return { file: null, note: `场景原图（${cands.slice(0, 4).map((x) => x.n).join(',')}）的批发商文字去不干净，场景页暂用抠图——需要换图` };
+}
 // ================= 5. render =================
 const PX = 1600, SCALE = 1.25; // CSS 1600px → 出力 2000px
 function fontLinks() { const d = path.join(ROOT, 'node_modules/@fontsource/noto-sans-jp'); return ['400', '700', '900'].filter((w) => fs.existsSync(path.join(d, `${w}.css`))).map((w) => `<link rel="stylesheet" href="${pathToFileURL(path.join(d, `${w}.css`)).href}">`).join(''); }
@@ -323,7 +365,7 @@ function fontLinks() { const d = path.join(ROOT, 'node_modules/@fontsource/noto-
 const TH = { bg: '#FFFFFF', panel: '#F4F4F4', ink: '#111111', sub: '#555555', accent: '#BF0000', line: '#E5E5E5' };
 const page = (body) => `<!doctype html><html lang="ja"><head><meta charset="utf-8">${fontLinks()}<style>
 *{box-sizing:border-box;margin:0;padding:0} html,body{width:${PX}px;height:${PX}px;overflow:hidden;background:${TH.bg}}
-body{font-family:"Noto Sans JP",sans-serif;color:${TH.ink};font-feature-settings:"palt";letter-spacing:.02em}
+body{font-family:"Noto Sans JP",sans-serif;color:${TH.ink};font-feature-settings:"palt";letter-spacing:.02em;word-break:keep-all;overflow-wrap:normal;line-break:strict} .pt span{display:block;flex:1;min-width:0}
 .wrap{position:relative;width:${PX}px;height:${PX}px} h1{font-weight:900;line-height:1.22;font-size:84px;letter-spacing:.02em}
 .sub{font-size:36px;color:${TH.sub};margin-top:18px;font-weight:700} .chip{display:inline-block;background:${TH.accent};color:#fff;font-weight:700;font-size:32px;padding:.28em 1em;border-radius:4px}
 .rule{height:8px;width:120px;background:${TH.accent};margin-top:26px} .panel{background:${TH.panel};border-radius:6px;overflow:hidden}
@@ -333,7 +375,10 @@ body{font-family:"Noto Sans JP",sans-serif;color:${TH.ink};font-feature-settings
 const furl = (f) => pathToFileURL(f).href;
 async function renderHtml(shots) { // [{html, out, w?, h?, scale?}]
   const { chromium } = await import('playwright'); const br = await chromium.launch();
-  try { for (const s of shots) { const f = s.out.replace(/\.jpg$/, '.html'); fs.writeFileSync(f, s.html); const pg = await br.newPage({ viewport: { width: s.w ?? PX, height: s.h ?? PX }, deviceScaleFactor: s.scale ?? SCALE }); await pg.goto(furl(f), { waitUntil: 'networkidle' }); await pg.evaluate(() => document.fonts.ready); await pg.screenshot({ path: s.out, type: 'jpeg', quality: 92 }); await pg.close(); fs.unlinkSync(f); } }
+  try { for (const s of shots) { const f = s.out.replace(/\.jpg$/, '.html'); fs.writeFileSync(f, s.html); const pg = await br.newPage({ viewport: { width: s.w ?? PX, height: s.h ?? PX }, deviceScaleFactor: s.scale ?? SCALE }); await pg.goto(furl(f), { waitUntil: 'networkidle' }); await pg.evaluate(() => document.fonts.ready);
+    // 文節の途中で折り返さない代わりに、はみ出す見出し・要点はフォントを 2px ずつ縮めて収める
+    await pg.evaluate(() => { for (const el of document.querySelectorAll('h1, .pt span, .sub, .fit')) { let f = parseFloat(getComputedStyle(el).fontSize); while (el.scrollWidth > el.clientWidth + 1 && f > 24) { f -= 2; el.style.fontSize = `${f}px`; } } });
+    await pg.screenshot({ path: s.out, type: 'jpeg', quality: 92 }); await pg.close(); fs.unlinkSync(f); } }
   finally { await br.close(); } // 自分で起動した headless Chromium だけ閉じる（CDP のブラウザではない）
 }
 const okBox = (b) => Array.isArray(b) && b.length === 4 && b.every((v) => typeof v === 'number') && b[2] > b[0] && b[3] > b[1];
@@ -354,24 +399,25 @@ async function render(p) {
   const crops = [], used = new Set(); let badCrops = new Set();
   const photo = (n) => { const x = byN[n]; if (!x) return null; if (!x.hasText) return src(n); if (!okBox(x.cleanBox) || (x.cleanBox[2] - x.cleanBox[0]) * (x.cleanBox[3] - x.cleanBox[1]) < 0.25) return null; const o = path.join(work, `crop-${pad(n)}.jpg`); if (badCrops.has(o)) return null; used.add(o); if ((!fs.existsSync(o) || args.force) && !crops.some((c) => c.out === o)) crops.push({ src: src(n), out: o, box: x.cleanBox }); return o; };
   const S = b.plan.slides; const cutA = cut(b.plan.mainA.img), cutB = cut(b.plan.mainB.img);
+  const sc = await sceneSource(p, b, own, work); const sceneF = sc.file; b.sceneNote = sc.note;
   const imgOr = (n, fallbackCut) => { const f = n ? photo(n) : null; return f ? `<img class="ph" src="${furl(f)}">` : `<div style="width:100%;height:100%;padding:60px;background:#fff"><img class="ct" src="${furl(fallbackCut)}"></div>`; };
-  const pts = (list) => list.map((q) => `<div class="pt"><i>✓</i><span>${esc(q.t)}</span></div>`).join('');
-  const big = (list) => list.map((q) => `<div class="pt" style="font-size:${String(q.t).length > 9 ? 58 : 66}px;padding:30px 30px;gap:20px"><i style="font-size:66px">✓</i><span>${esc(q.t)}</span></div>`).join('');
+  const pts = (list) => list.map((q) => `<div class="pt"><i>✓</i><span>${jw(q.t)}</span></div>`).join('');
+  const big = (list) => list.map((q) => `<div class="pt" style="font-size:${String(q.t).length > 9 ? 58 : 66}px;padding:30px 30px;gap:20px"><i style="font-size:66px">✓</i><span>${jw(q.t)}</span></div>`).join('');
   // 文字はスマホのサムネイルでも読める大きさ（見出し ≥ 画面幅 60%、要点 ≥ 画面高 4%＝64px@1600）
   const T = {
     main: (cutF) => `<div style="position:absolute;inset:0;background:#fff;display:flex;align-items:center;justify-content:center"><img src="${furl(cutF)}" style="width:${PX * 0.85}px;height:${PX * 0.85}px;object-fit:contain"></div>`,
-    value: (s, cutF) => `<div style="position:absolute;left:70px;right:70px;top:70px"><h1 style="font-size:132px;line-height:1.15">${esc(s.headline)}</h1>${s.sub ? `<div class="sub" style="font-size:52px;margin-top:22px">${esc(s.sub)}</div>` : ''}</div>
+    value: (s, cutF) => `<div style="position:absolute;left:70px;right:70px;top:70px"><h1 style="font-size:132px;line-height:1.15">${jw(s.headline)}</h1>${s.sub ? `<div class="sub" style="font-size:52px;margin-top:22px">${jw(s.sub)}</div>` : ''}</div>
       <div class="panel" style="position:absolute;left:70px;top:560px;bottom:70px;width:${s.points.length ? 820 : PX - 140}px">${imgOr(s.img, cutF)}</div>
       <div style="position:absolute;left:930px;right:70px;top:560px;bottom:70px;display:flex;flex-direction:column;justify-content:space-between;gap:28px">${big(s.points)}</div>`,
     concern: (s, cutF) => `<div class="panel" style="position:absolute;left:0;top:0;width:${PX * 0.44}px;height:${PX}px;border-radius:0">${imgOr(s.img, cutF)}</div>
-      <div style="position:absolute;left:${PX * 0.44 + 60}px;right:60px;top:80px;bottom:70px;display:flex;flex-direction:column">${s.worry ? `<div style="font-size:50px;font-weight:700;color:${TH.sub};line-height:1.35">「${esc(s.worry)}」</div>` : ''}<div class="chip" style="font-size:44px;margin-top:40px;align-self:flex-start">ANSWER</div><h1 style="margin-top:26px;font-size:104px;line-height:1.18">${esc(s.headline)}</h1><div style="flex:1"></div><div style="display:grid;gap:26px">${big(s.points)}</div></div>`,
-    size: (s, cutF) => `<div style="position:absolute;left:70px;right:70px;top:70px"><h1 style="font-size:128px">${esc(s.headline)}</h1></div>
+      <div style="position:absolute;left:${PX * 0.44 + 60}px;right:60px;top:80px;bottom:70px;display:flex;flex-direction:column">${s.worry ? `<div style="font-size:50px;font-weight:700;color:${TH.sub};line-height:1.35">「${jw(s.worry)}」</div>` : ''}<div class="chip" style="font-size:44px;margin-top:40px;align-self:flex-start">ANSWER</div><h1 style="margin-top:26px;font-size:104px;line-height:1.18">${jw(s.headline)}</h1><div style="flex:1"></div><div style="display:grid;gap:26px">${big(s.points)}</div></div>`,
+    size: (s, cutF) => `<div style="position:absolute;left:70px;right:70px;top:70px"><h1 style="font-size:128px">${jw(s.headline)}</h1></div>
       <div style="position:absolute;left:40px;top:330px;width:${PX * 0.42}px;bottom:70px;display:flex;align-items:center;justify-content:center"><img class="ct" src="${furl(cutF)}"></div>
-      <div style="position:absolute;left:${PX * 0.45}px;right:70px;top:330px;bottom:70px;display:flex;flex-direction:column;justify-content:center">${s.rows.map((r) => `<div style="padding:26px 0;border-bottom:4px solid ${TH.line}"><div style="font-size:44px;color:${TH.sub};font-weight:700">${esc(r.k)}</div><div style="font-size:68px;font-weight:900;line-height:1.25;margin-top:6px">${esc(r.v)}</div></div>`).join('')}</div>`,
-    scene: (s, cutF) => `<div style="position:absolute;inset:0">${imgOr(s.img, cutF)}</div><div style="position:absolute;left:0;right:0;bottom:0;padding:80px 70px;background:linear-gradient(transparent,rgba(17,17,17,.78) 35%)">${s.tag ? `<div class="chip" style="font-size:48px">${esc(s.tag)}</div>` : ''}<h1 style="color:#fff;margin-top:26px;font-size:132px;line-height:1.15;text-shadow:0 2px 12px rgba(0,0,0,.35)">${esc(s.headline)}</h1>${s.sub ? `<div style="color:#fff;font-size:56px;font-weight:700;margin-top:18px">${esc(s.sub)}</div>` : ''}</div>`,
-    set: (s, cutF) => `<div style="position:absolute;left:70px;right:70px;top:70px"><h1 style="font-size:128px">${esc(s.headline)}</h1></div>
+      <div style="position:absolute;left:${PX * 0.45}px;right:70px;top:330px;bottom:70px;display:flex;flex-direction:column;justify-content:center">${s.rows.map((r) => `<div style="padding:26px 0;border-bottom:4px solid ${TH.line}"><div style="font-size:44px;color:${TH.sub};font-weight:700">${jw(r.k)}</div><div style="font-size:68px;font-weight:900;line-height:1.25;margin-top:6px">${jw(r.v)}</div></div>`).join('')}</div>`,
+    scene: (s, cutF) => `<div style="position:absolute;inset:0">${sceneF ? `<img class="ph" src="${furl(sceneF)}">` : imgOr(s.img, cutF)}</div><div style="position:absolute;left:0;right:0;bottom:0;padding:80px 70px;background:linear-gradient(transparent,rgba(17,17,17,.78) 35%)">${s.tag ? `<div class="chip" style="font-size:48px">${jw(s.tag)}</div>` : ''}<h1 style="color:#fff;margin-top:26px;font-size:132px;line-height:1.15;text-shadow:0 2px 12px rgba(0,0,0,.35)">${jw(s.headline)}</h1>${s.sub ? `<div style="color:#fff;font-size:56px;font-weight:700;margin-top:18px">${jw(s.sub)}</div>` : ''}</div>`,
+    set: (s, cutF) => `<div style="position:absolute;left:70px;right:70px;top:70px"><h1 style="font-size:128px">${jw(s.headline)}</h1></div>
       <div style="position:absolute;left:40px;top:330px;width:${PX * 0.42}px;bottom:70px;display:flex;align-items:center;justify-content:center"><img class="ct" src="${furl(cutF)}"></div>
-      <div style="position:absolute;left:${PX * 0.45}px;right:70px;top:330px;bottom:70px;display:flex;flex-direction:column;justify-content:center;gap:26px">${big(s.items)}${s.notes.map((q) => `<div style="font-size:52px;font-weight:700;color:${TH.sub};line-height:1.35">・${esc(q.t)}</div>`).join('')}</div>`,
+      <div style="position:absolute;left:${PX * 0.45}px;right:70px;top:330px;bottom:70px;display:flex;flex-direction:column;justify-content:center;gap:26px">${big(s.items)}${s.notes.map((q) => `<div style="font-size:52px;font-weight:700;color:${TH.sub};line-height:1.35">・${jw(q.t)}</div>`).join('')}</div>`,
   };
   const slideHtml = (key, cutF) => { if (key === 'main') return page(T.main(cutF)); const s = S[key]; const tpl = key.startsWith('value') ? T.value : key.startsWith('concern') ? T.concern : T[key]; return page(tpl(s, cutF)); };
   const shots = []; const names = {};
@@ -521,19 +567,20 @@ async function publishA(p) {
   if (done && !args.force) { log('publish 済み', p.handle.slice(0, 30)); } else {
     if (args.dry) { log('[dry] replace', cur.media.nodes.length, '→ A 7', p.handle.slice(0, 30)); return; }
     // 1) 置換前の画像を保存（rollback 用 localDir）
-    const old = cur.media.nodes.filter((m) => m.image?.url).map((m) => ({ id: m.id, url: m.image.url })); const localDir = 'amazon-pick-old';
-    for (const [i, m] of old.entries()) await download(m.url, path.join(PI_OUT, p.handle, localDir, `${pad(i + 1)}.jpg`));
+    const live = cur.media.nodes.filter((m) => m.image?.url).map((m) => ({ id: m.id, url: m.image.url })); const localDir = 'amazon-pick-old';
+    const prevBak = done ? J(bakF) : null; const old = prevBak?.old ?? live; // 2 回目以降：rollback 先は初回の原図のまま（localDir も初回のもの）
+    if (!prevBak) for (const [i, m] of old.entries()) await download(m.url, path.join(PI_OUT, p.handle, localDir, `${pad(i + 1)}.jpg`));
     // 2) A 案 7 枚を追加 → 処理待ち → 並べ替え → 旧画像を削除
     const alts = { main: p.title, value: `${p.title} 特長`, valueB: `${p.title} 特長`, concern1: `${p.title} ディテール`, concern2: `${p.title} 収納・使い方`, size: `${p.title} サイズ・仕様`, scene: `${p.title} 使用シーン`, set: `${p.title} セット内容` };
     const media = []; for (const x of b.render.A) media.push({ originalSource: await upload(path.join(OUT, p.handle, x.file), `amz-${String(p.id).split('/').pop()}-a-${pad(x.n)}.jpg`), mediaContentType: 'IMAGE', alt: alts[x.key] });
     const cm = await gql(`mutation($id:ID!,$m:[CreateMediaInput!]!){ productCreateMedia(productId:$id, media:$m){ media{ id } mediaUserErrors{ message } } }`, { id: p.id, m: media });
     if (cm.productCreateMedia.mediaUserErrors.length) throw new Error(cm.productCreateMedia.mediaUserErrors[0].message); const ids = cm.productCreateMedia.media.map((m) => m.id);
-    W(bakF, { productId: p.id, old, new: ids, localDir, by: 'amazon-visual', at: new Date().toISOString() }); // 先に書く（途中で落ちても rollback できる）
+    W(bakF, { productId: p.id, old, new: ids, prevNew: prevBak?.new, localDir, by: 'amazon-visual', at: new Date().toISOString() }); // 先に書く（途中で落ちても rollback できる）
     for (let i = 0; i < 40; i++) { await sleep(2000); const d = await gql(`query($id:ID!){ product(id:$id){ media(first:80){ nodes{ id status } } } }`, { id: p.id }); const mine = d.product.media.nodes.filter((m) => ids.includes(m.id)); if (mine.some((m) => m.status === 'FAILED')) throw new Error('media FAILED（旧画像は残したまま）'); if (mine.length === ids.length && mine.every((m) => m.status === 'READY')) break; }
     await gql(`mutation($id:ID!,$m:[MoveInput!]!){ productReorderMedia(id:$id, moves:$m){ userErrors{ message } } }`, { id: p.id, m: ids.map((id, i) => ({ id, newPosition: String(i) })) });
-    const del = await gql(`mutation($id:ID!,$m:[ID!]!){ productDeleteMedia(productId:$id, mediaIds:$m){ deletedMediaIds mediaUserErrors{ message } } }`, { id: p.id, m: old.map((o) => o.id) });
+    const del = await gql(`mutation($id:ID!,$m:[ID!]!){ productDeleteMedia(productId:$id, mediaIds:$m){ deletedMediaIds mediaUserErrors{ message } } }`, { id: p.id, m: live.map((o) => o.id) }); // 今ある画像（初回は原図、再発行時は前回の A 案）を消す
     if (del.productDeleteMedia.mediaUserErrors.length) throw new Error(del.productDeleteMedia.mediaUserErrors[0].message);
-    log('published A', p.handle.slice(0, 30), `${ids.length} new / ${old.length} old removed`);
+    log('published A', p.handle.slice(0, 30), `${ids.length} new / ${live.length} removed (backup old ${old.length})`);
   }
   if (!cur.tags.includes('amazon-pick')) { const t = await gql(`mutation($id:ID!){ tagsAdd(id:$id, tags:["amazon-pick"]){ userErrors{ message } } }`, { id: p.id }); if (ue(t.tagsAdd)) throw new Error(ue(t.tagsAdd)); log('tag amazon-pick', p.handle.slice(0, 30)); }
 }
