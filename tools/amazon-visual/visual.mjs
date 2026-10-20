@@ -20,6 +20,8 @@
  *        # 試点と同じ：compete（Amazon、直列）→ teardown → reviews → render → check → listing。anetmc・Amazon には書かない
  *        # 竞品が取れない／CAPTCHA の商品は lite（自社の事実だけ）に落とす。CAPTCHA は突破しない（--full-retry で後でやり直し）。失敗 2% 超で停止
  *   node tools/amazon-visual/visual.mjs publish --set all     # approved.txt（用户が認めた分）＋合格 → A 案 7 枚を anetmc に（tag amazon-ready）
+ *   node tools/amazon-visual/visual.mjs publish-passed --set all   # 既に生成済みの合格分をまとめて公開（同上）
+ *   bulk … --publish                                          # 用户 2026-10-20「合格的全部直接换」：合格分を approved.txt に追記してその場で公開
  *   node tools/amazon-visual/visual.mjs sheet --set all       # 12 商品/枚の一覧 → docs/amazon-visual/all/sheet-NNN.jpg
  *   node tools/amazon-visual/visual.mjs status --set all      # 進捗・合格数・不合格理由 → docs/amazon-visual/all-status.md
  * 共通：--handle <h>（1 件だけ）/ --force（作り直し）/ --cdp http://127.0.0.1:9224（公開ページのみ、ログインしない）
@@ -741,7 +743,14 @@ async function status() {
   fs.mkdirSync(DOCS, { recursive: true }); fs.writeFileSync(path.join(DOCS, 'all-status.md'), md + '\n'); log('status', JSON.stringify(st));
 }
 // 1 商品ずつ全段（--conc で並列）。Shopify の公開商品・Amazon には何も書かない
-// anetmc への公開はここでは行わない：用户が sheet を見て認めた商品を approved.txt に入れ、publish --set all で公開
+// --publish：用户 2026-10-20 選択「合格的全部直接换」＝ check 合格の商品は承認済み → approved.txt に追記し A 案 7 枚を anetmc に公開（旧画像は media-backup.json、rollback 可）。不合格は原図のまま
+const APPROVED = path.join(ROOT, 'tools/product-images/approved.txt');
+async function approveAndPublish(p) {
+  if (!brief(p).check?.pass) return;
+  const have = new Set(fs.readFileSync(APPROVED, 'utf8').split(/\r?\n/).map((x) => x.trim()));
+  if (!have.has(p.handle)) fs.appendFileSync(APPROVED, `${p.handle}\n`);
+  await publishA(p);
+}
 async function bulk() {
   args.set ??= 'all'; if (!fs.existsSync(SETF())) await pickAll();
   if (args['full-retry']) for (const p of pilot()) { const b = brief(p); if (/CAPTCHA|BLOCKED/.test(b.lite ?? '')) { delete b.lite; delete b.plan; delete b.render; delete b.check; saveBrief(p, b); } }
@@ -757,6 +766,7 @@ async function bulk() {
     }
     if (lite(p)) { await compete(p); await teardown(p); await reviews(p); }
     await render(p); await check(p); await listing(p);
+    if (args.publish) await approveAndPublish(p);
   }, 'bulk');
 }
 
@@ -764,7 +774,7 @@ async function bulk() {
 const run = { pick, compete: () => each(compete), teardown: () => each(teardown), reviews: () => each(reviews), render: () => each(render), review: () => each(review), watch,
   check: () => each(check), publish: () => each(publishA), collection, listing: async () => { await each(listing); await listingFile(); },
   all: async () => { await pick(); for (const s of [compete, teardown, reviews, render]) await each(s); },
-  bulk: async () => { try { await bulk(); } finally { await listingFile().catch((e) => log('listingFile', e.message)); await status(); await sheet(); } }, sheet, status };
+  bulk: async () => { try { await bulk(); } finally { await listingFile().catch((e) => log('listingFile', e.message)); await status(); await sheet(); } }, sheet, status, 'publish-passed': () => each(approveAndPublish) };
 if (!run[stage]) { console.error('usage: pick | compete | teardown | reviews | render | review [--dry] | check | publish [--dry] | collection | listing | watch [--mark-listed --handles …] | all | bulk | sheet | status  (--handle h / --force / --cdp url / --set all --from N --limit M --conc N --lite)'); process.exit(2); }
 // CDP ブラウザは自分のタブだけ閉じる（ウィンドウ・ブラウザは閉じない）。最後は process.exit
 Promise.resolve(run[stage]()).then(async () => { if (BR) await BR.page.close().catch(() => {}); log('done', stage); process.exit(process.exitCode ?? 0); }, async (e) => { console.error(e); if (BR) await BR.page.close().catch(() => {}); process.exit(1); });
