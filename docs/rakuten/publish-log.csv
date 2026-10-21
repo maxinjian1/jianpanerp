@@ -1,0 +1,3 @@
+﻿time,spu,manage_number,platform_category_id,platform_category_name,shop_category,action,result,error
+2026-10-21T20:40+09:00,NB-01,anet-1,,レディースファッション » その他,,precheck(existing 发布失败),failed,"[GA0001] Un-Authorised: ItemAPI2.0未开启授权或CSV批量编辑服务未开启 (错误码58)"
+2026-10-21T20:42+09:00,*,,,,,precheck(store auth),blocked,"斑马「我的授权/Rakuten」アネットショップ2025 = 授权异常；首页提示需在乐天后台生成新 LicenseKey 并更新授权；平台类目选择器打不开(跳回首页)。未修改/保存/发布任何商品"
