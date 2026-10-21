@@ -1,3 +1,6 @@
 ﻿time,spu,manage_number,platform_category_id,platform_category_name,shop_category,action,result,error
 2026-10-21T20:40+09:00,NB-01,anet-1,,レディースファッション » その他,,precheck(existing 发布失败),failed,"[GA0001] Un-Authorised: ItemAPI2.0未开启授权或CSV批量编辑服务未开启 (错误码58)"
 2026-10-21T20:42+09:00,*,,,,,precheck(store auth),blocked,"斑马「我的授权/Rakuten」アネットショップ2025 = 授权异常；首页提示需在乐天后台生成新 LicenseKey 并更新授权；平台类目选择器打不开(跳回首页)。未修改/保存/发布任何商品"
+2026-10-21T21:10+09:00,*,,,,,precheck(store auth),ok,"授权状态=已授权（更新 2026-10-21 20:56:16）；编辑页平台类目选择器可打开，乐天ジャンル树 15889 节点/13913 末级可取得"
+2026-10-21T21:15+09:00,*,,,,,precheck(shop categories),blocked,"RMS 店舗内カテゴリ只有 レディースファッション/子供服/イヤーマフ/コスメ・ヘアケア/その他，任务要求的 8 个都没有；斑马无新建入口；在 RMS 新建被 Claude Code 自动模式分类器拦截（Modify Shared Resources），已取消对话框，未作任何更改"
+2026-10-21T21:20+09:00,*,,,,,precheck(6kpro),down,"http://100.82.2.101:8199 连接失败，平台类目改为本地关键词匹配初稿（准确率不足，需人工/LLM 复核）"
