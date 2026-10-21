@@ -1,0 +1,3 @@
+# 夜間（北京 20:00〜翌 10:00）に 6kpro を使うジョブ。上から順に実行。行頭 # は無効。
+# 1) Amazon 規格化の残り（未処理分を続行、合格分は anetmc に A 案公開＝用户承認済み「合格的全部直接换」）
+tools/amazon-visual/visual.mjs bulk --set all --conc 3 --publish

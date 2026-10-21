@@ -124,11 +124,11 @@ const withBrowser = (fn) => { const r = bLock.then(fn); bLock = r.catch(() => {}
 function pilot() { const f = SETF(); if (!fs.existsSync(f)) throw new Error(`${path.relative(ROOT, f)} が無い：先に pick${args.set ? ' --all' : ''}`); let ps = J(f).items; if (args.handle) ps = ps.filter((p) => p.handle === args.handle); const from = Number(args.from ?? 0); return ps.slice(from, args.limit ? from + Number(args.limit) : undefined); }
 // --conc N：並列数（ブラウザを使う段は 1）。失敗が 2% を超えたら止める（最低 2 件までは続行）
 async function each(fn, name = stage) {
-  const ps = pilot(); let ok = 0, i = 0, stop = false; const errs = []; const max = Math.max(2, Math.floor(ps.length * 0.02));
-  const worker = async () => { while (!stop && i < ps.length) { const p = ps[i++]; try { await fn(p); ok++; } catch (e) { log('ERR', p.handle.slice(0, 30), e.message); errs.push({ handle: p.handle, err: e.message.slice(0, 300) }); if (/BLOCKED/.test(e.message) && name !== 'bulk') stop = true; if (errs.length > max) { stop = true; log(`失敗 ${errs.length} 件 > 2%（${max}）→ 停止`); } } } };
+  const ps = pilot(); let ok = 0, i = 0, stop = false, winStop = false; const errs = []; const max = Math.max(2, Math.floor(ps.length * 0.02));
+  const worker = async () => { while (!stop && i < ps.length) { const p = ps[i++]; try { await fn(p); ok++; } catch (e) { log('ERR', p.handle.slice(0, 30), e.message); errs.push({ handle: p.handle, err: e.message.slice(0, 300) }); if (/WINDOW_CLOSED/.test(e.message)) { stop = true; winStop = true; errs.pop(); log('時間帯終了 → 停止（失敗扱いにしない）'); continue; } if (/BLOCKED/.test(e.message) && name !== 'bulk') stop = true; if (errs.length > max) { stop = true; log(`失敗 ${errs.length} 件 > 2%（${max}）→ 停止`); } } } };
   await Promise.all(Array.from({ length: Math.max(1, Number(args.conc ?? 1)) }, worker));
   log(`${name}: ok ${ok} / ${ps.length}`); if (errs.length) { W(path.join(OUT, `errors-${name}${args.set ? `-${args.set}` : ''}.json`), { at: new Date().toISOString(), errs }); process.exitCode = 1; }
-  if (stop) throw new Error(`${name} 停止（失敗 ${errs.length}）`);
+  if (stop && !winStop) throw new Error(`${name} 停止（失敗 ${errs.length}）`);
 }
 
 // ---------- ブラウザ（既存の CDP Chrome に新しいタブを 1 つ。ウィンドウは閉じない）----------
@@ -754,9 +754,17 @@ async function approveAndPublish(p) {
 // 6kpro（第三方）が止まっている間は失敗扱いにせず待つ（5 分おきに /health、最長 --wait-hours 時間、既定 12）
 const llmUp = async () => { try { const r = await fetch(`${LLM.replace(/\/v1$/, '')}/health`, { signal: AbortSignal.timeout(10000) }); return r.ok; } catch { return false; } };
 let llmWait = null;
+// 6kpro の利用可能時間帯（用户 2026-10-22：北京時間 20:00〜翌 10:00 は自由に使ってよい）。.env の LLM_WINDOW=20-10 / LLM_WINDOW_TZ=Asia/Shanghai、または --window 20-10。未設定なら常時
+const WIN = String(args.window ?? env.LLM_WINDOW ?? ''), WIN_TZ = env.LLM_WINDOW_TZ || 'Asia/Shanghai';
+function inWindow() {
+  const m = WIN.match(/^(\d{1,2})-(\d{1,2})$/); if (!m) return true;
+  const h = Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hourCycle: 'h23', timeZone: WIN_TZ }).format(new Date()));
+  const [a, b] = [Number(m[1]), Number(m[2])]; return a <= b ? h >= a && h < b : h >= a || h < b;
+}
 async function waitLLM() {
+  if (!inWindow()) throw new Error(`WINDOW_CLOSED 6kpro の利用時間外（${WIN} ${WIN_TZ}）→ 今夜の続きは次の時間帯で`);
   if (await llmUp()) return;
-  llmWait ??= (async () => { const until = Date.now() + Number(args['wait-hours'] ?? 12) * 3600e3; log('6kpro 停止中 → 復旧待ち'); while (Date.now() < until) { await sleep(300e3); if (await llmUp()) { log('6kpro 復旧'); return; } } throw new Error('6kpro が復旧しない（待ち時間切れ）'); })().finally(() => { llmWait = null; });
+  llmWait ??= (async () => { const until = Date.now() + Number(args['wait-hours'] ?? 12) * 3600e3; log('6kpro 停止中 → 復旧待ち'); while (Date.now() < until) { await sleep(300e3); if (!inWindow()) throw new Error('WINDOW_CLOSED 待機中に利用時間外'); if (await llmUp()) { log('6kpro 復旧'); return; } } throw new Error('6kpro が復旧しない（待ち時間切れ）'); })().finally(() => { llmWait = null; });
   await llmWait;
 }
 async function bulk() {
@@ -766,6 +774,8 @@ async function bulk() {
   const SOFT = /BLOCKED|竞品が|レビューが|competitors 無し/;
   await each(async (p) => { for (let k = 0; ; k++) { await waitLLM(); try { return await bulkOne(p); } catch (e) { if (k < 2 && !(await llmUp())) { log('6kpro 途中停止', p.handle.slice(0, 30), '→ 復旧後にやり直し'); continue; } throw e; } } }, 'bulk');
   async function bulkOne(p) {
+    // 済み（自己点検＋出品データあり）はやり直さない：夜間の再実行で前回の続きから進むため
+    if (brief(p).check && fs.existsSync(path.join(OUT, p.handle, 'amazon-listing.json')) && !args.force) { if (args.publish) await approveAndPublish(p); return; }
     if (!lite(p)) {
       if (amazonBlocked) toLite(p, 'Amazon CAPTCHA 中（後で --full-retry）');
       else {
