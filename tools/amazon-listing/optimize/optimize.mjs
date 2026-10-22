@@ -23,6 +23,7 @@
  *   - プライバシー梱包（中身がわからない梱包）は必ず訴求
  *   - 顧客データは一切扱わない。6kpro に送るのは商品情報のみ
  */
+import { inWindow } from '../../night/window.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -140,6 +141,7 @@ const run = {
     const ts = loadTargets(); let n = 0;
     for (const t of ts) {
       const d = dirOf(t.asin); const f = path.join(d, 'listing.json'); if (fs.existsSync(f) && !args.force) continue;
+      if (!inWindow(args.window ?? env.LLM_WINDOW ?? process.env.LLM_WINDOW)) { log('6kpro 利用時間外 → 停止（続きは次の夜）'); break; }
       const cur = fs.existsSync(path.join(d, 'current.json')) ? JSON.parse(fs.readFileSync(path.join(d, 'current.json'), 'utf8')) : { title: t.title, bullets: [], description: t.desc ?? '', sizes: [], colors: [], detail: {} };
       const user = `ASIN: ${t.asin}\n現在のタイトル: ${cur.title}\n価格: ${cur.price || '¥' + t.price}\n現在の箇条書き:\n${cur.bullets.map((b) => '- ' + b).join('\n') || '(なし)'}\n現在の説明文:\n${String(cur.description).slice(0, 2500) || '(なし)'}\nサイズ展開: ${cur.sizes.join(' / ') || '不明'}\nカラー展開: ${cur.colors.join(' / ') || '不明'}\n商品詳細: ${JSON.stringify(cur.detail).slice(0, 1500)}\n90日間の実績: セッション ${t.sessions90}、注文 ${t.units90}、CVR ${t.cvr90}%（セグメント ${t.segment}）\n\nセグメントが no-traffic ならタイトルと検索キーワードに検索者の言い回しを厚めに、traffic-no-sales / low-cvr なら箇条書きの先頭 2 本と image_brief で不安（サイズ・透け・ひびき・梱包）を先回りで解消してください。`;
       try { const j = await chatJson([{ role: 'system', content: SYSTEM }, { role: 'user', content: user }]); j.asin = t.asin; j.generatedAt = new Date().toISOString(); fs.writeFileSync(f, JSON.stringify(j, null, 1)); n++; log('written', t.asin, j.title?.slice(0, 40)); }

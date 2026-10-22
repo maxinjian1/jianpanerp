@@ -1,3 +1,12 @@
-# 夜間（北京 20:00〜翌 10:00）に 6kpro を使うジョブ。上から順に実行。行頭 # は無効。
-# 1) Amazon 規格化の残り（未処理分を続行、合格分は anetmc に A 案公開＝用户承認済み「合格的全部直接换」）
+# 夜間（北京 20:00〜翌 10:00 = 日本 21:00〜11:00）に 6kpro を使うジョブ。上から順に実行。行頭 # は無効。
+# どれも途中で時間切れになったら止まり、翌晩は続きから（済みはスキップ）。どれも外部への公開・アップロードはしない（1 の anetmc 換図だけは用户承認済み）。
+
+# 1) 乐天 草稿箱 980 件の商品名合規チェック＋修正案（約 1 時間）→ docs/rakuten/title-check.md / .csv（提案のみ、斑馬には書かない）
+tools/rakuten/title-check.mjs
+
+# 2) Amazon 規格化の残り（未処理 約 335 件、合格分は anetmc に A 案公開＝用户承認「合格的全部直接换」）
 tools/amazon-visual/visual.mjs bulk --set all --conc 3 --publish
+
+# 3) Amazon 既存 SARADEMUNT 出品の文案下書き（新 title/箇条書き/説明/キーワード）→ out/opt/<asin>/listing.json（アップロードしない、用户審査待ち）
+tools/amazon-listing/optimize/optimize.mjs write
+tools/amazon-listing/optimize/optimize.mjs report

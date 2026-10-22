@@ -7,6 +7,12 @@
 - 6kpro 在这段时间内掉线的话，任务会等它恢复。
 - 跑完后，进度和一览图（`docs/amazon-visual/all-status.md`、`docs/amazon-visual/all/`）会自动推送。日志在 `tools/night/logs/`，不进 git。
 
+## 现在的夜间任务（`jobs.txt`）
+
+1. **乐天商品名合规检查**（980 件，约 1 小时）：去掉型号、其他品牌名、IP 名、夸大或医疗效果的说法，给出修正案；`review` 行顺便判断类目合不合适。结果在 `docs/rakuten/title-check.md` / `.csv`，**只是提案，不写入斑马**。
+2. **Amazon 规格化剩余部分**（约 335 件）：合格的换到 anetmc 上（用户已批准）。
+3. **Amazon 现有 SARADEMUNT 出品的文案草稿**：新标题、箇条書き、说明、关键词。结果在 `docs/amazon-listing/optimize-review.md`，**不上传，等用户审核**。
+
 ## 注册方法（在 Windows 上做一次）
 
 在管理员 PowerShell 里执行：

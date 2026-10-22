@@ -18,7 +18,8 @@ foreach ($line in Get-Content (Join-Path $PSScriptRoot 'jobs.txt')) {
   "=== $(Get-Date -Format s) exit=$LASTEXITCODE : $job" | Add-Content $log
 }
 # 結果（進捗・一覧図）を push（ログ本体は git に入れない）
-git add docs/amazon-visual/all-status.md docs/amazon-visual/all tools/product-images/approved.txt 2>$null
+git add docs/amazon-visual/all-status.md docs/amazon-visual/all tools/product-images/approved.txt docs/rakuten/title-check.md docs/rakuten/title-check.csv 2>$null
+if (Test-Path tools/amazon-listing/out/opt/review.md) { New-Item -ItemType Directory -Force docs/amazon-listing | Out-Null; Copy-Item tools/amazon-listing/out/opt/review.md docs/amazon-listing/optimize-review.md -Force; git add docs/amazon-listing/optimize-review.md 2>$null }
 git commit -q -m "night: 6kpro 夜間ジョブ結果 $(Get-Date -Format yyyy-MM-dd)" 2>$null
 git push -q origin claude/brave-dirac-s6orrc 2>&1 | Add-Content $log
 "=== $(Get-Date -Format s) night end" | Add-Content $log
