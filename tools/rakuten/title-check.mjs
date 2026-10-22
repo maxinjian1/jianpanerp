@@ -11,7 +11,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { inWindow } from '../night/window.mjs';
+import { waitLLM } from '../night/window.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const args = Object.fromEntries(process.argv.slice(2).map((a, i, arr) => a.startsWith('--') ? [a.slice(2), arr[i + 1] && !arr[i + 1].startsWith('--') ? arr[i + 1] : '1'] : []).filter(Boolean));
@@ -57,7 +57,7 @@ let todo = items.filter((x) => !done.has(x.spu)); if (args.limit) todo = todo.sl
 log('title-check', items.length, '件中 残り', todo.length);
 
 for (let k = 0; k < todo.length; k += 15) {
-  if (!inWindow(WIN)) { log('6kpro 利用時間外 → 停止（続きは次の夜）'); break; }
+  if (!(await waitLLM(LLM, WIN, log))) { log('6kpro 利用時間外 → 停止（続きは次の夜）'); break; }
   const batch = todo.slice(k, k + 15);
   const user = batch.map((x, i) => `#${i} SPU=${x.spu} 管理編号=${x.mn}${x.review ? ` 類目=${x.genre}` : ''}\n商品名: ${x.name}`).join('\n\n');
   try {
