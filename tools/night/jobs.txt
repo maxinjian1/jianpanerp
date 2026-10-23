@@ -4,8 +4,8 @@
 # 1) 乐天 草稿箱 980 件の商品名合規チェック＋修正案（約 1 時間）→ docs/rakuten/title-check.md / .csv（提案のみ、斑馬には書かない）
 tools/rakuten/title-check.mjs
 
-# 2) Amazon 規格化の残り（未処理 約 335 件、合格分は anetmc に A 案公開＝用户承認「合格的全部直接换」）
-tools/amazon-visual/visual.mjs bulk --set all --conc 3 --publish
+# 2) Amazon 規格化（換図）— 2026-10-23 用户指示「amazon图片换的事情暂停」→ 停止中。再開は用户の指示があってから行頭の # を外す
+# tools/amazon-visual/visual.mjs bulk --set all --conc 3 --publish
 
 # 3) Amazon 既存 SARADEMUNT 出品の文案下書き（新 title/箇条書き/説明/キーワード）→ out/opt/<asin>/listing.json（アップロードしない、用户審査待ち）
 tools/amazon-listing/optimize/optimize.mjs write

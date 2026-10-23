@@ -57,6 +57,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-10-23 08:40 JST+1：**用户再次指示暂停 Amazon 换图**（jobs.txt 第 2 项已注释，今晚起不再跑 bulk --publish；已换的不回滚）。昨夜实绩：6kpro 约北京 22:40 前恢复；① title-check 0 件（旧代码未等待，66 批 fetch failed）；② bulk ok 794/1129，25 件天然石手链因 9224 浏览器未开失败；③ optimize write 03:18 起每件约 15 秒，已写 1271 件。
 - 2026-10-22 夜：Windows 已注册 `anet-night-6kpro` 并手动启动（北京 21:10），但 **6kpro 8199 不通**（Tailscale ping 通、服务未起，需机主 leosma 检查）。title-check 原先遇停机会每批报错空跑 → 改为与 visual.mjs 同样 5 分钟查 /health 等恢复（`window.mjs` 的 `waitLLM`，optimize write 同）。Windows 时钟是北京时间，计划任务应为 `/ST 20:00`（当前注册的是 21:00，待改）。
 - 2026-10-22 夜间任务准备完毕（`tools/night/jobs.txt`）：① `tools/rakuten/title-check.mjs`（新）乐天 980 件商品名合规＋修正案＋review 类目判定 → `docs/rakuten/title-check.{md,csv}`（提案）；② Amazon 规格化剩余 ~335 件（--publish）；③ `optimize.mjs write/report` 既存 SARADEMUNT 出品文案草稿 → `docs/amazon-listing/optimize-review.md`（不上传）。共用时间窗口 `tools/night/window.mjs`。待用户在 Windows 注册任务计划 `anet-night-6kpro`。
 - 2026-10-22 用户告知：**6kpro 北京时间 20:00〜次日 10:00（日本 21:00〜11:00）空闲，可随便用**。新增 `tools/night/`（`run-night.ps1` + `jobs.txt` + README）：Windows 任务计划 `anet-night-6kpro` 每天 21:00 JST 启动，按 jobs.txt 顺序跑；visual.mjs 加 `--window 20-10`/`LLM_WINDOW`（时区 `LLM_WINDOW_TZ` 默认 Asia/Shanghai），时间外不调 6kpro、自动停止且不计失败，次晚续跑（已有 check+listing 的商品跳过）。首个夜间任务：Amazon 规格化剩余部分（`bulk --set all --conc 3 --publish`）。**白天（北京 10:00〜20:00）6kpro 由机主那边约 10 人在用 → 我们白天不跑任何批量/并发调用，只允许零星交互式调用；白天出现的卡顿/掉线多半是资源争用，不要反复重试压它。**
