@@ -57,6 +57,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-10-25 00:45 JST：**乐天上架开始**。根因：RMS 里本来就没有 9 个新店铺类目（用户重建后 ID 22〜30，斑马同步正常）。试发 3 件成功（Z-09-1 / L0547990 / RB-03，页面可见、价格一致）；修正管理编号 6（空格/斜杠→`-`）、标题超长 3（D-34 系 369→244）。批量提交 508 后按 2% 规则停：乐天回执 成功 105 / 失败 3（oil-01 缺「総個数」属性；TZDB、TZDB-HS 含機種依存文字 IE0270）/ 队列中 400；未提交 431。另：此前手动发布 44 件（18 件店铺类目仍为旧「その他」）未动；新草稿 10 件（YKOGH/JJMGH）已纳入；JJMGH 假睫毛 5 件暂放 衣類・アクセサリー（无美容类目）标 review。**待用户决定**：剩余 431 是否继续、失败 3 件是否修内容。详见 `docs/rakuten/banma-draft-list.md`「发布结果」。
 - 2026-10-23：用户提供「跨境选品全流程 13 步（AI 执行版）」→ 原文存档 `docs/amazon-sourcing/选品全流程-AI执行版.md`，新 skill `.claude/skills/amazon-sourcing-jp/`（把 13 步映射到当社数据源：SQP/POE 由用户导出、Top20 用 research.mjs、评论拆解走夜间 6kpro、利润用 kjyf/1688 成本 + FBA 模拟器、Keepa 有无待用户确认；硬性规则：无数据写未知、估算标估算、结论三选一、不执行花钱操作）。作业目录 `tools/amazon-sourcing/`（in/out 不入 git）。尚未对任何商品实跑。
 - 2026-10-23 08:40 JST+1：**用户再次指示暂停 Amazon 换图**（jobs.txt 第 2 项已注释，今晚起不再跑 bulk --publish；已换的不回滚）。昨夜实绩：6kpro 约北京 22:40 前恢复；① title-check 0 件（旧代码未等待，66 批 fetch failed）；② bulk ok 794/1129，25 件天然石手链因 9224 浏览器未开失败；③ optimize write 03:18 起每件约 15 秒，已写 1271 件。
 - 2026-10-22 夜：Windows 已注册 `anet-night-6kpro` 并手动启动（北京 21:10），但 **6kpro 8199 不通**（Tailscale ping 通、服务未起，需机主 leosma 检查）。title-check 原先遇停机会每批报错空跑 → 改为与 visual.mjs 同样 5 分钟查 /health 等恢复（`window.mjs` 的 `waitLLM`，optimize write 同）。Windows 时钟是北京时间，计划任务应为 `/ST 20:00`（当前注册的是 21:00，待改）。
