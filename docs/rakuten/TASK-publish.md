@@ -41,3 +41,14 @@
 
 - 推送 `docs/rakuten/publish-log.csv` 和更新后的 `docs/rakuten/banma-draft-list.md`（加「发布结果」汇总：成功 / 失败 / 跳过 / review 件数）到 `claude/brave-dirac-s6orrc`。
 - 回报：试发 3 件的结果和乐天页面确认情况；批量发布成功几件、失败几件及原因；标记 `review` 的类目有几件。
+
+## 第二阶段（2026-10-25 用户决定：A / A / 同意；乐天继续 + 修 3 件）
+
+**乐天**：剩余 431 件继续提交（等队列 400 件回执、失败率不升高再接着提）；失败 3 件修内容后重发——TZDB、TZDB-HS 把标题/说明里的 ①■★ 等機種依存文字换成普通字符（①→(1)、■→・、★ 删除）；oil-01 补「総個数」属性（按 SKU 数量填）或换到不要求该属性的最贴切类目。
+
+**草稿箱 → anetmc.com（`tools/rakuten/draft-sync.mjs`）**
+- 母本 = 斑马草稿箱的图片与说明；Shopify 标题保持现状；对上的商品一次全部换；说明用草稿覆盖。
+- 步骤：`node tools/rakuten/recv.mjs`（常驻）→ 在斑马登录的 Chrome 里执行 `banma-export.browser.js`（取全部草稿 → out/drafts/）→ `draft-sync.mjs probe`（确认图片/说明键名；取不到就回报 top keys）→ `fetch-shopify` → `plan`（推送 docs/rakuten/draft-sync-plan.md）→ `apply`（1 件/秒，2% 停）→ 推送日志并回报。
+- 备份：每件旧图下载到 `out/shopify-backup/<handle>/`，旧说明在 backup.json；`rollback` 可整体或按 handle 恢复。
+- 不碰：价格、库存、标题、tags、1 草稿对多 Shopify 商品的（dup，列在 plan 里等人工）。
+- Amazon：Shopify 图换好后，副图自然来自草稿；主图仍走 visual.mjs 的白底 A 案（Amazon 主图不允许文字）。换图目前暂停，等用户指示。
