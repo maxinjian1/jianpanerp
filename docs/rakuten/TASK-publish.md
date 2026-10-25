@@ -52,3 +52,12 @@
 - 备份：每件旧图下载到 `out/shopify-backup/<handle>/`，旧说明在 backup.json；`rollback` 可整体或按 handle 恢复。
 - 不碰：价格、库存、标题、tags、1 草稿对多 Shopify 商品的（dup，列在 plan 里等人工）。
 - Amazon：Shopify 图换好后，副图自然来自草稿；主图仍走 visual.mjs 的白底 A 案（Amazon 主图不允许文字）。换图目前暂停，等用户指示。
+
+## 第三阶段：R-Cabinet 容量（2026-10-25 用户问「1.5GB 如何再增加」）
+- がんばれ！プラン上限 1.5GB；增加只能①压缩②容量追加オプション（1GB +5,000 円/月、10GB +10,000 円/月，税別）③升级 スタンダード（100GB）。乐天禁止外部服务器图片。
+- 先做①：`tools/rakuten/cabinet.mjs`（RMS Cabinet API，需 .env 的 `RAKUTEN_SERVICE_SECRET` / `RAKUTEN_LICENSE_KEY`，用户本人发行填入）
+  1. `usage` → 当前使用量；`scan` → 全部目录/文件 → `docs/rakuten/cabinet-report.md`（分布、各目录、最大 30 件）。
+  2. `plan --target 180 --max 1200` → 下载 >180KB 的 JPEG/PNG，Pillow 压缩（最长边 1200、JPEG q85→60 逐步、PNG 仅 optimize）→ `docs/rakuten/cabinet-plan.md`，附压缩前后样图目录供用户肉眼比较。**不上传**。
+  3. 用户看过样图同意后 `apply --limit 20` 试 20 件 → 确认商品页图片正常（URL 不变，cabinet.file.update 同 fileId 覆盖）→ 全量。元图在 `out/cabinet/backup/`，`rollback` 可恢复。5 连败或 2% 失败即停；1 req/秒。
+  4. 新上传（剩余 431 件 + 重发 80 件）同样先压缩。斑马从自己的图 URL 上传，若无法替换，改为斑马建商品、图片由我们走 Cabinet API 上传后在斑马选图。
+- ②③ 要花钱：容量压缩后仍 >85% 再向用户提案，开通由用户本人操作。
