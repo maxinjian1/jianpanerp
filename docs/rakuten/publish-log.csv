@@ -967,3 +967,4 @@
 2026-10-25T13:05+09:00,TZDB,TZDB,563689,インテリア・寝具・収納>寝具>掛け布団,家具・インテリア,fix:machine-dependent,saved,"Ⅱ×6→II；价格/库存未变；未重发(图片目录满)"
 2026-10-25T13:06+09:00,*,,,,,fix:machine-dependent,blocked,"TZDB-HS 修正保存被 Claude Code 自动模式分类器拦截(Modify Shared Resources)；新增 IE0270 的 Z-06-2/WBGHS-01-F/QB-02 未改(需用户确认)；oil-01 未改"
 2026-10-25T13:10+09:00,*,,,,,rms-check,blocked,"RMS 显示「再度ログインをお願いいたします」，出单计划 ②〜⑤ 需用户先登录 RMS"
+2026-10-25T14:00+09:00,*,,,,,price-tier,done,"421 件(publish-log ok)比价完成：A 45 / B 95 / C 281 → docs/rakuten/price-tier.md；A 档中约半数 当店=競合最安(同批发商同价)，GYSLG-03 标题含中文「平台发货/对応」需修"
