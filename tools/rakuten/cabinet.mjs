@@ -31,7 +31,7 @@ fs.mkdirSync(OUT, { recursive: true }); fs.mkdirSync(DOCS, { recursive: true });
 const [cmd = 'usage', ...rest] = process.argv.slice(2);
 const args = Object.fromEntries(rest.map((a, i, arr) => a.startsWith('--') ? [a.slice(2), arr[i + 1] && !arr[i + 1].startsWith('--') ? arr[i + 1] : true] : null).filter(Boolean));
 const env = Object.fromEntries((fs.existsSync(path.join(ROOT, '.env')) ? fs.readFileSync(path.join(ROOT, '.env'), 'utf8') : '').split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith('#') && l.includes('=')).map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^"|"$/g, '')]; }));
-const PY = env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
+const PY = env.PYTHON || env.IMAGE_PY || (process.platform === 'win32' ? path.join(ROOT, 'apps/image-service/venv/Scripts/python.exe') : 'python3');
 const API = 'https://api.rms.rakuten.co.jp/es/1.0/cabinet';
 const TARGET_KB = Number(args.target || 180), MAX_SIDE = Number(args.max || 1200), MIN_SAVE = Number(args['min-save'] || 15);
 
@@ -68,7 +68,7 @@ async function check() {
   const r = await fetch(`${API}/usage/get`, { headers: { Authorization: auth() } });
   const xml = await r.text();
   console.log('http', r.status, 'systemStatus', tag(xml, 'systemStatus'), 'resultCode', tag(xml, 'resultCode'), tag(xml, 'message') || '');
-  if (tag(xml, 'resultCode') === '0') console.log(`OK  容量 ${tag(xml, 'UseSpace')} / ${tag(xml, 'MaxSpace')} MB`); else console.log('NG → 上の mask 表示で、RMS 利用設定の「最新」キーの先頭と一致するか確認');
+  if (tag(xml, 'resultCode') === '0') console.log(`OK  容量 ${(Number(tag(xml, 'UseSpace')) / 1024).toFixed(1)} / ${tag(xml, 'MaxSpace')} MB`); else console.log('NG → 上の mask 表示で、RMS 利用設定の「最新」キーの先頭と一致するか確認');
 }
 
 // ---------- usage ----------
@@ -76,7 +76,7 @@ async function usage() {
   const xml = await rms('usage/get');
   const u = Object.fromEntries(['MaxSpace', 'FolderMax', 'FileMax', 'UseSpace', 'AvailSpace', 'UseFolderCount', 'AvailFolderCount'].map((k) => [k, tag(xml, k)]));
   console.log(u);
-  console.log(`容量 ${u.UseSpace} / ${u.MaxSpace} MB  (${(Number(u.UseSpace) / Number(u.MaxSpace) * 100).toFixed(1)}%)  フォルダ ${u.UseFolderCount}/${u.FolderMax}`);
+  console.log(`容量 ${(Number(u.UseSpace) / 1024).toFixed(1)} / ${u.MaxSpace} MB  (${(Number(u.UseSpace) / 1024 / Number(u.MaxSpace) * 100).toFixed(1)}%)  フォルダ ${u.UseFolderCount}/${u.FolderMax}`);
   J(path.join(OUT, 'usage.json'), { ...u, at: new Date().toISOString() });
   return u;
 }
@@ -85,15 +85,15 @@ async function usage() {
 async function scan() {
   const u = await usage();
   const folders = [{ FolderId: '0', FolderName: '基本フォルダ', FolderPath: '/' }];
-  for (let off = 1; ; off += 100) {
+  for (let off = 1; ; off += 1) { // offset はページ番号（1 始まり）
     const xml = await rms(`folders/get?offset=${off}&limit=100`);
     const list = tags(xml, 'folder').map((f) => Object.fromEntries(['FolderId', 'FolderName', 'FolderNode', 'FolderPath', 'FileCount', 'FileSize'].map((k) => [k, tag(f, k)])));
-    folders.push(...list); log('folders', folders.length);
+    folders.push(...list.filter((x) => !folders.some((y) => y.FolderId === x.FolderId))); log('folders', folders.length);
     if (list.length < 100) break;
   }
   const files = [];
   for (const fo of folders) {
-    for (let off = 1; ; off += 100) {
+    for (let off = 1; ; off += 1) { // offset はページ番号（1 始まり）
       const xml = await rms(`folder/files/get?folderId=${fo.FolderId}&offset=${off}&limit=100`);
       const list = tags(xml, 'file').map((f) => ({ ...Object.fromEntries(['FolderId', 'FolderPath', 'FileId', 'FileName', 'FilePath', 'FileUrl', 'FileType', 'FileSize', 'FileWidth', 'FileHeight', 'TimeStamp'].map((k) => [k, tag(f, k)])), folderName: fo.FolderName }));
       files.push(...list);
@@ -101,8 +101,8 @@ async function scan() {
     }
     log(`${fo.FolderName}(${fo.FolderId}) files so far ${files.length}`);
   }
-  // FileSize は MB 表記（小数）。KB に直す
-  for (const f of files) { f.kb = Math.round(Number(f.FileSize || 0) * 1024); f.ext = (f.FilePath || f.FileName || '').split('.').pop().toLowerCase(); }
+  // FileSize は KB 表記（小数）
+  for (const f of files) { f.kb = Math.round(Number(f.FileSize || 0)); f.ext = (f.FilePath || f.FileName || '').split('.').pop().toLowerCase(); }
   J(path.join(OUT, 'folders.json'), folders); J(path.join(OUT, 'files.json'), files);
   report(u, folders, files);
 }
@@ -115,7 +115,7 @@ function report(u, folders, files) {
   const bigKb = big.reduce((s, f) => s + f.kb, 0);
   const est = big.filter((f) => f.ext === 'jpg' || f.ext === 'jpeg').reduce((s, f) => s + Math.max(0, f.kb - TARGET_KB * 0.8), 0); // JPEG を 180KB 前後に落とした場合の削減見込み（粗い）
   const md = [`# R-Cabinet 棚卸し（${new Date().toISOString().slice(0, 16)}Z）`, '',
-    `- 容量：**${u.UseSpace} / ${u.MaxSpace} MB（${(Number(u.UseSpace) / Number(u.MaxSpace) * 100).toFixed(1)}%）**、フォルダ ${u.UseFolderCount}/${u.FolderMax}`,
+    `- 容量：**${(Number(u.UseSpace) / 1024).toFixed(1)} / ${u.MaxSpace} MB（${(Number(u.UseSpace) / 1024 / Number(u.MaxSpace) * 100).toFixed(1)}%）**、フォルダ ${u.UseFolderCount}/${u.FolderMax}`,
     `- ファイル数：${files.length}、合計 ${(total / 1024).toFixed(0)} MB、平均 ${(total / Math.max(1, files.length)).toFixed(0)} KB`,
     `- ${TARGET_KB}KB 超：${big.length} 件、${(bigKb / 1024).toFixed(0)} MB → JPEG を ${TARGET_KB}KB 目安に圧縮した場合の削減見込み **約 ${(est / 1024).toFixed(0)} MB**（plan で実測）`, '',
     '## サイズ分布', '| 範囲 | 件数 | 合計 MB |', '|---|---|---|',
