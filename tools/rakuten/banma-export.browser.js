@@ -42,6 +42,8 @@
       const html = await (await fetch(`/Rakuten/ProductV2/Edit/${id}`)).text();
       if (/login|登录|ログイン/i.test(html.slice(0, 3000)) && !/product\s*=/.test(html)) throw new Error('LOGIN_REQUIRED');
       const product = extractProduct(html); if (!product) throw new Error('product object not found');
+      // 説明文は product.SPU では空で、<template id=DescriptionForPC> 等に入っている
+      { const doc = new DOMParser().parseFromString(html, 'text/html'); for (const k of ['DescriptionForPC', 'DescriptionForMobile', 'SalesDescription']) { const t = doc.getElementById(k); if (t && product.SPU && !product.SPU[k]) product.SPU[k] = t.innerHTML.trim(); } }
       const r = await fetch(`${RECV}/?f=drafts/${encodeURIComponent(String(spu).replace(/[\\/:*?"<>|]/g, '_'))}.json`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id, spu, fetchedAt: new Date().toISOString(), product }) });
       if (!r.ok) throw new Error('recv ' + r.status); ok++;
     } catch (e) { fail++; console.warn('ERR', spu, e.message); if (/LOGIN_REQUIRED/.test(e.message)) break; if (fail > 20 && fail / (n + 1) > 0.05) { console.error('too many failures, stop'); break; } }

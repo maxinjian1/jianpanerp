@@ -49,12 +49,12 @@ const pick = (o, ks) => { for (const k of ks) if (o?.[k]) return o[k]; };
 const isImg = (s) => typeof s === 'string' && /^https?:\/\/\S+\.(jpe?g|png|webp)(\?\S*)?$/i.test(s);
 function draftOf(spu) {
   const f = path.join(DRAFTS, `${spu}.json`); if (!fs.existsSync(f)) return null;
-  const d = J(f); const p = d.product ?? d;
+  const d = J(f); const p0 = d.product ?? d; const p = { ...p0, ...(p0.SPU ?? {}), Images: p0.Images, SKUs: p0.SKUs }; // 斑馬：名前・説明は product.SPU の下
   let imgs = pick(p, ['Images', 'ImageList', 'ImgList', 'Pictures', 'images']) ?? [];
   const urls = (Array.isArray(imgs) ? imgs : []).map((x) => typeof x === 'string' ? x : pick(x, ['Url', 'ImageUrl', 'Src', 'url', 'src'])).filter(isImg);
   const name = pick(p, ['Title', 'ItemName', 'ProductName', 'Name', 'title']) ?? spu;
-  const desc = String(pick(p, ['PcDescription', 'Description', 'SalesDescription', 'description']) ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  const skus = pick(p, ['Skus', 'SkuList', 'skus']) ?? []; const price = Math.min(...(Array.isArray(skus) ? skus : []).map((s) => Number(pick(s, ['Price', 'SalePrice', 'price'])) || Infinity));
+  const desc = String(pick(p, ['DescriptionForPC', 'PcDescription', 'Description', 'SalesDescription', 'description']) ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const skus = pick(p, ['SKUs', 'Skus', 'SkuList', 'skus']) ?? []; const price = Math.min(...(Array.isArray(skus) ? skus : []).map((s) => Number(pick(s, ['StandardPrice', 'Price', 'SalePrice', 'price'])) || Infinity));
   return { spu, name, desc, urls, price: Number.isFinite(price) ? price : null };
 }
 async function download(url, dst) { for (let i = 0; i < 3; i++) { try { const r = await fetch(url); if (!r.ok) throw new Error('HTTP ' + r.status); fs.writeFileSync(dst, Buffer.from(await r.arrayBuffer())); return; } catch (e) { if (i === 2) throw e; await sleep(1500); } } }
