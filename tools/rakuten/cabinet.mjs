@@ -2,6 +2,7 @@
 /**
  * 楽天 R-Cabinet 画像の棚卸しと圧縮（URL を変えずに同じファイルを差し替える）
  *
+ *   node tools/rakuten/cabinet.mjs check                 # .env のキーを伏せ字で表示し cabinet.usage.get を 1 回呼ぶ（AuthError の切り分け用）
  *   node tools/rakuten/cabinet.mjs usage                 # 容量・フォルダ数（RMS API cabinet.usage.get）
  *   node tools/rakuten/cabinet.mjs scan                  # 全フォルダ・全ファイルを列挙 → out/cabinet/files.json + docs/rakuten/cabinet-report.md
  *   node tools/rakuten/cabinet.mjs plan   [--target 180] [--max 1200] [--min-save 15]
@@ -51,8 +52,23 @@ async function rms(p, init = {}) {
   const r = await fetch(`${API}/${p}`, { ...init, headers: { Authorization: auth(), ...(init.headers || {}) } });
   const xml = await r.text();
   const code = tag(xml, 'resultCode'), sys = tag(xml, 'systemStatus');
-  if (!r.ok || sys !== 'OK' || (code && code !== '0')) throw new Error(`${p} http ${r.status} system=${sys} resultCode=${code} ${tag(xml, 'message') || ''}`.trim());
+  if (!r.ok || sys !== 'OK' || (code && code !== '0')) {
+    const msg = `${p} http ${r.status} system=${sys} resultCode=${code} ${tag(xml, 'message') || ''}`.trim();
+    if (/AuthError|401|WRONG_PARAMETER|ACCESS_DENIED/i.test(xml + r.status)) throw new Error(msg + `\n  → 認証失敗。.env の RAKUTEN_LICENSE_KEY が「最新」のライセンスキー（RMS WEB APIサービス → 利用設定 で 利用中・R-Cabinet API が付いている方）か確認。古いキーには後から追加した機能の権限が無い。現在のキー: ${mask(env.RAKUTEN_LICENSE_KEY)} / secret: ${mask(env.RAKUTEN_SERVICE_SECRET)}`);
+    throw new Error(msg);
+  }
   return xml;
+}
+
+const mask = (k) => k ? `${k.slice(0, 12)}…(${k.length} 文字)` : '(未設定)';
+async function check() {
+  console.log('RAKUTEN_SERVICE_SECRET =', mask(env.RAKUTEN_SERVICE_SECRET));
+  console.log('RAKUTEN_LICENSE_KEY    =', mask(env.RAKUTEN_LICENSE_KEY));
+  for (const k of ['RAKUTEN_SERVICE_SECRET', 'RAKUTEN_LICENSE_KEY']) if (env[k] && /\s|#/.test(env[k])) console.log(`!! ${k} に空白または # が含まれています（行内コメント/引用符の外の空白を消す）`);
+  const r = await fetch(`${API}/usage/get`, { headers: { Authorization: auth() } });
+  const xml = await r.text();
+  console.log('http', r.status, 'systemStatus', tag(xml, 'systemStatus'), 'resultCode', tag(xml, 'resultCode'), tag(xml, 'message') || '');
+  if (tag(xml, 'resultCode') === '0') console.log(`OK  容量 ${tag(xml, 'UseSpace')} / ${tag(xml, 'MaxSpace')} MB`); else console.log('NG → 上の mask 表示で、RMS 利用設定の「最新」キーの先頭と一致するか確認');
 }
 
 // ---------- usage ----------
@@ -211,6 +227,6 @@ async function applyOrRollback(mode) {
   log(`${mode} done ok ${ok} fail ${fail} → ${path.relative(ROOT, logF)}`);
 }
 
-const run = { usage, scan, plan, apply: () => applyOrRollback('apply'), rollback: () => applyOrRollback('rollback') }[cmd];
-if (!run) { console.error('usage: cabinet.mjs usage|scan|plan|apply|rollback'); process.exit(2); }
+const run = { check, usage, scan, plan, apply: () => applyOrRollback('apply'), rollback: () => applyOrRollback('rollback') }[cmd];
+if (!run) { console.error('usage: cabinet.mjs check|usage|scan|plan|apply|rollback'); process.exit(2); }
 run().catch((e) => { console.error(e); process.exit(1); });
