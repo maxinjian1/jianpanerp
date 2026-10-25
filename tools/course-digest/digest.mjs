@@ -76,8 +76,12 @@ function transcribe() {
   const vids = limit(inv().items.filter((x) => x.kind === 'video'));
   for (const [i, v] of vids.entries()) {
     const dst = path.join(OUT, 'transcripts', `${v.id}.json`); if (fs.existsSync(dst)) continue; fs.mkdirSync(path.dirname(dst), { recursive: true });
-    const wav = path.join(OUT, '_tmp.wav'); run('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-i', v.abs, '-vn', '-ac', '1', '-ar', '16000', wav]);
-    const n = run(PY, [py, wav, dst, WHISPER]).trim(); log(`${i + 1}/${vids.length} transcribe`, v.rel, n, 'segments');
+    try {
+      const hasAudio = run('ffprobe', ['-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=index', '-of', 'csv=p=0', v.abs]).trim();
+      if (!hasAudio) { W(dst, { lang: null, dur: Number(run('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', v.abs]).trim()) || 0, segments: [], text: '（无音轨）', noAudio: true }); log(`${i + 1}/${vids.length} transcribe`, v.rel, 'no audio'); continue; }
+      const wav = path.join(OUT, '_tmp.wav'); run('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-i', v.abs, '-vn', '-ac', '1', '-ar', '16000', wav]);
+      const n = run(PY, [py, wav, dst, WHISPER]).trim(); log(`${i + 1}/${vids.length} transcribe`, v.rel, n, 'segments');
+    } catch (e) { log(`${i + 1}/${vids.length} transcribe ERR`, v.rel, e.message.slice(0, 160)); }
   }
 }
 
@@ -88,7 +92,7 @@ function frames() {
     const d = path.join(OUT, 'frames', v.id); if (fs.existsSync(d) && fs.readdirSync(d).length) continue; fs.mkdirSync(d, { recursive: true });
     const dur = Number(run('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', v.abs]).trim()) || 600;
     const every = Math.max(20, Math.ceil(dur / 30));
-    run('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-i', v.abs, '-vf', `select='gt(scene,0.35)+not(mod(t\\,${every}))',scale=1280:-2`, '-vsync', 'vfr', '-frame_pts', '1', '-q:v', '4', path.join(d, '%06d.jpg')]);
+    try { run('ffmpeg',['-y', '-hide_banner', '-loglevel', 'error', '-i', v.abs, '-vf', `select='gt(scene,0.35)+not(mod(t\\,${every}))',scale=1280:-2`, '-vsync', 'vfr', '-frame_pts', '1', '-q:v', '4', path.join(d, '%06d.jpg')]); } catch (e) { log(`${i + 1}/${vids.length} frames ERR`, v.rel, e.message.slice(0, 160)); continue; }
     const fs_ = fs.readdirSync(d).sort(); if (fs_.length > 40) { const keep = new Set(fs_.filter((_, k) => k % Math.ceil(fs_.length / 40) === 0)); for (const f of fs_) if (!keep.has(f)) fs.unlinkSync(path.join(d, f)); }
     log(`${i + 1}/${vids.length} frames`, v.rel, fs.readdirSync(d).length);
   }
