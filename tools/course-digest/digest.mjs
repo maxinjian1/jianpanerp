@@ -59,7 +59,10 @@ function scan() {
 
 // ───────── transcribe（faster-whisper） ─────────
 const WHISPER_PY = `
-import sys, json
+import sys, json, os, glob
+# Windows：pip の nvidia-cublas-cu12 / nvidia-cudnn-cu12 の DLL を ctranslate2 から見えるように
+for d in glob.glob(os.path.join(sys.prefix, "Lib", "site-packages", "nvidia", "*", "bin")):
+    os.add_dll_directory(d); os.environ["PATH"] = d + os.pathsep + os.environ["PATH"]
 from faster_whisper import WhisperModel
 src, dst, model_name = sys.argv[1], sys.argv[2], sys.argv[3]
 model = WhisperModel(model_name, device="cuda", compute_type="float16")
@@ -117,8 +120,12 @@ function docs() {
 // ───────── Ollama ─────────
 async function ollama(model, messages, { json = false, images } = {}) {
   if (images) messages = messages.map((m, i) => (i === messages.length - 1 ? { ...m, images } : m));
-  const r = await fetch(`${OLLAMA}/api/chat`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ model, messages, stream: false, format: json ? 'json' : undefined, options: { temperature: 0.2, num_ctx: 32768 }, think: false }) });
-  if (!r.ok) throw new Error(`ollama ${r.status} ${(await r.text()).slice(0, 200)}`); const j = await r.json(); return j.message?.content ?? '';
+  const r = await fetch(`${OLLAMA}/api/chat`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ model, messages, stream: true, format: json ? 'json' : undefined, options: { temperature: 0.2, num_ctx: 32768 }, think: false }) });
+  if (!r.ok) throw new Error(`ollama ${r.status} ${(await r.text()).slice(0, 200)}`);
+  // stream：長文書で 30b が 5 分超かかっても Node fetch のヘッダ待ちタイムアウト（300s）に掛からない
+  let out = '', buf = ''; const dec = new TextDecoder();
+  for await (const chunk of r.body) { buf += dec.decode(chunk, { stream: true }); let i; while ((i = buf.indexOf('\n')) >= 0) { const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1); if (line) { const j = JSON.parse(line); if (j.error) throw new Error('ollama ' + j.error); out += j.message?.content ?? ''; } } }
+  return out;
 }
 const parseJson = (s) => { try { return JSON.parse(s); } catch { const i = s.indexOf('{'), k = s.lastIndexOf('}'); return JSON.parse(s.slice(i, k + 1)); } };
 
