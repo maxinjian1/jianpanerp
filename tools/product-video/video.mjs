@@ -156,8 +156,9 @@ function renderStage(spu) {
           `z='1.12':x='iw/2-(iw/zoom/2)':y='(ih-ih/zoom)*(1-on/${F})'`,                          // 下→上にパン
         ][(s.n - 1) % 4];
         const bw = W_ * 2, bh = H_ * 2; // 先に大きく拡大してから zoompan（ガタつき防止）
-        const vf = `scale=${bw}:${bh}:force_original_aspect_ratio=increase:flags=lanczos,crop=${bw}:${bh},zoompan=${mv}:d=${F}:s=${W_}x${H_}:fps=30,${fade},${draw.join(',')},format=yuv420p`;
-        ffmpeg(['-i', img, ...a, '-vf', vf, '-r', '30', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-c:a', 'aac', '-b:a', '160k', '-t', '5', seg]); parts.push(seg); continue;
+        // 写真を切り落とさない：ぼかした同じ写真を背景に敷き、原図は丸ごと収める（縦動画に横写真を入れる EC の定番）
+        const fc = `[0:v]scale=${bw}:${bh}:force_original_aspect_ratio=increase:flags=lanczos,crop=${bw}:${bh},boxblur=40:2,eq=brightness=-0.08[bg];[0:v]scale=${bw}:${bh}:force_original_aspect_ratio=decrease:flags=lanczos[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,zoompan=${mv}:d=${F}:s=${W_}x${H_}:fps=30,${fade},${draw.join(',')},format=yuv420p[v]`;
+        ffmpeg(['-i', img, ...a.map((x) => (x === '0:v' ? '[v]' : x)), '-filter_complex', fc, '-r', '30', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-c:a', 'aac', '-b:a', '160k', '-t', '5', seg]); parts.push(seg); continue;
       }
       const vf = `scale=${W_}:${H_}:force_original_aspect_ratio=increase,crop=${W_}:${H_},${fade},${draw.join(',')},format=yuv420p`;
       ffmpeg(['-i', clip, ...a, '-vf', vf, '-r', '30', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-c:a', 'aac', '-b:a', '160k', '-t', '5', seg]); parts.push(seg);
