@@ -13,6 +13,7 @@
  * .env（Windows、git に入れない）：
  *   KLING_BASE_URL=https://api.klingai.com      KLING_ACCESS_KEY= / KLING_SECRET_KEY=（公式：JWT）  または  KLING_API_KEY=（中継サービス：Bearer）
  *   KLING_MODEL=kling-v2-6  KLING_MODE=std      VOICEVOX_URL=http://127.0.0.1:50021  VOICEVOX_SPEAKER=2
+ *   VIDEO_MOTION=real|kling（既定 real：写真を ffmpeg で動かす、可灵不使用） VIDEO_VO=off|on（既定 real なら off） VIDEO_BGM=BGM ファイル
  *   VIDEO_FONT=C:/Windows/Fonts/YuGothB.ttc     VIDEO_BGM=（任意、ロイヤリティフリー mp3 のパス）
  * 鉄則：商品の形・色・ロゴを AI に触らせない（可灵は image2video のみ、prompt はカメラと光だけ）。数字と効能は brief.json / 草稿の facts にあるものだけ。
  *       価格・送料・セール・No.1・最強・他社名・医療効能は禁止（Amazon 主図動画規約）。生成物は用户承認後にだけ公開する。
@@ -35,6 +36,10 @@ const WIN = args.window ?? env.LLM_WINDOW ?? '';
 const KL = { base: (env.KLING_BASE_URL || 'https://api.klingai.com').replace(/\/$/, ''), ak: env.KLING_ACCESS_KEY, sk: env.KLING_SECRET_KEY, key: env.KLING_API_KEY, model: env.KLING_MODEL || 'kling-v2-6', mode: env.KLING_MODE || 'std' };
 const VV = { url: (env.VOICEVOX_URL || 'http://127.0.0.1:50021').replace(/\/$/, ''), speaker: Number(env.VOICEVOX_SPEAKER || 2) };
 const FONT = env.VIDEO_FONT || 'C:/Windows/Fonts/YuGothB.ttc', BGM = env.VIDEO_BGM || '';
+// 2026-10-26 用户反馈「AI 味太重」→ 既定を real に：商品写真は一切 AI に通さず ffmpeg のズーム/パンだけで動かす。ナレーションも既定オフ（字幕＋BGM）。
+//   --motion kling で従来の可灵 image2video、--vo on で VOICEVOX ナレーションを戻せる。
+const MOTION = args.motion ?? env.VIDEO_MOTION ?? 'real';
+const VO_ON = (args.vo ?? env.VIDEO_VO ?? (MOTION === 'real' ? 'off' : 'on')) === 'on';
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const J = (f) => JSON.parse(fs.readFileSync(f, 'utf8')); const W = (f, o) => { fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, JSON.stringify(o, null, 1) + '\n'); };
@@ -98,6 +103,7 @@ function klingAuth() {
 }
 async function kling(pathname, body) { const r = await fetch(`${KL.base}${pathname}`, { method: body ? 'POST' : 'GET', headers: { 'content-type': 'application/json', authorization: klingAuth() }, body: body ? JSON.stringify(body) : undefined }); const j = await r.json().catch(() => ({})); if (!r.ok || (j.code && j.code !== 0)) throw new Error(`kling ${r.status} ${j.code ?? ''} ${j.message ?? ''}`.trim()); return j.data ?? j; }
 async function animateStage(spu) {
+  if (MOTION === 'real') { log('animate', spu, 'skip（real: ffmpeg zoom/pan は render で実行、可灵は使わない）'); return; }
   const sb = J(path.join(dir(spu), 'storyboard.json')); const p = J(path.join(dir(spu), 'product.json'));
   const clips = path.join(dir(spu), 'clips'); fs.mkdirSync(clips, { recursive: true });
   for (const s of sb.shots) {
@@ -114,6 +120,7 @@ async function animateStage(spu) {
 
 // ───────── VOICEVOX ─────────
 async function voiceStage(spu) {
+  if (!VO_ON) { log('voice', spu, 'skip（ナレーションなし：字幕＋BGM）'); return; }
   const sb = J(path.join(dir(spu), 'storyboard.json')); const vo = path.join(dir(spu), 'vo'); fs.mkdirSync(vo, { recursive: true });
   for (const s of sb.shots) {
     const out = path.join(vo, `${String(s.n).padStart(2, '0')}.wav`); if (fs.existsSync(out) && !args.force) continue;
@@ -127,17 +134,32 @@ async function voiceStage(spu) {
 // ───────── ffmpeg 合成 ─────────
 const esc = (t) => String(t).replace(/\\/g, '\\\\').replace(/:/g, '\\:').replace(/'/g, "\\'").replace(/%/g, '\\%');
 function renderStage(spu) {
-  const sb = J(path.join(dir(spu), 'storyboard.json')); const d = dir(spu); const fin = path.join(d, 'final'); fs.mkdirSync(fin, { recursive: true });
+  const sb = J(path.join(dir(spu), 'storyboard.json')); const d = dir(spu); const p = J(path.join(d, 'product.json')); const fin = path.join(d, 'final'); fs.mkdirSync(fin, { recursive: true });
   for (const [W_, H_, tag] of [[1080, 1920, '9x16'], [1920, 1080, '16x9']]) {
     const parts = [];
     for (const s of sb.shots) {
       const clip = path.join(d, 'clips', `${String(s.n).padStart(2, '0')}.mp4`), wav = path.join(d, 'vo', `${String(s.n).padStart(2, '0')}.wav`), seg = path.join(d, 'clips', `${String(s.n).padStart(2, '0')}-${tag}.mp4`);
-      const fsz = tag === '9x16' ? 64 : 56, y = tag === '9x16' ? 'h*0.78' : 'h*0.84';
-      const draw = [`drawtext=fontfile='${esc(FONT)}':text='${esc(s.caption)}':fontsize=${fsz}:fontcolor=white:borderw=4:bordercolor=black@0.85:x=(w-text_w)/2:y=${y}`];
-      if (s.n === 1 && sb.hook) draw.unshift(`drawtext=fontfile='${esc(FONT)}':text='${esc(sb.hook)}':fontsize=${fsz + 16}:fontcolor=white:box=1:boxcolor=#BF0000@0.9:boxborderw=18:x=(w-text_w)/2:y=h*0.12:enable='lt(t,2.5)'`);
-      if (s.n === sb.shots.length && sb.cta) draw.push(`drawtext=fontfile='${esc(FONT)}':text='${esc(sb.cta)}':fontsize=${fsz - 8}:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=14:x=(w-text_w)/2:y=h*0.9:enable='gt(t,2.5)'`);
-      const vf = `scale=${W_}:${H_}:force_original_aspect_ratio=increase,crop=${W_}:${H_},${draw.join(',')},format=yuv420p`;
-      const a = fs.existsSync(wav) ? ['-i', wav, '-map', '0:v', '-map', '1:a', '-shortest'] : ['-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo', '-map', '0:v', '-map', '1:a', '-shortest'];
+      const fsz = tag === '9x16' ? 52 : 44, y = tag === '9x16' ? 'h*0.80' : 'h*0.86';
+      // 日本の EC 商品動画の定番：小さめの白文字＋半透明の黒帯。叫ばない。
+      const draw = [`drawtext=fontfile='${esc(FONT)}':text='${esc(s.caption)}':fontsize=${fsz}:fontcolor=white:box=1:boxcolor=black@0.45:boxborderw=16:x=(w-text_w)/2:y=${y}`];
+      if (s.n === 1 && sb.hook) draw.unshift(`drawtext=fontfile='${esc(FONT)}':text='${esc(sb.hook)}':fontsize=${fsz + 8}:fontcolor=white:box=1:boxcolor=#BF0000@0.85:boxborderw=16:x=(w-text_w)/2:y=h*0.10:enable='lt(t,3)'`);
+      if (s.n === sb.shots.length && sb.cta) draw.push(`drawtext=fontfile='${esc(FONT)}':text='${esc(sb.cta)}':fontsize=${fsz - 6}:fontcolor=white:box=1:boxcolor=black@0.55:boxborderw=14:x=(w-text_w)/2:y=h*0.91:enable='gt(t,2)'`);
+      const a = (VO_ON && fs.existsSync(wav)) ? ['-i', wav, '-map', '0:v', '-map', '1:a', '-shortest'] : ['-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo', '-map', '0:v', '-map', '1:a', '-shortest'];
+      const fade = 'fade=t=in:st=0:d=0.35,fade=t=out:st=4.65:d=0.35';
+      if (MOTION === 'real') {
+        // 実写静止画を ffmpeg zoompan で動かす（Ken Burns）。AI は一切通さないので商品が変形しない。ショット番号で動きを変える。
+        const img = path.join(d, 'src', p.files[s.img - 1]); const F = 150; // 5 秒 × 30fps
+        const mv = [
+          `z='1+0.10*on/${F}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'`,                       // ゆっくり寄る
+          `z='1.12':x='(iw-iw/zoom)*on/${F}':y='ih/2-(ih/zoom/2)'`,                              // 左→右にパン
+          `z='1.12-0.10*on/${F}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'`,                    // ゆっくり引く
+          `z='1.12':x='iw/2-(iw/zoom/2)':y='(ih-ih/zoom)*(1-on/${F})'`,                          // 下→上にパン
+        ][(s.n - 1) % 4];
+        const bw = W_ * 2, bh = H_ * 2; // 先に大きく拡大してから zoompan（ガタつき防止）
+        const vf = `scale=${bw}:${bh}:force_original_aspect_ratio=increase:flags=lanczos,crop=${bw}:${bh},zoompan=${mv}:d=${F}:s=${W_}x${H_}:fps=30,${fade},${draw.join(',')},format=yuv420p`;
+        ffmpeg(['-i', img, ...a, '-vf', vf, '-r', '30', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-c:a', 'aac', '-b:a', '160k', '-t', '5', seg]); parts.push(seg); continue;
+      }
+      const vf = `scale=${W_}:${H_}:force_original_aspect_ratio=increase,crop=${W_}:${H_},${fade},${draw.join(',')},format=yuv420p`;
       ffmpeg(['-i', clip, ...a, '-vf', vf, '-r', '30', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-c:a', 'aac', '-b:a', '160k', '-t', '5', seg]); parts.push(seg);
     }
     const list = path.join(d, `concat-${tag}.txt`); fs.writeFileSync(list, parts.map((p) => `file '${p.replace(/\\/g, '/').replace(/'/g, "'\\''")}'`).join('\n'));
