@@ -12,7 +12,7 @@
  *
  * .env（Windows、git に入れない）：
  *   KLING_BASE_URL=https://api.klingai.com      KLING_ACCESS_KEY= / KLING_SECRET_KEY=（公式：JWT）  または  KLING_API_KEY=（中継サービス：Bearer）
- *   KLING_MODEL=kling-v2-1  KLING_MODE=std      VOICEVOX_URL=http://127.0.0.1:50021  VOICEVOX_SPEAKER=2
+ *   KLING_MODEL=kling-v2-6  KLING_MODE=std      VOICEVOX_URL=http://127.0.0.1:50021  VOICEVOX_SPEAKER=2
  *   VIDEO_FONT=C:/Windows/Fonts/YuGothB.ttc     VIDEO_BGM=（任意、ロイヤリティフリー mp3 のパス）
  * 鉄則：商品の形・色・ロゴを AI に触らせない（可灵は image2video のみ、prompt はカメラと光だけ）。数字と効能は brief.json / 草稿の facts にあるものだけ。
  *       価格・送料・セール・No.1・最強・他社名・医療効能は禁止（Amazon 主図動画規約）。生成物は用户承認後にだけ公開する。
@@ -32,7 +32,7 @@ const args = Object.fromEntries(argv.slice(1).map((a, i, arr) => a.startsWith('-
 const env = Object.fromEntries((fs.existsSync(path.join(ROOT, '.env')) ? fs.readFileSync(path.join(ROOT, '.env'), 'utf8') : '').split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith('#') && l.includes('=')).map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^"|"$/g, '')]; }));
 const LLM = (env.CN_LLM_BASE_URL || 'http://100.82.2.101:8199/v1').replace(/\/$/, ''), MODEL = env.CN_LLM_MODEL || 'GLM-5.3-Flash';
 const WIN = args.window ?? env.LLM_WINDOW ?? '';
-const KL = { base: (env.KLING_BASE_URL || 'https://api.klingai.com').replace(/\/$/, ''), ak: env.KLING_ACCESS_KEY, sk: env.KLING_SECRET_KEY, key: env.KLING_API_KEY, model: env.KLING_MODEL || 'kling-v2-1', mode: env.KLING_MODE || 'std' };
+const KL = { base: (env.KLING_BASE_URL || 'https://api.klingai.com').replace(/\/$/, ''), ak: env.KLING_ACCESS_KEY, sk: env.KLING_SECRET_KEY, key: env.KLING_API_KEY, model: env.KLING_MODEL || 'kling-v2-6', mode: env.KLING_MODE || 'std' };
 const VV = { url: (env.VOICEVOX_URL || 'http://127.0.0.1:50021').replace(/\/$/, ''), speaker: Number(env.VOICEVOX_SPEAKER || 2) };
 const FONT = env.VIDEO_FONT || 'C:/Windows/Fonts/YuGothB.ttc', BGM = env.VIDEO_BGM || '';
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
