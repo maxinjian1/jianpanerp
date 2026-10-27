@@ -72,3 +72,10 @@
 - 执行 10-25 定好的草稿同步（图片全部换成草稿图、说明用草稿覆盖、标题不动），范围 = 斑马草稿箱全部 SPU 对上的 Shopify 商品，**排除**：断货表「产品下架」命中（`tools/kjyf-b2b/in/` 的 xlsx 生成 `tools/rakuten/out/exclude-stock.txt`，每行一个货号）与 Shopify 已 DRAFT 的商品；1 草稿对多商品的（dup）仍等人工。
 - 断货表命中且仍 ACTIVE 的 218 件：按用户本条指示转 DRAFT（`sync.mjs apply --only draft` 配合清单；备份可回滚），补货后由下次断货表/日文站数据再恢复。
 - 顺序：recv.mjs 常驻 → banma-export.browser.js 全量导出（约 990 件，1.5 秒/件）→ `draft-sync.mjs probe → fetch-shopify → plan`（推送 draft-sync-plan.md）→ `apply --exclude tools/rakuten/out/exclude-stock.txt`（1 件/秒，2% 停）→ 完成后 `ig.mjs products` + `plan --catalog --per-day 6 --from 2026-11-02`（已有文案/承认状态自动继承，图片 URL 换成草稿图）。
+
+## 第六阶段：出单经营模式（2026-10-27 深夜 用户「全部按建议做，现在就执行」）
+1. **专门店化**：`bundles.mjs genres` → `docs/rakuten/focus-genres.md`（A×3+B 得分前 3 ジャンル）。店铺首页/店名诉求/RPP/积分只围绕这 3 个。
+2. **セット商品**：`bundles.mjs propose --n 20`（夜间 6kpro）→ `docs/rakuten/bundle-candidates.md`，用户勾选后人工进斑马草稿箱（セット价 = 仕入合计 ×1.35）。
+3. **动态定价**：`price-tier.mjs --refresh` 每日比价 → `reprice.mjs plan/apply`（A = 競合最安 −3%、B = 競合最安、底線 仕入 ×1.25、値上げ上限 ×1.25、C 高 15% 以上且降不到底線 → hideItem）。RMS 商品 API 2.0 直改价格，备份可 rollback，2%/5 连败停。日志 `docs/rakuten/reprice-log.csv`。
+4. **新品抢先**：`kjyf-scraper/new-items.mjs` 每日扫 sitemap → `docs/kjyf-new-items.md`；`sync.mjs apply --only create` 当日上 Shopify；乐天由用户/斑马草稿箱跟进（自动建品是下一步）。
+5. 以上由 Windows 计划任务 `anet-daily-sync`（`tools/night/daily-sync.ps1`，06:30 JST）每天跑。首次：先 plan 看一眼再 apply。

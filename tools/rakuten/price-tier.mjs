@@ -35,6 +35,7 @@ const bySpu = new Map();
 for (const r of drafts) { if (!r.SPU) continue; const o = bySpu.get(r.SPU) ?? { spu: r.SPU, mn: r['管理编号'], name: r['商品名'], price: Infinity, stock: 0, skus: 0 }; o.price = Math.min(o.price, Number(r['价格(售价)']) || Infinity); o.stock += Number(r['库存']) || 0; o.skus++; bySpu.set(r.SPU, o); }
 let items = [...bySpu.values()].filter((o) => okSpu.has(o.spu) && Number.isFinite(o.price));
 if (!items.length) { items = [...bySpu.values()].filter((o) => Number.isFinite(o.price)); log('publish-log に ok が無いので草稿全件を対象にする'); }
+if (args.refresh && fs.existsSync(JL)) { fs.renameSync(JL, JL.replace(/\.jsonl$/, `-${new Date().toISOString().slice(0, 10)}.jsonl`)); } // --refresh：全件を取り直す（旧結果は日付付きで保存）
 const done = new Set(fs.existsSync(JL) ? fs.readFileSync(JL, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l).spu) : []);
 let todo = items.filter((o) => !done.has(o.spu)); if (args.from) todo = todo.slice(Number(args.from)); if (args.limit) todo = todo.slice(0, Number(args.limit));
 log('対象', items.length, '残り', todo.length);
