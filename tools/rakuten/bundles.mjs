@@ -43,7 +43,8 @@ function genres() {
 
 async function chatJson(messages) {
   const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, messages, temperature: 0.5, max_tokens: 6000, response_format: { type: 'json_object' } }) });
-  const j = await r.json(); const t = j.choices?.[0]?.message?.content || '{}'; try { return JSON.parse(t); } catch { return JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); }
+  // 推論でトークンを使い切ると JSON が途中で切れる → 例外にせず {} を返し、呼び出し側で再試行
+  const j = await r.json().catch(() => ({})); const t = j.choices?.[0]?.message?.content || '{}'; try { return JSON.parse(t); } catch { try { return JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); } catch { log('JSON 解析失敗', j.choices?.[0]?.finish_reason, t.length); return {}; } }
 }
 const SYS = `あなたは楽天市場の店舗 MD。与えられた商品リスト（同じジャンル、当店が価格で勝てる商品）から、「一緒に使う・一緒に買う」補完関係のセット商品を提案する。
 ルール：①1 セット = 2〜3 商品、同じ商品を複数セットに使ってよいが、各セットは異なる用途 ②組み合わせの理由は生活場面で具体的に（「引っ越し初日の収納セット」など）③セット名は日本語 30 字以内、楽天検索されそうな語を含める ④価格・効能・No.1 は書かない ⑤facts に無い機能を想像しない。
@@ -56,7 +57,7 @@ async function propose() {
     if (items.length < 2) { log('skip genre（候補不足）', g, items.length); continue; }
     if (!(await waitLLM(LLM, WIN, log))) { log('6kpro 窓口外 → 中断'); break; }
     const want = Math.ceil(n / focus.length);
-    const res = await chatJson([{ role: 'system', content: SYS }, { role: 'user', content: `ジャンル:${g}\n${want} セット提案。\n商品リスト:\n${items.map((r) => `- SPU ${r.spu}: ${r.name}`).join('\n')}` }]);
+    let res = {}; for (let k = 0; k < 3 && !(res.sets || []).length; k++) res = await chatJson([{ role: 'system', content: SYS }, { role: 'user', content: `ジャンル:${g}\n${want} セット提案。\n商品リスト:\n${items.map((r) => `- SPU ${r.spu}: ${r.name}`).join('\n')}` }]);
     for (const s of res.sets || []) {
       const parts = (s.spus || []).map((spu) => items.find((r) => r.spu === spu)).filter(Boolean); if (parts.length < 2) continue;
       const cost = parts.reduce((a, r) => a + r.wholesale, 0), cur = parts.reduce((a, r) => a + r.our, 0);
