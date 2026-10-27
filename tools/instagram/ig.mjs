@@ -3,6 +3,7 @@
  * Instagram「アネット」運用ツール（2026-10-27 用户決定：做；主目的 = anetmc.com（Shopify）への送客）。
  * 「IG 小编技能包」の日本版。AI は 計画・文案・返信草稿 まで。投稿は用户承認後に Meta Graph API で、返信・他人の投稿へのコメントは絶対に自動送信しない。
  *
+ *   node tools/instagram/ig.mjs setup                    # .env の META_APP_ID / META_APP_SECRET / IG_ACCESS_TOKEN（短期でも可）→ 長期トークンに交換、/me/accounts から IG ユーザー ID・ユーザー名を取得して .env に書き戻す（伏せ字で表示）
  *   node tools/instagram/ig.mjs products                 # Shopify ANET 在售商品 + 楽天 A 档 + 新着 → out/products.json
  *   node tools/instagram/ig.mjs plan   [--week 2026-11-03] [--n 7]   # 週計画（商品選定・投稿種別・日時）→ out/plan-<week>.json + docs/instagram/plan-<week>.md
  *   node tools/instagram/ig.mjs caption --week …        # 6kpro で日本語キャプション + ハッシュタグ（夜間窓口、禁止語チェック）
@@ -42,6 +43,30 @@ const J = (f, d) => d === undefined ? (fs.existsSync(f) ? JSON.parse(fs.readFile
 const BANNED = /¥|円|送料|セール|SALE|割引|クーポン|No\.?\s?1|ナンバーワン|最強|最高級|日本一|業界初|世界一|絶対|完全|永久|治る|治療|効く|痩せる|バストアップ|美白|抗菌率|殺菌|医療|iPhone|Apple|ダイソン|Dyson|ニトリ|無印|IKEA|Amazon|楽天|メルカリ/i;
 const weekStart = (s) => { const d = s ? new Date(s + 'T00:00:00Z') : new Date(Date.now() + 9 * 3600e3); const day = (d.getUTCDay() + 6) % 7; const m = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - day + (s ? 0 : 7))); return m.toISOString().slice(0, 10); };
 const WEEK = args.week ? weekStart(args.week) : weekStart();
+
+// ───────── setup（トークン交換 + IG ID 取得） ─────────
+const mask = (v) => v ? `${String(v).slice(0, 8)}…(${String(v).length})` : '(未設定)';
+function writeEnv(kv) {
+  const f = path.join(ROOT, '.env'); let txt = fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : '';
+  for (const [k, v] of Object.entries(kv)) { const re = new RegExp(`^${k}=.*$`, 'm'); txt = re.test(txt) ? txt.replace(re, `${k}=${v}`) : txt.replace(/\s*$/, '') + `\n${k}=${v}\n`; }
+  fs.writeFileSync(f, txt);
+}
+async function setup() {
+  const appId = env.META_APP_ID, secret = env.META_APP_SECRET, short = env.IG_ACCESS_TOKEN;
+  console.log('META_APP_ID =', mask(appId), ' META_APP_SECRET =', mask(secret), ' IG_ACCESS_TOKEN =', mask(short));
+  if (!appId || !secret || !short) { console.error('.env に META_APP_ID / META_APP_SECRET / IG_ACCESS_TOKEN（グラフ API エクスプローラで発行した短期トークン）が必要'); process.exit(2); }
+  const ex = await (await fetch(`${GRAPH}/oauth/access_token?grant_type=fb_exchange_token&client_id=${appId}&client_secret=${secret}&fb_exchange_token=${short}`)).json();
+  if (ex.error) throw new Error('exchange: ' + JSON.stringify(ex.error).slice(0, 300));
+  const long = ex.access_token; log('長期トークン取得', mask(long), 'expires_in', ex.expires_in ? Math.round(ex.expires_in / 86400) + '日' : '(無期限/ページ)');
+  const acc = await (await fetch(`${GRAPH}/me/accounts?fields=id,name,instagram_business_account{id,username}&access_token=${long}`)).json();
+  if (acc.error) throw new Error('accounts: ' + JSON.stringify(acc.error).slice(0, 300));
+  const pages = acc.data || []; if (!pages.length) throw new Error('Facebook ページが見つからない：アプリのユーザーがページ管理者か、権限 pages_show_list を付けたか確認');
+  for (const pg of pages) log('page', pg.name, pg.id, 'ig', pg.instagram_business_account ? `${pg.instagram_business_account.id} @${pg.instagram_business_account.username}` : '(未リンク)');
+  const pg = pages.find((x) => x.instagram_business_account); if (!pg) throw new Error('Instagram がリンクされたページが無い：Meta Business Suite → 設定 → Instagram でリンク');
+  writeEnv({ IG_ACCESS_TOKEN: long, IG_USER_ID: pg.instagram_business_account.id, IG_HANDLE: pg.instagram_business_account.username });
+  const me = await (await fetch(`${GRAPH}/${pg.instagram_business_account.id}?fields=id,username,name,followers_count,media_count&access_token=${long}`)).json();
+  log('OK  @' + me.username, 'followers', me.followers_count, 'media', me.media_count, '→ .env の IG_ACCESS_TOKEN / IG_USER_ID / IG_HANDLE を更新（トークンは 60 日。期限前に setup を再実行）');
+}
 
 // ───────── Shopify ─────────
 let tok; async function token() { if (tok) return tok; const r = await fetch(`https://${SHOP}/admin/oauth/access_token`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'client_credentials', client_id: env.SHOPIFY_CLIENT_ID, client_secret: env.SHOPIFY_CLIENT_SECRET }) }); if (!r.ok) throw new Error(`shopify token ${r.status}`); tok = (await r.json()).access_token; return tok; }
@@ -215,6 +240,6 @@ async function insights() {
   log('→ docs/instagram/insights.md');
 }
 
-const run = { products, plan, caption, assets, approve, publish, replies, profile, insights }[cmd];
-if (!run) { console.error('usage: ig.mjs products|plan|caption|assets|approve|publish|replies|profile|insights'); process.exit(2); }
+const run = { setup, products, plan, caption, assets, approve, publish, replies, profile, insights }[cmd];
+if (!run) { console.error('usage: ig.mjs setup|products|plan|caption|assets|approve|publish|replies|profile|insights'); process.exit(2); }
 Promise.resolve().then(run).catch((e) => { console.error(e); process.exit(1); });
