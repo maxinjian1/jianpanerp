@@ -80,9 +80,9 @@ async function mkdir() {
   for (const n of names) {
     if (have.has(n)) { log('exists', n, 'id', have.get(n)); continue; }
     const dirName = n.replace(/[^A-Za-z0-9_-]/g, '-').slice(0, 20);
-    const xml = `<?xml version="1.0" encoding="UTF-8"?><request><folderInsertRequest><folder><folderName>${n}</folderName><directoryName>${dirName}</directoryName><upperFolderId>0</upperFolderId></folder></folderInsertRequest></request>`;
-    const fd = new FormData(); fd.append('xml', new Blob([xml], { type: 'text/xml' }), 'request.xml');
-    const res = await rms('folder/insert', { method: 'POST', body: fd });
+    // folder.insert は XML を本文にそのまま POST（multipart だと 400 wrong format）。直下作成時は upperFolderId を省く
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><request><folderInsertRequest><folder><folderName>${n}</folderName><directoryName>${dirName}</directoryName></folder></folderInsertRequest></request>`;
+    const res = await rms('folder/insert', { method: 'POST', headers: { 'content-type': 'text/xml; charset=utf-8' }, body: xml });
     log('created', n, 'id', tag(res, 'FolderId'));
   }
   log('→ 斑馬で PullFolders（店舗授権ページの更新）を実行すると一覧に出る');
