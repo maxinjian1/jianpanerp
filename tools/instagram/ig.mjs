@@ -6,6 +6,7 @@
  *   node tools/instagram/ig.mjs setup                    # .env の META_APP_ID / META_APP_SECRET / IG_ACCESS_TOKEN（短期でも可）→ 長期トークンに交換、/me/accounts から IG ユーザー ID・ユーザー名を取得して .env に書き戻す（伏せ字で表示）
  *   node tools/instagram/ig.mjs products                 # Shopify ANET 在售商品 + 楽天 A 档 + 新着 → out/products.json
  *   node tools/instagram/ig.mjs plan   [--week 2026-11-03] [--n 7]   # 週計画（商品選定・投稿種別・日時）→ out/plan-<week>.json + docs/instagram/plan-<week>.md
+ *   node tools/instagram/ig.mjs plan --catalog [--per-day 6] [--from 2026-11-02]   # 全商品カバー：カテゴリ別 5 商品×2 枚のカルーセル、1 日 N 本 → plan-catalog.json（caption/approve/assets は --file catalog）
  *   node tools/instagram/ig.mjs caption --week …        # 6kpro で日本語キャプション + ハッシュタグ（夜間窓口、禁止語チェック）
  *   node tools/instagram/ig.mjs assets  --week …        # 画像は Shopify CDN URL、Reel は real モード動画を Shopify Files へ staged upload → 公開 URL
  *   node tools/instagram/ig.mjs approve --week … [--only 1,3,5]   # 用户が docs/instagram/plan-<week>.md を見て「承認」と言った後に実行
@@ -43,6 +44,8 @@ const J = (f, d) => d === undefined ? (fs.existsSync(f) ? JSON.parse(fs.readFile
 const BANNED = /¥|円|送料|セール|SALE|割引|クーポン|No\.?\s?1|ナンバーワン|最強|最高級|日本一|業界初|世界一|絶対|完全|永久|治る|治療|効く|痩せる|バストアップ|美白|抗菌率|殺菌|医療|iPhone|Apple|ダイソン|Dyson|ニトリ|無印|IKEA|Amazon|楽天|メルカリ/i;
 const weekStart = (s) => { const d = s ? new Date(s + 'T00:00:00Z') : new Date(Date.now() + 9 * 3600e3); const day = (d.getUTCDay() + 6) % 7; const m = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - day + (s ? 0 : 7))); return m.toISOString().slice(0, 10); };
 const WEEK = args.week ? weekStart(args.week) : weekStart();
+const PLAN_NAME = args.file || (args.catalog ? 'catalog' : WEEK);   // plan-<name>.json / docs/instagram/plan-<name>.md
+const planPath = () => path.join(OUT, `plan-${PLAN_NAME}.json`);
 
 // ───────── setup（トークン交換 + IG ID 取得） ─────────
 const mask = (v) => v ? `${String(v).slice(0, 8)}…(${String(v).length})` : '(未設定)';
@@ -98,6 +101,7 @@ const SEASON = { 1: ['新年の片づけ', '寒さ対策', '受験シーズン�
 const SLOTS = [['Mon', '12:00'], ['Tue', '20:00'], ['Wed', '12:00'], ['Thu', '20:00'], ['Fri', '12:00'], ['Sat', '10:00'], ['Sun', '20:00']]; // 日本の IG 閲覧ピーク（昼休み・20〜21 時・週末朝）
 function plan() {
   const ps = J(path.join(OUT, 'products.json')); if (!ps) { console.error('先に products'); process.exit(2); }
+  if (args.catalog) return planCatalog(ps);
   const used = new Set(fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f)).flatMap((f) => (J(path.join(OUT, f)) || []).map((x) => x.handle)));
   const fresh = ps.filter((p) => !used.has(p.handle) && p.images.length >= 1 && p.stock > 0);
   const byNew = [...fresh].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -112,16 +116,31 @@ function plan() {
     const [dow, hm] = SLOTS[i % 7]; const d = new Date(WEEK + 'T00:00:00+09:00'); d.setUTCDate(d.getUTCDate() + i);
     return { n: i + 1, week: WEEK, at: `${d.toISOString().slice(0, 10)}T${hm}:00+09:00`, dow, kind: c.kind, theme: c.theme, handle: c.p.handle, title: c.p.title, url: `${c.p.url}?utm_source=instagram&utm_medium=social&utm_campaign=${WEEK}`, images: c.p.images.slice(0, c.kind === 'carousel' ? 4 : 1), facts: c.p.desc, approved: false, status: 'planned' };
   });
-  J(path.join(OUT, `plan-${WEEK}.json`), posts);
+  J(planPath(), posts);
   writePlanMd(posts);
-  log('plan', WEEK, posts.length, 'posts →', `docs/instagram/plan-${WEEK}.md`);
+  log('plan', WEEK, posts.length, 'posts →', `docs/instagram/plan-${PLAN_NAME}.md`);
+}
+// 全商品カバー（2026-10-27 用户「anetmc.com の商品を全部 IG に」）：カテゴリ別に 5 商品×2 枚 = 10 枚カルーセル、1 日 N 本（既定 6、API 上限 50/日・見た目の上限を考え 8 まで）
+function planCatalog(ps) {
+  const perDay = Math.min(8, Number(args['per-day'] || 6)); const start = args.from || weekStart();
+  const posted = new Set(fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f) && f !== `plan-${PLAN_NAME}.json`).flatMap((f) => (J(path.join(OUT, f)) || []).filter((x) => x.status === 'published').flatMap((x) => x.handles || [x.handle])));
+  const items = ps.filter((p) => p.images.length >= 1 && p.stock > 0 && !posted.has(p.handle));
+  const byType = {}; for (const p of items) (byType[p.type || 'その他'] ||= []).push(p);
+  const groups = []; for (const [type, arr] of Object.entries(byType)) { arr.sort((a, b) => (b.tierA - a.tierA) || b.createdAt.localeCompare(a.createdAt)); for (let i = 0; i < arr.length; i += 5) groups.push({ type, items: arr.slice(i, i + 5) }); }
+  // カテゴリを交互に出す（同じカテゴリが連続しないように round-robin）
+  const queues = Object.values(groups.reduce((m, g) => ((m[g.type] ||= []).push(g), m), {})); const order = []; while (queues.some((q) => q.length)) for (const q of queues) if (q.length) order.push(q.shift());
+  const times = ['08:00', '12:00', '15:00', '18:00', '20:00', '21:30', '10:00', '22:00'].slice(0, perDay);
+  const posts = order.map((g, i) => { const d = new Date(start + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + Math.floor(i / perDay)); const day = d.toISOString().slice(0, 10);
+    return { n: i + 1, week: 'catalog', at: `${day}T${times[i % perDay]}:00+09:00`, dow: '', kind: 'carousel', theme: `カテゴリ:${g.type}`, handle: g.items[0].handle, handles: g.items.map((p) => p.handle), title: `${g.type}｜${g.items.map((p) => p.title.slice(0, 14)).join('・')}`, url: `${SITE}/collections/all?utm_source=instagram&utm_medium=social&utm_campaign=catalog`, images: g.items.flatMap((p) => p.images.slice(0, 2)).slice(0, 10), facts: g.items.map((p, k) => `${k + 1}. ${p.title}：${p.desc.slice(0, 120)}`).join('\n'), approved: false, status: 'planned' }; });
+  J(planPath(), posts); writePlanMd(posts);
+  log('catalog plan', posts.length, 'posts /', items.length, 'products /', perDay, 'per day →', `${Math.ceil(posts.length / perDay)} 日`, `docs/instagram/plan-${PLAN_NAME}.md`);
 }
 function writePlanMd(posts) {
-  const md = [`# Instagram 週計画 ${WEEK}（@${IG.handle}）`, '', '用户が見て「承認」→ `ig.mjs approve --week ' + WEEK + '`。承認した投稿だけ予定時刻に公開。キャプションの価格・送料は書かない（変わるため）。リンクはプロフィールの anetmc.com（UTM 付き）。', '',
+  const md = [`# Instagram 計画 ${PLAN_NAME}（@${IG.handle}）`, '', '用户が見て「承認」→ `ig.mjs approve --week ' + WEEK + '`（catalog は `--file catalog`）。承認した投稿だけ予定時刻に公開。キャプションの価格・送料は書かない（変わるため）。リンクはプロフィールの anetmc.com（UTM 付き）。', '',
     '| # | 日時(JST) | 種別 | テーマ | 商品 | キャプション | タグ | 素材 | 状態 |', '|---|---|---|---|---|---|---|---|---|',
     ...posts.map((p) => `| ${p.n} | ${p.at.slice(5, 16).replace('T', ' ')} ${p.dow} | ${p.kind} | ${p.theme} | [${p.title.slice(0, 28)}](${p.url.split('?')[0]}) | ${(p.caption || '（caption 未生成）').replace(/\n/g, ' ').slice(0, 90)} | ${(p.hashtags || []).slice(0, 5).join(' ')} | ${p.kind === 'reel' ? (p.videoUrl ? '動画OK' : '動画未') : p.images.length + '枚'} | ${p.approved ? '✅承認' : '未承認'}${p.status !== 'planned' ? ' / ' + p.status : ''} |`), '',
     '## キャプション全文', '', ...posts.flatMap((p) => [`### ${p.n}. ${p.title}`, '', p.caption || '（未生成）', '', (p.hashtags || []).map((h) => '#' + h.replace(/^#/, '')).join(' '), ''])];
-  fs.writeFileSync(path.join(DOCS, `plan-${WEEK}.md`), md.join('\n'));
+  fs.writeFileSync(path.join(DOCS, `plan-${PLAN_NAME}.md`), md.join('\n'));
 }
 
 // ───────── 6kpro ─────────
@@ -131,9 +150,10 @@ async function chatJson(messages) {
 }
 const CAP_SYS = `あなたは日本の生活雑貨ブランド「アネット」の Instagram 担当。anetmc.com のお客さま（20〜50 代の女性中心、暮らしを少しラクにしたい人）向けに投稿文を書く。
 ルール：①冒頭 1 行で「場面・困りごと」から入る（商品名から始めない）②本文 3〜5 行、やさしい丁寧語、絵文字は 2 個まで ③最後に「詳しくはプロフィールのリンクから」④数字・素材・サイズは facts にあるものだけ。無ければ書かない ⑤価格・送料・セール・No.1・最強・日本一・絶対・医療効能・他社ブランド名は禁止 ⑥ハッシュタグ 12〜15 個：大（#暮らし #収納 など）5、中（カテゴリ）5、小（具体）3〜5、日本語中心、英語は 2 個まで。
+⑦ facts が複数商品（1. 2. 3.…）のカルーセルなら、冒頭はそのカテゴリの場面、本文は各商品を 1 行ずつ「①〜」で紹介（商品名は短く言い換え可）。
 出力 JSON：{"caption":"…","hashtags":["…"],"alt":"画像の代替テキスト 60 字以内"}`;
 async function caption() {
-  const f = path.join(OUT, `plan-${WEEK}.json`); const posts = J(f); if (!posts) { console.error('先に plan'); process.exit(2); }
+  const f = planPath(); const posts = J(f); if (!posts) { console.error('先に plan'); process.exit(2); }
   for (const p of posts) {
     if (p.caption && !args.force) continue;
     if (!(await waitLLM(LLM, WIN, log))) { log('6kpro 窓口外/停止 → 中断'); break; }
@@ -145,7 +165,7 @@ async function caption() {
 
 // ───────── 素材（Reel 動画を Shopify Files に上げて公開 URL を得る） ─────────
 async function assets() {
-  const f = path.join(OUT, `plan-${WEEK}.json`); const posts = J(f); if (!posts) { console.error('先に plan'); process.exit(2); }
+  const f = planPath(); const posts = J(f); if (!posts) { console.error('先に plan'); process.exit(2); }
   for (const p of posts.filter((x) => x.kind === 'reel' && !x.videoUrl)) {
     const spu = p.handle; const cands = [path.join(ROOT, 'tools/product-video/out', spu, 'final', `${spu}-9x16.mp4`), ...fs.existsSync(path.join(ROOT, 'tools/product-video/out')) ? fs.readdirSync(path.join(ROOT, 'tools/product-video/out')).filter((d) => d.toLowerCase() === spu.toLowerCase() || spu.toLowerCase().startsWith(d.toLowerCase())).map((d) => path.join(ROOT, 'tools/product-video/out', d, 'final', `${d}-9x16.mp4`)) : []];
     const mp4 = cands.find((c) => fs.existsSync(c)); if (!mp4) { log('reel 動画なし → carousel に変更', p.n, spu, '（node tools/product-video/video.mjs render で作成可）'); p.kind = 'carousel'; p.images = p.images.length ? p.images : []; continue; }
@@ -162,7 +182,7 @@ async function assets() {
 }
 
 function approve() {
-  const f = path.join(OUT, `plan-${WEEK}.json`); const posts = J(f); if (!posts) { console.error('先に plan'); process.exit(2); }
+  const f = planPath(); const posts = J(f); if (!posts) { console.error('先に plan'); process.exit(2); }
   const only = args.only ? new Set(String(args.only).split(',').map(Number)) : null;
   for (const p of posts) if (!only || only.has(p.n)) { if (!p.caption) { log('skip（caption 無し）', p.n); continue; } p.approved = true; }
   J(f, posts); writePlanMd(posts); log('approved', posts.filter((p) => p.approved).length, '/', posts.length);
@@ -175,12 +195,15 @@ async function waitContainer(id) { for (let i = 0; i < 60; i++) { const s = awai
 async function publish() {
   if (!IG.id || !IG.token) { console.error('.env に IG_USER_ID / IG_ACCESS_TOKEN が必要'); process.exit(2); }
   const files = fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f));
-  const now = Date.now(); let done = 0;
+  const now = Date.now(); let done = 0; const MAX_RUN = Number(args.max || 10);
+  const last24 = fs.existsSync(path.join(OUT, 'publish-log.jsonl')) ? fs.readFileSync(path.join(OUT, 'publish-log.jsonl'), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)).filter((l) => now - new Date(l.at).getTime() < 86400e3).length : 0;
+  if (last24 >= 40) { log('24 時間で 40 件公開済み（API 上限 50）→ 今回は見送り'); return; }
   for (const f of files) {
     const posts = J(path.join(OUT, f)); let changed = false;
     for (const p of posts) {
       if (!p.approved || p.status === 'published' || !p.caption) continue;
       if (args.due && new Date(p.at).getTime() > now) continue;
+      if (done >= MAX_RUN) break;
       const text = `${p.caption}\n\n${p.hashtags.map((h) => '#' + h).join(' ')}`;
       try {
         let creation;
@@ -193,7 +216,7 @@ async function publish() {
       } catch (e) { p.status = 'error'; p.error = e.message; changed = true; log('ERR', f, p.n, e.message); }
       await sleep(3000);
     }
-    if (changed) { J(path.join(OUT, f), posts); const w = f.replace(/^plan-|\.json$/g, ''); if (w === WEEK) writePlanMd(posts); }
+    if (changed) { J(path.join(OUT, f), posts); if (f === `plan-${PLAN_NAME}.json`) writePlanMd(posts); }
   }
   log('publish done', done);
 }

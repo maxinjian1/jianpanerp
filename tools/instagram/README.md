@@ -14,6 +14,10 @@
 | 7 | `replies`（毎日） | コメント返信草稿 → `docs/instagram/replies-<date>.md`、**用户が手で送る** |
 | 8 | `insights`（週 1） | リーチ/保存/いいね → `docs/instagram/insights.md` |
 
+## 全商品カバー（2026-10-27 用户「anetmc.com の商品を全部 IG に」）
+- `plan --catalog --per-day 6 --from 2026-11-02` → カテゴリ別 5 商品 × 2 枚 = 10 枚カルーセル、1 日 6 本（08/12/15/18/20/21:30）、カテゴリを交互に。1,200 商品 ≈ 240 本 ≈ 40 日。`caption --file catalog`（夜間）→ 用户承認 → `approve --file catalog` → `publish --due` が毎時 1 回、1 回最大 10 本、24 時間 40 本で自動停止（API 上限 50/日）。
+- 並行して **Instagram ショッピング**：Shopify 管理画面 → 販売チャネル「Facebook & Instagram」を追加 → Meta と接続 → 商品カタログ自動同期 → IG プロフィールに「ショップ」タブ、投稿に商品タグ。これが「全商品を IG に置く」最短経路（用户本人が Shopify で接続）。
+
 ## 一次性準備（用户本人、密钥不经聊天）
 1. Instagram アカウント（maxinjian@gmail.com）→ 設定で「プロアカウント（ビジネス）」に切替、カテゴリ「ショッピング・小売」。
 2. Facebook ページ（アネット）を作り、Instagram アカウントをリンク（Meta Business Suite → 設定 → Instagram）。
