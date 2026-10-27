@@ -481,3 +481,9 @@
 | ウェーブフレームがかわいい-iphoneケース-カメラ保護一体型-ク | 466 | 8/9 | A-02(7/8/26 下架)；A-02(8/13/26 售空下架) | — | 64 |
 | 油圧プレス-最大能力12t-門型プレス機-ベアリング圧入-歪み修正に | 36492 | 1/2 | Z0544470(1/16/26 黑色断货) | — | 19 |
 | 天然石ブレスレット-8mm-蝶-花モチーフ-パワーストーン-wrta | 33997 | 1/4 | WRTA-BR-097-O1(6/23/26 下架) | — | 9 |
+
+### 执行结果（2026-10-27）
+
+- `apply --only draft`：**7 / 7 成功**，0 失败（ACTIVE → DRAFT）。
+- `apply --only create`（kjyf-scraper 采集 11/11 → api-core 入库 → publish-loop）：**发布 7**（39545〜39548 つけまつげ 4 件、39555 傘＋ファン、39558 スマホスピーカー、39559 LEDランタン，均 ACTIVE、vendor ANET）；**失败 4**（39539 サーマルラベル、39549 つけまつげ E、39556 キャンプクッカー、39557 バスタオル），原因全部是 6kpro 翻译返回的 JSON 被截断（`translate parse` / Unterminated string）。失败率 > 2% → 按规则停止，未重试；这 4 件在 ERP 中 status=error，6kpro 夜间时段可 `retry-errors` 后再跑 publish-loop。
+- 回滚备份：`tools/kjyf-b2b/out/shopify-backup-2026-10-27T01-47-26.json`。
