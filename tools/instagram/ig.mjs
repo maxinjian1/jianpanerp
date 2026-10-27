@@ -48,7 +48,8 @@ const PLAN_NAME = args.file || (args.catalog ? 'catalog' : WEEK);   // plan-<nam
 const planPath = () => path.join(OUT, `plan-${PLAN_NAME}.json`);
 
 // ───────── setup（トークン交換 + IG ID 取得） ─────────
-const mask = (v) => v ? `${String(v).slice(0, 8)}…(${String(v).length})` : '(未設定)';
+// 短い値（誤ってパスワード等を入れた場合）は先頭も出さない。長い値でも先頭 4 文字まで
+const mask = (v) => v ? (String(v).length >= 20 ? `${String(v).slice(0, 4)}…(${String(v).length})` : `***(${String(v).length})`) : '(未設定)';
 function writeEnv(kv) {
   const f = path.join(ROOT, '.env'); let txt = fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : '';
   for (const [k, v] of Object.entries(kv)) { const re = new RegExp(`^${k}=.*$`, 'm'); txt = re.test(txt) ? txt.replace(re, `${k}=${v}`) : txt.replace(/\s*$/, '') + `\n${k}=${v}\n`; }
