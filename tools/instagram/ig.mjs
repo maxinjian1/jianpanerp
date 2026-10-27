@@ -42,7 +42,9 @@ const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const J = (f, d) => d === undefined ? (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null) : fs.writeFileSync(f, JSON.stringify(d, null, 1));
 // 景表法・薬機法・プラットフォーム規約：価格/送料はキャプションに書かない（変わるので）、断定表現・他社名禁止
-const BANNED = /¥|円|送料|セール|SALE|割引|クーポン|No\.?\s?1|ナンバーワン|最強|最高級|日本一|業界初|世界一|絶対|完全|永久|治る|治療|効く|痩せる|バストアップ|美白|抗菌率|殺菌|医療|iPhone|Apple|ダイソン|Dyson|ニトリ|無印|IKEA|Amazon|楽天|メルカリ/i;
+const BANNED = /¥|円|送料|セール|SALE|割引|クーポン|No\.?\s?1|ナンバーワン|最強|最高級|日本一|業界初|世界一|絶対|完全|永久|治る|治療|効く|痩せる|バストアップ|美白|抗菌率|殺菌|医療|iPhone|Apple|ダイソン|Dyson|ニトリ|無印|IKEA|Amazon|楽天|メルカリ|PSE|認証/i;   // PSE 等の認証は証明書未保有のため書かない（2026-10-28 用户）
+// 他社名・紛らわしい語は caption 生成前後で言い換える（2026-10-28 用户：iPhone→スマホ、円形→丸型）
+const soften = (t) => String(t ?? '').replace(/iPhone/gi, 'スマホ').replace(/円形/g, '丸型');
 const weekStart = (s) => { const d = s ? new Date(s + 'T00:00:00Z') : new Date(Date.now() + 9 * 3600e3); const day = (d.getUTCDay() + 6) % 7; const m = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - day + (s ? 0 : 7))); return m.toISOString().slice(0, 10); };
 const WEEK = args.week ? weekStart(args.week) : weekStart();
 const PLAN_NAME = args.file || (args.catalog ? 'catalog' : WEEK);   // plan-<name>.json / docs/instagram/plan-<name>.md
@@ -161,10 +163,16 @@ const CAP_SYS = `あなたは日本の生活雑貨ブランド「アネット」
 出力 JSON：{"caption":"…","hashtags":["…"],"alt":"画像の代替テキスト 60 字以内"}`;
 async function caption() {
   const f = planPath(); const posts = J(f); if (!posts) { console.error('先に plan'); process.exit(2); }
+  const only = args.only ? new Set(String(args.only).split(',').map(Number)) : null;   // --only 26,141 で指定番号だけ（--force と併用で作り直し）
   for (const p of posts) {
+    if (only && !only.has(p.n)) continue;
     if (p.caption && !args.force) continue;
     if (!(await waitLLM(LLM, WIN, log))) { log('6kpro 窓口外/停止 → 中断'); break; }
-    let r; for (let k = 0; k < 3; k++) { r = await chatJson([{ role: 'system', content: CAP_SYS }, { role: 'user', content: `種別:${p.kind} テーマ:${p.theme}\n商品名:${p.title}\nfacts:${p.facts}` }]); var bad = [r.caption, ...(r.hashtags || [])].filter((t) => BANNED.test(String(t ?? ''))); if (!bad.length && r.caption) break; log('retry', p.n, bad.slice(0, 2)); }
+    let r; for (let k = 0; k < 3; k++) {
+      r = await chatJson([{ role: 'system', content: CAP_SYS }, { role: 'user', content: `種別:${p.kind} テーマ:${p.theme}\n商品名:${soften(p.title)}\nfacts:${soften(p.facts)}${args.hint ? '\n追加指示:' + args.hint : ''}` }]);
+      if (r.caption) { r.caption = soften(r.caption); r.hashtags = (r.hashtags || []).map(soften); r.alt = soften(r.alt); }
+      var bad = [r.caption, r.alt, ...(r.hashtags || [])].map((t) => String(t ?? '').match(BANNED)?.[0]).filter(Boolean); if (!bad.length && r.caption) break; log('retry', p.n, bad.slice(0, 3));
+    }
     if (bad.length || !r.caption) { log('caption 不可（3 回とも禁語/空）→ 空のまま', p.n); continue; }   // 空のままなら approve されない
     p.caption = r.caption; p.hashtags = (r.hashtags || []).map((h) => String(h).replace(/^#/, '')).slice(0, 15); p.alt = r.alt; log('caption', p.n, p.title.slice(0, 20));
     if (p.n % 10 === 0) J(f, posts);   // 途中で落ちても生成済みを失わない
@@ -201,16 +209,18 @@ function approve() {
 async function graph(p, body) { const u = new URL(`${GRAPH}/${p}`); const r = await fetch(u, { method: body ? 'POST' : 'GET', headers: { 'content-type': 'application/json' }, body: body ? JSON.stringify({ ...body, access_token: IG.token }) : undefined, ...(body ? {} : {}) }); const j = await r.json(); if (!r.ok || j.error) throw new Error(`graph ${p}: ${JSON.stringify(j.error || j).slice(0, 300)}`); return j; }
 async function graphGet(p, q = {}) { const u = new URL(`${GRAPH}/${p}`); for (const [k, v] of Object.entries({ ...q, access_token: IG.token })) u.searchParams.set(k, v); const r = await fetch(u); const j = await r.json(); if (!r.ok || j.error) throw new Error(`graph ${p}: ${JSON.stringify(j.error || j).slice(0, 300)}`); return j; }
 async function waitContainer(id) { for (let i = 0; i < 60; i++) { const s = await graphGet(id, { fields: 'status_code,status' }); if (s.status_code === 'FINISHED') return; if (s.status_code === 'ERROR') throw new Error('container error ' + s.status); await sleep(5000); } throw new Error('container timeout'); }
+// Shopify CDN は Accept により .jpg でも WebP を返す → IG は弾く（2207052）。format=pjpg で JPEG 固定（2026-10-28）
+const igImg = (u) => /cdn.shopify.com/.test(u) && !/[?&]format=/.test(u) ? u + (u.includes('?') ? '&' : '?') + 'format=pjpg' : u;
 async function publish() {
   if (!IG.id || !IG.token) { console.error('.env に IG_USER_ID / IG_ACCESS_TOKEN が必要'); process.exit(2); }
   const files = fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f));
-  const now = Date.now(); let done = 0; const MAX_RUN = Number(args.max || 10);
+  const now = Date.now(); let done = 0, tried = 0; const MAX_RUN = Number(args.max || 10);
   const LOGF = path.join(OUT, 'publish-log.jsonl'), STOP = path.join(OUT, 'publish-STOPPED.txt');
   if (fs.existsSync(STOP)) { log('停止中 →', fs.readFileSync(STOP, 'utf8').trim(), '（原因を直して publish-STOPPED.txt を消し、タスクを有効化すると再開）'); return; }
   const plog = fs.existsSync(LOGF) ? fs.readFileSync(LOGF, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)) : [];
-  const last24 = plog.filter((l) => l.ok !== false && now - new Date(l.at).getTime() < 86400e3).length;
+  const last24 = plog.filter((l) => l.ok === true && now - new Date(l.at).getTime() < 86400e3).length;
   if (last24 >= 40) { log('24 時間で 40 件公開済み（API 上限 50）→ 今回は見送り'); return; }
-  let fails = 0; for (let i = plog.length - 1; i >= 0 && plog[i].ok === false; i--) fails++;   // 末尾の連続失敗（前回実行分も含む）
+  let fails = 0; for (let i = plog.length - 1; i >= 0 && plog[i].ok === false; i--) fails++;   // 末尾の連続失敗（前回実行分も含む）。{reset:true} 行（ok 無し）で区切られる
   const halt = () => {   // 連続 3 件失敗 → 停止フラグ + Windows タスク無効化
     const msg = `${new Date().toISOString()} 連続 ${fails} 件失敗で停止`; fs.writeFileSync(STOP, msg + '\n'); log(msg);
     if (process.platform === 'win32') try { execSync('schtasks /Change /TN anet-ig-publish /DISABLE', { stdio: 'ignore' }); log('タスク anet-ig-publish を無効化'); } catch { log('タスク無効化に失敗（手動で停止が必要）'); }
@@ -220,13 +230,14 @@ async function publish() {
     for (const p of posts) {
       if (!p.approved || p.status === 'published' || p.status === 'error' || !p.caption) continue;   // error は自動再試行しない（直して status を戻す）
       if (args.due && new Date(p.at).getTime() > now) continue;
-      if (done >= MAX_RUN || last24 + done >= 40 || fails >= 3) break;
+      if (tried >= MAX_RUN || last24 + done >= 40 || fails >= 3) break;   // --max は失敗も含めた試行数
+      tried++;
       const text = `${p.caption}\n\n${p.hashtags.map((h) => '#' + h).join(' ')}`;
       try {
         let creation;
         if (p.kind === 'reel' && p.videoUrl) { creation = (await graph(`${IG.id}/media`, { media_type: 'REELS', video_url: p.videoUrl, caption: text, share_to_feed: true })).id; await waitContainer(creation); }
-        else if (p.kind === 'carousel' && p.images.length >= 2) { const kids = []; for (const u of p.images.slice(0, 10)) kids.push((await graph(`${IG.id}/media`, { image_url: u, is_carousel_item: true })).id); creation = (await graph(`${IG.id}/media`, { media_type: 'CAROUSEL', children: kids.join(','), caption: text })).id; }
-        else { creation = (await graph(`${IG.id}/media`, { image_url: p.images[0], caption: text })).id; }
+        else if (p.kind === 'carousel' && p.images.length >= 2) { const kids = []; for (const u of p.images.slice(0, 10)) kids.push((await graph(`${IG.id}/media`, { image_url: igImg(u), is_carousel_item: true })).id); creation = (await graph(`${IG.id}/media`, { media_type: 'CAROUSEL', children: kids.join(','), caption: text })).id; }
+        else { creation = (await graph(`${IG.id}/media`, { image_url: igImg(p.images[0]), caption: text })).id; }
         const pub = await graph(`${IG.id}/media_publish`, { creation_id: creation });
         p.status = 'published'; p.mediaId = pub.id; p.publishedAt = new Date().toISOString(); changed = true; done++; log('published', f, p.n, pub.id);
         fs.appendFileSync(LOGF, JSON.stringify({ at: p.publishedAt, ok: true, file: f, week: p.week, n: p.n, handle: p.handle, kind: p.kind, mediaId: pub.id }) + '\n'); fails = 0;
