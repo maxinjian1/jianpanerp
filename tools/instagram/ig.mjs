@@ -40,7 +40,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const J = (f, d) => d === undefined ? (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null) : fs.writeFileSync(f, JSON.stringify(d, null, 1));
 // 景表法・薬機法・プラットフォーム規約：価格/送料はキャプションに書かない（変わるので）、断定表現・他社名禁止
 const BANNED = /¥|円|送料|セール|SALE|割引|クーポン|No\.?\s?1|ナンバーワン|最強|最高級|日本一|業界初|世界一|絶対|完全|永久|治る|治療|効く|痩せる|バストアップ|美白|抗菌率|殺菌|医療|iPhone|Apple|ダイソン|Dyson|ニトリ|無印|IKEA|Amazon|楽天|メルカリ/i;
-const weekStart = (s) => { const d = s ? new Date(s + 'T00:00:00+09:00') : new Date(); const day = (d.getUTCDay() + 6) % 7; const m = new Date(d); m.setUTCDate(d.getUTCDate() - day + (s ? 0 : 7)); return m.toISOString().slice(0, 10); };
+const weekStart = (s) => { const d = s ? new Date(s + 'T00:00:00Z') : new Date(Date.now() + 9 * 3600e3); const day = (d.getUTCDay() + 6) % 7; const m = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - day + (s ? 0 : 7))); return m.toISOString().slice(0, 10); };
 const WEEK = args.week ? weekStart(args.week) : weekStart();
 
 // ───────── Shopify ─────────
@@ -217,4 +217,4 @@ async function insights() {
 
 const run = { products, plan, caption, assets, approve, publish, replies, profile, insights }[cmd];
 if (!run) { console.error('usage: ig.mjs products|plan|caption|assets|approve|publish|replies|profile|insights'); process.exit(2); }
-run().catch((e) => { console.error(e); process.exit(1); });
+Promise.resolve().then(run).catch((e) => { console.error(e); process.exit(1); });
