@@ -132,7 +132,13 @@ async function applyOne(m, d) {
 async function apply() {
   const P = J(path.join(OUT, 'draft-sync-plan.json')); const drafts = new Map(loadDrafts().map((d) => [d.spu, d]));
   const only = opt('only') ? new Set(opt('only').split(',')) : null; const dupSpu = new Set(P.dup.map((d) => d.spu));
-  let targets = P.matched.filter((m) => !m.noImages && !dupSpu.has(m.spu) && (!only || only.has(m.handle)));
+  // 2026-10-27 用户「同時に断貨に注意」：--exclude <file>（1 行 1 件、SPU/handle/SKU、大文字小文字無視）に載る商品と Shopify 側 DRAFT の商品は同期しない
+  const exFile = opt('exclude'); const ex = new Set(exFile && fs.existsSync(exFile) ? fs.readFileSync(exFile, 'utf8').split(/\r?\n/).map((l) => l.trim().toLowerCase()).filter(Boolean) : []);
+  const K = (x) => String(x || '').toLowerCase();
+  const excluded = P.matched.filter((m) => m.status === 'DRAFT' || ex.has(K(m.spu)) || ex.has(K(m.handle)) || [...ex].some((e) => e && K(m.spu).startsWith(e + '-')));
+  const exSet = new Set(excluded.map((m) => m.handle));
+  let targets = P.matched.filter((m) => !m.noImages && !dupSpu.has(m.spu) && !exSet.has(m.handle) && (!only || only.has(m.handle)));
+  log('excluded（断貨表/DRAFT）', excluded.length, exFile ? `(${exFile}: ${ex.size} 行)` : '(exclude ファイル未指定)');
   if (opt('limit')) targets = targets.slice(0, Number(opt('limit')));
   log('targets', targets.length, '(dup 除外', P.matched.filter((m) => dupSpu.has(m.spu)).length, ')');
   let ok = 0, fail = 0, streak = 0;

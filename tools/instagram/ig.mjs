@@ -135,6 +135,8 @@ function planCatalog(ps) {
   const times = ['08:00', '12:00', '15:00', '18:00', '20:00', '21:30', '10:00', '22:00'].slice(0, perDay);
   const posts = order.map((g, i) => { const d = new Date(start + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + Math.floor(i / perDay)); const day = d.toISOString().slice(0, 10);
     return { n: i + 1, week: 'catalog', at: `${day}T${times[i % perDay]}:00+09:00`, dow: '', kind: 'carousel', theme: `カテゴリ:${g.type}`, handle: g.items[0].handle, handles: g.items.map((p) => p.handle), title: `${g.type}｜${g.items.map((p) => p.title.slice(0, 14)).join('・')}`, url: `${SITE}/collections/all?utm_source=instagram&utm_medium=social&utm_campaign=catalog`, images: g.items.flatMap((p) => p.images.slice(0, 2)).slice(0, 10), facts: g.items.map((p, k) => `${k + 1}. ${p.title}：${p.desc.slice(0, 120)}`).join('\n'), approved: false, status: 'planned' }; });
+  // 既存 plan-catalog の caption / approved / status を同じ商品組み合わせに引き継ぐ（draft-sync 後の画像 URL 差し替え用）
+  const prev = J(planPath()); if (prev) { const key = (x) => (x.handles || [x.handle]).slice().sort().join('|'); const m = new Map(prev.map((x) => [key(x), x])); let kept = 0; for (const p of posts) { const o = m.get(key(p)); if (o) { Object.assign(p, { caption: o.caption, hashtags: o.hashtags, alt: o.alt, approved: o.approved, status: o.status, mediaId: o.mediaId, publishedAt: o.publishedAt, at: o.status === 'published' ? o.at : p.at }); kept++; } } log('kept from previous plan', kept); }
   J(planPath(), posts); writePlanMd(posts);
   log('catalog plan', posts.length, 'posts /', items.length, 'products /', perDay, 'per day →', `${Math.ceil(posts.length / perDay)} 日`, `docs/instagram/plan-${PLAN_NAME}.md`);
 }

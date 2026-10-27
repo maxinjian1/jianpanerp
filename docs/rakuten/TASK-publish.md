@@ -67,3 +67,8 @@
 - Shopify（anetmc.com）：`tools/kjyf-b2b/sync.mjs fetch → backup → plan`，plan 结果与断货表对照后 `apply`（draft = 批发商已下架/断货 → DRAFT；create = 日文站在售但本店没有 → 新建 ACTIVE，定价 ceil(批发价×1.15/10)×10；update 只动规格/价格）。标题/说明/库存不动。2% 失败即停，备份可 rollback。
 - 乐天：从 `docs/rakuten/publish-log.csv` 的 ok 列表中找出批发商已下架的 SPU → 在斑马「已发布」里批量「下架/販売停止」（可逆），不删除商品；列表先写 `docs/rakuten/takedown-<日期>.md` 再执行。没上架的新品：进斑马草稿箱（人工整理日文资料的既定流程），再走 bulk2.js。
 - R-Cabinet：10GB 追加オプション已开通 → 剩余 431 件 + 重发 80 件**不再等压缩**；anet2025-01〜03 目录出现后即发；压缩 apply 暂缓（画质优先，空间已够）。
+
+## 第五阶段：Shopify 商品以斑马草稿箱为母本 + 断货（2026-10-27 用户「shopify产品根据斑马草稿箱上，也同时注意断货」）
+- 执行 10-25 定好的草稿同步（图片全部换成草稿图、说明用草稿覆盖、标题不动），范围 = 斑马草稿箱全部 SPU 对上的 Shopify 商品，**排除**：断货表「产品下架」命中（`tools/kjyf-b2b/in/` 的 xlsx 生成 `tools/rakuten/out/exclude-stock.txt`，每行一个货号）与 Shopify 已 DRAFT 的商品；1 草稿对多商品的（dup）仍等人工。
+- 断货表命中且仍 ACTIVE 的 218 件：按用户本条指示转 DRAFT（`sync.mjs apply --only draft` 配合清单；备份可回滚），补货后由下次断货表/日文站数据再恢复。
+- 顺序：recv.mjs 常驻 → banma-export.browser.js 全量导出（约 990 件，1.5 秒/件）→ `draft-sync.mjs probe → fetch-shopify → plan`（推送 draft-sync-plan.md）→ `apply --exclude tools/rakuten/out/exclude-stock.txt`（1 件/秒，2% 停）→ 完成后 `ig.mjs products` + `plan --catalog --per-day 6 --from 2026-11-02`（已有文案/承认状态自动继承，图片 URL 换成草稿图）。
