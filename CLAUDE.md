@@ -57,6 +57,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-10-27 16:30 JST 用户「承认」Instagram 全商品计划（233 条轮播 / 39 天 / 每天 6 条，11-02〜12-10，账号 @maxinjian 已接通）：caption 当晚 6kpro 生成后 Windows 直接 `approve --file catalog`，并注册每小时 `publish --due` 任务（单次 ≤10、24h ≤40）。后续周计划同样承认制；用户已表示看过第一周后可改为自动。
 - 2026-10-27 用户决定：**开 Instagram 线（账号邮箱 maxinjian@gmail.com，主目的推 anetmc.com/Shopify）**，自写「IG 小编技能包」日本版：`tools/instagram/ig.mjs`（products→plan 周 7 条[A 档 3 含 1 Reel/新着 2/季节 2]→caption[6kpro 夜间，禁语]→assets[Reel 用 real 模式视频经 Shopify Files 公开 URL]→用户承认→approve→publish --due[Graph API，Windows 每小时]→replies[只起草]→insights）+ skill `.claude/skills/ig-anet-jp/`。规则：承认制、AI 不发任何评论/DM、不写价格/送料/断定语/他社名、素材不经 AI 生成。前置：用户本人转专业账号、绑 Facebook 主页、Meta 开发者长期 token 填 `.env`（IG_USER_ID/IG_ACCESS_TOKEN）。同日：断货表同步完成（Shopify 草稿 7、新建 7+4 待重试；乐天下架 68、重发队列剔除 191、新目录每个上限 500 文件→建 anet2025-04〜26）；课程学习完成 371 篇笔记。
 - 2026-10-27 用户：**R-Cabinet 10GB 追加オプション已购买**（压缩 apply 暂缓，乐天剩余 431+80 件目录出现后直接发）；批发商发来「断货下架更新表」（kdocs）→ 规则「本店已上架的下架、没上架的上架」：Shopify 走 `tools/kjyf-b2b/sync.mjs`（日文站 view 0 为准 + 断货表交叉核对），乐天在斑马批量下架（不删），详见 `docs/rakuten/TASK-publish.md` 第四阶段。
 - 2026-10-26 **用户看了商品短视频试片（可灵 image2video + VOICEVOX）：「非常不好，AI 味道太重」**。规则：商品视频画面**不再经任何 AI 生成**，`tools/product-video/video.mjs` 既定 `--motion real`（实拍图 + ffmpeg 推拉/平移 + 淡入淡出），旁白既定关闭（字幕 + BGM），可灵/VOICEVOX 只在显式 `--motion kling` / `--vo on` 时使用。可灵 kling-v2-1 已下线，默认改 kling-v2-6。另：乐天店铺名/Logo 3 案已出（`tools/brand-assets/render-rakuten-logo.mjs`，推荐 A「アネット」），待用户选；R-Cabinet 98.7% 满，压缩只能省 268MB，建议开 10GB 追加オプション，待用户定；anet2025 目录建后 >1 天仍未出现在斑马 PullFolders。
