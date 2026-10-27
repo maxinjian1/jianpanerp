@@ -36,14 +36,15 @@ const pick = (o, keys) => { for (const k of keys) { const v = o?.[k]; if (v !== 
 const deepFind = (o, pred, depth = 0, acc = []) => { if (!o || depth > 6) return acc; if (Array.isArray(o)) { for (const x of o) deepFind(x, pred, depth + 1, acc); } else if (typeof o === 'object') { for (const [k, v] of Object.entries(o)) { if (pred(k, v)) acc.push(v); deepFind(v, pred, depth + 1, acc); } } return acc; };
 const isImgUrl = (s) => typeof s === 'string' && /^https?:\/\/\S+\.(jpe?g|png|gif|webp)(\?\S*)?$/i.test(s);
 function normalize(d) {
-  const p = d.product ?? d;
+  // 斑馬 V2 の product は { SPU:{ItemName, ManageNumber, DescriptionForPC…}, SKUs, Images … }。SPU の中身を上に展開して扱う
+  const p0 = d.product ?? d; const p = p0.SPU && typeof p0.SPU === 'object' ? { ...p0, ...p0.SPU } : p0;
   // 画像：Images / ImageList / ImgList / Pictures … の配列。要素は URL 文字列か {Url|ImageUrl|Src|url}
   let imgs = pick(p, ['Images', 'ImageList', 'ImgList', 'Pictures', 'PicList', 'ProductImages', 'images', 'imageList', 'imgs']);
   if (!Array.isArray(imgs)) { const found = deepFind(p, (k, v) => /image|img|pic/i.test(k) && Array.isArray(v) && v.length && (isImgUrl(v[0]) || typeof v[0] === 'object')); imgs = found[0] ?? []; }
   const urls = imgs.map((x) => (typeof x === 'string' ? x : pick(x, ['Url', 'ImageUrl', 'Src', 'url', 'imageUrl', 'src', 'Path', 'path', 'ImgUrl', 'imgUrl']))).filter(isImgUrl);
   // 説明：PC 用／スマホ用／販売説明文。HTML のまま使う
-  const desc = pick(p, ['PcDescription', 'PCDescription', 'Description', 'SalesDescription', 'ProductDescription', 'DescriptionPc', 'pcDescription', 'description', 'Caption', 'ItemCaption']);
-  const descSp = pick(p, ['SpDescription', 'SPDescription', 'SmartphoneDescription', 'DescriptionSp', 'spDescription', 'MobileDescription']);
+  const desc = pick(p, ['DescriptionForPC', 'PcDescription', 'PCDescription', 'Description', 'SalesDescription', 'ProductDescription', 'DescriptionPc', 'pcDescription', 'description', 'Caption', 'ItemCaption']);
+  const descSp = pick(p, ['DescriptionForMobile', 'SpDescription', 'SPDescription', 'SmartphoneDescription', 'DescriptionSp', 'spDescription', 'MobileDescription']);
   const title = pick(p, ['Title', 'ItemName', 'ProductName', 'Name', 'title', 'itemName', 'name']);
   const mn = pick(p, ['ManageNumber', 'ItemManageNumber', 'ManageNo', 'manageNumber', 'Spu', 'SPU']) ?? d.spu;
   const skus = pick(p, ['Skus', 'SkuList', 'SKUs', 'skus', 'skuList', 'Variants']) ?? [];
