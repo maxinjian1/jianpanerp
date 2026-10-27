@@ -163,10 +163,13 @@ const CAP_SYS = `あなたは日本の生活雑貨ブランド「アネット」
 出力 JSON：{"caption":"…","hashtags":["…"],"alt":"画像の代替テキスト 60 字以内"}`;
 async function caption() {
   const f = planPath(); const posts = J(f); if (!posts) { console.error('先に plan'); process.exit(2); }
+  // 6kpro 待ちの間に publish が status を更新するため、保存時はファイルを読み直して caption 系だけ書き戻す（古い posts で上書きしない）
+  const gen = new Map(); const save = () => { const cur = J(f); for (const q of cur) { const g = gen.get(q.n); if (g && q.status !== 'published') Object.assign(q, g); } J(f, cur); writePlanMd(cur); };
   const only = args.only ? new Set(String(args.only).split(',').map(Number)) : null;   // --only 26,141 で指定番号だけ（--force と併用で作り直し）
   for (const p of posts) {
     if (only && !only.has(p.n)) continue;
     if (p.caption && !args.force) continue;
+    if (p.status === 'published') continue;
     if (!(await waitLLM(LLM, WIN, log))) { log('6kpro 窓口外/停止 → 中断'); break; }
     let r; for (let k = 0; k < 3; k++) {
       r = await chatJson([{ role: 'system', content: CAP_SYS }, { role: 'user', content: `種別:${p.kind} テーマ:${p.theme}\n商品名:${soften(p.title)}\nfacts:${soften(p.facts)}${args.hint ? '\n追加指示:' + args.hint : ''}` }]);
@@ -175,9 +178,9 @@ async function caption() {
     }
     if (bad.length || !r.caption) { log('caption 不可（3 回とも禁語/空）→ 空のまま', p.n); continue; }   // 空のままなら approve されない
     p.caption = r.caption; p.hashtags = (r.hashtags || []).map((h) => String(h).replace(/^#/, '')).slice(0, 15); p.alt = r.alt; log('caption', p.n, p.title.slice(0, 20));
-    if (p.n % 10 === 0) J(f, posts);   // 途中で落ちても生成済みを失わない
+    gen.set(p.n, { caption: p.caption, hashtags: p.hashtags, alt: p.alt }); if (gen.size % 10 === 0) save();   // 途中で落ちても生成済みを失わない
   }
-  J(f, posts); writePlanMd(posts);
+  save();
 }
 
 // ───────── 素材（Reel 動画を Shopify Files に上げて公開 URL を得る） ─────────
