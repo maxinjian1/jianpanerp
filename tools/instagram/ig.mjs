@@ -25,6 +25,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
 import { inWindow, waitLLM } from '../night/window.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -201,14 +202,22 @@ async function publish() {
   if (!IG.id || !IG.token) { console.error('.env に IG_USER_ID / IG_ACCESS_TOKEN が必要'); process.exit(2); }
   const files = fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f));
   const now = Date.now(); let done = 0; const MAX_RUN = Number(args.max || 10);
-  const last24 = fs.existsSync(path.join(OUT, 'publish-log.jsonl')) ? fs.readFileSync(path.join(OUT, 'publish-log.jsonl'), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)).filter((l) => now - new Date(l.at).getTime() < 86400e3).length : 0;
+  const LOGF = path.join(OUT, 'publish-log.jsonl'), STOP = path.join(OUT, 'publish-STOPPED.txt');
+  if (fs.existsSync(STOP)) { log('停止中 →', fs.readFileSync(STOP, 'utf8').trim(), '（原因を直して publish-STOPPED.txt を消し、タスクを有効化すると再開）'); return; }
+  const plog = fs.existsSync(LOGF) ? fs.readFileSync(LOGF, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)) : [];
+  const last24 = plog.filter((l) => l.ok !== false && now - new Date(l.at).getTime() < 86400e3).length;
   if (last24 >= 40) { log('24 時間で 40 件公開済み（API 上限 50）→ 今回は見送り'); return; }
+  let fails = 0; for (let i = plog.length - 1; i >= 0 && plog[i].ok === false; i--) fails++;   // 末尾の連続失敗（前回実行分も含む）
+  const halt = () => {   // 連続 3 件失敗 → 停止フラグ + Windows タスク無効化
+    const msg = `${new Date().toISOString()} 連続 ${fails} 件失敗で停止`; fs.writeFileSync(STOP, msg + '\n'); log(msg);
+    if (process.platform === 'win32') try { execSync('schtasks /Change /TN anet-ig-publish /DISABLE', { stdio: 'ignore' }); log('タスク anet-ig-publish を無効化'); } catch { log('タスク無効化に失敗（手動で停止が必要）'); }
+  };
   for (const f of files) {
     const posts = J(path.join(OUT, f)); let changed = false;
     for (const p of posts) {
-      if (!p.approved || p.status === 'published' || !p.caption) continue;
+      if (!p.approved || p.status === 'published' || p.status === 'error' || !p.caption) continue;   // error は自動再試行しない（直して status を戻す）
       if (args.due && new Date(p.at).getTime() > now) continue;
-      if (done >= MAX_RUN) break;
+      if (done >= MAX_RUN || last24 + done >= 40 || fails >= 3) break;
       const text = `${p.caption}\n\n${p.hashtags.map((h) => '#' + h).join(' ')}`;
       try {
         let creation;
@@ -217,8 +226,12 @@ async function publish() {
         else { creation = (await graph(`${IG.id}/media`, { image_url: p.images[0], caption: text })).id; }
         const pub = await graph(`${IG.id}/media_publish`, { creation_id: creation });
         p.status = 'published'; p.mediaId = pub.id; p.publishedAt = new Date().toISOString(); changed = true; done++; log('published', f, p.n, pub.id);
-        fs.appendFileSync(path.join(OUT, 'publish-log.jsonl'), JSON.stringify({ at: p.publishedAt, week: p.week, n: p.n, handle: p.handle, kind: p.kind, mediaId: pub.id }) + '\n');
-      } catch (e) { p.status = 'error'; p.error = e.message; changed = true; log('ERR', f, p.n, e.message); }
+        fs.appendFileSync(LOGF, JSON.stringify({ at: p.publishedAt, ok: true, file: f, week: p.week, n: p.n, handle: p.handle, kind: p.kind, mediaId: pub.id }) + '\n'); fails = 0;
+      } catch (e) {
+        p.status = 'error'; p.error = e.message; changed = true; fails++; log('ERR', f, p.n, e.message);
+        fs.appendFileSync(LOGF, JSON.stringify({ at: new Date().toISOString(), ok: false, file: f, week: p.week, n: p.n, handle: p.handle, kind: p.kind, error: e.message.slice(0, 300) }) + '\n');
+        if (fails >= 3) halt();
+      }
       await sleep(3000);
     }
     if (changed) { J(path.join(OUT, f), posts); if (f === `plan-${PLAN_NAME}.json`) writePlanMd(posts); }
