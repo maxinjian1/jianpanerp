@@ -79,7 +79,7 @@ async function gql(query, variables = {}) { const r = await fetch(`https://${SHO
 async function products() {
   const all = []; let c = null;
   for (;;) {
-    const d = await gql(`query($c:String){ products(first:50, after:$c, query:"vendor:ANET status:active"){ pageInfo{hasNextPage endCursor} nodes{ id handle title productType tags createdAt onlineStoreUrl descriptionHtml featuredImage{url} images(first:6){nodes{url altText}} variants(first:5){nodes{sku price inventoryQuantity}} } } }`, { c });
+    const d = await gql(`query($c:String){ products(first:50, after:$c, query:"vendor:ANET status:active"){ pageInfo{hasNextPage endCursor} nodes{ id handle title productType tags createdAt onlineStoreUrl descriptionHtml featuredImage{url} images(first:6){nodes{url altText}} variants(first:5){nodes{sku price inventoryQuantity inventoryItem{tracked}}} } } }`, { c });
     all.push(...d.products.nodes); if (!d.products.pageInfo.hasNextPage) break; c = d.products.pageInfo.endCursor;
   }
   // 楽天 A 档（docs/rakuten/price-tier.md の A 表）を SKU 前方一致で付与
@@ -90,6 +90,8 @@ async function products() {
   const out = all.map((p) => ({
     id: p.id, handle: p.handle, title: p.title, type: p.productType, tags: p.tags, createdAt: p.createdAt, url: p.onlineStoreUrl || `${SITE}/products/${p.handle}`,
     images: p.images.nodes.map((i) => i.url), skus: p.variants.nodes.map((v) => v.sku).filter(Boolean), price: Number(p.variants.nodes[0]?.price || 0), stock: p.variants.nodes.reduce((s, v) => s + (v.inventoryQuantity ?? 0), 0),
+    // Shopify は在庫を追跡していない（tracked=false → 数量は常に 0）。追跡していない商品は在庫ありとみなす
+    inStock: p.variants.nodes.some((v) => v.inventoryItem?.tracked === false || (v.inventoryQuantity ?? 0) > 0),
     desc: String(p.descriptionHtml || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 600),
     tierA: p.variants.nodes.some((v) => [...aSpu].some((a) => K(v.sku).startsWith(a) || a.startsWith(K(v.sku)))),
   }));
@@ -104,7 +106,7 @@ function plan() {
   const ps = J(path.join(OUT, 'products.json')); if (!ps) { console.error('先に products'); process.exit(2); }
   if (args.catalog) return planCatalog(ps);
   const used = new Set(fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f)).flatMap((f) => (J(path.join(OUT, f)) || []).map((x) => x.handle)));
-  const fresh = ps.filter((p) => !used.has(p.handle) && p.images.length >= 1 && p.stock > 0);
+  const fresh = ps.filter((p) => !used.has(p.handle) && p.images.length >= 1 && (p.inStock ?? p.stock > 0));
   const byNew = [...fresh].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const A = fresh.filter((p) => p.tierA), N = byNew.filter((p) => !p.tierA).slice(0, 20), rest = fresh.filter((p) => !p.tierA);
   const pick = (arr, n, excl) => { const o = []; for (const p of arr) { if (o.length >= n) break; if (!excl.has(p.handle)) { o.push(p); excl.add(p.handle); } } return o; };
@@ -125,7 +127,7 @@ function plan() {
 function planCatalog(ps) {
   const perDay = Math.min(8, Number(args['per-day'] || 6)); const start = args.from || weekStart();
   const posted = new Set(fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f) && f !== `plan-${PLAN_NAME}.json`).flatMap((f) => (J(path.join(OUT, f)) || []).filter((x) => x.status === 'published').flatMap((x) => x.handles || [x.handle])));
-  const items = ps.filter((p) => p.images.length >= 1 && p.stock > 0 && !posted.has(p.handle));
+  const items = ps.filter((p) => p.images.length >= 1 && (p.inStock ?? p.stock > 0) && !posted.has(p.handle));
   const byType = {}; for (const p of items) (byType[p.type || 'その他'] ||= []).push(p);
   const groups = []; for (const [type, arr] of Object.entries(byType)) { arr.sort((a, b) => (b.tierA - a.tierA) || b.createdAt.localeCompare(a.createdAt)); for (let i = 0; i < arr.length; i += 5) groups.push({ type, items: arr.slice(i, i + 5) }); }
   // カテゴリを交互に出す（同じカテゴリが連続しないように round-robin）
