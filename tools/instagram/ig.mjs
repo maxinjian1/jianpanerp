@@ -172,7 +172,7 @@ async function caption() {
     if (p.status === 'published') continue;
     if (!(await waitLLM(LLM, WIN, log))) { log('6kpro 窓口外/停止 → 中断'); break; }
     let r; for (let k = 0; k < 3; k++) {
-      r = await chatJson([{ role: 'system', content: CAP_SYS }, { role: 'user', content: `種別:${p.kind} テーマ:${p.theme}\n商品名:${soften(p.title)}\nfacts:${soften(p.facts)}${args.hint ? '\n追加指示:' + args.hint : ''}` }]);
+      r = await chatJson([{ role: 'system', content: CAP_SYS }, { role: 'user', content: `種別:${p.kind} テーマ:${p.theme}\n商品名:${soften(p.title)}\nfacts:${soften(p.facts).replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')}${args.hint ? '\n追加指示:' + args.hint : ''}` }]);
       if (r.caption) { r.caption = soften(r.caption); r.hashtags = (r.hashtags || []).map(soften); r.alt = soften(r.alt); }
       var bad = [r.caption, r.alt, ...(r.hashtags || [])].map((t) => String(t ?? '').match(BANNED)?.[0]).filter(Boolean); if (!bad.length && r.caption) break; log('retry', p.n, bad.slice(0, 3));
     }
