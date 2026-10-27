@@ -126,14 +126,14 @@ function plan() {
 }
 // 全商品カバー（2026-10-27 用户「anetmc.com の商品を全部 IG に」）：カテゴリ別に 5 商品×2 枚 = 10 枚カルーセル、1 日 N 本（既定 6、API 上限 50/日・見た目の上限を考え 8 まで）
 function planCatalog(ps) {
-  const perDay = Math.min(8, Number(args['per-day'] || 6)); const start = args.from || weekStart();
+  const perDay = Math.min(10, Number(args['per-day'] || 6)); const start = args.from || weekStart();
   const posted = new Set(fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f) && f !== `plan-${PLAN_NAME}.json`).flatMap((f) => (J(path.join(OUT, f)) || []).filter((x) => x.status === 'published').flatMap((x) => x.handles || [x.handle])));
   const items = ps.filter((p) => p.images.length >= 1 && (p.inStock ?? p.stock > 0) && !posted.has(p.handle));
   const byType = {}; for (const p of items) (byType[p.type || 'その他'] ||= []).push(p);
   const groups = []; for (const [type, arr] of Object.entries(byType)) { arr.sort((a, b) => (b.tierA - a.tierA) || b.createdAt.localeCompare(a.createdAt)); for (let i = 0; i < arr.length; i += 5) groups.push({ type, items: arr.slice(i, i + 5) }); }
   // カテゴリを交互に出す（同じカテゴリが連続しないように round-robin）
   const queues = Object.values(groups.reduce((m, g) => ((m[g.type] ||= []).push(g), m), {})); const order = []; while (queues.some((q) => q.length)) for (const q of queues) if (q.length) order.push(q.shift());
-  const times = ['08:00', '12:00', '15:00', '18:00', '20:00', '21:30', '10:00', '22:00'].slice(0, perDay);
+  const times = ['08:00', '12:00', '18:00', '20:00', '21:30', '10:00', '15:00', '22:00', '07:00', '13:00'].slice(0, perDay).sort();
   const posts = order.map((g, i) => { const d = new Date(start + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + Math.floor(i / perDay)); const day = d.toISOString().slice(0, 10);
     return { n: i + 1, week: 'catalog', at: `${day}T${times[i % perDay]}:00+09:00`, dow: '', kind: 'carousel', theme: `カテゴリ:${g.type}`, handle: g.items[0].handle, handles: g.items.map((p) => p.handle), title: `${g.type}｜${g.items.map((p) => p.title.slice(0, 14)).join('・')}`, url: `${SITE}/collections/all?utm_source=instagram&utm_medium=social&utm_campaign=catalog`, images: g.items.flatMap((p) => p.images.slice(0, 2)).slice(0, 10), facts: g.items.map((p, k) => `${k + 1}. ${p.title}：${p.desc.slice(0, 120)}`).join('\n'), approved: false, status: 'planned' }; });
   // 既存 plan-catalog の caption / approved / status を同じ商品組み合わせに引き継ぐ（draft-sync 後の画像 URL 差し替え用）
