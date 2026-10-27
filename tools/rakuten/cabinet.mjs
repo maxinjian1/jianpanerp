@@ -4,6 +4,7 @@
  *
  *   node tools/rakuten/cabinet.mjs check                 # .env のキーを伏せ字で表示し cabinet.usage.get を 1 回呼ぶ（AuthError の切り分け用）
  *   node tools/rakuten/cabinet.mjs usage                 # 容量・フォルダ数（RMS API cabinet.usage.get）
+ *   node tools/rakuten/cabinet.mjs mkdir anet2025-01 [anet2025-02 …]   # フォルダ作成（cabinet.folder.insert、既存なら skip）。基本フォルダは 5,000 ファイル上限で容量追加しても増えない
  *   node tools/rakuten/cabinet.mjs scan                  # 全フォルダ・全ファイルを列挙 → out/cabinet/files.json + docs/rakuten/cabinet-report.md
  *   node tools/rakuten/cabinet.mjs plan   [--target 180] [--max 1200] [--min-save 15]
  *                                                         # 画像をダウンロード → Pillow で圧縮 → 削減見込み一覧（out/cabinet/plan.json, docs/rakuten/cabinet-plan.md）。アップロードはしない
@@ -69,6 +70,22 @@ async function check() {
   const xml = await r.text();
   console.log('http', r.status, 'systemStatus', tag(xml, 'systemStatus'), 'resultCode', tag(xml, 'resultCode'), tag(xml, 'message') || '');
   if (tag(xml, 'resultCode') === '0') console.log(`OK  容量 ${(Number(tag(xml, 'UseSpace')) / 1024).toFixed(1)} / ${tag(xml, 'MaxSpace')} MB`); else console.log('NG → 上の mask 表示で、RMS 利用設定の「最新」キーの先頭と一致するか確認');
+}
+
+// ---------- mkdir ----------
+async function mkdir() {
+  const names = rest.filter((a) => !a.startsWith('--')); if (!names.length) { console.error('usage: mkdir <name> [name…]'); process.exit(2); }
+  const have = new Map();
+  for (let off = 1; ; off++) { const xml = await rms(`folders/get?offset=${off}&limit=100`); const list = tags(xml, 'folder'); for (const f of list) have.set(tag(f, 'FolderName'), tag(f, 'FolderId')); if (list.length < 100) break; }
+  for (const n of names) {
+    if (have.has(n)) { log('exists', n, 'id', have.get(n)); continue; }
+    const dirName = n.replace(/[^A-Za-z0-9_-]/g, '-').slice(0, 20);
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><request><folderInsertRequest><folder><folderName>${n}</folderName><directoryName>${dirName}</directoryName><upperFolderId>0</upperFolderId></folder></folderInsertRequest></request>`;
+    const fd = new FormData(); fd.append('xml', new Blob([xml], { type: 'text/xml' }), 'request.xml');
+    const res = await rms('folder/insert', { method: 'POST', body: fd });
+    log('created', n, 'id', tag(res, 'FolderId'));
+  }
+  log('→ 斑馬で PullFolders（店舗授権ページの更新）を実行すると一覧に出る');
 }
 
 // ---------- usage ----------
@@ -227,6 +244,6 @@ async function applyOrRollback(mode) {
   log(`${mode} done ok ${ok} fail ${fail} → ${path.relative(ROOT, logF)}`);
 }
 
-const run = { check, usage, scan, plan, apply: () => applyOrRollback('apply'), rollback: () => applyOrRollback('rollback') }[cmd];
-if (!run) { console.error('usage: cabinet.mjs check|usage|scan|plan|apply|rollback'); process.exit(2); }
+const run = { check, mkdir, usage, scan, plan, apply: () => applyOrRollback('apply'), rollback: () => applyOrRollback('rollback') }[cmd];
+if (!run) { console.error('usage: cabinet.mjs check|mkdir|usage|scan|plan|apply|rollback'); process.exit(2); }
 run().catch((e) => { console.error(e); process.exit(1); });
