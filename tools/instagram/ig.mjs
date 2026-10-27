@@ -151,8 +151,9 @@ function writePlanMd(posts) {
 
 // ───────── 6kpro ─────────
 async function chatJson(messages) {
-  const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, messages, temperature: 0.7, max_tokens: 1500, response_format: { type: 'json_object' } }) });
-  const j = await r.json(); const t = j.choices?.[0]?.message?.content || '{}'; try { return JSON.parse(t); } catch { return JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); }
+  const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, messages, temperature: 0.7, max_tokens: 6000, response_format: { type: 'json_object' } }) });
+  // 推論でトークンを使い切ると content が途中で切れる → 例外にせず {} を返して呼び出し側で再試行
+  const j = await r.json().catch(() => ({})); const t = j.choices?.[0]?.message?.content || '{}'; try { return JSON.parse(t); } catch { try { return JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); } catch { log('JSON 解析失敗', j.choices?.[0]?.finish_reason, t.length); return {}; } }
 }
 const CAP_SYS = `あなたは日本の生活雑貨ブランド「アネット」の Instagram 担当。anetmc.com のお客さま（20〜50 代の女性中心、暮らしを少しラクにしたい人）向けに投稿文を書く。
 ルール：①冒頭 1 行で「場面・困りごと」から入る（商品名から始めない）②本文 3〜5 行、やさしい丁寧語、絵文字は 2 個まで ③最後に「詳しくはプロフィールのリンクから」④数字・素材・サイズは facts にあるものだけ。無ければ書かない ⑤価格・送料・セール・No.1・最強・日本一・絶対・医療効能・他社ブランド名は禁止 ⑥ハッシュタグ 12〜15 個：大（#暮らし #収納 など）5、中（カテゴリ）5、小（具体）3〜5、日本語中心、英語は 2 個まで。
@@ -163,8 +164,10 @@ async function caption() {
   for (const p of posts) {
     if (p.caption && !args.force) continue;
     if (!(await waitLLM(LLM, WIN, log))) { log('6kpro 窓口外/停止 → 中断'); break; }
-    let r; for (let k = 0; k < 3; k++) { r = await chatJson([{ role: 'system', content: CAP_SYS }, { role: 'user', content: `種別:${p.kind} テーマ:${p.theme}\n商品名:${p.title}\nfacts:${p.facts}` }]); const bad = [r.caption, ...(r.hashtags || [])].filter((t) => BANNED.test(String(t ?? ''))); if (!bad.length && r.caption) break; log('retry', p.n, bad.slice(0, 2)); }
+    let r; for (let k = 0; k < 3; k++) { r = await chatJson([{ role: 'system', content: CAP_SYS }, { role: 'user', content: `種別:${p.kind} テーマ:${p.theme}\n商品名:${p.title}\nfacts:${p.facts}` }]); var bad = [r.caption, ...(r.hashtags || [])].filter((t) => BANNED.test(String(t ?? ''))); if (!bad.length && r.caption) break; log('retry', p.n, bad.slice(0, 2)); }
+    if (bad.length || !r.caption) { log('caption 不可（3 回とも禁語/空）→ 空のまま', p.n); continue; }   // 空のままなら approve されない
     p.caption = r.caption; p.hashtags = (r.hashtags || []).map((h) => String(h).replace(/^#/, '')).slice(0, 15); p.alt = r.alt; log('caption', p.n, p.title.slice(0, 20));
+    if (p.n % 10 === 0) J(f, posts);   // 途中で落ちても生成済みを失わない
   }
   J(f, posts); writePlanMd(posts);
 }
