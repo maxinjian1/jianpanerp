@@ -61,3 +61,9 @@
   3. 用户看过样图同意后 `apply --limit 20` 试 20 件 → 确认商品页图片正常（URL 不变，cabinet.file.update 同 fileId 覆盖）→ 全量。元图在 `out/cabinet/backup/`，`rollback` 可恢复。5 连败或 2% 失败即停；1 req/秒。
   4. 新上传（剩余 431 件 + 重发 80 件）同样先压缩。斑马从自己的图 URL 上传，若无法替换，改为斑马建商品、图片由我们走 Cabinet API 上传后在斑马选图。
 - ②③ 要花钱：容量压缩后仍 >85% 再向用户提案，开通由用户本人操作。
+
+## 第四阶段：批发商断货表同步 + 10GB 已开通（2026-10-27 用户指示「上架的下架，没有上架的上架；10G 空间买了」）
+- 来源：批发商金山文档「断货下架更新表」（kdocs 链接在用户聊天里，云端打不开，Windows Chrome 打开后「另存为 xlsx」到 `tools/kjyf-b2b/in/kjyf-stock-<日期>.xlsx`，in/ 不入 git）。**在售/下架的最终基准仍是日文站 view 0**（2026-10-19 决定），断货表用来交叉核对与抓漏。
+- Shopify（anetmc.com）：`tools/kjyf-b2b/sync.mjs fetch → backup → plan`，plan 结果与断货表对照后 `apply`（draft = 批发商已下架/断货 → DRAFT；create = 日文站在售但本店没有 → 新建 ACTIVE，定价 ceil(批发价×1.15/10)×10；update 只动规格/价格）。标题/说明/库存不动。2% 失败即停，备份可 rollback。
+- 乐天：从 `docs/rakuten/publish-log.csv` 的 ok 列表中找出批发商已下架的 SPU → 在斑马「已发布」里批量「下架/販売停止」（可逆），不删除商品；列表先写 `docs/rakuten/takedown-<日期>.md` 再执行。没上架的新品：进斑马草稿箱（人工整理日文资料的既定流程），再走 bulk2.js。
+- R-Cabinet：10GB 追加オプション已开通 → 剩余 431 件 + 重发 80 件**不再等压缩**；anet2025-01〜03 目录出现后即发；压缩 apply 暂缓（画质优先，空间已够）。
