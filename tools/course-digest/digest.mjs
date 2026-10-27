@@ -170,7 +170,9 @@ async function db() {
           CREATE TABLE step(item TEXT, n INT, do_ TEXT, why TEXT, params TEXT); CREATE TABLE tool(item TEXT, name TEXT, purpose TEXT, where_ TEXT);
           CREATE TABLE prompt(item TEXT, use TEXT, text TEXT); CREATE TABLE pitfall(item TEXT, text TEXT); CREATE TABLE asset(item TEXT, name TEXT); CREATE TABLE transcript(item TEXT, s REAL, e REAL, t TEXT);
           CREATE VIRTUAL TABLE fts USING fts5(item, kind, text);`);
-  const ins = (sql) => d.prepare(sql); const I = ins('INSERT INTO item VALUES(?,?,?,?,?,?,?,?)'), S = ins('INSERT INTO step VALUES(?,?,?,?,?)'), T = ins('INSERT INTO tool VALUES(?,?,?,?)'), P = ins('INSERT INTO prompt VALUES(?,?,?)'), PF = ins('INSERT INTO pitfall VALUES(?,?)'), A = ins('INSERT INTO asset VALUES(?,?)'), TR = ins('INSERT INTO transcript VALUES(?,?,?,?)'), F = ins('INSERT INTO fts VALUES(?,?,?)');
+  // モデルが文字列欄に配列・オブジェクトを返すことがある（node:sqlite は bind 不可）→ 数値/null 以外は文字列化
+  const v = (x) => (x == null || typeof x === 'number' || typeof x === 'string' ? x ?? null : typeof x === 'object' ? JSON.stringify(x) : String(x));
+  const ins = (sql) => { const st = d.prepare(sql); return { run: (...a) => st.run(...a.map(v)) }; }; const I = ins('INSERT INTO item VALUES(?,?,?,?,?,?,?,?)'), S = ins('INSERT INTO step VALUES(?,?,?,?,?)'), T = ins('INSERT INTO tool VALUES(?,?,?,?)'), P = ins('INSERT INTO prompt VALUES(?,?,?)'), PF = ins('INSERT INTO pitfall VALUES(?,?)'), A = ins('INSERT INTO asset VALUES(?,?)'), TR = ins('INSERT INTO transcript VALUES(?,?,?,?)'), F = ins('INSERT INTO fts VALUES(?,?,?)');
   const nd = path.join(OUT, 'notes'); const notesList = fs.existsSync(nd) ? fs.readdirSync(nd).filter((x) => x.endsWith('.json')).map((x) => J(path.join(nd, x))) : [];
   for (const n of notesList) {
     I.run(n.id, n.file, n.chapter, n.kind ?? 'video', n.title ?? '', n.summary ?? '', (n.topics ?? []).join(','), n.dur ?? null);
