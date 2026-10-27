@@ -487,3 +487,10 @@
 - `apply --only draft`：**7 / 7 成功**，0 失败（ACTIVE → DRAFT）。
 - `apply --only create`（kjyf-scraper 采集 11/11 → api-core 入库 → publish-loop）：**发布 7**（39545〜39548 つけまつげ 4 件、39555 傘＋ファン、39558 スマホスピーカー、39559 LEDランタン，均 ACTIVE、vendor ANET）；**失败 4**（39539 サーマルラベル、39549 つけまつげ E、39556 キャンプクッカー、39557 バスタオル），原因全部是 6kpro 翻译返回的 JSON 被截断（`translate parse` / Unterminated string）。失败率 > 2% → 按规则停止，未重试；这 4 件在 ERP 中 status=error，6kpro 夜间时段可 `retry-errors` 后再跑 publish-loop。
 - 回滚备份：`tools/kjyf-b2b/out/shopify-backup-2026-10-27T01-47-26.json`。
+
+### 2026-10-27 第五阶段：上表 218 件按用户指示转 DRAFT
+
+- 用户指示（第五阶段，`docs/rakuten/TASK-publish.md`）：断货表命中且仍 ACTIVE 的 218 件转 DRAFT（含部分 SKU/颜色命中 6 件）。
+- 执行前备份：`tools/kjyf-b2b/out/shopify-backup-2026-10-27T08-02-17.json`（1209 商品 / 3883 SKU）。
+- `sync.mjs apply --only draft --list <218 件 ID>`：**218/218 成功，失败 0**。只改 status，价格/库存/标题未动。补货后按下次断货表/日文站数据恢复。
+- 同时生成 `tools/rakuten/out/exclude-stock.txt`（断货表「产品下架」1,316 行 → 货号 1,304 个，不入 git），供 draft-sync `--exclude`。

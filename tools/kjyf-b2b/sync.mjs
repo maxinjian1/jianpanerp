@@ -220,8 +220,10 @@ async function apply() {
   const S = J(path.join(ROOT, P.summary.backup)); const anet = new Set(S.products.map((p) => p.id)); // ANET 以外は絶対に触らない
   record({ start: true, only: only ?? 'all', backup: P.summary.backup });
   if (!only || only === 'draft') {
-    const g = new Guard('draft', Math.min(P.draft.length, limit));
-    for (const r of P.draft.slice(0, limit)) { if (!anet.has(r.id)) continue; const d = await gql(`mutation($i:ProductInput!){ productUpdate(input:$i){ userErrors{message} } }`, { i: { id: r.id, status: 'DRAFT' } }); const e = ue(d.productUpdate); g.done(!e, e, r.id); await sleep(300); }
+    // --list <file>：plan の draft ではなく、1 行 1 つの Shopify 商品 ID だけ DRAFT（2026-10-27 断貨表命中の ACTIVE 218 件）
+    const drafts = opt('list') ? fs.readFileSync(opt('list'), 'utf8').split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((id) => ({ id })) : P.draft;
+    const g = new Guard('draft', Math.min(drafts.length, limit));
+    for (const r of drafts.slice(0, limit)) { if (!anet.has(r.id)) continue; const d = await gql(`mutation($i:ProductInput!){ productUpdate(input:$i){ userErrors{message} } }`, { i: { id: r.id, status: 'DRAFT' } }); const e = ue(d.productUpdate); g.done(!e, e, r.id); await sleep(300); }
     g.end();
   }
   if (!only || only === 'update') {
