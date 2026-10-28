@@ -246,3 +246,18 @@ time,spu,mn,action,old_min,new_min,result,error
 2026-10-28T02:22:39.161Z,Z-09,Z-09,lower,2680,2490,ok,
 2026-10-28T02:22:41.351Z,Z-09-2,Z-09-2,lower,2880,2590,ok,
 2026-10-28T02:22:43.582Z,Z-09-1,Z-09-1,lower,2680,2490,ok,
+2026-10-28T17:18:27.911Z,AB-03,AB-03,lower,2947,,notfound,
+2026-10-28T17:18:28.942Z,AB-04,AB-04,lower,2996,,notfound,
+2026-10-28T17:18:30.076Z,GB-04,GB-04,lower,2485,,notfound,
+2026-10-28T17:18:31.160Z,TB-04,TB-04,lower,4914,,notfound,
+2026-10-28T17:18:32.271Z,BB-05,BB-05,lower,5342,,notfound,
+2026-10-28T17:18:33.394Z,165907-C,165907-C,lower,2209,,notfound,
+2026-10-28T17:18:34.514Z,CB-02,CB-02,raise,2784,,notfound,
+2026-10-28T17:18:36.772Z,ny617,ny617,raise,888,1060,ok,
+2026-10-28T17:18:37.850Z,GYS-01-A,GYS-01-A,lower,4620,,notfound,
+2026-10-28T17:18:38.928Z,D-51,D-51,lower,7725,,notfound,
+2026-10-28T17:18:40.012Z,WRTA-BR-011/012,WRTA-BR-011/012,raise,2360,,fail,"GET WRTA-BR-011/012 http 404 <!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale"
