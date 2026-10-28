@@ -106,7 +106,7 @@ export class DropshipService {
       json: true,
       reasoning: 'low',
       temperature: 0.3,
-      maxTokens: 2000,
+      maxTokens: 6000,   // 2000 だと 6kpro の reasoning に食われて JSON が途中で切れる（2026-10-29 39556/39539）
       messages: [
         {
           role: 'system',

@@ -4,6 +4,7 @@
  *
  *   node tools/rakuten/reprice.mjs plan   [--raise-cap 1.25] [--floor 1.25] [--hide-ratio 1.15] [--hide-min-comp 0.8]   # price-tier.json × 仕入値 → out/reprice-plan.json + docs/rakuten/reprice-plan.md
  *   node tools/rakuten/reprice.mjs apply  [--limit N] [--only price|hide] [--dry]                   # RMS 商品 API 2.0：variants.standardPrice を比率で更新 / hideItem=true。2% 失敗・5 連続失敗で停止
+ *   node tools/rakuten/reprice.mjs hide --mn 1TB-YP[,…]                                           # 指定の管理番号だけ hideItem=true（備份・ログは apply と同じ。比価と無関係に用户が売らないと決めた商品）
  *   node tools/rakuten/reprice.mjs rollback [--limit N]                                              # out/reprice-backup/<mn>.json から元の価格・表示状態に戻す
  *
  * 前提：`price-tier.mjs` の out/price-tier.json（毎日 1 回更新）、`tools/kjyf-b2b/out/b2b-full.json`（仕入値、SKU=out_id）、.env の RAKUTEN_SERVICE_SECRET / RAKUTEN_LICENSE_KEY（商品 API 2.0 利用中）。
@@ -107,11 +108,24 @@ async function apply() {
   log(`done ok ${ok} fail ${fail} skip ${skip} → docs/rakuten/reprice-log.csv`);
 }
 
+async function hideMn() {
+  const logF = path.join(DOCS, 'reprice-log.csv'); let ok = 0, fail = 0;
+  for (const mn of String(args.mn || '').split(',').map((x) => x.trim()).filter(Boolean)) {
+    try {
+      const item = await rms(mn); const bf = path.join(BAK, `${mn}.json`);
+      if (!fs.existsSync(bf)) J(bf, { at: new Date().toISOString(), mn, hideItem: item.hideItem, variants: Object.fromEntries(Object.entries(item.variants || {}).map(([id, v]) => [id, { standardPrice: v.standardPrice }])) });
+      await rms(mn, { hideItem: true }); const now = await rms(mn);
+      ok++; fs.appendFileSync(logF, `${new Date().toISOString()},${mn},${mn},hide-manual,,,ok,\n`); log('ok hide', mn, 'hideItem =', now.hideItem);
+    } catch (e) { fail++; fs.appendFileSync(logF, `${new Date().toISOString()},${mn},${mn},hide-manual,,,fail,"${e.message.replace(/"/g, "'").slice(0, 160)}"\n`); log('FAIL', mn, e.message.slice(0, 160)); }
+  }
+  log(`hide ok ${ok} fail ${fail}`);
+}
+
 async function rollback() {
   const files = fs.readdirSync(BAK).slice(0, args.limit ? Number(args.limit) : undefined); let ok = 0, fail = 0;
   for (const f of files) { const b = J(path.join(BAK, f)); try { await rms(b.mn, { hideItem: !!b.hideItem, variants: b.variants }); ok++; log('restored', b.mn); } catch (e) { fail++; log('FAIL', b.mn, e.message.slice(0, 160)); } }
   log(`rollback ok ${ok} fail ${fail}`);
 }
 
-const run = { plan, apply, rollback }[cmd]; if (!run) { console.error('usage: reprice.mjs plan|apply|rollback'); process.exit(2); }
+const run = { plan, apply, hide: hideMn, rollback }[cmd]; if (!run) { console.error('usage: reprice.mjs plan|apply|hide|rollback'); process.exit(2); }
 Promise.resolve().then(run).catch((e) => { console.error(e); process.exit(1); });
