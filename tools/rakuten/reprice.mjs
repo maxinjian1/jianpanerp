@@ -82,7 +82,7 @@ async function apply() {
   const done = new Set(fs.readFileSync(logF, 'utf8').split('\n').slice(1).filter(Boolean).map((l) => l.split(',')).filter((c) => c[6] === 'ok' && c[7] !== 'dry').map((c) => c[1] + '|' + c[3]));
   todo = todo.filter((p) => !done.has(p.spu + '|' + p.action));
   log(`apply ${todo.length} items${dry ? ' (dry)' : ''}`);
-  let ok = 0, fail = 0, streak = 0;
+  let ok = 0, fail = 0, skip = 0, streak = 0;
   for (const p of todo) {
     try {
       const item = await rms(p.mn);
@@ -97,11 +97,13 @@ async function apply() {
       if (!dry) await rms(p.mn, body);
       ok++; streak = 0; fs.appendFileSync(logF, `${new Date().toISOString()},${p.spu},${p.mn},${p.action},${p.oldMin ?? p.our},${p.action === 'hide' ? '' : p.target},ok,${dry ? 'dry' : ''}\n`); log('ok', p.action, p.spu, p.action === 'hide' ? '' : `¥${p.oldMin} → ¥${p.target}`);
     } catch (e) {
+      // 管理番号が RMS に無い（GET 404 GE0014）＝何も書いていない → 失敗率に数えずスキップ
+      if (/^GET .* 404 GE0014/.test(e.message)) { skip++; fs.appendFileSync(logF, `${new Date().toISOString()},${p.spu},${p.mn},${p.action},${p.our},,notfound,\n`); log('skip（RMS に無し）', p.spu); continue; }
       fail++; streak++; fs.appendFileSync(logF, `${new Date().toISOString()},${p.spu},${p.mn},${p.action},${p.our},,fail,"${e.message.replace(/"/g, "'").slice(0, 160)}"\n`); log('FAIL', p.spu, e.message.slice(0, 160));
       if (streak >= 5 || (ok + fail >= 50 && fail / (ok + fail) > 0.02)) { log('停止：失敗率 2% 超または 5 連続失敗'); break; }
     }
   }
-  log(`done ok ${ok} fail ${fail} → docs/rakuten/reprice-log.csv`);
+  log(`done ok ${ok} fail ${fail} skip ${skip} → docs/rakuten/reprice-log.csv`);
 }
 
 async function rollback() {
