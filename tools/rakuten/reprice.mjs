@@ -79,7 +79,7 @@ async function apply() {
   const only = args.only; const dry = !!args.dry;
   let todo = plan.filter((p) => p.action !== 'keep' && (!only || (only === 'hide' ? p.action === 'hide' : p.action !== 'hide'))).slice(0, args.limit ? Number(args.limit) : undefined);
   const logF = path.join(DOCS, 'reprice-log.csv'); if (!fs.existsSync(logF)) fs.writeFileSync(logF, 'time,spu,mn,action,old_min,new_min,result,error\n');
-  const done = new Set(fs.readFileSync(logF, 'utf8').split('\n').slice(1).filter(Boolean).map((l) => l.split(',')).filter((c) => c[6] === 'ok').map((c) => c[1] + '|' + c[3]));
+  const done = new Set(fs.readFileSync(logF, 'utf8').split('\n').slice(1).filter(Boolean).map((l) => l.split(',')).filter((c) => c[6] === 'ok' && c[7] !== 'dry').map((c) => c[1] + '|' + c[3]));
   todo = todo.filter((p) => !done.has(p.spu + '|' + p.action));
   log(`apply ${todo.length} items${dry ? ' (dry)' : ''}`);
   let ok = 0, fail = 0, streak = 0;
