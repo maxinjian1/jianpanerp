@@ -1,0 +1,130 @@
+{
+ "goodId": "38914",
+ "sourceUrl": "https://www.kuajingyifan.com/ja-JP/p/38914/-",
+ "status": "ready-hold",
+ "note": "",
+ "generatedAt": "2026-10-28T13:45:58.654Z",
+ "title": "外付けHDD ポータブルHDD 外付けハードディスク 2TB 4TB 大容量 USB3.0 Type-C 小型 軽量 薄型 ポータブルストレージ データ保存 バックアップ Windows Mac ノートパソコン デスクトップ 持ち運び",
+ "catchcopy": "2TB・4TBの大容量を薄型ボディに。USB3.0対応のポータブル外付けHDD",
+ "images": [
+  {
+   "src": 1,
+   "url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-05-15/1sy3y5z1000dij2cyv20v12bio0gxzmw.jpg",
+   "file": "images/01.jpg"
+  },
+  {
+   "src": 2,
+   "url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-06-18/1sy3y611000djbyeh5lwfrb1btkk62cg.jpg",
+   "skipped": true
+  },
+  {
+   "src": 3,
+   "url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-05-15/1sy3y5z1000dij2cyv1mivtbinqi82q1.jpg",
+   "file": "images/02.jpg"
+  },
+  {
+   "src": 4,
+   "url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-05-15/1sy3y5z1000dij2cyvn956cbiu9pg79w.jpg",
+   "file": "images/03.jpg"
+  },
+  {
+   "src": 5,
+   "url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-05-15/1sy3y5z1000dij2cyv6pvjubiq24mrti.jpg",
+   "file": "images/04.jpg"
+  },
+  {
+   "src": 6,
+   "url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-05-15/1sy3y5z1000dij2cywutxeqbizut1333.jpg",
+   "file": "images/05.jpg"
+  },
+  {
+   "src": 7,
+   "url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-05-15/1sy3y5z1000dij2cyvcdgszbit6bzpp9.jpg",
+   "file": "images/06.jpg"
+  },
+  {
+   "src": 8,
+   "url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-05-15/1sy3y5z1000dij2cywrmwoabiyz7xsgo.jpg",
+   "file": "images/07.jpg"
+  },
+  {
+   "src": 9,
+   "url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-05-15/1sy3y5z1000dij2cyv5kja8bipoly08v.jpg",
+   "file": "images/08.jpg"
+  },
+  {
+   "src": 10,
+   "url": "https://beehole-1319571600.cos.ap-tokyo.myqcloud.com/xbuy/332/2026-05-15/1sy3y5z1000dij2cyvn9ieqbivifmypr.jpg",
+   "file": "images/09.jpg"
+  }
+ ],
+ "attributes": {
+  "genreId": "211492",
+  "genreNote": "",
+  "variantAxes": [
+   "仕様",
+   "COLOR"
+  ],
+  "skus": [
+   {
+    "sku": "2TB-C",
+    "options": [
+     "2TB",
+     "オレンジ"
+    ],
+    "wholesale": 5910,
+    "suggestedPrice": 8220,
+    "floor": 7390,
+    "stock": 100
+   },
+   {
+    "sku": "2TB-XYP",
+    "options": [
+     "2TB",
+     "ブラック"
+    ],
+    "wholesale": 5910,
+    "suggestedPrice": 8220,
+    "floor": 7390,
+    "stock": 100
+   },
+   {
+    "sku": "4TB-C",
+    "options": [
+     "4TB",
+     "オレンジ"
+    ],
+    "wholesale": 8442,
+    "suggestedPrice": 11740,
+    "floor": 10560,
+    "stock": 100
+   },
+   {
+    "sku": "4TB-YP",
+    "options": [
+     "4TB",
+     "ブラック"
+    ],
+    "wholesale": 8442,
+    "suggestedPrice": 11740,
+    "floor": 10560,
+    "stock": 0
+   }
+  ],
+  "shopCategory": "スマートフォン・パソコン・周辺機器",
+  "leadTime": "2日以内（代発出荷 1 日）",
+  "pointRate": "1 倍（A 档になったら 3 倍）"
+ },
+ "checks": {
+  "titleLen": 117,
+  "titleOk": true,
+  "modelNumberInTitle": [],
+  "kishuLeft": false
+ },
+ "risk": [
+  "容量偽装の疑い：約110×57×10mm・仕入 5,910 円で 4TB HDD は実在しにくい（2.5 型 HDD は厚さ 9.5mm 以上・4TB は 15mm）。実容量を検証してから出品",
+  "オレンジ型は SanDisk Extreme Portable SSD の意匠に酷似",
+  "卸画像 02 は店主向け告知（中国語「店舗にアップしないで」・PDELX 他牌 microSD 写り込み）→ 除外済み",
+  "卸が「輸送で故障が出る、補発/返金対応」と告知"
+ ]
+}

@@ -254,6 +254,11 @@ async function apply() {
 // 新規作成は既存の上架フロー（kjyf-scraper → api-core /dropship/import → publish-loop）を使う。
 // 作成後に plan → apply --only update をもう一度回すと、在庫追跡・在庫数・分類以外の差分が揃う。
 async function createViaErp(rows) {
+  // hold-ids.txt（1 行 1 goodId、# 以降コメント）：用户判断待ちの新着は自動上架しない
+  const holdF = path.join(ROOT, 'tools/kjyf-b2b/hold-ids.txt');
+  const hold = new Set(fs.existsSync(holdF) ? fs.readFileSync(holdF, 'utf8').split(/\r?\n/).map((l) => l.replace(/#.*/, '').trim()).filter(Boolean) : []);
+  const held = rows.filter((r) => hold.has(String(r.good_id))); if (held.length) log('create hold:', held.map((r) => r.good_id).join(','));
+  rows = rows.filter((r) => !hold.has(String(r.good_id)));
   if (!rows.length) { log('create: 0'); return; }
   const ids = rows.map((r) => r.good_id).join(',');
   record({ phase: 'create', start: true, count: rows.length });
