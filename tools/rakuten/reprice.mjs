@@ -2,7 +2,7 @@
 /**
  * 楽天 動的価格（2026-10-27 用户「全部按建议做」：A 档 = 競合最安 −3%、B 档 = 競合最安、底線 = 仕入 ×1.25、C 档で 15% 以上高い → 非表示）
  *
- *   node tools/rakuten/reprice.mjs plan   [--raise-cap 1.25] [--floor 1.25] [--hide-ratio 1.15]   # price-tier.json × 仕入値 → out/reprice-plan.json + docs/rakuten/reprice-plan.md
+ *   node tools/rakuten/reprice.mjs plan   [--raise-cap 1.25] [--floor 1.25] [--hide-ratio 1.15] [--hide-min-comp 0.8]   # price-tier.json × 仕入値 → out/reprice-plan.json + docs/rakuten/reprice-plan.md
  *   node tools/rakuten/reprice.mjs apply  [--limit N] [--only price|hide] [--dry]                   # RMS 商品 API 2.0：variants.standardPrice を比率で更新 / hideItem=true。2% 失敗・5 連続失敗で停止
  *   node tools/rakuten/reprice.mjs rollback [--limit N]                                              # out/reprice-backup/<mn>.json から元の価格・表示状態に戻す
  *
@@ -20,7 +20,7 @@ fs.mkdirSync(BAK, { recursive: true });
 const [cmd = 'plan', ...rest] = process.argv.slice(2);
 const args = Object.fromEntries(rest.map((a, i, arr) => a.startsWith('--') ? [a.slice(2), arr[i + 1] && !arr[i + 1].startsWith('--') ? arr[i + 1] : '1'] : null).filter(Boolean));
 const env = Object.fromEntries((fs.existsSync(path.join(ROOT, '.env')) ? fs.readFileSync(path.join(ROOT, '.env'), 'utf8') : '').split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith('#') && l.includes('=')).map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^"|"$/g, '')]; }));
-const RAISE_CAP = Number(args['raise-cap'] || 1.25), FLOOR_MULT = Number(args.floor || 1.25), HIDE_RATIO = Number(args['hide-ratio'] || 1.15), A_DISCOUNT = 0.97;
+const RAISE_CAP = Number(args['raise-cap'] || 1.25), FLOOR_MULT = Number(args.floor || 1.25), HIDE_RATIO = Number(args['hide-ratio'] || 1.15), HIDE_MIN_COMP = Number(args['hide-min-comp'] || 0.8), A_DISCOUNT = 0.97;
 const API = 'https://api.rms.rakuten.co.jp/es/2.0/items/manage-numbers';
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -61,14 +61,15 @@ function plan() {
     } else if (r.ratio != null && r.ratio > HIDE_RATIO) {
       const ideal = r10(r.compMin); // 底線まで下げれば B 档に入れるなら値下げ、入らなければ非表示
       if (ideal >= floor) { action = 'lower'; target = ideal; why = `C→B: 競合最安 ¥${r.compMin} まで値下げ（底線 ¥${floor}）`; }
-      else { action = 'hide'; why = `C: 競合最安 ¥${r.compMin} < 底線 ¥${floor}（${r.ratio.toFixed(2)} 倍）→ 非表示`; }
+      else if (r.compMin >= r.our * HIDE_MIN_COMP) { action = 'hide'; why = `C: 競合最安 ¥${r.compMin} < 底線 ¥${floor}（${r.ratio.toFixed(2)} 倍）→ 非表示`; }
+      else { action = 'review'; why = `C: 競合最安 ¥${r.compMin} が現行の ${(r.compMin / r.our * 100).toFixed(0)}% → 別商品の疑い、非表示せず要確認`; }   // 2026-10-29 用户決定 (b)：競合最安が当店価格の 0.8 倍未満は比価誤マッチとみなす
     } else why = 'C: 競合不明 → 維持';
     plan.push({ spu: r.spu, mn: r.mn, name: r.name, tier: r.tier, our: r.our, compMin: r.compMin, ratio: r.ratio, wholesale: w, floor, target, action, why, stock: r.stock });
   }
   J(path.join(OUT, 'reprice-plan.json'), plan);
   const cnt = (a) => plan.filter((p) => p.action === a).length;
   const md = [`# 楽天 動的価格 計画（${new Date().toISOString().slice(0, 16)}Z）`, '', `ルール：A = 競合最安 −3%、B = 競合最安、底線 = 仕入 ×${FLOOR_MULT}（仕入不明は現行 −10% まで）、値上げ上限 ×${RAISE_CAP}、C で ${HIDE_RATIO} 倍超は底線まで下げられなければ非表示。10 円単位、全 SKU 同比率。`, '',
-    `| 操作 | 件数 |`, `|---|---|`, `| 値下げ | ${cnt('lower')} |`, `| 値上げ | ${cnt('raise')} |`, `| 非表示 | ${cnt('hide')} |`, `| 維持 | ${cnt('keep')} |`, '',
+    `| 操作 | 件数 |`, `|---|---|`, `| 値下げ | ${cnt('lower')} |`, `| 値上げ | ${cnt('raise')} |`, `| 非表示 | ${cnt('hide')} |`, `| 要確認（誤マッチ疑い） | ${cnt('review')} |`, `| 維持 | ${cnt('keep')} |`, '',
     ...['lower', 'raise', 'hide'].flatMap((a) => [`## ${{ lower: '値下げ', raise: '値上げ', hide: '非表示' }[a]}（${cnt(a)} 件）`, '', '| SPU | 商品名 | 档 | 現行 | 競合最安 | 仕入 | 底線 | 新価格 | 理由 |', '|---|---|---|---|---|---|---|---|---|', ...plan.filter((p) => p.action === a).sort((x, y) => (x.ratio ?? 9) - (y.ratio ?? 9)).map((p) => `| ${p.spu} | ${String(p.name).slice(0, 36)} | ${p.tier} | ¥${p.our} | ${p.compMin ? '¥' + p.compMin : '-'} | ${p.wholesale ? '¥' + p.wholesale : '不明'} | ¥${p.floor} | ${a === 'hide' ? '—' : '¥' + p.target} | ${p.why} |`), ''])];
   fs.writeFileSync(path.join(DOCS, 'reprice-plan.md'), md.join('\n'));
   log(`plan: lower ${cnt('lower')} raise ${cnt('raise')} hide ${cnt('hide')} keep ${cnt('keep')} → docs/rakuten/reprice-plan.md`);
@@ -77,7 +78,7 @@ function plan() {
 async function apply() {
   const plan = J(path.join(OUT, 'reprice-plan.json')); if (!plan) { console.error('先に plan'); process.exit(2); }
   const only = args.only; const dry = !!args.dry;
-  let todo = plan.filter((p) => p.action !== 'keep' && (!only || (only === 'hide' ? p.action === 'hide' : p.action !== 'hide'))).slice(0, args.limit ? Number(args.limit) : undefined);
+  let todo = plan.filter((p) => p.action !== 'keep' && p.action !== 'review' && (!only || (only === 'hide' ? p.action === 'hide' : p.action !== 'hide'))).slice(0, args.limit ? Number(args.limit) : undefined);
   const logF = path.join(DOCS, 'reprice-log.csv'); if (!fs.existsSync(logF)) fs.writeFileSync(logF, 'time,spu,mn,action,old_min,new_min,result,error\n');
   const done = new Set(fs.readFileSync(logF, 'utf8').split('\n').slice(1).filter(Boolean).map((l) => l.split(',')).filter((c) => c[6] === 'ok' && c[7] !== 'dry').map((c) => c[1] + '|' + c[3]));
   todo = todo.filter((p) => !done.has(p.spu + '|' + p.action));
