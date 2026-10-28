@@ -222,6 +222,7 @@ function approve() {
 
 // ───────── Graph API 公開 ─────────
 async function graph(p, body) { const u = new URL(`${GRAPH}/${p}`); const r = await fetch(u, { method: body ? 'POST' : 'GET', headers: { 'content-type': 'application/json' }, body: body ? JSON.stringify({ ...body, access_token: IG.token }) : undefined, ...(body ? {} : {}) }); const j = await r.json(); if (!r.ok || j.error) throw new Error(`graph ${p}: ${JSON.stringify(j.error || j).slice(0, 300)}`); return j; }
+const retry = async (fn, n = 2, wait = 8000) => { for (let k = 0; ; k++) { try { return await fn(); } catch (e) { if (k >= n) throw e; log('retry', k + 1, e.message.slice(0, 120)); await sleep(wait); } } };
 async function graphGet(p, q = {}) { const u = new URL(`${GRAPH}/${p}`); for (const [k, v] of Object.entries({ ...q, access_token: IG.token })) u.searchParams.set(k, v); const r = await fetch(u); const j = await r.json(); if (!r.ok || j.error) throw new Error(`graph ${p}: ${JSON.stringify(j.error || j).slice(0, 300)}`); return j; }
 async function waitContainer(id) { for (let i = 0; i < 60; i++) { const s = await graphGet(id, { fields: 'status_code,status' }); if (s.status_code === 'FINISHED') return; if (s.status_code === 'ERROR') throw new Error('container error ' + s.status); await sleep(5000); } throw new Error('container timeout'); }
 // Shopify CDN は Accept により .jpg でも WebP を返す → IG は弾く（2207052）。format=pjpg で JPEG 固定（2026-10-28）
@@ -275,7 +276,7 @@ async function publish() {
       try {
         let creation;
         if (p.kind === 'reel' && p.videoUrl) { creation = (await graph(`${IG.id}/media`, { media_type: 'REELS', video_url: p.videoUrl, caption: text, share_to_feed: true })).id; await waitContainer(creation); }
-        else if (p.kind === 'carousel' && p.images.length >= 2) { const kids = []; for (const u of p.images.slice(0, 10)) kids.push((await graph(`${IG.id}/media`, { image_url: igImg(u), is_carousel_item: true })).id); creation = (await graph(`${IG.id}/media`, { media_type: 'CAROUSEL', children: kids.join(','), caption: text })).id; }
+        else if (p.kind === 'carousel' && p.images.length >= 2) { const kids = []; for (const u of p.images.slice(0, 10)) kids.push((await retry(() => graph(`${IG.id}/media`, { image_url: igImg(u), is_carousel_item: true }), 2, 8000)).id); /* 2207052（Meta が画像を取れなかった）は一時的なことが多い → 画像ごとに 8 秒おいて 2 回まで再試行 */ creation = (await graph(`${IG.id}/media`, { media_type: 'CAROUSEL', children: kids.join(','), caption: text })).id; }
         else { creation = (await graph(`${IG.id}/media`, { image_url: igImg(p.images[0]), caption: text })).id; }
         const pub = await graph(`${IG.id}/media_publish`, { creation_id: creation });
         p.status = 'published'; p.mediaId = pub.id; p.publishedAt = new Date().toISOString(); changed = true; done++; log('published', f, p.n, pub.id);

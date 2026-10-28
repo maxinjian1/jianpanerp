@@ -32,7 +32,7 @@ function auth() { if (!env.RAKUTEN_SERVICE_SECRET || !env.RAKUTEN_LICENSE_KEY) {
 let last = 0;
 async function rms(mn, body) {
   const wait = 1100 - (Date.now() - last); if (wait > 0) await sleep(wait); last = Date.now();
-  const r = await fetch(`${API}/${encodeURIComponent(mn)}`, { method: body ? 'PATCH' : 'GET', headers: { Authorization: auth(), 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  const r = await fetch(`${API}/${encodeURIComponent(String(mn).trim().replace(/[\s\/]+/g, '-'))}` /* 楽天の管理番号は「/」「空白」不可：発行時に「-」へ直してあるので同じ変換で照合（WRTA-BR-011/012） */, { method: body ? 'PATCH' : 'GET', headers: { Authorization: auth(), 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
   const txt = await r.text(); let j = {}; try { j = txt ? JSON.parse(txt) : {}; } catch {}
   if (!r.ok) throw new Error(`${body ? 'PATCH' : 'GET'} ${mn} http ${r.status} ${(j.errors || []).map((e) => e.code + ':' + e.message).join(';') || txt.slice(0, 200)}`);
   return j;
