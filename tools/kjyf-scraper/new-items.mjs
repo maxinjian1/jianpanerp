@@ -15,9 +15,11 @@ const xml = await (await fetch(`${BASE}/sitemap/${LOCALE}.xml`, { headers: { 'us
 const ids = [...new Set([...xml.matchAll(/\/p\/(\d+)/g)].map((m) => m[1]))];
 const b2b = J(path.join(ROOT, 'tools/kjyf-b2b/out/b2b-full.json')); const knownF = path.join(OUT, 'known-ids.json');
 const known = new Set([...(b2b?.list || []).map((g) => String(g.good_id)), ...(J(knownF) || [])]);
-const fresh = ids.filter((id) => !known.has(id)); const date = new Date().toISOString().slice(0, 10);
-fs.writeFileSync(path.join(OUT, `new-items-${date}.json`), JSON.stringify({ at: new Date().toISOString(), sitemap: ids.length, known: known.size, fresh }, null, 1));
+const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo' }).format(new Date()); const dayF = path.join(OUT, `new-items-${date}.json`);
+// 同日の再実行では当日分に足し合わせる（0 件で上書きしない・ログ行を重複させない）
+const fresh = [...new Set([...(J(dayF)?.fresh || []), ...ids.filter((id) => !known.has(id))])];
+fs.writeFileSync(dayF, JSON.stringify({ at: new Date().toISOString(), sitemap: ids.length, known: known.size, fresh }, null, 1));
 fs.writeFileSync(knownF, JSON.stringify([...known, ...fresh]));
 const md = path.join(ROOT, 'docs/kjyf-new-items.md'); const prev = fs.existsSync(md) ? fs.readFileSync(md, 'utf8') : '# 批発商 新着ログ（毎日）\n\n| 日付 | sitemap | 新着 | goodId |\n|---|---|---|---|\n';
-fs.writeFileSync(md, prev + `| ${date} | ${ids.length} | ${fresh.length} | ${fresh.map((id) => `[${id}](${BASE}/${LOCALE}/p/${id}/-)`).join(' ') || '-'} |\n`);
+fs.writeFileSync(md, prev.split('\n').filter((l) => !l.startsWith(`| ${date} |`)).join('\n').replace(/\n*$/, '\n') + `| ${date} | ${ids.length} | ${fresh.length} | ${fresh.map((id) => `[${id}](${BASE}/${LOCALE}/p/${id}/-)`).join(' ') || '-'} |\n`);
 console.log(`sitemap ${ids.length} / known ${known.size} / 新着 ${fresh.length}`, fresh.slice(0, 20).join(','));
