@@ -6,7 +6,7 @@
  *   node tools/rakuten/bestsellers.mjs scan   [--limit N] [--from N] [--refresh]   # Windows・Playwright。全 SPU（斑馬草稿 990 + Shopify 在售）を楽天検索 → out/bestsellers.jsonl（再開可）
  *   node tools/rakuten/bestsellers.mjs report [--top 50]                            # 集計 → docs/rakuten/bestsellers-top50.md + out/bestsellers-top50.json
  *
- * 同一商品の判定：検索語（商品名先頭 4 語）が 2 語以上タイトルに含まれ、価格が当店楽天価格（無ければ Shopify 価格）の 0.5〜1.8 倍。
+ * 同一商品の判定（report 時）：検索語（商品名先頭 4 語）の 75% 以上（4 語なら 3 語）がタイトルに含まれ、価格が当店楽天価格（無ければ Shopify ×1.2）の 0.6〜1.6 倍。scan は緩く全候補を保存するので、閾値は report だけ直せばよい。
  * スコア = 同一商品と判定した競合出品のレビュー件数合計（最大 15 出品）。順位はスコア順、同点は最大レビュー件数順。
  * CAPTCHA/ロボット確認ページが出たら即停止（再実行で続きから）。
  */
@@ -77,7 +77,8 @@ function report() {
   const rows = fs.existsSync(JL) ? fs.readFileSync(JL, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)) : [];
   if (!rows.length) { console.error('先に scan'); process.exit(2); }
   const top = Number(args.top || 50);
-  const scored = rows.map((r) => { const o = items.get(r.spu) || { spu: r.spu, name: '' }; const same = (r.listings || []).filter((x) => x.same).sort((a, b) => b.reviews - a.reviews).slice(0, 15); const total = same.reduce((a, x) => a + x.reviews, 0); const best = same[0];
+  const scored = rows.map((r) => { const o = items.get(r.spu) || { spu: r.spu, name: '' }; const ws = String(r.query || '').split(' ').filter(Boolean), need = Math.max(2, Math.ceil(ws.length * 0.75)), ref = o.ref || null;   // report 時に厳しめに再判定：4 語中 3 語一致・価格 0.6〜1.6 倍（scan 時の same は緩すぎた：1 検索 22〜28 件）
+    const same = (r.listings || []).filter((x) => ws.filter((w) => (x.title || '').includes(w)).length >= need && (!ref || (x.price >= ref * 0.6 && x.price <= ref * 1.6))).sort((a, b) => b.reviews - a.reviews).slice(0, 15); const total = same.reduce((a, x) => a + x.reviews, 0); const best = same[0];
     const rated = same.filter((x) => x.rating); const avg = rated.length ? rated.reduce((a, x) => a + x.rating * x.reviews, 0) / rated.reduce((a, x) => a + x.reviews, 0) : null;
     return { spu: r.spu, handle: o.handle, name: (o.name || '').slice(0, 60), onRakuten: !!o.onRakuten, rakutenPrice: o.rakutenPrice, shopifyPrice: o.shopifyPrice, shops: same.length, totalReviews: total, maxReviews: best?.reviews || 0, bestShop: best?.shop, bestPrice: best?.price, bestHref: best?.href, avgRating: avg ? Number(avg.toFixed(2)) : null, minSamePrice: same.length ? Math.min(...same.map((x) => x.price)) : null, query: r.query }; })
     .filter((x) => x.totalReviews > 0).sort((a, b) => b.totalReviews - a.totalReviews || b.maxReviews - a.maxReviews);
