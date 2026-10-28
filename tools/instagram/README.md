@@ -22,7 +22,7 @@
 1. Instagram アカウント（maxinjian@gmail.com）→ 設定で「プロアカウント（ビジネス）」に切替、カテゴリ「ショッピング・小売」。
 2. Facebook ページ（アネット）を作り、Instagram アカウントをリンク（Meta Business Suite → 設定 → Instagram）。
 3. Meta for Developers のアプリ（2026-10-27 作成済み）：「アプリの設定 → ベーシック」の アプリ ID / app secret を `.env` の `META_APP_ID` / `META_APP_SECRET` に。
-4. 「ツール → グラフ API エクスプローラ」でそのアプリを選び、権限 `instagram_basic, instagram_content_publish, instagram_manage_comments, instagram_manage_insights, pages_show_list, pages_read_engagement, business_management` にチェック → 「Generate Access Token」→ Facebook ログインで ページと Instagram を許可 → 表示された短期トークンを `.env` の `IG_ACCESS_TOKEN` に貼る。
+4. 「ツール → グラフ API エクスプローラ」でそのアプリを選び、権限 `instagram_basic, instagram_content_publish, instagram_manage_comments, instagram_manage_insights, pages_show_list, pages_read_engagement, pages_manage_posts, business_management`（`pages_manage_posts` は Facebook ページ同時投稿用） にチェック → 「Generate Access Token」→ Facebook ログインで ページと Instagram を許可 → 表示された短期トークンを `.env` の `IG_ACCESS_TOKEN` に貼る。
 5. `node tools/instagram/ig.mjs setup` → 長期トークン（60 日）に交換し、IG ユーザー ID・ユーザー名を `.env` に書き戻す。アプリは開発モードのままで OK（管理者本人のアカウントには公開審査不要）。期限前に setup を再実行。
    ```
    META_APP_ID=  META_APP_SECRET=  IG_ACCESS_TOKEN=  → setup 後に IG_USER_ID / IG_HANDLE が自動追記
@@ -35,3 +35,9 @@
 - 数字・素材は商品説明にあるものだけ。
 - 投稿は承認制、返信・DM・他アカウントへのコメントは人が送る。フォロー/いいね自動化はしない（Instagram 規約）。
 - 週 7 投稿が多ければ `--n 4`。画像は批発商原図（商品本体）、Reel は real モード（AI 生成なし）。
+
+## 店舗リンクと Facebook 同時投稿（2026-10-28）
+- Instagram の本文中の URL はリンクにならない。だから **bio に anetmc.com を入れるのが必須**（docs/instagram/profile.md A 案）。publish は本文末尾に「🛒 公式オンラインショップ「アネット」 anetmc.com（プロフィールのリンクからどうぞ）」を機械的に付ける（6kpro の文案には含めない）。
+- IG API で出した投稿はページに自動共有されない。`.env` に `FB_PAGE_ID / FB_PAGE_TOKEN`（`setup` が保存、権限 `pages_manage_posts` が必要）があれば、publish が同じ画像・本文＋ **クリックできる anetmc.com リンク** を Facebook ページにも投稿する。FB 側の失敗は IG の成功を取り消さず、plan に `fbError` として残る。`--no-fb` で IG のみ。
+- すでに IG に出ていて FB に無い投稿は `fb-backfill` で追加。
+- `caption --force`（作り直し）は approved を false に戻す → 用户が見てから `approve`。

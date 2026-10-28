@@ -10,7 +10,8 @@
  *   node tools/instagram/ig.mjs caption --week …        # 6kpro で日本語キャプション + ハッシュタグ（夜間窓口、禁止語チェック）
  *   node tools/instagram/ig.mjs assets  --week …        # 画像は Shopify CDN URL、Reel は real モード動画を Shopify Files へ staged upload → 公開 URL
  *   node tools/instagram/ig.mjs approve --week … [--only 1,3,5]   # 用户が docs/instagram/plan-<week>.md を見て「承認」と言った後に実行
- *   node tools/instagram/ig.mjs publish [--due]         # approved かつ 予定時刻 ≤ 今 の投稿を Graph API で公開（Windows の時間タスクで 1 時間ごと）
+ *   node tools/instagram/ig.mjs publish [--due] [--no-fb] # approved かつ 予定時刻 ≤ 今 の投稿を Graph API で公開（Windows の時間タスクで 1 時間ごと）。本文末尾に anetmc.com 案内を付け、FB_PAGE_* があれば Facebook ページにも同時投稿
+ *   node tools/instagram/ig.mjs fb-backfill [--max N]  # IG 公開済みで Facebook に無い投稿をページに追加投稿
  *   node tools/instagram/ig.mjs replies                 # 直近 7 日のコメントを取得 → 6kpro 返信草稿 → docs/instagram/replies-<date>.md（送信しない）
  *   node tools/instagram/ig.mjs profile                 # プロフィール文案 3 案 → docs/instagram/profile.md
  *   node tools/instagram/ig.mjs insights                # 直近投稿の reach / likes / saves → docs/instagram/insights.md
@@ -65,12 +66,13 @@ async function setup() {
   const ex = await (await fetch(`${GRAPH}/oauth/access_token?grant_type=fb_exchange_token&client_id=${appId}&client_secret=${secret}&fb_exchange_token=${short}`)).json();
   if (ex.error) throw new Error('exchange: ' + JSON.stringify(ex.error).slice(0, 300));
   const long = ex.access_token; log('長期トークン取得', mask(long), 'expires_in', ex.expires_in ? Math.round(ex.expires_in / 86400) + '日' : '(無期限/ページ)');
-  const acc = await (await fetch(`${GRAPH}/me/accounts?fields=id,name,instagram_business_account{id,username}&access_token=${long}`)).json();
+  const acc = await (await fetch(`${GRAPH}/me/accounts?fields=id,name,access_token,instagram_business_account{id,username}&access_token=${long}`)).json();
   if (acc.error) throw new Error('accounts: ' + JSON.stringify(acc.error).slice(0, 300));
   const pages = acc.data || []; if (!pages.length) throw new Error('Facebook ページが見つからない：アプリのユーザーがページ管理者か、権限 pages_show_list を付けたか確認');
   for (const pg of pages) log('page', pg.name, pg.id, 'ig', pg.instagram_business_account ? `${pg.instagram_business_account.id} @${pg.instagram_business_account.username}` : '(未リンク)');
   const pg = pages.find((x) => x.instagram_business_account); if (!pg) throw new Error('Instagram がリンクされたページが無い：Meta Business Suite → 設定 → Instagram でリンク');
-  writeEnv({ IG_ACCESS_TOKEN: long, IG_USER_ID: pg.instagram_business_account.id, IG_HANDLE: pg.instagram_business_account.username });
+  writeEnv({ IG_ACCESS_TOKEN: long, IG_USER_ID: pg.instagram_business_account.id, IG_HANDLE: pg.instagram_business_account.username, ...(pg.access_token ? { FB_PAGE_ID: pg.id, FB_PAGE_TOKEN: pg.access_token, FB_PAGE_NAME: pg.name } : {}) });
+  log(pg.access_token ? `Facebook ページ「${pg.name}」のトークンも保存 → publish が IG と同時にページへも投稿（権限 pages_manage_posts が必要）` : 'ページトークン無し（権限 pages_manage_posts / pages_read_engagement を付けて再発行すると Facebook 同時投稿が有効）');
   const me = await (await fetch(`${GRAPH}/${pg.instagram_business_account.id}?fields=id,username,name,followers_count,media_count&access_token=${long}`)).json();
   log('OK  @' + me.username, 'followers', me.followers_count, 'media', me.media_count, '→ .env の IG_ACCESS_TOKEN / IG_USER_ID / IG_HANDLE を更新（トークンは 60 日。期限前に setup を再実行）');
 }
@@ -146,7 +148,7 @@ function planCatalog(ps) {
 function writePlanMd(posts) {
   const md = [`# Instagram 計画 ${PLAN_NAME}（@${IG.handle}）`, '', '用户が見て「承認」→ `ig.mjs approve --week ' + WEEK + '`（catalog は `--file catalog`）。承認した投稿だけ予定時刻に公開。キャプションの価格・送料は書かない（変わるため）。リンクはプロフィールの anetmc.com（UTM 付き）。', '',
     '| # | 日時(JST) | 種別 | テーマ | 商品 | キャプション | タグ | 素材 | 状態 |', '|---|---|---|---|---|---|---|---|---|',
-    ...posts.map((p) => `| ${p.n} | ${p.at.slice(5, 16).replace('T', ' ')} ${p.dow} | ${p.kind} | ${p.theme} | [${p.title.slice(0, 28)}](${p.url.split('?')[0]}) | ${(p.caption || '（caption 未生成）').replace(/\n/g, ' ').slice(0, 90)} | ${(p.hashtags || []).slice(0, 5).join(' ')} | ${p.kind === 'reel' ? (p.videoUrl ? '動画OK' : '動画未') : p.images.length + '枚'} | ${p.approved ? '✅承認' : '未承認'}${p.status !== 'planned' ? ' / ' + p.status : ''} |`), '',
+    ...posts.map((p) => `| ${p.n} | ${p.at.slice(5, 16).replace('T', ' ')} ${p.dow} | ${p.kind} | ${p.theme} | [${p.title.slice(0, 28)}](${p.url.split('?')[0]}) | ${(p.caption || '（caption 未生成）').replace(/\n/g, ' ').slice(0, 90)} | ${(p.hashtags || []).slice(0, 5).join(' ')} | ${p.kind === 'reel' ? (p.videoUrl ? '動画OK' : '動画未') : p.images.length + '枚'} | ${p.approved ? '✅承認' : '未承認'}${p.status !== 'planned' ? ' / ' + p.status : ''}${p.fbPostId ? ' / FB' : p.fbError ? ' / FB失敗' : ''} |`), '',
     '## キャプション全文', '', ...posts.flatMap((p) => [`### ${p.n}. ${p.title}`, '', p.caption || '（未生成）', '', (p.hashtags || []).map((h) => '#' + h.replace(/^#/, '')).join(' '), ''])];
   fs.writeFileSync(path.join(DOCS, `plan-${PLAN_NAME}.md`), md.join('\n'));
 }
@@ -157,10 +159,19 @@ async function chatJson(messages) {
   // 推論でトークンを使い切ると content が途中で切れる → 例外にせず {} を返して呼び出し側で再試行
   const j = await r.json().catch(() => ({})); const t = j.choices?.[0]?.message?.content || '{}'; try { return JSON.parse(t); } catch { try { return JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); } catch { log('JSON 解析失敗', j.choices?.[0]?.finish_reason, t.length); return {}; } }
 }
-const CAP_SYS = `あなたは日本の生活雑貨ブランド「アネット」の Instagram 担当。anetmc.com のお客さま（20〜50 代の女性中心、暮らしを少しラクにしたい人）向けに投稿文を書く。
-ルール：①冒頭 1 行で「場面・困りごと」から入る（商品名から始めない）②本文 3〜5 行、やさしい丁寧語、絵文字は 2 個まで ③最後に「詳しくはプロフィールのリンクから」④数字・素材・サイズは facts にあるものだけ。無ければ書かない ⑤価格・送料・セール・No.1・最強・日本一・絶対・医療効能・他社ブランド名は禁止 ⑥ハッシュタグ 12〜15 個：大（#暮らし #収納 など）5、中（カテゴリ）5、小（具体）3〜5、日本語中心、英語は 2 個まで。
-⑦ facts が複数商品（1. 2. 3.…）のカルーセルなら、冒頭はそのカテゴリの場面、本文は各商品を 1 行ずつ「①〜」で紹介（商品名は短く言い換え可）。
+const CAP_SYS = `あなたは日本の生活雑貨ブランド「アネット」（公式オンラインショップ anetmc.com）の Instagram 担当。読者は 20〜50 代の女性中心、暮らしを少しラクにしたい人。カタログの羅列ではなく、友人にすすめるような自然な投稿文を書く。
+構成（必ずこの順）：
+・1 行目：読者の「あるある」への問いかけ、または場面描写を 1 文（15〜30 字、商品名を出さない）
+・空行
+・本文：複数商品（facts が 1. 2. 3.…）なら各商品を「✔ 短い商品名｜どんな人・どんな場面に向くか」の 1 行ずつ（facts の数字・素材はあっても 1 つだけ添える）。単品なら「使う場面 → 良さ → ひとこと」の 3〜4 行。
+・最後：読者への軽いひとこと 1 文で締める（リンク案内は書かない。システムが別途付ける）。
+文体：やさしい丁寧語、1 文は短く、絵文字は全体で 2 個まで、「！」は 1 個まで。スペックの列挙、型番、「〜を実現」「〜をサポート」「〜を提供」のような説明書口調は禁止。
+禁止：価格・送料・セール・No.1・最強・日本一・絶対・医療効能・他社ブランド名、facts に無い数字や機能。
+ハッシュタグ 12〜15 個：大（#暮らし #暮らしを楽しむ #収納 など）5、中（カテゴリ）5、小（具体）3〜5。必ず #アネット を含める。英語は 2 個まで。
 出力 JSON：{"caption":"…","hashtags":["…"],"alt":"画像の代替テキスト 60 字以内"}`;
+// 投稿文の末尾に必ず付ける店舗案内（2026-10-28 用户「IG 投稿に anetmc.com が無い」）。Instagram の本文 URL はリンクにならないため「プロフィールのリンク」も併記。Facebook 側は URL がそのままリンクになる
+const FOOTER = `\n\n━━━━━━━━━━\n🛒 公式オンラインショップ「アネット」\nanetmc.com（プロフィールのリンクからどうぞ）`;
+const SHOP_URL = `${SITE}/?utm_source=instagram&utm_medium=social&utm_campaign=catalog`;
 async function caption() {
   const f = planPath(); const posts = J(f); if (!posts) { console.error('先に plan'); process.exit(2); }
   // 6kpro 待ちの間に publish が status を更新するため、保存時はファイルを読み直して caption 系だけ書き戻す（古い posts で上書きしない）
@@ -178,7 +189,8 @@ async function caption() {
     }
     if (bad.length || !r.caption) { log('caption 不可（3 回とも禁語/空）→ 空のまま', p.n); continue; }   // 空のままなら approve されない
     p.caption = r.caption; p.hashtags = (r.hashtags || []).map((h) => String(h).replace(/^#/, '')).slice(0, 15); p.alt = r.alt; log('caption', p.n, p.title.slice(0, 20));
-    gen.set(p.n, { caption: p.caption, hashtags: p.hashtags, alt: p.alt }); if (gen.size % 10 === 0) save();   // 途中で落ちても生成済みを失わない
+    if (args.force) p.approved = false;   // 作り直した投稿文は再承認が必要
+    gen.set(p.n, { caption: p.caption, hashtags: p.hashtags, alt: p.alt, ...(args.force ? { approved: false } : {}) }); if (gen.size % 10 === 0) save();   // 途中で落ちても生成済みを失わない
   }
   save();
 }
@@ -214,6 +226,30 @@ async function graphGet(p, q = {}) { const u = new URL(`${GRAPH}/${p}`); for (co
 async function waitContainer(id) { for (let i = 0; i < 60; i++) { const s = await graphGet(id, { fields: 'status_code,status' }); if (s.status_code === 'FINISHED') return; if (s.status_code === 'ERROR') throw new Error('container error ' + s.status); await sleep(5000); } throw new Error('container timeout'); }
 // Shopify CDN は Accept により .jpg でも WebP を返す → IG は弾く（2207052）。format=pjpg で JPEG 固定（2026-10-28）
 const igImg = (u) => /cdn.shopify.com/.test(u) && !/[?&]format=/.test(u) ? u + (u.includes('?') ? '&' : '?') + 'format=pjpg' : u;
+// ───────── Facebook ページへの同時投稿（2026-10-28 用户「IG にはあるが Facebook に無い」） ─────────
+// IG API の投稿はページに自動共有されないため、同じ画像・本文をページの投稿として別に作る。本文の URL は Facebook ではリンクになる。
+// 必要：.env の FB_PAGE_ID / FB_PAGE_TOKEN（setup が /me/accounts から保存）、アプリ権限 pages_manage_posts + pages_read_engagement。
+const FB = { id: env.FB_PAGE_ID, token: env.FB_PAGE_TOKEN };
+async function fbApi(p, body) { const r = await fetch(`${GRAPH}/${p}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...body, access_token: FB.token }) }); const j = await r.json(); if (!r.ok || j.error) throw new Error(`fb ${p}: ${JSON.stringify(j.error || j).slice(0, 300)}`); return j; }
+async function fbCrossPost(p) {
+  if (!FB.id || !FB.token) return null;
+  const message = `${p.caption}\n\n🛒 公式オンラインショップ「アネット」\n${SHOP_URL}\n\n${p.hashtags.map((h) => '#' + h).join(' ')}`;
+  let post;
+  if (p.kind === 'reel' && p.videoUrl) post = await fbApi(`${FB.id}/videos`, { file_url: p.videoUrl, description: message });
+  else { const ids = []; for (const u of p.images.slice(0, 10)) ids.push((await fbApi(`${FB.id}/photos`, { url: igImg(u), published: false })).id); post = await fbApi(`${FB.id}/feed`, { message, attached_media: ids.map((id) => ({ media_fbid: id })) }); }
+  p.fbPostId = post.id || post.post_id; delete p.fbError; log('facebook', p.n, p.fbPostId); return p.fbPostId;
+}
+// IG に公開済みだが Facebook に無い投稿（最初の試投稿など）をページに追加投稿する
+async function fbBackfill() {
+  if (!FB.id || !FB.token) { console.error('.env に FB_PAGE_ID / FB_PAGE_TOKEN が必要（setup を再実行）'); process.exit(2); }
+  const files = fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f)); let n = 0;
+  for (const f of files) { const posts = J(path.join(OUT, f)); let changed = false;
+    for (const p of posts) { if (p.status !== 'published' || p.fbPostId) continue; if (args.max && n >= Number(args.max)) break; n++;
+      try { await fbCrossPost(p); } catch (e) { p.fbError = e.message.slice(0, 300); log('FB ERR', f, p.n, p.fbError); } changed = true; await sleep(3000); }
+    if (changed) { J(path.join(OUT, f), posts); if (f === `plan-${PLAN_NAME}.json`) writePlanMd(posts); } }
+  log('fb-backfill done', n);
+}
+
 async function publish() {
   if (!IG.id || !IG.token) { console.error('.env に IG_USER_ID / IG_ACCESS_TOKEN が必要'); process.exit(2); }
   const files = fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f));
@@ -235,7 +271,7 @@ async function publish() {
       if (args.due && new Date(p.at).getTime() > now) continue;
       if (tried >= MAX_RUN || last24 + done >= 40 || fails >= 3) break;   // --max は失敗も含めた試行数
       tried++;
-      const text = `${p.caption}\n\n${p.hashtags.map((h) => '#' + h).join(' ')}`;
+      const text = `${p.caption}${FOOTER}\n\n${p.hashtags.map((h) => '#' + h).join(' ')}`;
       try {
         let creation;
         if (p.kind === 'reel' && p.videoUrl) { creation = (await graph(`${IG.id}/media`, { media_type: 'REELS', video_url: p.videoUrl, caption: text, share_to_feed: true })).id; await waitContainer(creation); }
@@ -243,6 +279,7 @@ async function publish() {
         else { creation = (await graph(`${IG.id}/media`, { image_url: igImg(p.images[0]), caption: text })).id; }
         const pub = await graph(`${IG.id}/media_publish`, { creation_id: creation });
         p.status = 'published'; p.mediaId = pub.id; p.publishedAt = new Date().toISOString(); changed = true; done++; log('published', f, p.n, pub.id);
+        if (!args['no-fb']) await fbCrossPost(p).catch((e) => { p.fbError = e.message.slice(0, 300); log('FB ERR（IG は成功、FB のみ失敗）', p.n, p.fbError); });
         fs.appendFileSync(LOGF, JSON.stringify({ at: p.publishedAt, ok: true, file: f, week: p.week, n: p.n, handle: p.handle, kind: p.kind, mediaId: pub.id }) + '\n'); fails = 0;
       } catch (e) {
         p.status = 'error'; p.error = e.message; changed = true; fails++; log('ERR', f, p.n, e.message);
@@ -298,6 +335,6 @@ async function insights() {
   log('→ docs/instagram/insights.md');
 }
 
-const run = { setup, products, plan, caption, assets, approve, publish, replies, profile, insights }[cmd];
-if (!run) { console.error('usage: ig.mjs setup|products|plan|caption|assets|approve|publish|replies|profile|insights'); process.exit(2); }
+const run = { setup, products, plan, caption, assets, approve, publish, 'fb-backfill': fbBackfill, replies, profile, insights }[cmd];
+if (!run) { console.error('usage: ig.mjs setup|products|plan|caption|assets|approve|publish|fb-backfill|replies|profile|insights'); process.exit(2); }
 Promise.resolve().then(run).catch((e) => { console.error(e); process.exit(1); });
