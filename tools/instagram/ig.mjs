@@ -187,7 +187,7 @@ async function caption() {
       if (r.caption) { r.caption = soften(r.caption); r.hashtags = (r.hashtags || []).map(soften); r.alt = soften(r.alt); }
       var bad = [r.caption, r.alt, ...(r.hashtags || [])].map((t) => String(t ?? '').match(BANNED)?.[0]).filter(Boolean); if (!bad.length && r.caption) break; log('retry', p.n, bad.slice(0, 3));
     }
-    if (bad.length || !r.caption) { log('caption 不可（3 回とも禁語/空）→ 空のまま', p.n); continue; }   // 空のままなら approve されない
+    if (bad.length || !r.caption) { log('caption 不可（3 回とも禁語/空）→ 旧文のまま', p.n); if (args.force) { p.approved = false; gen.set(p.n, { approved: false }); } continue; }   // --force 時は旧文の承認も外す（旧文体のまま投稿させない）
     p.caption = r.caption; p.hashtags = (r.hashtags || []).map((h) => String(h).replace(/^#/, '')).slice(0, 15); p.alt = r.alt; log('caption', p.n, p.title.slice(0, 20));
     if (args.force) p.approved = false;   // 作り直した投稿文は再承認が必要
     gen.set(p.n, { caption: p.caption, hashtags: p.hashtags, alt: p.alt, ...(args.force ? { approved: false } : {}) }); if (gen.size % 10 === 0) save();   // 途中で落ちても生成済みを失わない
