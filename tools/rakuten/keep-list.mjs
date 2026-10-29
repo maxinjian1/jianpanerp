@@ -34,7 +34,7 @@ function plan() {
   for (const k of keep) {
     const kk = K(k.sku), flat = kk.replace(/-/g, ''), kt = kk.split('-');
     // 表の SKU「E-05-A」は草稿では「E-05-4-A」「E-11-B-3」「D-34-A-1」のように SPU 番号が間に入る → トークンの部分列一致（先頭トークン一致）。「NCK-1T」↔「NCK-1TB」は末尾トークン前方一致。「X001BLOJJP-1」↔「X001BLOJJP1」はハイフン無視一致
-    const sub = (t) => { const dt = t.split('-'); if (dt[0] !== kt[0] || (kt.length > 1 && dt.length > 1 && dt[1] !== kt[1])) return false;   // 先頭 2 トークン（E-11）は一致必須：E-11-F が E-01-11-F に当たるのを防ぐ let i = 0; for (const x of dt) { if (i < kt.length && (x === kt[i] || (kt[i].length >= 2 && x.startsWith(kt[i])))) i++; } return i === kt.length; };
+    const sub = (t) => { const dt = t.split('-'); if (dt[0] !== kt[0] || (kt.length > 1 && dt.length > 1 && dt[1] !== kt[1])) return false; /* 先頭 2 トークン（E-11）は一致必須：E-11-F が E-01-11-F に当たるのを防ぐ */ let i = 0; for (const x of dt) { if (i < kt.length && (x === kt[i] || (kt[i].length >= 2 && x.startsWith(kt[i])))) i++; } return i === kt.length; };
     const hits = [...bySpu.values()].filter((o) => K(o.spu) === kk || K(o.spu).replace(/-/g, '') === flat || o.skus.includes(kk) || o.ids.includes(kk) || o.skus.some((x) => x.replace(/-/g, '') === flat || sub(x)) || kk.startsWith(K(o.spu) + '-'));
     if (!hits.length) { unmatched.push(k); continue; }
     for (const o of hits) { const e = keepSpu.get(o.spu) ?? { ...o, keepSkus: [], qty: 0 }; e.keepSkus.push(k.sku); e.qty += k.qty; keepSpu.set(o.spu, e); }
