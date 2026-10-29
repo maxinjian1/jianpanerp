@@ -88,7 +88,7 @@ async function apply() {
   for (const p of todo) {
     try {
       const item = await rms(p.mn);
-      const bf = path.join(BAK, `${p.mn}.json`); if (!fs.existsSync(bf)) J(bf, { at: new Date().toISOString(), mn: p.mn, hideItem: item.hideItem, variants: Object.fromEntries(Object.entries(item.variants || {}).map(([id, v]) => [id, { standardPrice: v.standardPrice }])) });
+      const bf = path.join(BAK, `${p.mn.replace(/[\/:*?"<>|]/g, "_")}.json`); if (!fs.existsSync(bf)) J(bf, { at: new Date().toISOString(), mn: p.mn, hideItem: item.hideItem, variants: Object.fromEntries(Object.entries(item.variants || {}).map(([id, v]) => [id, { standardPrice: v.standardPrice }])) });
       let body;
       if (p.action === 'hide') body = { hideItem: true };
       else {
@@ -112,7 +112,7 @@ async function hideMn() {
   const logF = path.join(DOCS, 'reprice-log.csv'); let ok = 0, fail = 0;
   for (const mn of String(args.mn || '').split(',').map((x) => x.trim()).filter(Boolean)) {
     try {
-      const item = await rms(mn); const bf = path.join(BAK, `${mn}.json`);
+      const item = await rms(mn); const bf = path.join(BAK, `${mn.replace(/[\/:*?"<>|]/g, "_")}.json`);
       if (!fs.existsSync(bf)) J(bf, { at: new Date().toISOString(), mn, hideItem: item.hideItem, variants: Object.fromEntries(Object.entries(item.variants || {}).map(([id, v]) => [id, { standardPrice: v.standardPrice }])) });
       await rms(mn, { hideItem: true }); const now = await rms(mn);
       ok++; fs.appendFileSync(logF, `${new Date().toISOString()},${mn},${mn},hide-manual,,,ok,\n`); log('ok hide', mn, 'hideItem =', now.hideItem);
