@@ -4,7 +4,7 @@
  *
  *   node tools/rakuten/new-item-pack.mjs <goodId> [--skip-images 2,5] [--genre 211492] [--window 20-10]
  *
- * 入力：tools/kjyf-scraper/out/products.json（先に scrape.mjs --ids <goodId>）
+ * 入力：tools/kjyf-scraper/out/products.json（先に scrape.mjs --ids <goodId>）。--src <json> で別ファイル、--facts "…" で文案への追加指示
  * 出力：tools/rakuten/out/new/<goodId>/
  *   images/NN.jpg（卸の順。--skip-images の番号は除外して 01〜 に振り直し）、pack.json、title.txt、description.html、attributes.json
  * 文案：6kpro は夜間窓口（北京 20:00〜10:00）内だけ呼ぶ。窓口外・6kpro 停止中は卸の文から草稿を作り status=pending（次の夜に再実行で上書き）。
@@ -23,7 +23,7 @@ const env = Object.fromEntries((fs.existsSync(path.join(ROOT, '.env')) ? fs.read
 const LLM = (env.CN_LLM_BASE_URL || 'http://100.82.2.101:8199/v1').replace(/\/$/, ''), MODEL = env.CN_LLM_MODEL || 'GLM-5.3-Flash', WIN = args.window ?? env.LLM_WINDOW ?? '20-10';
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
-const g = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools/kjyf-scraper/out/products.json'), 'utf8')).find((p) => String(p.externalId) === goodId);
+const g = JSON.parse(fs.readFileSync(path.resolve(ROOT, args.src || 'tools/kjyf-scraper/out/products.json'), 'utf8')).find((p) => String(p.externalId) === goodId);   // --src で別の scrape 結果も可
 if (!g) { console.error(`products.json に ${goodId} が無い → node tools/kjyf-scraper/scrape.mjs --ids ${goodId}`); process.exit(2); }
 const OUT = path.join(ROOT, 'tools/rakuten/out/new', goodId), IMG = path.join(OUT, 'images'); fs.mkdirSync(IMG, { recursive: true });
 
