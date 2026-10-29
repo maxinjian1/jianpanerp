@@ -22,6 +22,8 @@ const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const J = (f, d) => d === undefined ? (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null) : fs.writeFileSync(f, JSON.stringify(d, null, 1));
 const K = (s) => String(s || '').toLowerCase().replace(/[\s_]/g, '-').replace(/\/+/g, '-');
 function csv(file) { const txt = fs.readFileSync(file, 'utf8').replace(/^﻿/, ''); const rows = []; let row = [], v = '', q = false; for (let i = 0; i < txt.length; i++) { const c = txt[i]; if (q) { if (c === '"') { if (txt[i + 1] === '"') { v += '"'; i++; } else q = false; } else v += c; } else if (c === '"') q = true; else if (c === ',') { row.push(v); v = ''; } else if (c === '\n') { row.push(v.replace(/\r$/, '')); rows.push(row); row = []; v = ''; } else v += c; } if (v || row.length) { row.push(v); rows.push(row); } const h = rows.shift(); return rows.filter((r) => r.length > 1).map((r) => Object.fromEntries(h.map((k, i) => [k, r[i] ?? '']))); }
+// 発行しない／保留（用户 2026-10-29）。plan の「発行が必要」表に理由を出す
+const NOPUB = { EXT01: '発行しない：「体温計」表記＝管理医療機器（薬機法）リスク', 'D-32-2': '卸在庫 0 → 入荷まで保留', 'D-32-3': '卸在庫 0 → 入荷まで保留', 'CB-03': '楽天に出品済み（publish-log 未記録）' };
 const STORAGE = /^(\d+(tb|gb)|nck|up-|\d+-up|512|128)/i;   // 記憶媒体（2026-10-29 用户「不卖」決定と衝突 → 計画で警告）
 
 function plan() {
@@ -47,9 +49,9 @@ function plan() {
   const st = (x) => x.storage ? ' ⚠記憶媒体' : '';
   const md = [`# 楽天 残す商品リスト 計画（${out.at.slice(0, 16)}Z）`, '', `用户の表 ${keep.length} SKU → 草稿 SPU に対応。**楽天は SPU（管理番号）単位**なので、表の SKU を含む SPU を丸ごと残す。`, '',
     '| 区分 | 件数 |', '|---|---|', `| 残す（出品済み、表示を確認） | ${show.length} |`, `| 表にあるが楽天未出品 → 斑馬草稿から発行 | ${publish.length} |`, `| **非表示にする**（出品済みで表に無い） | **${hide.length}** |`, `| 表の SKU が草稿に見つからない | ${unmatched.length} |`, '',
-    `⚠ 記憶媒体（HDD/USB/SD）は 2026-10-29 朝に「容量偽装の疑いで売らない」と決めた商品。表にあるので一覧には載せるが、**用户が改めて OK と言うまで apply --only show / 発行の対象から外す**（--storage 1 で含める）。`, '',
+    `⚠ 記憶媒体（HDD/USB/SD）：2026-10-29 朝「売らない」→ 同日 用户決定で**楽天も出す**（apply は --storage 1 で含める、発行は卸価 ×1.39）。Shopify の 38914/39421/39182 hold は維持。`, '',
     `## 残す（出品済み ${show.length} 件）`, '', '| SPU | 管理番号 | 表の SKU | 表の数量 | 商品名 |', '|---|---|---|---|---|', ...show.sort((a, b) => b.qty - a.qty).map((x) => `| ${x.spu} | ${x.mn} | ${x.keepSkus.join(' ')}${st(x)} | ${x.qty} | ${x.name} |`), '',
-    `## 発行が必要（表にあるが楽天未出品 ${publish.length} 件）`, '', '| SPU | 表の SKU | 表の数量 | 商品名 |', '|---|---|---|---|', ...publish.sort((a, b) => b.qty - a.qty).map((x) => `| ${x.spu} | ${x.keepSkus.join(' ')}${st(x)} | ${x.qty} | ${x.name} |`), '',
+    `## 発行が必要（表にあるが楽天未出品 ${publish.length} 件）`, '', '| SPU | 表の SKU | 表の数量 | 商品名 | 扱い |', '|---|---|---|---|---|', ...publish.sort((a, b) => b.qty - a.qty).map((x) => `| ${x.spu} | ${x.keepSkus.join(' ')}${st(x)} | ${x.qty} | ${x.name} | ${NOPUB[x.spu] || '発行'} |`), '',
     `## 草稿に見つからない（${unmatched.length} 件、用户に SKU の意味を確認）`, '', ...unmatched.map((k) => `- ${k.sku}（${k.qty}）`), '',
     `## 非表示にする（${hide.length} 件）`, '', '| SPU | 管理番号 | 商品名 |', '|---|---|---|', ...hide.map((x) => `| ${x.spu} | ${x.mn} | ${x.name} |`), ''];
   fs.writeFileSync(path.join(DOCS, 'keep-plan.md'), md.join('\n'));

@@ -254,13 +254,21 @@ async function fbBackfill() {
 async function publish() {
   if (!IG.id || !IG.token) { console.error('.env に IG_USER_ID / IG_ACCESS_TOKEN が必要'); process.exit(2); }
   const files = fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f));
-  const now = Date.now(); let done = 0, tried = 0; const MAX_RUN = Number(args.max || 10);
+  const now = Date.now(); let done = 0, tried = 0; const MAX_RUN = Number(args.max || 2);   // 遅れ分を 1 時間に一気に出さない（1 日 10 件計画なら 2 件/時で追いつく）
   const LOGF = path.join(OUT, 'publish-log.jsonl'), STOP = path.join(OUT, 'publish-STOPPED.txt');
+  // 同時実行防止（2026-10-29：手動 publish と 1 時間タスクが重なり 2 件を二重投稿）
+  const LOCK = path.join(OUT, 'publish.lock');
+  if (fs.existsSync(LOCK) && Date.now() - fs.statSync(LOCK).mtimeMs < 3 * 3600e3) { log('別の publish が実行中（publish.lock）→ 今回は見送り'); return; }
+  fs.writeFileSync(LOCK, `${process.pid} ${new Date().toISOString()}
+`);
+  process.on('exit', () => { try { fs.unlinkSync(LOCK); } catch {} });
   if (fs.existsSync(STOP)) { log('停止中 →', fs.readFileSync(STOP, 'utf8').trim(), '（原因を直して publish-STOPPED.txt を消し、タスクを有効化すると再開）'); return; }
   const plog = fs.existsSync(LOGF) ? fs.readFileSync(LOGF, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)) : [];
+  const posted = new Set(plog.filter((l) => l.ok === true).map((l) => `${l.file}#${l.n}`));   // ログで公開済みなら plan の status に関係なく再投稿しない
   const last24 = plog.filter((l) => l.ok === true && now - new Date(l.at).getTime() < 86400e3).length;
   if (last24 >= 40) { log('24 時間で 40 件公開済み（API 上限 50）→ 今回は見送り'); return; }
   let fails = 0; for (let i = plog.length - 1; i >= 0 && plog[i].ok === false; i--) fails++;   // 末尾の連続失敗（前回実行分も含む）。{reset:true} 行（ok 無し）で区切られる
+  if (fails >= 3) log(`publish-log.jsonl 末尾が連続失敗 ${fails} 件のため今回は公開しない（再開するには {"reset":true} 行を追記）`);
   const halt = () => {   // 連続 3 件失敗 → 停止フラグ + Windows タスク無効化
     const msg = `${new Date().toISOString()} 連続 ${fails} 件失敗で停止`; fs.writeFileSync(STOP, msg + '\n'); log(msg);
     if (process.platform === 'win32') try { execSync('schtasks /Change /TN anet-ig-publish /DISABLE', { stdio: 'ignore' }); log('タスク anet-ig-publish を無効化'); } catch { log('タスク無効化に失敗（手動で停止が必要）'); }
@@ -268,7 +276,8 @@ async function publish() {
   for (const f of files) {
     const posts = J(path.join(OUT, f)); let changed = false;
     for (const p of posts) {
-      if (!p.approved || p.status === 'published' || p.status === 'error' || !p.caption) continue;   // error は自動再試行しない（直して status を戻す）
+      if (!p.approved || p.status === 'published' || p.status === 'error' || !p.caption) continue;
+      if (posted.has(`${f}#${p.n}`)) { p.status = 'published'; changed = true; continue; }   // error は自動再試行しない（直して status を戻す）
       if (args.due && new Date(p.at).getTime() > now) continue;
       if (tried >= MAX_RUN || last24 + done >= 40 || fails >= 3) break;   // --max は失敗も含めた試行数
       tried++;
@@ -287,6 +296,7 @@ async function publish() {
         fs.appendFileSync(LOGF, JSON.stringify({ at: new Date().toISOString(), ok: false, file: f, week: p.week, n: p.n, handle: p.handle, kind: p.kind, error: e.message.slice(0, 300) }) + '\n');
         if (fails >= 3) halt();
       }
+      if (changed) J(path.join(OUT, f), posts);   // 1 件ごとに保存（途中で止まっても二重投稿しない）
       await sleep(3000);
     }
     if (changed) { J(path.join(OUT, f), posts); if (f === `plan-${PLAN_NAME}.json`) writePlanMd(posts); }
