@@ -30,7 +30,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
-import { inWindow, waitLLM } from '../night/window.mjs';
+import { inWindow, waitLLM, currentLLM } from '../night/window.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const OUT = path.join(ROOT, 'tools/instagram/out'), DOCS = path.join(ROOT, 'docs/instagram');
@@ -175,7 +175,7 @@ function writePlanMd(posts) {
   const md = [`# Instagram 計画 ${PLAN_NAME}（@${IG.handle}）`, '', '用户が見て「承認」→ `ig.mjs approve --week ' + WEEK + '`（catalog は `--file catalog`）。承認した投稿だけ予定時刻に公開。キャプションの価格・送料は書かない（変わるため）。リンクはプロフィールの anetmc.com（UTM 付き）。', '',
     '| # | 日時(JST) | 種別 | テーマ | 商品 | キャプション | タグ | 素材 | 状態 |', '|---|---|---|---|---|---|---|---|---|',
     ...posts.map((p) => `| ${p.n} | ${p.at.slice(5, 16).replace('T', ' ')} ${p.dow} | ${p.kind} | ${p.theme} | [${p.title.slice(0, 28)}](${p.url.split('?')[0]}) | ${(p.caption || '（caption 未生成）').replace(/\n/g, ' ').slice(0, 90)} | ${(p.hashtags || []).slice(0, 5).join(' ')} | ${p.kind === 'reel' ? (p.videoUrl ? '動画OK' : '動画未') : p.images.length + '枚'} | ${p.approved ? '✅承認' : '未承認'}${p.status !== 'planned' ? ' / ' + p.status : ''}${p.fbPostId ? ' / FB' : p.fbError ? ' / FB失敗' : ''}${p.thPostId ? ' / TH' : p.thError ? ' / TH失敗' : ''} |`), '',
-    '## キャプション全文', '', ...posts.flatMap((p) => [`### ${p.n}. ${p.title}`, '', ...(p.review ? [`（実レビュー引用：${p.review}）`, ''] : []), p.caption || '（未生成）', '', (p.hashtags || []).map((h) => '#' + h.replace(/^#/, '')).join(' '), '', ...(p.threads ? ['**Threads**', '', p.threads, ''] : [])])];
+    '## キャプション全文', '', ...posts.flatMap((p) => [`### ${p.n}. ${p.title}${String(p.llm || '').startsWith('local') ? '（自前モデルで作成）' : ''}`, '', ...(p.review ? [`（実レビュー引用：${p.review}）`, ''] : []), p.caption || '（未生成）', '', (p.hashtags || []).map((h) => '#' + h.replace(/^#/, '')).join(' '), '', ...(p.threads ? ['**Threads**', '', p.threads, ''] : [])])];
   fs.writeFileSync(path.join(DOCS, `plan-${PLAN_NAME}.md`), md.join('\n'));
 }
 
@@ -244,9 +244,9 @@ async function caption() {
     }
     if (bad.length || !r.caption) { log('caption 不可（3 回とも禁語/空）→ 旧文のまま', p.n); if (args.force) { p.approved = false; gen.set(p.n, { approved: false }); } continue; }   // --force 時は旧文の承認も外す（旧文体のまま投稿させない）
     const rv = p.handles ? '' : reviewLine(p.handle);   // 実レビューがあれば 1 行目に原文引用（AI は作らない）
-    p.caption = rv ? `${rv}\n\n${r.caption}` : r.caption; p.review = rv || undefined; p.threads = r.threads || undefined; p.hashtags = (r.hashtags || []).map((h) => String(h).replace(/^#/, '')).slice(0, 15); p.alt = r.alt; log('caption', p.n, p.title.slice(0, 20), rv ? '(実レビュー引用)' : '');
+    p.caption = rv ? `${rv}\n\n${r.caption}` : r.caption; p.review = rv || undefined; p.threads = r.threads || undefined; p.hashtags = (r.hashtags || []).map((h) => String(h).replace(/^#/, '')).slice(0, 15); p.alt = r.alt; p.llm = currentLLM(); log('caption', p.n, p.title.slice(0, 20), rv ? '(実レビュー引用)' : '', p.llm.startsWith('local') ? '(自前モデル)' : '');
     if (args.force) p.approved = false;   // 作り直した投稿文は再承認が必要
-    gen.set(p.n, { caption: p.caption, threads: p.threads, review: p.review, hashtags: p.hashtags, alt: p.alt, ...(args.force ? { approved: false } : {}) }); if (gen.size % 10 === 0) save();   // 途中で落ちても生成済みを失わない
+    gen.set(p.n, { caption: p.caption, threads: p.threads, review: p.review, hashtags: p.hashtags, alt: p.alt, llm: p.llm, ...(args.force ? { approved: false } : {}) }); if (gen.size % 10 === 0) save();   // 途中で落ちても生成済みを失わない
   }
   save();
 }
