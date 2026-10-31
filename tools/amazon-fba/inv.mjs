@@ -11,8 +11,11 @@ export default async ({ page }) => {
     const rows = t.split(/\n(?=\[|\S+ \S+\n)/); const i = t.indexOf(`\n${a}\n`);
     const seg = i < 0 ? '' : t.slice(i, (t.indexOf('価格の詳細', i) + 1 || t.length + 1) - 1);
     const m = (re) => (seg.match(re) || [])[1];
-    const skus = [...t.matchAll(new RegExp(`\n${a}\n\|\n([^\n]+)\n\|\n([^\n]*)`, 'g'))].map((x) => ({ sku: x[1], fnsku: x[2] }));
-    out[a] = { found: i >= 0, skus, status: m(/新規\n\s*\n?\s*([^\n]+)/), onHand: Number(m(/手持ち在庫（FBA）\n(\d+)/) ?? NaN), available: Number(m(/在庫あり\n(\d+)/) ?? NaN), fbm: m(/出品者出荷[^\n]*\n(\d+)/), price: Number((m(/価格\n￥([\d,]+)/) || '').replace(/,/g, '')) || null, feeTotal: Number((m(/手数料の合計\n￥([\d,]+)/) || '').replace(/,/g, '')) || null, fbaFee: Number((m(/FBA手数料\n￥([\d,]+)/) || '').replace(/,/g, '')) || null };
+    const yen = (re) => Number((m(re) || '').replace(/,/g, '')) || null;
+    const sum = (re) => [...seg.matchAll(new RegExp(re, 'g'))].reduce((s, x) => s + Number(x[1]), 0);   // 同一 ASIN に SKU が複数ある（旧 SKU 在庫切れ＋新 SKU 在庫あり）ので全行を合計
+    const head = i < 0 ? '' : t.slice(0, i);
+    const available = sum('在庫あり\\n(\\d+)');
+    out[a] = { found: i >= 0, skus: [...seg.matchAll(/SKU\n([^\n]+)/g)].map((x) => x[1]), status: i < 0 ? null : available > 0 ? '在庫あり' : '在庫切れ', onHand: sum('手持ち在庫（FBA）\\n(\\d+)'), available, inbound: sum('納品\\n(\\d+)'), unsellable: sum('販売不可\\n(\\d+)'), fbm: m(/出品者出荷[^\n]*\n(\d+)/), price: yen(/おすすめ出品\n[¥￥]([\d,]+)/), feeTotal: yen(/手数料の合計\n[¥￥]([\d,.]+)/), fbaFee: yen(/FBA手数料\n[¥￥]([\d,.]+)/) };
     console.log(a, JSON.stringify(out[a]));
   }
   fs.writeFileSync(path.join(ROOT, 'tools/amazon-fba/out/inventory.json'), JSON.stringify({ at: new Date().toISOString(), items: out }, null, 1));

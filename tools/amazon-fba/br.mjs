@@ -13,7 +13,7 @@ const [head, ...body] = rows; const ix = (n) => head.indexOf(n);
 const num = (s) => Number(String(s ?? '').replace(/[￥¥,%\s]/g, '')) || 0;
 const data = body.filter((r) => r.length > 30).map((r) => ({ asin: r[ix('（子）ASIN')], parent: r[ix('（親）ASIN')], title: r[ix('タイトル')], sessions: num(r[ix('セッション数 - 合計')]), units: num(r[ix('注文された商品点数')]), sales: num(r[ix('注文商品の売上額')]), orders: num(r[ix('注文品目総数')]), refunds: num(r[ix('商品が返金されました')]) }));
 const by = new Map(data.map((d) => [d.asin, d]));
-const plan = fs.readFileSync(path.join(ROOT, 'docs/amazon-fba/top30-fba-plan.md'), 'utf8');
+const plan = fs.readFileSync(path.join(ROOT, 'docs/amazon-fba/top30-fba-plan.md'), 'utf8').split('\n## 最新データ')[0];   // 明細表は 1 つ目だけ（最新データ節の表と二重に数えない）
 const top30 = [...plan.matchAll(/^\| (\d+) \| (B0[0-9A-Z]{8}) \| (F\d) \|/gm)].map((m) => ({ n: +m[1], asin: m[2], fam: m[3] }));
 const fba = (u) => Math.max(6, Math.ceil(u / 90 * 45 * 1.5));
 const out = top30.map((t) => { const d = by.get(t.asin) || {}; return { ...t, units: d.units ?? 0, orders: d.orders ?? 0, sales: d.sales ?? 0, price: d.units ? Math.round(d.sales / d.units) : null, sessions: d.sessions ?? 0, cvr: d.sessions ? +(100 * (d.units || 0) / d.sessions).toFixed(2) : 0, refunds: d.refunds ?? 0, fbaQty: fba(d.units ?? 0), inReport: by.has(t.asin) }; });
