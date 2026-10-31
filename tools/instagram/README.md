@@ -41,3 +41,10 @@
 - IG API で出した投稿はページに自動共有されない。`.env` に `FB_PAGE_ID / FB_PAGE_TOKEN`（`setup` が保存、権限 `pages_manage_posts` が必要）があれば、publish が同じ画像・本文＋ **クリックできる anetmc.com リンク** を Facebook ページにも投稿する。FB 側の失敗は IG の成功を取り消さず、plan に `fbError` として残る。`--no-fb` で IG のみ。
 - すでに IG に出ていて FB に無い投稿は `fb-backfill` で追加。
 - `caption --force`（作り直し）は approved を false に戻す → 用户が見てから `approve`。
+
+## Threads 同時投稿（2026-11-01）
+- publish が Instagram 公開に成功した直後、同じ画像（最大 10 枚カルーセル）を Threads にも投稿する。Facebook と同じく Threads 側の失敗は IG を取り消さず、plan に `thError`、計画表の状態に「TH失敗」。`--no-th` で Threads を止める。
+- Threads の制約：本文 500 字まで、話題タグ 1 個まで。→ IG キャプションを 500 字に収め（句点で切る）、末尾に「🛒 公式オンラインショップ「アネット」＋ anetmc.com（utm_source=threads、本文のリンクは押せる）＋ 話題タグ 1 個」。
+- トークンは Facebook と別物（graph.threads.net）。手順は docs/instagram/threads-setup.md。`th-setup` で長期（60 日）に交換、daily-sync の `th-refresh` が毎日延長。
+- 既存の公開済み投稿は `th-backfill --max 2`（既定 2 件）で少しずつ。新しいアカウントで一度に大量投稿しない。
+- AI は Threads でも返信・いいね・フォローをしない（IG と同じルール）。

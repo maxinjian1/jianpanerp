@@ -12,6 +12,9 @@
  *   node tools/instagram/ig.mjs approve --week … [--only 1,3,5]   # 用户が docs/instagram/plan-<week>.md を見て「承認」と言った後に実行
  *   node tools/instagram/ig.mjs publish [--due] [--no-fb] # approved かつ 予定時刻 ≤ 今 の投稿を Graph API で公開（Windows の時間タスクで 1 時間ごと）。本文末尾に anetmc.com 案内を付け、FB_PAGE_* があれば Facebook ページにも同時投稿
  *   node tools/instagram/ig.mjs fb-backfill [--max N]  # IG 公開済みで Facebook に無い投稿をページに追加投稿
+ *   node tools/instagram/ig.mjs th-setup                # Threads 短期トークン → 長期（60 日）、THREADS_USER_ID 保存。以後 publish が Threads にも同時投稿（--no-th で止める）
+ *   node tools/instagram/ig.mjs th-refresh              # Threads 長期トークン延長（daily-sync から毎日）
+ *   node tools/instagram/ig.mjs th-backfill [--max 2]   # IG 公開済みで Threads に無い投稿を追加（新規アカウントなので少しずつ）
  *   node tools/instagram/ig.mjs replies                 # 直近 7 日のコメントを取得 → 6kpro 返信草稿 → docs/instagram/replies-<date>.md（送信しない）
  *   node tools/instagram/ig.mjs profile                 # プロフィール文案 3 案 → docs/instagram/profile.md
  *   node tools/instagram/ig.mjs insights                # 直近投稿の reach / likes / saves → docs/instagram/insights.md
@@ -148,7 +151,7 @@ function planCatalog(ps) {
 function writePlanMd(posts) {
   const md = [`# Instagram 計画 ${PLAN_NAME}（@${IG.handle}）`, '', '用户が見て「承認」→ `ig.mjs approve --week ' + WEEK + '`（catalog は `--file catalog`）。承認した投稿だけ予定時刻に公開。キャプションの価格・送料は書かない（変わるため）。リンクはプロフィールの anetmc.com（UTM 付き）。', '',
     '| # | 日時(JST) | 種別 | テーマ | 商品 | キャプション | タグ | 素材 | 状態 |', '|---|---|---|---|---|---|---|---|---|',
-    ...posts.map((p) => `| ${p.n} | ${p.at.slice(5, 16).replace('T', ' ')} ${p.dow} | ${p.kind} | ${p.theme} | [${p.title.slice(0, 28)}](${p.url.split('?')[0]}) | ${(p.caption || '（caption 未生成）').replace(/\n/g, ' ').slice(0, 90)} | ${(p.hashtags || []).slice(0, 5).join(' ')} | ${p.kind === 'reel' ? (p.videoUrl ? '動画OK' : '動画未') : p.images.length + '枚'} | ${p.approved ? '✅承認' : '未承認'}${p.status !== 'planned' ? ' / ' + p.status : ''}${p.fbPostId ? ' / FB' : p.fbError ? ' / FB失敗' : ''} |`), '',
+    ...posts.map((p) => `| ${p.n} | ${p.at.slice(5, 16).replace('T', ' ')} ${p.dow} | ${p.kind} | ${p.theme} | [${p.title.slice(0, 28)}](${p.url.split('?')[0]}) | ${(p.caption || '（caption 未生成）').replace(/\n/g, ' ').slice(0, 90)} | ${(p.hashtags || []).slice(0, 5).join(' ')} | ${p.kind === 'reel' ? (p.videoUrl ? '動画OK' : '動画未') : p.images.length + '枚'} | ${p.approved ? '✅承認' : '未承認'}${p.status !== 'planned' ? ' / ' + p.status : ''}${p.fbPostId ? ' / FB' : p.fbError ? ' / FB失敗' : ''}${p.thPostId ? ' / TH' : p.thError ? ' / TH失敗' : ''} |`), '',
     '## キャプション全文', '', ...posts.flatMap((p) => [`### ${p.n}. ${p.title}`, '', p.caption || '（未生成）', '', (p.hashtags || []).map((h) => '#' + h.replace(/^#/, '')).join(' '), ''])];
   fs.writeFileSync(path.join(DOCS, `plan-${PLAN_NAME}.md`), md.join('\n'));
 }
@@ -251,6 +254,65 @@ async function fbBackfill() {
   log('fb-backfill done', n);
 }
 
+// ───────── Threads への同時投稿（2026-11-01 用户「Threads も、内容は Instagram を流用」） ─────────
+// Threads API は Facebook とは別トークン（graph.threads.net、権限 threads_basic + threads_content_publish）。
+// 本文は 500 字まで・話題タグは 1 個まで → IG キャプションを 500 字に収め、URL（Threads では本文のリンクが押せる）と話題タグ 1 個だけ付ける。
+// 必要：.env の THREADS_ACCESS_TOKEN（th-setup が長期トークンに交換して保存）、THREADS_APP_SECRET（Threads ユースケースのアプリシークレット）、THREADS_USER_ID（th-setup が保存）。
+const TH_API = 'https://graph.threads.net';
+const TH = { id: env.THREADS_USER_ID, token: env.THREADS_ACCESS_TOKEN, secret: env.THREADS_APP_SECRET };
+const TH_SHOP = `${SITE}/?utm_source=threads&utm_medium=social&utm_campaign=catalog`;
+async function thCall(p, params = {}, method = 'POST', token = TH.token) {
+  const u = new URL(`${TH_API}/${p}`); for (const [k, v] of Object.entries({ ...params, access_token: token })) u.searchParams.set(k, v);
+  const r = await fetch(u, { method }); const j = await r.json().catch(() => ({})); if (!r.ok || j.error) throw new Error(`threads ${p}: ${JSON.stringify(j.error || j).slice(0, 300)}`); return j;
+}
+const thLen = (t) => [...t].length;
+function thText(p) {
+  const tag = String((p.hashtags || [])[0] || 'アネット').replace(/^#/, '').replace(/[.&\s]/g, '');
+  const tail = `\n\n🛒 公式オンラインショップ「アネット」\n${TH_SHOP}\n#${tag}`;
+  let body = String(p.caption || '').trim(); const room = 500 - thLen(tail);
+  if (thLen(body) > room) { const cut = [...body].slice(0, room - 1).join(''); const i = Math.max(cut.lastIndexOf('。'), cut.lastIndexOf('\n')); body = (i > room * 0.5 ? cut.slice(0, i + 1) : cut + '…').trim(); }
+  return body + tail;
+}
+async function thWait(id) { for (let k = 0; k < 20; k++) { const s = await thCall(`v1.0/${id}`, { fields: 'status,error_message' }, 'GET'); if (s.status === 'FINISHED') return; if (s.status === 'ERROR' || s.status === 'EXPIRED') throw new Error(`threads container ${s.status} ${s.error_message || ''}`); await sleep(5000); } throw new Error('threads container timeout'); }
+async function thCrossPost(p) {
+  if (!TH.id || !TH.token) return null;
+  const text = thText(p); let creation;
+  if (p.kind === 'reel' && p.videoUrl) creation = (await thCall(`v1.0/${TH.id}/threads`, { media_type: 'VIDEO', video_url: p.videoUrl, text })).id;
+  else if (p.images.length >= 2) { const kids = []; for (const u of p.images.slice(0, 10)) kids.push((await retry(() => thCall(`v1.0/${TH.id}/threads`, { media_type: 'IMAGE', image_url: igImg(u), is_carousel_item: 'true' }), 2, 8000)).id); for (const k of kids) await thWait(k); creation = (await thCall(`v1.0/${TH.id}/threads`, { media_type: 'CAROUSEL', children: kids.join(','), text })).id; }
+  else creation = (await thCall(`v1.0/${TH.id}/threads`, { media_type: 'IMAGE', image_url: igImg(p.images[0]), text })).id;
+  await thWait(creation);
+  const pub = await thCall(`v1.0/${TH.id}/threads_publish`, { creation_id: creation });
+  let link = ''; try { link = (await thCall(`v1.0/${pub.id}`, { fields: 'permalink' }, 'GET')).permalink || ''; } catch {}
+  p.thPostId = pub.id; p.thUrl = link; delete p.thError; log('threads', p.n, pub.id, link); return pub.id;
+}
+// 短期トークン → 長期（60 日）に交換し、ユーザー ID とハンドルを保存
+async function thSetup() {
+  if (!TH.token || !TH.secret) { console.error('.env に THREADS_ACCESS_TOKEN（Threads ユーザートークン）と THREADS_APP_SECRET が必要'); process.exit(2); }
+  console.log('THREADS_ACCESS_TOKEN =', mask(TH.token), ' THREADS_APP_SECRET =', mask(TH.secret));
+  let long = TH.token;
+  try { const ex = await thCall('access_token', { grant_type: 'th_exchange_token', client_secret: TH.secret }, 'GET'); long = ex.access_token; log('長期トークン取得', mask(long), ex.expires_in ? Math.round(ex.expires_in / 86400) + '日' : ''); }
+  catch (e) { log('交換できず（既に長期トークンの可能性）→ そのまま使う', e.message.slice(0, 200)); }
+  const me = await thCall('v1.0/me', { fields: 'id,username' }, 'GET', long);
+  writeEnv({ THREADS_ACCESS_TOKEN: long, THREADS_USER_ID: me.id, THREADS_HANDLE: me.username, THREADS_TOKEN_AT: new Date().toISOString().slice(0, 10) });
+  log('OK  Threads @' + me.username, me.id, '→ .env 更新。以後 publish が IG と同時に Threads にも投稿（--no-th で止める）');
+}
+// 長期トークンの延長（発行から 24 時間以上・期限前なら可）。daily-sync から毎日呼ぶ。未設定・延長不可でも失敗扱いにしない
+async function thRefresh() {
+  if (!TH.token) { log('Threads 未設定 → skip'); return; }
+  try { const r = await thCall('refresh_access_token', { grant_type: 'th_refresh_token' }, 'GET'); writeEnv({ THREADS_ACCESS_TOKEN: r.access_token, THREADS_TOKEN_AT: new Date().toISOString().slice(0, 10) }); log('Threads トークン延長', mask(r.access_token), r.expires_in ? Math.round(r.expires_in / 86400) + '日' : ''); }
+  catch (e) { log('Threads トークン延長できず（発行 24 時間以内なら正常）', e.message.slice(0, 200)); }
+}
+// IG に公開済みで Threads に無い投稿を追加投稿（新しいアカウントで一度に大量に出さないよう既定 2 件）
+async function thBackfill() {
+  if (!TH.id || !TH.token) { console.error('.env に THREADS_USER_ID / THREADS_ACCESS_TOKEN が必要（th-setup を実行）'); process.exit(2); }
+  const max = Number(args.max || 2); const files = fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f)); let n = 0;
+  for (const f of files) { const posts = J(path.join(OUT, f)); let changed = false;
+    for (const p of posts) { if (p.status !== 'published' || p.thPostId) continue; if (n >= max) break; n++;
+      try { await thCrossPost(p); } catch (e) { p.thError = e.message.slice(0, 300); log('TH ERR', f, p.n, p.thError); } changed = true; J(path.join(OUT, f), posts); await sleep(5000); }
+    if (changed && f === `plan-${PLAN_NAME}.json`) writePlanMd(posts); }
+  log('th-backfill done', n);
+}
+
 async function publish() {
   if (!IG.id || !IG.token) { console.error('.env に IG_USER_ID / IG_ACCESS_TOKEN が必要'); process.exit(2); }
   const files = fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f));
@@ -290,6 +352,7 @@ async function publish() {
         const pub = await graph(`${IG.id}/media_publish`, { creation_id: creation });
         p.status = 'published'; p.mediaId = pub.id; p.publishedAt = new Date().toISOString(); changed = true; done++; log('published', f, p.n, pub.id);
         if (!args['no-fb']) await fbCrossPost(p).catch((e) => { p.fbError = e.message.slice(0, 300); log('FB ERR（IG は成功、FB のみ失敗）', p.n, p.fbError); });
+        if (!args['no-th']) await thCrossPost(p).catch((e) => { p.thError = e.message.slice(0, 300); log('TH ERR（IG は成功、Threads のみ失敗）', p.n, p.thError); });
         fs.appendFileSync(LOGF, JSON.stringify({ at: p.publishedAt, ok: true, file: f, week: p.week, n: p.n, handle: p.handle, kind: p.kind, mediaId: pub.id }) + '\n'); fails = 0;
       } catch (e) {
         p.status = 'error'; p.error = e.message; changed = true; fails++; log('ERR', f, p.n, e.message);
@@ -346,6 +409,6 @@ async function insights() {
   log('→ docs/instagram/insights.md');
 }
 
-const run = { setup, products, plan, caption, assets, approve, publish, 'fb-backfill': fbBackfill, replies, profile, insights }[cmd];
-if (!run) { console.error('usage: ig.mjs setup|products|plan|caption|assets|approve|publish|fb-backfill|replies|profile|insights'); process.exit(2); }
+const run = { setup, products, plan, caption, assets, approve, publish, 'fb-backfill': fbBackfill, 'th-setup': thSetup, 'th-refresh': thRefresh, 'th-backfill': thBackfill, replies, profile, insights }[cmd];
+if (!run) { console.error('usage: ig.mjs setup|products|plan|caption|assets|approve|publish|fb-backfill|th-setup|th-refresh|th-backfill|replies|profile|insights'); process.exit(2); }
 Promise.resolve().then(run).catch((e) => { console.error(e); process.exit(1); });

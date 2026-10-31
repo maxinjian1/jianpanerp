@@ -14,5 +14,6 @@ Step 'price-tier'        'node tools/rakuten/price-tier.mjs --refresh'          
 Step 'reprice plan'      'node tools/rakuten/reprice.mjs plan'
 Step 'reprice apply'     'node tools/rakuten/reprice.mjs apply'                   # 価格＋非表示（非表示は競合最安 ≥ 当店 0.8 倍のものだけ、2026-10-29 用户決定 (b)）。2% 失敗・5 連続失敗で自動停止
 Step 'ig products'       'node tools/instagram/ig.mjs products'
+Step 'threads refresh'   'node tools/instagram/ig.mjs th-refresh'               # Threads 長期トークン（60 日）を毎日延長。未設定なら skip
 Step 'git push'          'git add docs/kjyf-new-items.md docs/rakuten/price-tier.md docs/rakuten/reprice-plan.md docs/rakuten/reprice-log.csv docs/kjyf-b2b-同步计划.md tools/kjyf-b2b/hold-ids.txt; git commit -qm "daily-sync $d" ; git pull -q --rebase --autostash origin claude/brave-dirac-s6orrc ; git push -q origin claude/brave-dirac-s6orrc ; "push exit=$LASTEXITCODE"'
 "== done $(Get-Date -Format HH:mm) ==" | Tee-Object -FilePath $log -Append
