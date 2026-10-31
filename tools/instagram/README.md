@@ -48,3 +48,9 @@
 - トークンは Facebook と別物（graph.threads.net）。手順は docs/instagram/threads-setup.md。`th-setup` で長期（60 日）に交換、daily-sync の `th-refresh` が毎日延長。
 - 既存の公開済み投稿は `th-backfill --max 2`（既定 2 件）で少しずつ。新しいアカウントで一度に大量投稿しない。
 - AI は Threads でも返信・いいね・フォローをしない（IG と同じルール）。
+
+## 1 投稿 = 1 商品（2026-11-01 用户決定）
+- `plan --single [--per-day 10] [--from YYYY-MM-DD]` → `plan-single.json`。A 档を先頭、残りはカテゴリ交互。画像はその商品の最大 10 枚、Facebook / Threads のリンクは**その商品ページ**。
+- 旧 `catalog`（5 商品まとめ）は `retire --file catalog` で未公開分を止める（公開済みはそのまま）。
+- `caption --file single`（6kpro・夜間）：1 回で 2 種類を作る。`caption` = Instagram と Facebook 用（場面 1 行 → ✔ここがうれしい 3〜5 行 → サイズ等の事実 → こんな方に → 締め、250〜450 字）、`threads` = Threads 用（話し言葉 2〜3 行・60〜140 字、一番いいところと何が楽になるかだけ）。
+- **「お客様の声」から始めるのは実レビューがある商品だけ**：`tools/instagram/in/reviews.json`（雛形 reviews.example.json）に自店の実レビューを人が転記 → システムが 1 行目に原文と出典を付ける。AI にはレビュー・好評・人気などを書かせない（禁止チェックあり）。日本の景品表示法（2023-10 施行のステマ規制）で、作ったレビュー風広告は違法。

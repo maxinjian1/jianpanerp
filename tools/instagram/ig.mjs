@@ -51,7 +51,7 @@ const BANNED = /¥|円|送料|セール|SALE|割引|クーポン|No\.?\s?1|ナ�
 const soften = (t) => String(t ?? '').replace(/iPhone/gi, 'スマホ').replace(/円形/g, '丸型');
 const weekStart = (s) => { const d = s ? new Date(s + 'T00:00:00Z') : new Date(Date.now() + 9 * 3600e3); const day = (d.getUTCDay() + 6) % 7; const m = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - day + (s ? 0 : 7))); return m.toISOString().slice(0, 10); };
 const WEEK = args.week ? weekStart(args.week) : weekStart();
-const PLAN_NAME = args.file || (args.catalog ? 'catalog' : WEEK);   // plan-<name>.json / docs/instagram/plan-<name>.md
+const PLAN_NAME = args.file || (args.single ? 'single' : args.catalog ? 'catalog' : WEEK);   // plan-<name>.json / docs/instagram/plan-<name>.md
 const planPath = () => path.join(OUT, `plan-${PLAN_NAME}.json`);
 
 // ───────── setup（トークン交換 + IG ID 取得） ─────────
@@ -87,7 +87,7 @@ async function gql(query, variables = {}) { const r = await fetch(`https://${SHO
 async function products() {
   const all = []; let c = null;
   for (;;) {
-    const d = await gql(`query($c:String){ products(first:50, after:$c, query:"vendor:ANET status:active"){ pageInfo{hasNextPage endCursor} nodes{ id handle title productType tags createdAt onlineStoreUrl descriptionHtml featuredImage{url} images(first:6){nodes{url altText}} variants(first:5){nodes{sku price inventoryQuantity inventoryItem{tracked}}} } } }`, { c });
+    const d = await gql(`query($c:String){ products(first:50, after:$c, query:"vendor:ANET status:active"){ pageInfo{hasNextPage endCursor} nodes{ id handle title productType tags createdAt onlineStoreUrl descriptionHtml featuredImage{url} images(first:10){nodes{url altText}} variants(first:5){nodes{sku price inventoryQuantity inventoryItem{tracked}}} } } }`, { c });
     all.push(...d.products.nodes); if (!d.products.pageInfo.hasNextPage) break; c = d.products.pageInfo.endCursor;
   }
   // 楽天 A 档（docs/rakuten/price-tier.md の A 表）を SKU 前方一致で付与
@@ -112,6 +112,7 @@ const SEASON = { 1: ['新年の片づけ', '寒さ対策', '受験シーズン�
 const SLOTS = [['Mon', '12:00'], ['Tue', '20:00'], ['Wed', '12:00'], ['Thu', '20:00'], ['Fri', '12:00'], ['Sat', '10:00'], ['Sun', '20:00']]; // 日本の IG 閲覧ピーク（昼休み・20〜21 時・週末朝）
 function plan() {
   const ps = J(path.join(OUT, 'products.json')); if (!ps) { console.error('先に products'); process.exit(2); }
+  if (args.single) return planSingle(ps);
   if (args.catalog) return planCatalog(ps);
   const used = new Set(fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f)).flatMap((f) => (J(path.join(OUT, f)) || []).map((x) => x.handle)));
   const fresh = ps.filter((p) => !used.has(p.handle) && p.images.length >= 1 && (p.inStock ?? p.stock > 0));
@@ -148,11 +149,33 @@ function planCatalog(ps) {
   J(planPath(), posts); writePlanMd(posts);
   log('catalog plan', posts.length, 'posts /', items.length, 'products /', perDay, 'per day →', `${Math.ceil(posts.length / perDay)} 日`, `docs/instagram/plan-${PLAN_NAME}.md`);
 }
+// 1 投稿 = 1 商品（2026-11-01 用户「一个帖子一件产品，不要把其他产品一起发」）：A 档を先に、残りはカテゴリ交互。画像はその商品の最大 10 枚、リンクは商品ページ
+function planSingle(ps) {
+  const perDay = Math.min(10, Number(args['per-day'] || 10)); const start = args.from || new Date(Date.now() + 9 * 3600e3 + 86400e3).toISOString().slice(0, 10);
+  const items = ps.filter((p) => p.images.length >= 1 && (p.inStock ?? p.stock > 0));
+  const A = items.filter((p) => p.tierA).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const byType = {}; for (const p of items.filter((x) => !x.tierA)) (byType[p.type || 'その他'] ||= []).push(p);
+  for (const arr of Object.values(byType)) arr.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const queues = Object.values(byType); const order = [...A]; while (queues.some((q) => q.length)) for (const q of queues) if (q.length) order.push(q.shift());
+  const times = ['08:00', '12:00', '18:00', '20:00', '21:30', '10:00', '15:00', '22:00', '07:00', '13:00'].slice(0, perDay).sort();
+  const posts = order.map((p, i) => { const d = new Date(start + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + Math.floor(i / perDay));
+    return { n: i + 1, week: 'single', at: `${d.toISOString().slice(0, 10)}T${times[i % perDay]}:00+09:00`, dow: '', kind: p.images.length >= 2 ? 'carousel' : 'image', theme: p.tierA ? 'A' : (p.type || 'その他'), handle: p.handle, title: p.title, url: `${p.url.split('?')[0]}?utm_source=instagram&utm_medium=social&utm_campaign=single`, images: p.images.slice(0, 10), facts: `${p.title}\n${p.desc}`, approved: false, status: 'planned' }; });
+  const prev = J(planPath()); if (prev) { const m = new Map(prev.map((x) => [x.handle, x])); let kept = 0; for (const p of posts) { const o = m.get(p.handle); if (o) { Object.assign(p, { caption: o.caption, threads: o.threads, review: o.review, hashtags: o.hashtags, alt: o.alt, approved: o.approved, status: o.status, mediaId: o.mediaId, publishedAt: o.publishedAt, fbPostId: o.fbPostId, thPostId: o.thPostId, thUrl: o.thUrl, at: o.status === 'published' ? o.at : p.at }); kept++; } } log('kept from previous plan', kept); }
+  J(planPath(), posts); writePlanMd(posts);
+  log('single plan', posts.length, 'posts（A 档', A.length, '）/', perDay, 'per day →', `${Math.ceil(posts.length / perDay)} 日`, `docs/instagram/plan-${PLAN_NAME}.md`);
+}
+// 旧計画の未公開分を止める（publish は全 plan-*.json を見るため）。公開済みはそのまま
+function retire() {
+  if (!args.file) { console.error('--file <name> が必要（例：--file catalog）'); process.exit(2); }
+  const f = planPath(); const posts = J(f); if (!posts) { console.error('plan が無い', f); process.exit(2); }
+  let n = 0; for (const p of posts) if (p.status !== 'published' && p.status !== 'retired') { p.approved = false; p.status = 'retired'; n++; }
+  J(f, posts); writePlanMd(posts); log('retired', n, 'posts in', path.basename(f));
+}
 function writePlanMd(posts) {
   const md = [`# Instagram 計画 ${PLAN_NAME}（@${IG.handle}）`, '', '用户が見て「承認」→ `ig.mjs approve --week ' + WEEK + '`（catalog は `--file catalog`）。承認した投稿だけ予定時刻に公開。キャプションの価格・送料は書かない（変わるため）。リンクはプロフィールの anetmc.com（UTM 付き）。', '',
     '| # | 日時(JST) | 種別 | テーマ | 商品 | キャプション | タグ | 素材 | 状態 |', '|---|---|---|---|---|---|---|---|---|',
     ...posts.map((p) => `| ${p.n} | ${p.at.slice(5, 16).replace('T', ' ')} ${p.dow} | ${p.kind} | ${p.theme} | [${p.title.slice(0, 28)}](${p.url.split('?')[0]}) | ${(p.caption || '（caption 未生成）').replace(/\n/g, ' ').slice(0, 90)} | ${(p.hashtags || []).slice(0, 5).join(' ')} | ${p.kind === 'reel' ? (p.videoUrl ? '動画OK' : '動画未') : p.images.length + '枚'} | ${p.approved ? '✅承認' : '未承認'}${p.status !== 'planned' ? ' / ' + p.status : ''}${p.fbPostId ? ' / FB' : p.fbError ? ' / FB失敗' : ''}${p.thPostId ? ' / TH' : p.thError ? ' / TH失敗' : ''} |`), '',
-    '## キャプション全文', '', ...posts.flatMap((p) => [`### ${p.n}. ${p.title}`, '', p.caption || '（未生成）', '', (p.hashtags || []).map((h) => '#' + h.replace(/^#/, '')).join(' '), ''])];
+    '## キャプション全文', '', ...posts.flatMap((p) => [`### ${p.n}. ${p.title}`, '', ...(p.review ? [`（実レビュー引用：${p.review}）`, ''] : []), p.caption || '（未生成）', '', (p.hashtags || []).map((h) => '#' + h.replace(/^#/, '')).join(' '), '', ...(p.threads ? ['**Threads**', '', p.threads, ''] : [])])];
   fs.writeFileSync(path.join(DOCS, `plan-${PLAN_NAME}.md`), md.join('\n'));
 }
 
@@ -161,6 +184,30 @@ async function chatJson(messages) {
   const r = await fetch(`${LLM}/chat/completions`, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.CN_LLM_API_KEY ? { authorization: `Bearer ${env.CN_LLM_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, messages, temperature: 0.7, max_tokens: 6000, response_format: { type: 'json_object' } }) });
   // 推論でトークンを使い切ると content が途中で切れる → 例外にせず {} を返して呼び出し側で再試行
   const j = await r.json().catch(() => ({})); const t = j.choices?.[0]?.message?.content || '{}'; try { return JSON.parse(t); } catch { try { return JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); } catch { log('JSON 解析失敗', j.choices?.[0]?.finish_reason, t.length); return {}; } }
+}
+// 1 商品投稿用（2026-11-01 用户「ins と facebook は詳しく、threads は簡単に・別の書き方」）。
+// 「お客様の声」から始めたい要望あり → 実在するレビューがある商品だけ、システムが 1 行目に原文を引用（tools/instagram/in/reviews.json）。AI にレビューを作らせない（ステマ規制・景品表示法）。
+const CAP_SYS_SINGLE = `あなたは日本の生活雑貨の公式オンラインショップ「アネット」（anetmc.com）の SNS 担当。1 投稿 = 1 商品。読者は 20〜50 代の女性中心。
+2 種類の文章を書く。
+【caption】Instagram と Facebook 用。詳しく、買う前の不安が消えるように。構成（この順）：
+・1 行目：使う場面か読者の困りごとを 1 文（15〜30 字）。商品名から始めない。「お客様の声」「レビュー」「好評」「人気」「売れてる」は書かない（実際の声はシステムが別に付ける）。
+・空行
+・「ここがうれしい」として ✔ で 3〜5 行：facts にある特徴を、使う人のメリットに言い換える（例：折りたたみ → 使わない時はすき間に収納）。
+・サイズ・素材・容量・付属品など facts にある数字を 1〜3 行（無ければ書かない、作らない）。
+・「こんな方に」1〜2 行。
+・締めの一言 1 文（リンク案内は書かない）。
+全体 250〜450 字、やさしい丁寧語、絵文字 3 個まで。
+【threads】Threads 用。まったく別の書き方で短く：友だちに話すような話し言葉で 2〜3 行、合計 60〜140 字。「これ、〜が便利」「〜できるのがいい」のように、この商品の一番いいところと何が楽になるかだけ。ハッシュタグ・URL・絵文字は書かない（システムが付ける）。
+共通の禁止：価格・送料・セール・No.1・最強・日本一・絶対・医療効能・他社ブランド名、facts に無い数字や機能、説明書口調（〜を実現/〜をサポート/〜を提供）、型番、作り話のレビューや体験談。
+ハッシュタグ 12〜15 個（caption 用）：大 5・中（カテゴリ）5・小（具体）3〜5、必ず #アネット、英語 2 個まで。
+出力 JSON：{"caption":"…","threads":"…","hashtags":["…"],"alt":"画像の代替テキスト 60 字以内"}`;
+// 実レビュー（自店の Amazon / 楽天 / Judge.me などから人が転記したものだけ）：{ "<handle>": [{ "stars": 5, "text": "…", "source": "楽天市場" }] }
+const REVIEWS = J(path.join(ROOT, 'tools/instagram/in/reviews.json')) || {};
+function reviewLine(handle) {
+  const r = (REVIEWS[handle] || []).filter((x) => x && x.text && Number(x.stars) >= 4).sort((a, b) => b.stars - a.stars || a.text.length - b.text.length)[0];
+  if (!r) return '';
+  const t = String(r.text).replace(/\s+/g, ' ').trim(); const short = [...t].length > 60 ? [...t].slice(0, 58).join('') + '…' : t;
+  return `${'★'.repeat(Math.round(r.stars))}「${short}」\n（${r.source || '当店'}のお客様レビューより）`;
 }
 const CAP_SYS = `あなたは日本の生活雑貨ブランド「アネット」（公式オンラインショップ anetmc.com）の Instagram 担当。読者は 20〜50 代の女性中心、暮らしを少しラクにしたい人。カタログの羅列ではなく、友人にすすめるような自然な投稿文を書く。
 構成（必ずこの順）：
@@ -175,6 +222,8 @@ const CAP_SYS = `あなたは日本の生活雑貨ブランド「アネット」
 // 投稿文の末尾に必ず付ける店舗案内（2026-10-28 用户「IG 投稿に anetmc.com が無い」）。Instagram の本文 URL はリンクにならないため「プロフィールのリンク」も併記。Facebook 側は URL がそのままリンクになる
 const FOOTER = `\n\n━━━━━━━━━━\n🛒 公式オンラインショップ「アネット」\nanetmc.com（プロフィールのリンクからどうぞ）`;
 const SHOP_URL = `${SITE}/?utm_source=instagram&utm_medium=social&utm_campaign=catalog`;
+// 1 商品投稿は商品ページへ、まとめ投稿は店トップへ（Facebook / Threads では本文の URL が押せる）
+const postUrl = (p, src) => (!p.handles && p.url && /\/products\//.test(p.url)) ? `${p.url.split('?')[0]}?utm_source=${src}&utm_medium=social&utm_campaign=${p.week || 'single'}` : `${SITE}/?utm_source=${src}&utm_medium=social&utm_campaign=${p.week || 'catalog'}`;
 async function caption() {
   const f = planPath(); const posts = J(f); if (!posts) { console.error('先に plan'); process.exit(2); }
   // 6kpro 待ちの間に publish が status を更新するため、保存時はファイルを読み直して caption 系だけ書き戻す（古い posts で上書きしない）
@@ -186,14 +235,18 @@ async function caption() {
     if (p.status === 'published') continue;
     if (!(await waitLLM(LLM, WIN, log))) { log('6kpro 窓口外/停止 → 中断'); break; }
     let r; for (let k = 0; k < 3; k++) {
-      r = await chatJson([{ role: 'system', content: CAP_SYS }, { role: 'user', content: `種別:${p.kind} テーマ:${p.theme}\n商品名:${soften(p.title)}\nfacts:${soften(p.facts).replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')}${args.hint ? '\n追加指示:' + args.hint : ''}` }]);
-      if (r.caption) { r.caption = soften(r.caption); r.hashtags = (r.hashtags || []).map(soften); r.alt = soften(r.alt); }
-      var bad = [r.caption, r.alt, ...(r.hashtags || [])].map((t) => String(t ?? '').match(BANNED)?.[0]).filter(Boolean); if (!bad.length && r.caption) break; log('retry', p.n, bad.slice(0, 3));
+      r = await chatJson([{ role: 'system', content: p.handles ? CAP_SYS : CAP_SYS_SINGLE }, { role: 'user', content: `種別:${p.kind} テーマ:${p.theme}\n商品名:${soften(p.title)}\nfacts:${soften(p.facts).replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')}${args.hint ? '\n追加指示:' + args.hint : ''}` }]);
+      if (r.caption) { r.caption = soften(r.caption); r.hashtags = (r.hashtags || []).map(soften); r.alt = soften(r.alt); if (r.threads) r.threads = soften(r.threads); }
+      var bad = [r.caption, r.alt, r.threads, ...(r.hashtags || [])].map((t) => String(t ?? '').match(BANNED)?.[0]).filter(Boolean);
+      if (!p.handles && /お客様の声|レビュー|口コミ|好評|大人気|売れてる|リピート/.test(`${r.caption}${r.threads}`)) bad.push('レビュー風の表現');   // 作り話のレビュー禁止
+      if (!p.handles && !r.threads) bad.push('threads 空');
+      if (!bad.length && r.caption) break; log('retry', p.n, bad.slice(0, 3));
     }
     if (bad.length || !r.caption) { log('caption 不可（3 回とも禁語/空）→ 旧文のまま', p.n); if (args.force) { p.approved = false; gen.set(p.n, { approved: false }); } continue; }   // --force 時は旧文の承認も外す（旧文体のまま投稿させない）
-    p.caption = r.caption; p.hashtags = (r.hashtags || []).map((h) => String(h).replace(/^#/, '')).slice(0, 15); p.alt = r.alt; log('caption', p.n, p.title.slice(0, 20));
+    const rv = p.handles ? '' : reviewLine(p.handle);   // 実レビューがあれば 1 行目に原文引用（AI は作らない）
+    p.caption = rv ? `${rv}\n\n${r.caption}` : r.caption; p.review = rv || undefined; p.threads = r.threads || undefined; p.hashtags = (r.hashtags || []).map((h) => String(h).replace(/^#/, '')).slice(0, 15); p.alt = r.alt; log('caption', p.n, p.title.slice(0, 20), rv ? '(実レビュー引用)' : '');
     if (args.force) p.approved = false;   // 作り直した投稿文は再承認が必要
-    gen.set(p.n, { caption: p.caption, hashtags: p.hashtags, alt: p.alt, ...(args.force ? { approved: false } : {}) }); if (gen.size % 10 === 0) save();   // 途中で落ちても生成済みを失わない
+    gen.set(p.n, { caption: p.caption, threads: p.threads, review: p.review, hashtags: p.hashtags, alt: p.alt, ...(args.force ? { approved: false } : {}) }); if (gen.size % 10 === 0) save();   // 途中で落ちても生成済みを失わない
   }
   save();
 }
@@ -237,7 +290,7 @@ const FB = { id: env.FB_PAGE_ID, token: env.FB_PAGE_TOKEN };
 async function fbApi(p, body) { const r = await fetch(`${GRAPH}/${p}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...body, access_token: FB.token }) }); const j = await r.json(); if (!r.ok || j.error) throw new Error(`fb ${p}: ${JSON.stringify(j.error || j).slice(0, 300)}`); return j; }
 async function fbCrossPost(p) {
   if (!FB.id || !FB.token) return null;
-  const message = `${p.caption}\n\n🛒 公式オンラインショップ「アネット」\n${SHOP_URL}\n\n${p.hashtags.map((h) => '#' + h).join(' ')}`;
+  const message = `${p.caption}\n\n🛒 ${p.handles ? '公式オンラインショップ「アネット」' : 'この商品はこちら（公式オンラインショップ「アネット」）'}\n${postUrl(p, 'facebook')}\n\n${p.hashtags.map((h) => '#' + h).join(' ')}`;
   let post;
   if (p.kind === 'reel' && p.videoUrl) post = await fbApi(`${FB.id}/videos`, { file_url: p.videoUrl, description: message });
   else { const ids = []; for (const u of p.images.slice(0, 10)) ids.push((await fbApi(`${FB.id}/photos`, { url: igImg(u), published: false })).id); post = await fbApi(`${FB.id}/feed`, { message, attached_media: ids.map((id) => ({ media_fbid: id })) }); }
@@ -268,8 +321,8 @@ async function thCall(p, params = {}, method = 'POST', token = TH.token) {
 const thLen = (t) => [...t].length;
 function thText(p) {
   const tag = String((p.hashtags || [])[0] || 'アネット').replace(/^#/, '').replace(/[.&\s]/g, '');
-  const tail = `\n\n🛒 公式オンラインショップ「アネット」\n${TH_SHOP}\n#${tag}`;
-  let body = String(p.caption || '').trim(); const room = 500 - thLen(tail);
+  const tail = `\n\n🛒 ${p.handles ? '公式オンラインショップ「アネット」' : 'アネット公式'}\n${p.handles ? TH_SHOP : postUrl(p, 'threads')}\n#${tag}`;
+  let body = String(p.threads || p.caption || '').trim(); const room = 500 - thLen(tail);
   if (thLen(body) > room) { const cut = [...body].slice(0, room - 1).join(''); const i = Math.max(cut.lastIndexOf('。'), cut.lastIndexOf('\n')); body = (i > room * 0.5 ? cut.slice(0, i + 1) : cut + '…').trim(); }
   return body + tail;
 }
@@ -409,6 +462,6 @@ async function insights() {
   log('→ docs/instagram/insights.md');
 }
 
-const run = { setup, products, plan, caption, assets, approve, publish, 'fb-backfill': fbBackfill, 'th-setup': thSetup, 'th-refresh': thRefresh, 'th-backfill': thBackfill, replies, profile, insights }[cmd];
-if (!run) { console.error('usage: ig.mjs setup|products|plan|caption|assets|approve|publish|fb-backfill|th-setup|th-refresh|th-backfill|replies|profile|insights'); process.exit(2); }
+const run = { setup, products, plan, caption, assets, approve, publish, 'fb-backfill': fbBackfill, 'th-setup': thSetup, 'th-refresh': thRefresh, 'th-backfill': thBackfill, retire, replies, profile, insights }[cmd];
+if (!run) { console.error('usage: ig.mjs setup|products|plan|caption|assets|approve|publish|fb-backfill|th-setup|th-refresh|th-backfill|retire|replies|profile|insights'); process.exit(2); }
 Promise.resolve().then(run).catch((e) => { console.error(e); process.exit(1); });

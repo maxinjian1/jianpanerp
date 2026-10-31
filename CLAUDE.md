@@ -67,6 +67,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-11-01 用户「一个帖子一件产品，ins 和 facebook 写详细、多用购物好评开头，threads 写简单、不同风格」：ig.mjs 加 `plan --single`（1 投稿 1 商品，A 档优先，图最多 10 张，FB/Threads 链接到商品页）、`retire --file catalog`（停旧 5 商品合集的未发帖）、caption 一次生成 IG/FB 详细版 + Threads 短版（`threads` 字段）。**好评开头只用真实评价**：人工转记到 `tools/instagram/in/reviews.json` 才在第 1 行引用原文与出处，AI 禁写「レビュー/好評/人気」等（景品表示法ステマ規制）；目前 anetmc 商品无自店评价，故先以使用场景开头。新文案需用户承认后才发。
 - 2026-11-01 用户「Threads 发帖做好，内容复用 Instagram」：ig.mjs 加 Threads 同时投稿（publish 成功后同图同文，500 字截断 + anetmc.com 链接 + 话题标签 1 个，`--no-th` 可停）、`th-setup`（短→长期令牌，写 THREADS_USER_ID）、`th-refresh`（daily-sync 每日延长）、`th-backfill --max 2`。用户开通步骤 `docs/instagram/threads-setup.md`（Threads 令牌与 FB 不同，需 Threads 用例 + 测试者 + 应用シークレット）。同日 Facebook 同步已开通：主页「アネット」，FB_PAGE_* 写入成功。6kpro 自 11-01 06:51（北京）8199 拒绝连接，待机主 leosma 处理。
 - 2026-10-31 用户「批准 30 件」：Amazon 前 30 件子 ASIN 只改 bullet_point1〜5（`docs/amazon-fba/top30-bullets.{md,json}`，6kpro 既存草稿 + 云端禁语修正 3 处），标题/价格/说明/检索词/品牌不动；上传前 Windows 逐件对照现行页面数值，不一致就删数值。背景：AI 购物（ACO）分析结论＝不买软件不建系统，资料做准即可；anetmc 90 天 500 访问中 ChatGPT 仅 1。
 - 2026-10-29 11:15 JST 用户给出**批发商畅销表（50 SKU・数量）**→ 存为 `tools/rakuten/in/keep-skus.txt`，规则「乐天：表上有的上架，没有的全部非表示」→ `tools/rakuten/keep-list.mjs`（plan：保留 45 / 发布 6 / 非表示 694；apply = hideItem 开关，备份同 reprice-backup）。**用户决定：存储类（1TB-YP/4TB-YP/2TB-XYP/2TB-C/512-UP/128-UP/up-001/NCK-1T/NCK-512）也上乐天**（覆盖当天早上「1TB-YP 下架」；批发商新品 38914/39421/39182 的 Shopify hold 未另行指示，维持 hold）。表只用于乐天，Shopify/IG 不动。
