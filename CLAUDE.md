@@ -67,6 +67,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-11-01 用户要求「不要贴来贴去，直接连对话窗口」：本云端会话申请连接用户电脑会话的授权，用户已允许但因本会话记录过长未被计入，**本会话无法直连 Windows**。今后直接在 Windows 的 Claude 会话里工作（或新开云端会话授权一次）。待办与指令汇总在 `docs/交接-2026-11-01.md`，新会话先读它。
 - 2026-11-01 Windows 报告：Ollama 常驻、两模型在；单品计划 935 条（A 档 53，11-02〜2027-02-03）；前 20 条文案是 **qwen3:14b** 写的（Windows `.env` 的 LOCAL_LLM_MODEL=qwen3:14b），Threads 版只有 31〜65 字，且有「運動能力が向上」类无依据功效。修正：prompt 禁止体/能力功效断言 + 禁语追加（運動能力/発達/集中力/血行/代謝/安眠…），Threads 必须 60 字以上否则重试，`--only` 支持区间（1-20），`--force` 重写失败会清空旧文。建议 .env 改 LOCAL_LLM_MODEL=qwen3:30b-a3b 后重做前 20 条。
 - 2026-11-01 plan-single（Windows 生成 935 帖、前 20 条本机模型文案）核对：标题与链接一致；问题＝A 档天然石手链连排 7 条 → planSingle 的 A 档也按类目轮流；手链文案出现「金運/幸運/運気/開運」→ 加入禁语（verify 会标出，需 `caption --force --only <番号>` 重写）。
 - 2026-11-01 用户「产品图片和产品链接不对，要确认产品链接和帖子的对应」：原因＝旧 catalog 一帖 5 商品、链接是 collections/all，FB 补发同样。ig.mjs 加 `verify --file single [--fix]`（逐帖核对：图片全属链接商品、商品 ACTIVE 且上线、链接为 /products/<handle>，报告 `docs/instagram/verify-single.md` 带首图缩略）；publish 发前必核对，图片过期自动换成该商品当前图，商品下架/合集帖标 mismatch 不发；fb/th-backfill 不再补发合集帖。
