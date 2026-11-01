@@ -301,7 +301,7 @@ async function fbBackfill() {
   if (!FB.id || !FB.token) { console.error('.env に FB_PAGE_ID / FB_PAGE_TOKEN が必要（setup を再実行）'); process.exit(2); }
   const files = fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f)); let n = 0;
   for (const f of files) { const posts = J(path.join(OUT, f)); let changed = false;
-    for (const p of posts) { if (p.status !== 'published' || p.fbPostId) continue; if (args.max && n >= Number(args.max)) break; n++;
+    for (const p of posts) { if (p.status !== 'published' || p.fbPostId || (p.handles && !args.all)) continue; if (args.max && n >= Number(args.max)) break; n++;   // まとめ投稿はリンクが商品に対応しないので補発しない（--all で強制）
       try { await fbCrossPost(p); } catch (e) { p.fbError = e.message.slice(0, 300); log('FB ERR', f, p.n, p.fbError); } changed = true; await sleep(3000); }
     if (changed) { J(path.join(OUT, f), posts); if (f === `plan-${PLAN_NAME}.json`) writePlanMd(posts); } }
   log('fb-backfill done', n);
@@ -360,10 +360,59 @@ async function thBackfill() {
   if (!TH.id || !TH.token) { console.error('.env に THREADS_USER_ID / THREADS_ACCESS_TOKEN が必要（th-setup を実行）'); process.exit(2); }
   const max = Number(args.max || 2); const files = fs.readdirSync(OUT).filter((f) => /^plan-.*\.json$/.test(f)); let n = 0;
   for (const f of files) { const posts = J(path.join(OUT, f)); let changed = false;
-    for (const p of posts) { if (p.status !== 'published' || p.thPostId) continue; if (n >= max) break; n++;
+    for (const p of posts) { if (p.status !== 'published' || p.thPostId || (p.handles && !args.all)) continue; if (n >= max) break; n++;
       try { await thCrossPost(p); } catch (e) { p.thError = e.message.slice(0, 300); log('TH ERR', f, p.n, p.thError); } changed = true; J(path.join(OUT, f), posts); await sleep(5000); }
     if (changed && f === `plan-${PLAN_NAME}.json`) writePlanMd(posts); }
   log('th-backfill done', n);
+}
+
+// ───────── 投稿と商品の対応チェック（2026-11-01 用户「产品图片和产品链接不对，要确认产品链接和帖子的对应」） ─────────
+// 1 商品投稿：画像がすべてその商品（handle）の現在の画像か、商品が ACTIVE でオンラインストアに出ているか、リンクの handle が投稿の handle と同じか。
+// 画像の照合は Shopify CDN のファイル名（クエリ・サイズ接尾辞を除く）で行う。
+const imgKey = (u) => decodeURIComponent(String(u).split('?')[0].split('/').pop() || '').replace(/_(\d+x\d*|\d*x\d+|small|medium|large|grande|compact|master)(?=\.)/i, '').toLowerCase();
+const prodCache = new Map();
+async function shopProduct(handle) {
+  if (prodCache.has(handle)) return prodCache.get(handle);
+  const d = await gql(`query($h:String!){ productByHandle(handle:$h){ handle title status onlineStoreUrl images(first:20){ nodes{ url } } } }`, { h: handle });
+  const p = d.productByHandle ? { handle: d.productByHandle.handle, title: d.productByHandle.title, status: d.productByHandle.status, online: !!d.productByHandle.onlineStoreUrl, images: d.productByHandle.images.nodes.map((n) => n.url) } : null;
+  prodCache.set(handle, p); return p;
+}
+async function checkPost(p) {
+  const problems = [];
+  if (p.handles) problems.push('まとめ投稿（複数商品）：リンクが商品ページにならない');
+  const handles = p.handles || [p.handle];
+  const prods = []; for (const h of handles) { const sp = await shopProduct(h); if (!sp) problems.push(`商品 ${h} が Shopify に無い`); else { if (sp.status !== 'ACTIVE') problems.push(`商品 ${h} が ${sp.status}`); if (!sp.online) problems.push(`商品 ${h} がオンラインストア非公開`); prods.push(sp); } }
+  const own = new Set(prods.flatMap((sp) => sp.images.map(imgKey)));
+  const foreign = (p.images || []).filter((u) => !own.has(imgKey(u)));
+  if (foreign.length) problems.push(`画像 ${foreign.length}/${p.images.length} 枚がリンク先の商品の画像ではない`);
+  if (!p.handles && p.url && !p.url.includes(`/products/${p.handle}`)) problems.push(`リンク ${p.url.split('?')[0]} が投稿の商品 ${p.handle} と違う`);
+  return { ok: !problems.length, problems, foreign, product: prods[0] };
+}
+// 公開前の自動修正：1 商品投稿で画像だけが古い／他商品のもの → その商品の現在の画像に差し替え（最大 10 枚）。商品が非公開・削除なら投稿しない
+async function fixPost(p) {
+  const r = await checkPost(p);
+  if (r.ok) return r;
+  if (!p.handles && r.product && r.product.status === 'ACTIVE' && r.product.online && r.product.images.length) {
+    const before = p.images.length; p.images = r.product.images.slice(0, 10); p.kind = p.images.length >= 2 ? 'carousel' : 'image';
+    p.url = `${SITE}/products/${p.handle}?utm_source=instagram&utm_medium=social&utm_campaign=${p.week || 'single'}`;
+    log('画像/リンクを商品の現在のものに差し替え', p.n, p.handle, `${before}→${p.images.length} 枚`);
+    return checkPost(p);
+  }
+  return r;
+}
+// verify --file single：全投稿をチェック → docs/instagram/verify-<name>.md（承認前に用户が見る）。--fix で画像差し替えを保存
+async function verify() {
+  const f = planPath(); const posts = J(f); if (!posts) { console.error('plan が無い', f); process.exit(2); }
+  const rows = []; let bad = 0;
+  for (const p of posts) {
+    if (p.status === 'retired') continue;
+    const r = args.fix && p.status !== 'published' ? await fixPost(p) : await checkPost(p);
+    if (!r.ok) bad++;
+    rows.push(`| ${p.n} | ${p.status} | ${p.handle} | ${(r.product?.title || p.title || '').slice(0, 30)} | ${p.images?.[0] ? `![](${p.images[0].split('?')[0]}?width=120)` : ''} | ${r.ok ? 'OK' : r.problems.join('<br>')} |`);
+  }
+  if (args.fix) J(f, posts);
+  fs.writeFileSync(path.join(DOCS, `verify-${PLAN_NAME}.md`), [`# 投稿と商品の対応チェック ${PLAN_NAME}（${new Date().toISOString().slice(0, 16)}Z）`, '', `対象 ${rows.length} 件、問題あり ${bad} 件。画像は 1 枚目のみ表示。リンクは商品ページ（${SITE}/products/<handle>）。`, '', '| # | 状態 | handle | Shopify の商品名 | 1 枚目 | 結果 |', '|---|---|---|---|---|---|', ...rows, ''].join('\n'));
+  log('verify', PLAN_NAME, 'posts', rows.length, 'problems', bad, `→ docs/instagram/verify-${PLAN_NAME}.md`);
 }
 
 async function publish() {
@@ -391,10 +440,12 @@ async function publish() {
   for (const f of files) {
     const posts = J(path.join(OUT, f)); let changed = false;
     for (const p of posts) {
-      if (!p.approved || p.status === 'published' || p.status === 'error' || !p.caption) continue;
+      if (!p.approved || p.status === 'published' || p.status === 'error' || p.status === 'mismatch' || p.status === 'retired' || !p.caption) continue;
       if (posted.has(`${f}#${p.n}`)) { p.status = 'published'; changed = true; continue; }   // error は自動再試行しない（直して status を戻す）
       if (args.due && new Date(p.at).getTime() > now) continue;
       if (tried >= MAX_RUN || last24 + done >= 40 || fails >= 3) break;   // --max は失敗も含めた試行数
+      const chk = await fixPost(p);   // 画像とリンクが同じ商品か確認（違えば差し替え、直せなければ出さない）
+      if (!chk.ok) { p.status = 'mismatch'; p.error = chk.problems.join(' / '); changed = true; log('対応不一致のため公開しない', f, p.n, p.error); J(path.join(OUT, f), posts); continue; }
       tried++;
       const text = `${p.caption}${FOOTER}\n\n${p.hashtags.map((h) => '#' + h).join(' ')}`;
       try {
@@ -462,6 +513,6 @@ async function insights() {
   log('→ docs/instagram/insights.md');
 }
 
-const run = { setup, products, plan, caption, assets, approve, publish, 'fb-backfill': fbBackfill, 'th-setup': thSetup, 'th-refresh': thRefresh, 'th-backfill': thBackfill, retire, replies, profile, insights }[cmd];
-if (!run) { console.error('usage: ig.mjs setup|products|plan|caption|assets|approve|publish|fb-backfill|th-setup|th-refresh|th-backfill|retire|replies|profile|insights'); process.exit(2); }
+const run = { setup, products, plan, caption, assets, approve, publish, 'fb-backfill': fbBackfill, 'th-setup': thSetup, 'th-refresh': thRefresh, 'th-backfill': thBackfill, retire, verify, replies, profile, insights }[cmd];
+if (!run) { console.error('usage: ig.mjs setup|products|plan|caption|assets|approve|publish|fb-backfill|th-setup|th-refresh|th-backfill|retire|verify|replies|profile|insights'); process.exit(2); }
 Promise.resolve().then(run).catch((e) => { console.error(e); process.exit(1); });

@@ -54,3 +54,9 @@
 - 旧 `catalog`（5 商品まとめ）は `retire --file catalog` で未公開分を止める（公開済みはそのまま）。
 - `caption --file single`（6kpro・夜間）：1 回で 2 種類を作る。`caption` = Instagram と Facebook 用（場面 1 行 → ✔ここがうれしい 3〜5 行 → サイズ等の事実 → こんな方に → 締め、250〜450 字）、`threads` = Threads 用（話し言葉 2〜3 行・60〜140 字、一番いいところと何が楽になるかだけ）。
 - **「お客様の声」から始めるのは実レビューがある商品だけ**：`tools/instagram/in/reviews.json`（雛形 reviews.example.json）に自店の実レビューを人が転記 → システムが 1 行目に原文と出典を付ける。AI にはレビュー・好評・人気などを書かせない（禁止チェックあり）。日本の景品表示法（2023-10 施行のステマ規制）で、作ったレビュー風広告は違法。
+
+## 投稿と商品の対応チェック（2026-11-01 用户「产品图片和产品链接不对」）
+- 原因：旧 `catalog` は 1 投稿に 5 商品をまとめ、リンクは `collections/all`（全商品一覧）だったため、画像とリンク先が対応しなかった。Facebook 補発分も同じ。
+- `verify --file single [--fix]` → `docs/instagram/verify-single.md`：各投稿の画像がすべてリンク先の商品（handle）の現在の画像か、商品が ACTIVE・オンラインストア公開か、リンクが `/products/<handle>` か。`--fix` で画像をその商品の現在の画像に差し替えて保存。
+- `publish` は公開直前に毎回このチェック（直せる画像は差し替え）。直せないもの（商品が非公開・削除、まとめ投稿）は `mismatch` にして出さない。
+- `fb-backfill` / `th-backfill` はまとめ投稿を補発しない（`--all` で強制）。
