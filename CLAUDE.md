@@ -67,6 +67,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-11-01 plan-single（Windows 生成 935 帖、前 20 条本机模型文案）核对：标题与链接一致；问题＝A 档天然石手链连排 7 条 → planSingle 的 A 档也按类目轮流；手链文案出现「金運/幸運/運気/開運」→ 加入禁语（verify 会标出，需 `caption --force --only <番号>` 重写）。
 - 2026-11-01 用户「产品图片和产品链接不对，要确认产品链接和帖子的对应」：原因＝旧 catalog 一帖 5 商品、链接是 collections/all，FB 补发同样。ig.mjs 加 `verify --file single [--fix]`（逐帖核对：图片全属链接商品、商品 ACTIVE 且上线、链接为 /products/<handle>，报告 `docs/instagram/verify-single.md` 带首图缩略）；publish 发前必核对，图片过期自动换成该商品当前图，商品下架/合集帖标 mismatch 不发；fb/th-backfill 不再补发合集帖。
 - 2026-11-01 **用户决定：6kpro 停机时用自己的模型代行**（覆盖 10-21「6kpro 连不上时不用本地小模型代替」）。`tools/night/window.mjs` 的 waitLLM：6kpro /health 不通且 Windows Ollama（LOCAL_LLM_BASE_URL，默认 localhost:11434/v1）在线 → 自动把发往 6kpro 的 /chat/completions 改发本地（文本 LOCAL_LLM_MODEL=qwen3:30b-a3b，带图 LOCAL_LLM_VISION_MODEL=qwen2.5vl:7b，自动加 /no_think、去掉 <think>），6kpro 恢复自动切回；各脚本不用改（ig/bundles/title-check/new-item-pack/optimize/video 均生效，visual.mjs 自带等待未接）。北京白天时间窗规则不变。ig.mjs 记录每条文案由哪个模型写（plan 里标「自前モデルで作成」）。`LLM_LOCAL_FALLBACK=0` 可关。
 - 2026-11-01 用户「一个帖子一件产品，ins 和 facebook 写详细、多用购物好评开头，threads 写简单、不同风格」：ig.mjs 加 `plan --single`（1 投稿 1 商品，A 档优先，图最多 10 张，FB/Threads 链接到商品页）、`retire --file catalog`（停旧 5 商品合集的未发帖）、caption 一次生成 IG/FB 详细版 + Threads 短版（`threads` 字段）。**好评开头只用真实评价**：人工转记到 `tools/instagram/in/reviews.json` 才在第 1 行引用原文与出处，AI 禁写「レビュー/好評/人気」等（景品表示法ステマ規制）；目前 anetmc 商品无自店评价，故先以使用场景开头。新文案需用户承认后才发。

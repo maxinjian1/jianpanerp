@@ -46,7 +46,7 @@ const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const J = (f, d) => d === undefined ? (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null) : fs.writeFileSync(f, JSON.stringify(d, null, 1));
 // 景表法・薬機法・プラットフォーム規約：価格/送料はキャプションに書かない（変わるので）、断定表現・他社名禁止
-const BANNED = /¥|円|送料|セール|SALE|割引|クーポン|No\.?\s?1|ナンバーワン|最強|最高級|日本一|業界初|世界一|絶対|完全|永久|治る|治療|効く|痩せる|バストアップ|美白|抗菌率|殺菌|医療|iPhone|Apple|ダイソン|Dyson|ニトリ|無印|IKEA|Amazon|楽天|メルカリ|PSE|認証/i;   // PSE 等の認証は証明書未保有のため書かない（2026-10-28 用户）
+const BANNED = /¥|円|送料|セール|SALE|割引|クーポン|No\.?\s?1|ナンバーワン|最強|最高級|日本一|業界初|世界一|絶対|完全|永久|治る|治療|効く|痩せる|バストアップ|美白|抗菌率|殺菌|医療|iPhone|Apple|ダイソン|Dyson|ニトリ|無印|IKEA|Amazon|楽天|メルカリ|PSE|認証|金運|開運|幸運|運気|ご利益|浄化|魔除け|厄除け|恋愛運|パワーを授/i;   // PSE 等の認証は証明書未保有のため書かない（2026-10-28 用户）
 // 他社名・紛らわしい語は caption 生成前後で言い換える（2026-10-28 用户：iPhone→スマホ、円形→丸型）
 const soften = (t) => String(t ?? '').replace(/iPhone/gi, 'スマホ').replace(/円形/g, '丸型');
 const weekStart = (s) => { const d = s ? new Date(s + 'T00:00:00Z') : new Date(Date.now() + 9 * 3600e3); const day = (d.getUTCDay() + 6) % 7; const m = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - day + (s ? 0 : 7))); return m.toISOString().slice(0, 10); };
@@ -153,7 +153,8 @@ function planCatalog(ps) {
 function planSingle(ps) {
   const perDay = Math.min(10, Number(args['per-day'] || 10)); const start = args.from || new Date(Date.now() + 9 * 3600e3 + 86400e3).toISOString().slice(0, 10);
   const items = ps.filter((p) => p.images.length >= 1 && (p.inStock ?? p.stock > 0));
-  const A = items.filter((p) => p.tierA).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const rr = (arr) => { const by = {}; for (const p of [...arr].sort((a, b) => b.createdAt.localeCompare(a.createdAt))) (by[p.type || 'その他'] ||= []).push(p); const qs = Object.values(by); const o = []; while (qs.some((q) => q.length)) for (const q of qs) if (q.length) o.push(q.shift()); return o; };
+  const A = rr(items.filter((p) => p.tierA));   // A 档もカテゴリ交互（同じ種類が何本も続かないように）
   const byType = {}; for (const p of items.filter((x) => !x.tierA)) (byType[p.type || 'その他'] ||= []).push(p);
   for (const arr of Object.values(byType)) arr.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const queues = Object.values(byType); const order = [...A]; while (queues.some((q) => q.length)) for (const q of queues) if (q.length) order.push(q.shift());
@@ -385,6 +386,7 @@ async function checkPost(p) {
   const own = new Set(prods.flatMap((sp) => sp.images.map(imgKey)));
   const foreign = (p.images || []).filter((u) => !own.has(imgKey(u)));
   if (foreign.length) problems.push(`画像 ${foreign.length}/${p.images.length} 枚がリンク先の商品の画像ではない`);
+  const ng = [p.caption, p.threads].map((t) => String(t || '').match(BANNED)?.[0]).filter(Boolean); if (ng.length) problems.push(`文案に禁止語「${ng.join('・')}」（caption --force --only ${p.n} で作り直し）`);
   if (!p.handles && p.url && !p.url.includes(`/products/${p.handle}`)) problems.push(`リンク ${p.url.split('?')[0]} が投稿の商品 ${p.handle} と違う`);
   return { ok: !problems.length, problems, foreign, product: prods[0] };
 }
