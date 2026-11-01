@@ -46,7 +46,7 @@ const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const J = (f, d) => d === undefined ? (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null) : fs.writeFileSync(f, JSON.stringify(d, null, 1));
 // 景表法・薬機法・プラットフォーム規約：価格/送料はキャプションに書かない（変わるので）、断定表現・他社名禁止
-const BANNED = /¥|円|送料|セール|SALE|割引|クーポン|No\.?\s?1|ナンバーワン|最強|最高級|日本一|業界初|世界一|絶対|完全|永久|治る|治療|効く|痩せる|バストアップ|美白|抗菌率|殺菌|医療|iPhone|Apple|ダイソン|Dyson|ニトリ|無印|IKEA|Amazon|楽天|メルカリ|PSE|認証|金運|開運|幸運|運気|ご利益|浄化|魔除け|厄除け|恋愛運|パワーを授/i;   // PSE 等の認証は証明書未保有のため書かない（2026-10-28 用户）
+const BANNED = /¥|円|送料|セール|SALE|割引|クーポン|No\.?\s?1|ナンバーワン|最強|最高級|日本一|業界初|世界一|絶対|完全|永久|治る|治療|効く|痩せる|バストアップ|美白|抗菌率|殺菌|医療|iPhone|Apple|ダイソン|Dyson|ニトリ|無印|IKEA|Amazon|楽天|メルカリ|PSE|認証|金運|開運|幸運|運気|ご利益|浄化|魔除け|厄除け|恋愛運|パワーを授|運動能力|能力が|発達|知能|頭が良く|集中力|免疫|血行|代謝|疲労回復|ストレス解消|安眠|快眠|姿勢が良く/i;   // PSE 等の認証は証明書未保有のため書かない（2026-10-28 用户）
 // 他社名・紛らわしい語は caption 生成前後で言い換える（2026-10-28 用户：iPhone→スマホ、円形→丸型）
 const soften = (t) => String(t ?? '').replace(/iPhone/gi, 'スマホ').replace(/円形/g, '丸型');
 const weekStart = (s) => { const d = s ? new Date(s + 'T00:00:00Z') : new Date(Date.now() + 9 * 3600e3); const day = (d.getUTCDay() + 6) % 7; const m = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - day + (s ? 0 : 7))); return m.toISOString().slice(0, 10); };
@@ -198,8 +198,9 @@ const CAP_SYS_SINGLE = `あなたは日本の生活雑貨の公式オンライ�
 ・「こんな方に」1〜2 行。
 ・締めの一言 1 文（リンク案内は書かない）。
 全体 250〜450 字、やさしい丁寧語、絵文字 3 個まで。
-【threads】Threads 用。まったく別の書き方で短く：友だちに話すような話し言葉で 2〜3 行、合計 60〜140 字。「これ、〜が便利」「〜できるのがいい」のように、この商品の一番いいところと何が楽になるかだけ。ハッシュタグ・URL・絵文字は書かない（システムが付ける）。
+【threads】Threads 用。まったく別の書き方で短く：友だちに話すような話し言葉で 3 行、合計 70〜130 字（60 字未満は不可）。1 行目＝何が便利か、2 行目＝どんな場面で楽になるか、3 行目＝ひとこと。「これ、〜が便利」「〜できるのがいい」のように、この商品の一番いいところと何が楽になるかだけ。ハッシュタグ・URL・絵文字は書かない（システムが付ける）。
 共通の禁止：価格・送料・セール・No.1・最強・日本一・絶対・医療効能・他社ブランド名、facts に無い数字や機能、説明書口調（〜を実現/〜をサポート/〜を提供）、型番、作り話のレビューや体験談。
+体や能力への効果を言い切らない（運動能力・知能・発達・集中力・姿勢・血行・代謝・疲労回復・安眠・ストレス解消などが「上がる/良くなる/身につく」と書かない）。facts にあっても「〜を楽しめる」「〜に使える」のように使い方で書く。
 ハッシュタグ 12〜15 個（caption 用）：大 5・中（カテゴリ）5・小（具体）3〜5、必ず #アネット、英語 2 個まで。
 出力 JSON：{"caption":"…","threads":"…","hashtags":["…"],"alt":"画像の代替テキスト 60 字以内"}`;
 // 実レビュー（自店の Amazon / 楽天 / Judge.me などから人が転記したものだけ）：{ "<handle>": [{ "stars": 5, "text": "…", "source": "楽天市場" }] }
@@ -229,7 +230,7 @@ async function caption() {
   const f = planPath(); const posts = J(f); if (!posts) { console.error('先に plan'); process.exit(2); }
   // 6kpro 待ちの間に publish が status を更新するため、保存時はファイルを読み直して caption 系だけ書き戻す（古い posts で上書きしない）
   const gen = new Map(); const save = () => { const cur = J(f); for (const q of cur) { const g = gen.get(q.n); if (g && q.status !== 'published') Object.assign(q, g); } J(f, cur); writePlanMd(cur); };
-  const only = args.only ? new Set(String(args.only).split(',').map(Number)) : null;   // --only 26,141 で指定番号だけ（--force と併用で作り直し）
+  const only = args.only ? new Set(String(args.only).split(',').flatMap((x) => { const m = x.match(/^(\d+)-(\d+)$/); return m ? Array.from({ length: Number(m[2]) - Number(m[1]) + 1 }, (_, i) => Number(m[1]) + i) : [Number(x)]; })) : null;   // --only 26,141 で指定番号だけ（--force と併用で作り直し）
   for (const p of posts) {
     if (only && !only.has(p.n)) continue;
     if (p.caption && !args.force) continue;
@@ -241,9 +242,10 @@ async function caption() {
       var bad = [r.caption, r.alt, r.threads, ...(r.hashtags || [])].map((t) => String(t ?? '').match(BANNED)?.[0]).filter(Boolean);
       if (!p.handles && /お客様の声|レビュー|口コミ|好評|大人気|売れてる|リピート/.test(`${r.caption}${r.threads}`)) bad.push('レビュー風の表現');   // 作り話のレビュー禁止
       if (!p.handles && !r.threads) bad.push('threads 空');
+      if (!p.handles && r.threads && [...String(r.threads)].length < 60) bad.push(`threads ${[...String(r.threads)].length} 字（60 字未満）`);
       if (!bad.length && r.caption) break; log('retry', p.n, bad.slice(0, 3));
     }
-    if (bad.length || !r.caption) { log('caption 不可（3 回とも禁語/空）→ 旧文のまま', p.n); if (args.force) { p.approved = false; gen.set(p.n, { approved: false }); } continue; }   // --force 時は旧文の承認も外す（旧文体のまま投稿させない）
+    if (bad.length || !r.caption) { log('caption 不可（3 回とも禁語/空）→ 旧文のまま', p.n); if (args.force) { p.approved = false; gen.set(p.n, { approved: false, caption: undefined, threads: undefined, hashtags: undefined, llm: undefined }); } continue; }   // 作り直し失敗は旧文を消す（古い文案を誤って承認しない）   // --force 時は旧文の承認も外す（旧文体のまま投稿させない）
     const rv = p.handles ? '' : reviewLine(p.handle);   // 実レビューがあれば 1 行目に原文引用（AI は作らない）
     p.caption = rv ? `${rv}\n\n${r.caption}` : r.caption; p.review = rv || undefined; p.threads = r.threads || undefined; p.hashtags = (r.hashtags || []).map((h) => String(h).replace(/^#/, '')).slice(0, 15); p.alt = r.alt; p.llm = currentLLM(); log('caption', p.n, p.title.slice(0, 20), rv ? '(実レビュー引用)' : '', p.llm.startsWith('local') ? '(自前モデル)' : '');
     if (args.force) p.approved = false;   // 作り直した投稿文は再承認が必要

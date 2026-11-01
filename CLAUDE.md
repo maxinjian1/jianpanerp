@@ -67,6 +67,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 - 订单闭环第一阶段：人工一键确认后再去批发商下单付款。
 
 ## 进度日志
+- 2026-11-01 Windows 报告：Ollama 常驻、两模型在；单品计划 935 条（A 档 53，11-02〜2027-02-03）；前 20 条文案是 **qwen3:14b** 写的（Windows `.env` 的 LOCAL_LLM_MODEL=qwen3:14b），Threads 版只有 31〜65 字，且有「運動能力が向上」类无依据功效。修正：prompt 禁止体/能力功效断言 + 禁语追加（運動能力/発達/集中力/血行/代謝/安眠…），Threads 必须 60 字以上否则重试，`--only` 支持区间（1-20），`--force` 重写失败会清空旧文。建议 .env 改 LOCAL_LLM_MODEL=qwen3:30b-a3b 后重做前 20 条。
 - 2026-11-01 plan-single（Windows 生成 935 帖、前 20 条本机模型文案）核对：标题与链接一致；问题＝A 档天然石手链连排 7 条 → planSingle 的 A 档也按类目轮流；手链文案出现「金運/幸運/運気/開運」→ 加入禁语（verify 会标出，需 `caption --force --only <番号>` 重写）。
 - 2026-11-01 用户「产品图片和产品链接不对，要确认产品链接和帖子的对应」：原因＝旧 catalog 一帖 5 商品、链接是 collections/all，FB 补发同样。ig.mjs 加 `verify --file single [--fix]`（逐帖核对：图片全属链接商品、商品 ACTIVE 且上线、链接为 /products/<handle>，报告 `docs/instagram/verify-single.md` 带首图缩略）；publish 发前必核对，图片过期自动换成该商品当前图，商品下架/合集帖标 mismatch 不发；fb/th-backfill 不再补发合集帖。
 - 2026-11-01 **用户决定：6kpro 停机时用自己的模型代行**（覆盖 10-21「6kpro 连不上时不用本地小模型代替」）。`tools/night/window.mjs` 的 waitLLM：6kpro /health 不通且 Windows Ollama（LOCAL_LLM_BASE_URL，默认 localhost:11434/v1）在线 → 自动把发往 6kpro 的 /chat/completions 改发本地（文本 LOCAL_LLM_MODEL=qwen3:30b-a3b，带图 LOCAL_LLM_VISION_MODEL=qwen2.5vl:7b，自动加 /no_think、去掉 <think>），6kpro 恢复自动切回；各脚本不用改（ig/bundles/title-check/new-item-pack/optimize/video 均生效，visual.mjs 自带等待未接）。北京白天时间窗规则不变。ig.mjs 记录每条文案由哪个模型写（plan 里标「自前モデルで作成」）。`LLM_LOCAL_FALLBACK=0` 可关。
