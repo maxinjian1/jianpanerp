@@ -1,17 +1,17 @@
-# 投稿と商品の対応チェック single（2026-11-01T00:40Z）
+# 投稿と商品の対応チェック single（2026-11-01T07:53Z）
 
-対象 935 件、問題あり 4 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
+対象 935 件、問題あり 2 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
 | # | 状態 | handle | Shopify の商品名 | 1 枚目 | 結果 |
 |---|---|---|---|---|---|
-| 1 | planned | バランスストーン-10個セット-キッズ用平均台遊具-室内-屋外兼用-2歳 | バランスストーン 10個セット キッズ用平均台遊具 室内・屋 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387809.jpg?width=120) | 文案に禁止語「運動能力」（caption --force --only 1 で作り直し） |
+| 1 | planned | バランスストーン-10個セット-キッズ用平均台遊具-室内-屋外兼用-2歳 | バランスストーン 10個セット キッズ用平均台遊具 室内・屋 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387809.jpg?width=120) | OK |
 | 2 | planned | 車用サンバイザーオーガナイザー-メガネ-カード収納クリップ-puレザー-yb-05 | 車用サンバイザーオーガナイザー メガネ・カード収納クリップ  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_000b300e-ce89-4d73-96f5-946a3ed944d9.jpg?width=120) | OK |
 | 3 | planned | 注水式ケトルベル-2-8kg-水の量で重量調節-滑りにくい-自宅トレーニング用-ab-02 | 注水式ケトルベル 2〜8kg 水の量で重量調節 滑りにくい  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121388081.jpg?width=120) | OK |
 | 4 | planned | デスクチェア-キャスター付き-肘掛け-背もたれ付き-パソコン-ドレッサー兼用チェア-hb-02 | デスクチェア キャスター付き 肘掛け・背もたれ付き パソコン | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121417010.jpg?width=120) | OK |
 | 5 | planned | ストロベリークォーツ-パール-ブレスレット-天然石パワーストーン-wrta-br-088 | ストロベリークォーツ×パール ブレスレット 天然石パワースト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416902.jpg?width=120) | OK |
 | 6 | planned | ペット用-折りたたみトリミングテーブル-調節可能アーム付き-グルーミングスタンド-y-12 | ペット用 折りたたみトリミングテーブル 調節可能アーム付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121422349.jpg?width=120) | OK |
 | 7 | planned | 折りたたみトレッキングポール-長さ調節可能-軽量コンパクト-wb-03 | 折りたたみトレッキングポール 長さ調節可能・軽量コンパクト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121383878.jpg?width=120) | OK |
-| 8 | planned | across-rainbow-パイルアップ-バランス積み上げゲーム-ボードゲーム-yb-05 | Across Rainbow パイルアップ バランス積み上げ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387795.jpg?width=120) | 文案に禁止語「集中力」（caption --force --only 8 で作り直し） |
+| 8 | planned | across-rainbow-パイルアップ-バランス積み上げゲーム-ボードゲーム-yb-05 | Across Rainbow パイルアップ バランス積み上げ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387795.jpg?width=120) | OK |
 | 9 | planned | ハンガーラック-キャスター付き-収納バスケット-フック付き-省スペース-衣類収納-wbghs-01-de | ハンガーラック キャスター付き 収納バスケット・フック付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386841.jpg?width=120) | OK |
 | 10 | planned | 朝用-夜用-保湿マスク-14枚セット-各7枚-ゆずvc-ヒアルロン酸配合-ciel-2 | 朝用・夜用 保湿マスク 14枚セット（各7枚） ゆずVC・ヒ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121388060.jpg?width=120) | OK |
 | 11 | planned | ビーズクッション-ソファ-4サイズ-撥水加工-サイドポケット付き-yb-05 | ビーズクッション ソファ 4サイズ・撥水加工・サイドポケット | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15420658843958-a-01.jpg?width=120) | OK |
