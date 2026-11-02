@@ -457,6 +457,7 @@ async function publish() {
         if (p.kind === 'reel' && p.videoUrl) { creation = (await graph(`${IG.id}/media`, { media_type: 'REELS', video_url: p.videoUrl, caption: text, share_to_feed: true })).id; await waitContainer(creation); }
         else if (p.kind === 'carousel' && p.images.length >= 2) { const kids = []; for (const u of p.images.slice(0, 10)) kids.push((await retry(() => graph(`${IG.id}/media`, { image_url: igImg(u), is_carousel_item: true }), 2, 8000)).id); /* 2207052（Meta が画像を取れなかった）は一時的なことが多い → 画像ごとに 8 秒おいて 2 回まで再試行 */ creation = (await graph(`${IG.id}/media`, { media_type: 'CAROUSEL', children: kids.join(','), caption: text })).id; }
         else { creation = (await graph(`${IG.id}/media`, { image_url: igImg(p.images[0]), caption: text })).id; }
+        await waitContainer(creation);   // カルーセル・画像も処理完了を待つ（待たないと 2207027「Media ID is not available」で失敗、2026-11-02 #5）
         const pub = await graph(`${IG.id}/media_publish`, { creation_id: creation });
         p.status = 'published'; p.mediaId = pub.id; p.publishedAt = new Date().toISOString(); changed = true; done++; log('published', f, p.n, pub.id);
         if (!args['no-fb']) await fbCrossPost(p).catch((e) => { p.fbError = e.message.slice(0, 300); log('FB ERR（IG は成功、FB のみ失敗）', p.n, p.fbError); });
