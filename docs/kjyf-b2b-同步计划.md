@@ -1,12 +1,12 @@
 # kjyf B2B → Shopify 同期計画
 
-生成：2026-10-31T21:32:08.822Z（`node tools/kjyf-b2b/sync.mjs plan`）。基準＝view 0（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。
+生成：2026-11-01T21:32:29.659Z（`node tools/kjyf-b2b/sync.mjs plan`）。基準＝view 0（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。
 
 ## 集計
 
 | 項目 | 件数 |
 |---|---|
-| backup | tools\kjyf-b2b\out\shopify-backup-2026-10-31T21-32-08.json |
+| backup | tools\kjyf-b2b\out\shopify-backup-2026-11-01T21-32-29.json |
 | b2bGoods | 1186 |
 | shopifyProducts | 1213 |
 | update | 1179 |
