@@ -234,7 +234,8 @@ async function caption() {
   for (const p of posts) {
     if (only && !only.has(p.n)) continue;
     if (p.caption && !args.force) continue;
-    if (p.status === 'published') continue;
+    if (p.status === 'published' || p.status === 'retired' || p.hold) continue;
+    if (args.ahead && Date.parse(p.at) > Date.now() + Number(args.ahead) * 86400e3) continue;   // --ahead 4：4 日先までの投稿だけ（夜間に少しずつ）
     if (!(await waitLLM(LLM, WIN, log))) { log('6kpro 窓口外/停止 → 中断'); break; }
     let r; for (let k = 0; k < 3; k++) {
       r = await chatJson([{ role: 'system', content: p.handles ? CAP_SYS : CAP_SYS_SINGLE }, { role: 'user', content: `種別:${p.kind} テーマ:${p.theme}\n商品名:${soften(p.title)}\nfacts:${soften(p.facts).replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')}${args.hint ? '\n追加指示:' + args.hint : ''}` }]);
@@ -272,8 +273,28 @@ async function assets() {
   J(f, posts); writePlanMd(posts);
 }
 
+// approve --auto --ahead 4（2026-11-03 用户「ins和Facebook每天继续发」）：自動承認するのは次の条件を全部満たす投稿だけ。
+//   6kpro が書いた文案 / 商品説明がある（説明なし＝推測で書きがち → 用户確認へ）/ verify OK（禁止語・画像・リンク・商品公開中）/ hold なし
+//   外れたものは docs/instagram/auto-approve.md に理由付きで残し、承認しない。
+async function autoApprove() {
+  const f = planPath(); const posts = J(f); const until = Date.now() + Number(args.ahead || 4) * 86400e3; const rows = []; let ok = 0;
+  for (const p of posts) {
+    if (p.approved || p.status !== 'planned' || Date.parse(p.at) > until) continue;
+    const why = [];
+    if (p.hold) why.push(`保留：${p.hold}`);
+    if (!p.caption) why.push('文案なし');
+    else if (!String(p.llm || '').startsWith('cn:')) why.push(`文案が 6kpro 以外（${p.llm || '不明'}）`);
+    if (String(p.facts || '').replace(p.title, '').trim().length < 20) why.push('商品説明なし（文案は推測を含みうる）');
+    if (!why.length) { const r = await fixPost(p); if (!r.ok) why.push(...r.problems); }
+    if (why.length) rows.push(`| ${p.n} | ${p.at.slice(5, 16)} | ${p.title.slice(0, 30)} | ${why.join('<br>')} |`); else { p.approved = true; ok++; }
+  }
+  J(f, posts); writePlanMd(posts);
+  fs.writeFileSync(path.join(DOCS, 'auto-approve.md'), [`# Instagram/Facebook 自動承認（${new Date().toISOString().slice(0, 16)}Z、${args.ahead || 4} 日先まで）`, '', `自動承認 ${ok} 件。下は承認しなかった投稿（用户が見て「承认 #番号」と言えば手動承認）。`, '', '| # | 予定 | 商品 | 理由 |', '|---|---|---|---|', ...rows].join('\n') + '\n');
+  log('auto-approve', ok, 'held', rows.length, '→ docs/instagram/auto-approve.md');
+}
 function approve() {
   const f = planPath(); const posts = J(f); if (!posts) { console.error('先に plan'); process.exit(2); }
+  if (args.auto) return autoApprove();
   const only = args.only ? new Set(String(args.only).split(',').map(Number)) : null;
   for (const p of posts) if (!only || only.has(p.n)) { if (!p.caption) { log('skip（caption 無し）', p.n); continue; } p.approved = true; }
   J(f, posts); writePlanMd(posts); log('approved', posts.filter((p) => p.approved).length, '/', posts.length);
@@ -464,6 +485,15 @@ async function publish() {
         if (!args['no-th']) await thCrossPost(p).catch((e) => { p.thError = e.message.slice(0, 300); log('TH ERR（IG は成功、Threads のみ失敗）', p.n, p.thError); });
         fs.appendFileSync(LOGF, JSON.stringify({ at: p.publishedAt, ok: true, file: f, week: p.week, n: p.n, handle: p.handle, kind: p.kind, mediaId: pub.id }) + '\n'); fails = 0;
       } catch (e) {
+        // 2207052（Meta が画像を取りに来られない）は画像が正常でも起きる一時エラー（2026-11-02 #8〜10 で 3 連続 → 全体停止になった）。
+        // → 連続失敗に数えず、2 時間後に回して最大 3 回まで再挑戦。3 回だめならその帖だけ error（タスクは止めない）。
+        if (/2207052/.test(e.message) && (p.transientTries || 0) < 2) {
+          p.transientTries = (p.transientTries || 0) + 1; p.at = new Date(Date.now() + 2 * 3600e3).toISOString(); changed = true;
+          log('一時エラー 2207052 → 2 時間後に再挑戦', f, p.n, `(${p.transientTries}/3)`);
+          fs.appendFileSync(LOGF, JSON.stringify({ at: new Date().toISOString(), transient: true, file: f, n: p.n, handle: p.handle, error: e.message.slice(0, 200) }) + '\n');
+          J(path.join(OUT, f), posts); await sleep(3000); continue;
+        }
+        if (/2207052/.test(e.message)) { p.status = 'error'; p.error = e.message; changed = true; log('2207052 が 3 回続いたのでこの帖は見送り（タスクは継続）', f, p.n); fs.appendFileSync(LOGF, JSON.stringify({ at: new Date().toISOString(), transient: true, gaveUp: true, file: f, n: p.n, handle: p.handle, error: e.message.slice(0, 200) }) + '\n'); J(path.join(OUT, f), posts); continue; }
         p.status = 'error'; p.error = e.message; changed = true; fails++; log('ERR', f, p.n, e.message);
         fs.appendFileSync(LOGF, JSON.stringify({ at: new Date().toISOString(), ok: false, file: f, week: p.week, n: p.n, handle: p.handle, kind: p.kind, error: e.message.slice(0, 300) }) + '\n');
         if (fails >= 3) halt();

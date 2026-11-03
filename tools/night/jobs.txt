@@ -1,6 +1,12 @@
 # 夜間（北京 20:00〜翌 10:00 = 日本 21:00〜11:00）に 6kpro を使うジョブ。上から順に実行。行頭 # は無効。
 # どれも途中で時間切れになったら止まり、翌晩は続きから（済みはスキップ）。どれも外部への公開・アップロードはしない（1 の anetmc 換図だけは用户承認済み）。
 
+# 0) Instagram/Facebook 一帖一商品：4 日先までの文案を 6kpro で書く → 核对 → 条件を満たすものだけ自動 approve
+#    （2026-11-03 用户「ins和Facebook每天继续发」。条件外は docs/instagram/auto-approve.md に理由付きで残す）
+tools/instagram/ig.mjs caption --file single --ahead 4
+tools/instagram/ig.mjs verify --file single --fix
+tools/instagram/ig.mjs approve --file single --auto --ahead 4
+
 # 1) 乐天 草稿箱 980 件の商品名合規チェック＋修正案（約 1 時間）→ docs/rakuten/title-check.md / .csv（提案のみ、斑馬には書かない）
 tools/rakuten/title-check.mjs
 
