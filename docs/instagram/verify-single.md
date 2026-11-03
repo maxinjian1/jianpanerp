@@ -1,19 +1,19 @@
-# 投稿と商品の対応チェック single（2026-11-01T08:33Z）
+# 投稿と商品の対応チェック single（2026-11-03T14:08Z）
 
-対象 935 件、問題あり 2 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
+対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
 | # | 状態 | handle | Shopify の商品名 | 1 枚目 | 結果 |
 |---|---|---|---|---|---|
-| 1 | planned | バランスストーン-10個セット-キッズ用平均台遊具-室内-屋外兼用-2歳 | バランスストーン 10個セット キッズ用平均台遊具 室内・屋 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387809.jpg?width=120) | OK |
-| 2 | planned | 車用サンバイザーオーガナイザー-メガネ-カード収納クリップ-puレザー-yb-05 | 車用サンバイザーオーガナイザー メガネ・カード収納クリップ  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_000b300e-ce89-4d73-96f5-946a3ed944d9.jpg?width=120) | OK |
-| 3 | planned | 注水式ケトルベル-2-8kg-水の量で重量調節-滑りにくい-自宅トレーニング用-ab-02 | 注水式ケトルベル 2〜8kg 水の量で重量調節 滑りにくい  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121388081.jpg?width=120) | OK |
-| 4 | planned | デスクチェア-キャスター付き-肘掛け-背もたれ付き-パソコン-ドレッサー兼用チェア-hb-02 | デスクチェア キャスター付き 肘掛け・背もたれ付き パソコン | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121417010.jpg?width=120) | OK |
-| 5 | planned | ストロベリークォーツ-パール-ブレスレット-天然石パワーストーン-wrta-br-088 | ストロベリークォーツ×パール ブレスレット 天然石パワースト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416902.jpg?width=120) | OK |
-| 6 | planned | ペット用-折りたたみトリミングテーブル-調節可能アーム付き-グルーミングスタンド-y-12 | ペット用 折りたたみトリミングテーブル 調節可能アーム付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121422349.jpg?width=120) | OK |
-| 7 | planned | 折りたたみトレッキングポール-長さ調節可能-軽量コンパクト-wb-03 | 折りたたみトレッキングポール 長さ調節可能・軽量コンパクト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121383878.jpg?width=120) | OK |
-| 8 | planned | across-rainbow-パイルアップ-バランス積み上げゲーム-ボードゲーム-yb-05 | Across Rainbow パイルアップ バランス積み上げ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387795.jpg?width=120) | OK |
-| 9 | planned | ハンガーラック-キャスター付き-収納バスケット-フック付き-省スペース-衣類収納-wbghs-01-de | ハンガーラック キャスター付き 収納バスケット・フック付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386841.jpg?width=120) | OK |
-| 10 | planned | 朝用-夜用-保湿マスク-14枚セット-各7枚-ゆずvc-ヒアルロン酸配合-ciel-2 | 朝用・夜用 保湿マスク 14枚セット（各7枚） ゆずVC・ヒ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121388060.jpg?width=120) | OK |
+| 1 | published | バランスストーン-10個セット-キッズ用平均台遊具-室内-屋外兼用-2歳 | バランスストーン 10個セット キッズ用平均台遊具 室内・屋 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387809.jpg?width=120) | OK |
+| 2 | published | 車用サンバイザーオーガナイザー-メガネ-カード収納クリップ-puレザー-yb-05 | 車用サンバイザーオーガナイザー メガネ・カード収納クリップ  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_000b300e-ce89-4d73-96f5-946a3ed944d9.jpg?width=120) | OK |
+| 3 | published | 注水式ケトルベル-2-8kg-水の量で重量調節-滑りにくい-自宅トレーニング用-ab-02 | 注水式ケトルベル 2〜8kg 水の量で重量調節 滑りにくい  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121388081.jpg?width=120) | OK |
+| 4 | published | デスクチェア-キャスター付き-肘掛け-背もたれ付き-パソコン-ドレッサー兼用チェア-hb-02 | デスクチェア キャスター付き 肘掛け・背もたれ付き パソコン | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121417010.jpg?width=120) | OK |
+| 5 | published | ストロベリークォーツ-パール-ブレスレット-天然石パワーストーン-wrta-br-088 | ストロベリークォーツ×パール ブレスレット 天然石パワースト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416902.jpg?width=120) | OK |
+| 6 | published | ペット用-折りたたみトリミングテーブル-調節可能アーム付き-グルーミングスタンド-y-12 | ペット用 折りたたみトリミングテーブル 調節可能アーム付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121422349.jpg?width=120) | OK |
+| 7 | published | 折りたたみトレッキングポール-長さ調節可能-軽量コンパクト-wb-03 | 折りたたみトレッキングポール 長さ調節可能・軽量コンパクト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121383878.jpg?width=120) | OK |
+| 8 | published | across-rainbow-パイルアップ-バランス積み上げゲーム-ボードゲーム-yb-05 | Across Rainbow パイルアップ バランス積み上げ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387795.jpg?width=120) | OK |
+| 9 | published | ハンガーラック-キャスター付き-収納バスケット-フック付き-省スペース-衣類収納-wbghs-01-de | ハンガーラック キャスター付き 収納バスケット・フック付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386841.jpg?width=120) | OK |
+| 10 | published | 朝用-夜用-保湿マスク-14枚セット-各7枚-ゆずvc-ヒアルロン酸配合-ciel-2 | 朝用・夜用 保湿マスク 14枚セット（各7枚） ゆずVC・ヒ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121388060.jpg?width=120) | OK |
 | 11 | planned | ビーズクッション-ソファ-4サイズ-撥水加工-サイドポケット付き-yb-05 | ビーズクッション ソファ 4サイズ・撥水加工・サイドポケット | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15420658843958-a-01.jpg?width=120) | OK |
 | 12 | planned | 天然石ルビー-小粒ブレスレット-3mm-繊細カットのパワーストーンアクセサリー-wrta-br-092 | 天然石ルビー 小粒ブレスレット 3mm 繊細カットのパワース | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416678.jpg?width=120) | OK |
 | 13 | planned | across-rainbow-アヒルダルマ-エッグマッチング知育玩具-五感と指先を育てるマッチングおもちゃ | Across Rainbow アヒルダルマ エッグマッチング | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387781.jpg?width=120) | OK |
@@ -31,10 +31,10 @@
 | 25 | planned | バランスバイク-キッズ-ペダルなし自転車-約2kg-軽量-ノーパンクタイヤ-d-47 | バランスバイク キッズ ペダルなし自転車 約2kg 軽量 ノ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cc53f9c8-499f-402f-81e6-5fe3461f024d.jpg?width=120) | OK |
 | 26 | planned | ダブルヘッドledデスクライト-3段階色温度-無段階調光-カレンダー時計ディスプレイ-ペンスタンド付き-読書灯 | ダブルヘッドLEDデスクライト｜3段階色温度・無段階調光・カ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_be63519a-9f2a-4abb-8fa5-3e275d8c08bf.jpg?width=120) | OK |
 | 27 | planned | 松葉杖-高さ調節可能-身長145-195cm対応-軽量で疲れにくい-歩行補助-gyslg-01 | 松葉杖 高さ調節可能 身長145～195cm対応 軽量で疲れ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121382248.jpg?width=120) | OK |
-| 28 | planned | 天然石-貔貅-ヒキュ-ブレスレット-6mm-パワーストーン-アクセサリー-ta-br-060 | 天然石 貔貅（ヒキュ）ブレスレット 6mm パワーストーン  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416964.jpg?width=120) | 文案に禁止語「幸運・運気」（caption --force --only 28 で作り直し） |
+| 28 | planned | 天然石-貔貅-ヒキュ-ブレスレット-6mm-パワーストーン-アクセサリー-ta-br-060 | 天然石 貔貅（ヒキュ）ブレスレット 6mm パワーストーン  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416964.jpg?width=120) | OK |
 | 29 | planned | キッズ-バランスバイク-ペダルなし-軽量2kg-ノーパンクタイヤ-d-47 | キッズ バランスバイク ペダルなし 軽量2kg ノーパンクタ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_c4273ee3-f28e-4f39-bd96-8ca8f5f59362.jpg?width=120) | OK |
 | 30 | planned | ボクシング-リアクションボール-反応速度トレーニング-高さ調整可能-子供-大人兼用-eb-02 | ボクシング リアクションボール 反応速度トレーニング 高さ調 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121388104.jpg?width=120) | OK |
-| 31 | planned | グリーン天然石パワーストーンブレスレット-8mm-金運-仕事運を願う開運アクセサリー-wrta-br-011-012 | グリーン天然石パワーストーンブレスレット 8mm 金運・仕事 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416951.jpg?width=120) | 文案に禁止語「金運・金運」（caption --force --only 31 で作り直し） |
+| 31 | planned | グリーン天然石パワーストーンブレスレット-8mm-金運-仕事運を願う開運アクセサリー-wrta-br-011-012 | グリーン天然石パワーストーンブレスレット 8mm 金運・仕事 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416951.jpg?width=120) | OK |
 | 32 | planned | バランスバイク-キッズ-ペダルなし自転車-軽量2kg-ノーパンクタイヤ-d-47 | バランスバイク キッズ ペダルなし自転車 軽量2kg ノーパ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_fb825a5a-36b1-4abd-91bb-38b72b53d948.jpg?width=120) | OK |
 | 33 | planned | クリスマスリース-壁掛け飾り-玄関-ドア-窓のインテリア装飾-xb-01 | クリスマスリース 壁掛け飾り 玄関・ドア・窓のインテリア装飾 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421562749238-a-01.jpg?width=120) | OK |
 | 34 | planned | 赤瑪瑙ストロベリークォーツ-8mm-天然石ブレスレット-開運パワーストーン-ta-br-044 | 赤瑪瑙ストロベリークォーツ 8mm 天然石ブレスレット 開運 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416933.jpg?width=120) | OK |
