@@ -244,6 +244,33 @@ async function applyOrRollback(mode) {
   log(`${mode} done ok ${ok} fail ${fail} → ${path.relative(ROOT, logF)}`);
 }
 
-const run = { check, mkdir, usage, scan, plan, apply: () => applyOrRollback('apply'), rollback: () => applyOrRollback('rollback') }[cmd];
-if (!run) { console.error('usage: cabinet.mjs check|mkdir|usage|scan|plan|apply|rollback'); process.exit(2); }
+// ---------- upload（cabinet.file.insert：新商品用。node cabinet.mjs upload --out urls.json [--folder 名] a.jpg b.jpg …）----------
+// フォルダ未指定なら anet2025-* のうちファイル数 < 480 の最初のもの（1 フォルダ 500 上限）。2MB 超・長辺 > 1200 は Pillow で縮小してから上げる。
+async function upload() {
+  const files = rest.filter((a, i) => !a.startsWith('--') && !(rest[i - 1] || '').startsWith('--'));
+  if (!files.length || !args.out) { console.error('usage: upload --out urls.json [--folder anet2025-05] a.jpg …'); process.exit(2); }
+  const folders = [];
+  for (let off = 1; ; off++) { const xml = await rms(`folders/get?offset=${off}&limit=100`); const list = tags(xml, 'folder').map((f) => ({ id: tag(f, 'FolderId'), name: tag(f, 'FolderName'), count: Number(tag(f, 'FileCount') || 0) })); folders.push(...list); if (list.length < 100) break; }
+  const fo = args.folder ? folders.find((f) => f.name === args.folder) : folders.filter((f) => /^anet2025-/.test(f.name) && f.count + files.length < 480).sort((a, b) => a.name.localeCompare(b.name))[0];
+  if (!fo) { console.error('空きのあるフォルダが無い → mkdir で作る'); process.exit(2); }
+  log('folder', fo.name, fo.id, 'files', fo.count);
+  const py = process.env.PYTHON || path.join(ROOT, 'apps/image-service/venv/Scripts/python.exe');
+  const out = [];
+  for (const f of files) {
+    let buf = fs.readFileSync(f);
+    if (buf.length > 1.9 * 1024 * 1024) { const t = path.join(OUT, 'upload-tmp.jpg'); execFileSync(py, ['-c', 'import sys;from PIL import Image;im=Image.open(sys.argv[1]).convert("RGB");im.thumbnail((1200,1200));im.save(sys.argv[2],quality=85)', f, t]); buf = fs.readFileSync(t); }
+    const name = path.basename(path.dirname(path.dirname(f))) + '-' + path.basename(f);
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><request><fileInsertRequest><file><fileName>${name.replace(/\.[^.]+$/, '')}</fileName><folderId>${fo.id}</folderId><filePath>${name.toLowerCase()}</filePath><overWrite>false</overWrite></file></fileInsertRequest></request>`;
+    const fd = new FormData(); fd.append('xml', new Blob([xml], { type: 'text/xml' }), 'request.xml'); fd.append('file', new Blob([buf], { type: 'image/jpeg' }), name);
+    const res = await rms('file/insert', { method: 'POST', body: fd }); out.push({ src: f, fileId: tag(res, 'FileId'), name }); log('uploaded', name, tag(res, 'FileId'));
+  }
+  // URL は folder/files/get から取る（ディレクトリ名を推測しない）
+  const urls = new Map();
+  for (let off = 1; ; off++) { const xml = await rms(`folder/files/get?folderId=${fo.id}&offset=${off}&limit=100`); const list = tags(xml, 'file'); for (const x of list) urls.set(tag(x, 'FileId'), tag(x, 'FileUrl')); if (list.length < 100) break; }
+  for (const o of out) o.url = urls.get(o.fileId) || null;
+  J(path.resolve(args.out), out); log('→', args.out, out.filter((o) => o.url).length, '/', out.length, 'urls');
+}
+
+const run = { check, mkdir, usage, scan, plan, upload, apply: () => applyOrRollback('apply'), rollback: () => applyOrRollback('rollback') }[cmd];
+if (!run) { console.error('usage: cabinet.mjs check|mkdir|usage|scan|plan|upload|apply|rollback'); process.exit(2); }
 run().catch((e) => { console.error(e); process.exit(1); });
