@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-03T14:08Z）
+# 投稿と商品の対応チェック single（2026-11-04T12:10Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -14,22 +14,22 @@
 | 8 | published | across-rainbow-パイルアップ-バランス積み上げゲーム-ボードゲーム-yb-05 | Across Rainbow パイルアップ バランス積み上げ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387795.jpg?width=120) | OK |
 | 9 | published | ハンガーラック-キャスター付き-収納バスケット-フック付き-省スペース-衣類収納-wbghs-01-de | ハンガーラック キャスター付き 収納バスケット・フック付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386841.jpg?width=120) | OK |
 | 10 | published | 朝用-夜用-保湿マスク-14枚セット-各7枚-ゆずvc-ヒアルロン酸配合-ciel-2 | 朝用・夜用 保湿マスク 14枚セット（各7枚） ゆずVC・ヒ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121388060.jpg?width=120) | OK |
-| 11 | planned | ビーズクッション-ソファ-4サイズ-撥水加工-サイドポケット付き-yb-05 | ビーズクッション ソファ 4サイズ・撥水加工・サイドポケット | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15420658843958-a-01.jpg?width=120) | OK |
-| 12 | planned | 天然石ルビー-小粒ブレスレット-3mm-繊細カットのパワーストーンアクセサリー-wrta-br-092 | 天然石ルビー 小粒ブレスレット 3mm 繊細カットのパワース | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416678.jpg?width=120) | OK |
-| 13 | planned | across-rainbow-アヒルダルマ-エッグマッチング知育玩具-五感と指先を育てるマッチングおもちゃ | Across Rainbow アヒルダルマ エッグマッチング | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387781.jpg?width=120) | OK |
-| 14 | planned | 大人用三輪自転車-買い物かご付き-折りたたみ式-シニアにも安心の乗り降り-wbghs-01-ghi | 大人用三輪自転車 買い物かご付き・折りたたみ式・シニアにも安 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386785.jpg?width=120) | OK |
-| 15 | planned | 折りたたみ歩行器-高さ8段階調節-軽量アルミ製-歩行補助器-gyslg-05 | 折りたたみ歩行器 高さ8段階調節 軽量アルミ製 歩行補助器 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386160.jpg?width=120) | OK |
+| 11 | published | ビーズクッション-ソファ-4サイズ-撥水加工-サイドポケット付き-yb-05 | ビーズクッション ソファ 4サイズ・撥水加工・サイドポケット | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15420658843958-a-01.jpg?width=120) | OK |
+| 12 | published | 天然石ルビー-小粒ブレスレット-3mm-繊細カットのパワーストーンアクセサリー-wrta-br-092 | 天然石ルビー 小粒ブレスレット 3mm 繊細カットのパワース | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416678.jpg?width=120) | OK |
+| 13 | published | across-rainbow-アヒルダルマ-エッグマッチング知育玩具-五感と指先を育てるマッチングおもちゃ | Across Rainbow アヒルダルマ エッグマッチング | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387781.jpg?width=120) | OK |
+| 14 | error | 大人用三輪自転車-買い物かご付き-折りたたみ式-シニアにも安心の乗り降り-wbghs-01-ghi | 大人用三輪自転車 買い物かご付き・折りたたみ式・シニアにも安 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386785.jpg?width=120) | OK |
+| 15 | published | 折りたたみ歩行器-高さ8段階調節-軽量アルミ製-歩行補助器-gyslg-05 | 折りたたみ歩行器 高さ8段階調節 軽量アルミ製 歩行補助器 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386160.jpg?width=120) | OK |
 | 16 | planned | 天山翡翠-ブレスレット-8mm-天然石パワーストーン-レディースアクセサリー-ta-br-048 | 天山翡翠 ブレスレット 8mm 天然石パワーストーン レディ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121417048.jpg?width=120) | OK |
-| 17 | planned | across-rainbow-モンテッソーリ式-大工さんごっこ-お道具箱知育玩具-29ピース-yb-05 | Across Rainbow モンテッソーリ式 大工さんごっ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387702.jpg?width=120) | OK |
-| 18 | planned | デイジ-首掛け扇風機-ネックファン-羽なし-充電式-軽量185g-3段階風量-dshj-s-2115-jp | デイジ 首掛け扇風機 ネックファン 羽なし・充電式・軽量18 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387263.jpg?width=120) | OK |
-| 19 | planned | 4本足-自立式-四点杖-yb-05-対応身長140-190cm-10段階調節-滑り止めグリップ-gyslg-03 | 4本足 自立式 四点杖 YB-05（対応身長140〜190c | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121381986.jpg?width=120) | OK |
-| 20 | planned | 翡翠-ヒスイ-64面カット-ブレスレット-天然石パワーストーン-ta-br-054 | 翡翠（ヒスイ）64面カット ブレスレット 天然石パワーストー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121417014.jpg?width=120) | OK |
-| 21 | planned | バランスバイク-キッズ-ペダルなし自転車-軽量約2kg-ノーパンクタイヤ-d-47 | バランスバイク キッズ ペダルなし自転車 軽量約2kg ノー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_8a0da0bc-2b98-4bb7-93bd-74557520d67a.jpg?width=120) | OK |
-| 22 | planned | エアーネックピロー-収納ポンプ付き-軽量コンパクト-旅行-オフィス用-airpillow01 | エアーネックピロー 収納ポンプ付き 軽量コンパクト 旅行・オ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387660.jpg?width=120) | OK |
+| 17 | published | across-rainbow-モンテッソーリ式-大工さんごっこ-お道具箱知育玩具-29ピース-yb-05 | Across Rainbow モンテッソーリ式 大工さんごっ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387702.jpg?width=120) | OK |
+| 18 | published | デイジ-首掛け扇風機-ネックファン-羽なし-充電式-軽量185g-3段階風量-dshj-s-2115-jp | デイジ 首掛け扇風機 ネックファン 羽なし・充電式・軽量18 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387263.jpg?width=120) | OK |
+| 19 | published | 4本足-自立式-四点杖-yb-05-対応身長140-190cm-10段階調節-滑り止めグリップ-gyslg-03 | 4本足 自立式 四点杖 YB-05（対応身長140〜190c | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121381986.jpg?width=120) | OK |
+| 20 | published | 翡翠-ヒスイ-64面カット-ブレスレット-天然石パワーストーン-ta-br-054 | 翡翠（ヒスイ）64面カット ブレスレット 天然石パワーストー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121417014.jpg?width=120) | OK |
+| 21 | published | バランスバイク-キッズ-ペダルなし自転車-軽量約2kg-ノーパンクタイヤ-d-47 | バランスバイク キッズ ペダルなし自転車 軽量約2kg ノー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_8a0da0bc-2b98-4bb7-93bd-74557520d67a.jpg?width=120) | OK |
+| 22 | published | エアーネックピロー-収納ポンプ付き-軽量コンパクト-旅行-オフィス用-airpillow01 | エアーネックピロー 収納ポンプ付き 軽量コンパクト 旅行・オ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387660.jpg?width=120) | OK |
 | 23 | planned | 高さ10段階調節できる軽量折りたたみ杖-滑り止め付き-140-190cm対応-男女兼用-gyslg-02 | 高さ10段階調節できる軽量折りたたみ杖 滑り止め付き 140 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121382111.jpg?width=120) | OK |
 | 24 | planned | 天然石-イエロートパーズ-ブレスレット-6mm-パワーストーン-アクセサリー-wrta-br-057 | 天然石 イエロートパーズ ブレスレット 6mm パワーストー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416998.jpg?width=120) | OK |
-| 25 | planned | バランスバイク-キッズ-ペダルなし自転車-約2kg-軽量-ノーパンクタイヤ-d-47 | バランスバイク キッズ ペダルなし自転車 約2kg 軽量 ノ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cc53f9c8-499f-402f-81e6-5fe3461f024d.jpg?width=120) | OK |
-| 26 | planned | ダブルヘッドledデスクライト-3段階色温度-無段階調光-カレンダー時計ディスプレイ-ペンスタンド付き-読書灯 | ダブルヘッドLEDデスクライト｜3段階色温度・無段階調光・カ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_be63519a-9f2a-4abb-8fa5-3e275d8c08bf.jpg?width=120) | OK |
+| 25 | published | バランスバイク-キッズ-ペダルなし自転車-約2kg-軽量-ノーパンクタイヤ-d-47 | バランスバイク キッズ ペダルなし自転車 約2kg 軽量 ノ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cc53f9c8-499f-402f-81e6-5fe3461f024d.jpg?width=120) | OK |
+| 26 | published | ダブルヘッドledデスクライト-3段階色温度-無段階調光-カレンダー時計ディスプレイ-ペンスタンド付き-読書灯 | ダブルヘッドLEDデスクライト｜3段階色温度・無段階調光・カ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_be63519a-9f2a-4abb-8fa5-3e275d8c08bf.jpg?width=120) | OK |
 | 27 | planned | 松葉杖-高さ調節可能-身長145-195cm対応-軽量で疲れにくい-歩行補助-gyslg-01 | 松葉杖 高さ調節可能 身長145～195cm対応 軽量で疲れ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121382248.jpg?width=120) | OK |
 | 28 | planned | 天然石-貔貅-ヒキュ-ブレスレット-6mm-パワーストーン-アクセサリー-ta-br-060 | 天然石 貔貅（ヒキュ）ブレスレット 6mm パワーストーン  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416964.jpg?width=120) | OK |
 | 29 | planned | キッズ-バランスバイク-ペダルなし-軽量2kg-ノーパンクタイヤ-d-47 | キッズ バランスバイク ペダルなし 軽量2kg ノーパンクタ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_c4273ee3-f28e-4f39-bd96-8ca8f5f59362.jpg?width=120) | OK |
