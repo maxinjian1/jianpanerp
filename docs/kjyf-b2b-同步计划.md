@@ -1,12 +1,12 @@
 # kjyf B2B → Shopify 同期計画
 
-生成：2026-11-02T21:32:08.397Z（`node tools/kjyf-b2b/sync.mjs plan`）。基準＝view 0（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。
+生成：2026-11-03T21:32:08.332Z（`node tools/kjyf-b2b/sync.mjs plan`）。基準＝view 0（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。
 
 ## 集計
 
 | 項目 | 件数 |
 |---|---|
-| backup | tools\kjyf-b2b\out\shopify-backup-2026-11-02T21-32-08.json |
+| backup | tools\kjyf-b2b\out\shopify-backup-2026-11-03T21-32-08.json |
 | b2bGoods | 1184 |
 | shopifyProducts | 1213 |
 | update | 1177 |
@@ -23,7 +23,7 @@
 | titleChanged | 1162 |
 | descChanged | 1122 |
 | stockUntrackedNow | 3808 |
-| stockZero | 715 |
+| stockZero | 720 |
 
 - update は status を変えない（現在 DRAFT のもの、W杯等 IP で DRAFT にした 6 件を含めて、DRAFT のまま）。
 - 在庫：現在 Shopify は在庫を追跡していない（tracked=false）。アプリに在庫スコープが無いため在庫同期は既定 OFF（`--stock` で有効）。stockZero は B2B 在庫 0 の SKU 数（参考）。
