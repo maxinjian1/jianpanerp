@@ -1,16 +1,16 @@
 # kjyf B2B → Shopify 同期計画
 
-生成：2026-11-03T21:32:08.332Z（`node tools/kjyf-b2b/sync.mjs plan`）。基準＝view 0（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。
+生成：2026-11-04T21:32:04.953Z（`node tools/kjyf-b2b/sync.mjs plan`）。基準＝view 0（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。
 
 ## 集計
 
 | 項目 | 件数 |
 |---|---|
-| backup | tools\kjyf-b2b\out\shopify-backup-2026-11-03T21-32-08.json |
-| b2bGoods | 1184 |
+| backup | tools\kjyf-b2b\out\shopify-backup-2026-11-04T21-32-04.json |
+| b2bGoods | 1183 |
 | shopifyProducts | 1213 |
-| update | 1177 |
-| updateDraftKept | 248 |
+| update | 1176 |
+| updateDraftKept | 247 |
 | draft | 6 |
 | create | 9 |
 | hold | 2 |
@@ -18,12 +18,12 @@
 | variantsAdd | 0 |
 | variantsDelete | 0 |
 | manual | 24 |
-| productsPriceChanged | 9 |
-| variantsPriceChanged | 23 |
-| titleChanged | 1162 |
-| descChanged | 1122 |
-| stockUntrackedNow | 3808 |
-| stockZero | 720 |
+| productsPriceChanged | 10 |
+| variantsPriceChanged | 26 |
+| titleChanged | 1161 |
+| descChanged | 1121 |
+| stockUntrackedNow | 3801 |
+| stockZero | 726 |
 
 - update は status を変えない（現在 DRAFT のもの、W杯等 IP で DRAFT にした 6 件を含めて、DRAFT のまま）。
 - 在庫：現在 Shopify は在庫を追跡していない（tracked=false）。アプリに在庫スコープが無いため在庫同期は既定 OFF（`--stock` で有効）。stockZero は B2B 在庫 0 の SKU 数（参考）。
@@ -115,7 +115,7 @@
 | 6981 | 568 | ホワイトボード シート マグネットシート シール お絵かき 弱粘着式 貼って剥がせる マグネット 磁石 カット自由 安全 |
 | 6975 | 1000 | 子供用三輪車 キックボード キックバイク 手押し棒 キックスケーター 乗用玩具 ペダル無し セーフティーガード付き シン |
 
-## 価格変更（9 件、先頭 50）
+## 価格変更（10 件、先頭 50）
 
 | handle | SKU: 旧→新（卸） |
 |---|---|
@@ -128,6 +128,7 @@
 | ベビーサークル-ジョイント式-ハイタイプ-滑り止め-ロック付きドア-折りたたみ- | D-36-C: 18980→10930（9500）; D-36-D: 18980→10930（9500）; D-36-F: 18980→10930（9500） |
 | ベビーサークル-ジョイント式-ハイタイプ-滑り止め付-組立簡単-セーフティガード | D-36-C: 18980→10930（9500）; D-36-D: 18980→10930（9500）; D-36-F: 18980→10930（9500） |
 | ベビーサークル-ジョイント式-ハイタイプ-滑り止め付-折りたたみ式-セーフティガ | D-36-C: 18980→10930（9500）; D-36-D: 18980→10930（9500）; D-36-F: 18980→10930（9500） |
+| 犬用ベッド-ペットソファ-洗えるクッション付き-四季共用-ドッグベッド-gb-0 | GB-01-B: 2860→980（850）; GB-01-A: 2860→980（850）; GB-01-C: 2860→980（850） |
 
 ## variant 追加（0 件、先頭 50）
 
@@ -139,7 +140,7 @@
 | handle | 削除 SKU |
 |---|---|
 
-## タイトル変更（1162 件、先頭 50）
+## タイトル変更（1161 件、先頭 50）
 
 | 旧 | 新 |
 |---|---|
