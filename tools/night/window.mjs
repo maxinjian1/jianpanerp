@@ -34,7 +34,7 @@ function patchFetch() {
     body.model = hasImage ? LOCAL.vision : LOCAL.model;
     delete body.reasoning_effort;
     const headers = { ...(init.headers || {}) }; delete headers.authorization; delete headers.Authorization;
-    if (!hasImage) {   // qwen3 の思考を止める：Ollama 0.40 の /v1 は /no_think・think・reasoning_effort をどれも効かせず content が空になる（実測）→ ネイティブ /api/chat の think:false を使う
+    if (!hasImage && /:11434/.test(LOCAL.base)) {   // Ollama の場合のみ（2026-11-05 から自前モデルは Strata :8080 = OpenAI 互換で思考は reasoning_content に分離されるのでそのまま /v1 へ）。qwen3 の思考を止める：Ollama 0.40 の /v1 は /no_think・think・reasoning_effort をどれも効かせず content が空になる（実測）→ ネイティブ /api/chat の think:false を使う
       const r = await realFetch(`${LOCAL.base.replace(/\/v1$/, '')}/api/chat`, { method: 'POST', headers, body: JSON.stringify({ model: body.model, messages: body.messages, stream: false, think: false, ...(body.response_format?.type === 'json_object' ? { format: 'json' } : {}), options: { num_ctx: 8192, num_predict: body.max_tokens ?? 4000, temperature: body.temperature ?? 0.7 } }) });
       const n = await r.json().catch(() => ({}));
       return new Response(JSON.stringify({ model: body.model, choices: [{ index: 0, finish_reason: n.done_reason || 'stop', message: { role: 'assistant', content: String(n.message?.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim() } }], usage: { prompt_tokens: n.prompt_eval_count, completion_tokens: n.eval_count } }), { status: r.status, headers: { 'content-type': 'application/json' } });
