@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-04T12:10Z）
+# 投稿と商品の対応チェック single（2026-11-05T12:13Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -32,14 +32,14 @@
 | 26 | published | ダブルヘッドledデスクライト-3段階色温度-無段階調光-カレンダー時計ディスプレイ-ペンスタンド付き-読書灯 | ダブルヘッドLEDデスクライト｜3段階色温度・無段階調光・カ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_be63519a-9f2a-4abb-8fa5-3e275d8c08bf.jpg?width=120) | OK |
 | 27 | planned | 松葉杖-高さ調節可能-身長145-195cm対応-軽量で疲れにくい-歩行補助-gyslg-01 | 松葉杖 高さ調節可能 身長145～195cm対応 軽量で疲れ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121382248.jpg?width=120) | OK |
 | 28 | planned | 天然石-貔貅-ヒキュ-ブレスレット-6mm-パワーストーン-アクセサリー-ta-br-060 | 天然石 貔貅（ヒキュ）ブレスレット 6mm パワーストーン  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416964.jpg?width=120) | OK |
-| 29 | planned | キッズ-バランスバイク-ペダルなし-軽量2kg-ノーパンクタイヤ-d-47 | キッズ バランスバイク ペダルなし 軽量2kg ノーパンクタ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_c4273ee3-f28e-4f39-bd96-8ca8f5f59362.jpg?width=120) | OK |
+| 29 | published | キッズ-バランスバイク-ペダルなし-軽量2kg-ノーパンクタイヤ-d-47 | キッズ バランスバイク ペダルなし 軽量2kg ノーパンクタ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_c4273ee3-f28e-4f39-bd96-8ca8f5f59362.jpg?width=120) | OK |
 | 30 | planned | ボクシング-リアクションボール-反応速度トレーニング-高さ調整可能-子供-大人兼用-eb-02 | ボクシング リアクションボール 反応速度トレーニング 高さ調 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121388104.jpg?width=120) | OK |
 | 31 | planned | グリーン天然石パワーストーンブレスレット-8mm-金運-仕事運を願う開運アクセサリー-wrta-br-011-012 | グリーン天然石パワーストーンブレスレット 8mm 金運・仕事 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416951.jpg?width=120) | OK |
-| 32 | planned | バランスバイク-キッズ-ペダルなし自転車-軽量2kg-ノーパンクタイヤ-d-47 | バランスバイク キッズ ペダルなし自転車 軽量2kg ノーパ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_fb825a5a-36b1-4abd-91bb-38b72b53d948.jpg?width=120) | OK |
-| 33 | planned | クリスマスリース-壁掛け飾り-玄関-ドア-窓のインテリア装飾-xb-01 | クリスマスリース 壁掛け飾り 玄関・ドア・窓のインテリア装飾 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421562749238-a-01.jpg?width=120) | OK |
+| 32 | published | バランスバイク-キッズ-ペダルなし自転車-軽量2kg-ノーパンクタイヤ-d-47 | バランスバイク キッズ ペダルなし自転車 軽量2kg ノーパ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_fb825a5a-36b1-4abd-91bb-38b72b53d948.jpg?width=120) | OK |
+| 33 | published | クリスマスリース-壁掛け飾り-玄関-ドア-窓のインテリア装飾-xb-01 | クリスマスリース 壁掛け飾り 玄関・ドア・窓のインテリア装飾 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421562749238-a-01.jpg?width=120) | OK |
 | 34 | planned | 赤瑪瑙ストロベリークォーツ-8mm-天然石ブレスレット-開運パワーストーン-ta-br-044 | 赤瑪瑙ストロベリークォーツ 8mm 天然石ブレスレット 開運 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416933.jpg?width=120) | OK |
-| 35 | planned | 4in1キッズスポーツセット-バスケットゴール-サッカーゴール-輪投げ-高さ調整可能-hb-05 | 4in1キッズスポーツセット バスケットゴール・サッカーゴー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121385785.jpg?width=120) | OK |
-| 36 | planned | 2個セット-折りたたみランドリーバスケット-60l-キャスター付き-防水モノトーン脱衣かご-c-27 | 2個セット 折りたたみランドリーバスケット 60L キャスタ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421420896566-a-01.jpg?width=120) | OK |
+| 35 | published | 4in1キッズスポーツセット-バスケットゴール-サッカーゴール-輪投げ-高さ調整可能-hb-05 | 4in1キッズスポーツセット バスケットゴール・サッカーゴー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121385785.jpg?width=120) | OK |
+| 36 | published | 2個セット-折りたたみランドリーバスケット-60l-キャスター付き-防水モノトーン脱衣かご-c-27 | 2個セット 折りたたみランドリーバスケット 60L キャスタ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421420896566-a-01.jpg?width=120) | OK |
 | 37 | planned | 日本製-ミニ香水-6本セット-10ml-アルコールフリー-フレグランス-お試し-ギフト-ciel-1 | 日本製 ミニ香水 6本セット 10mL アルコールフリー フ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121419177.jpg?width=120) | OK |
 | 38 | planned | 折りたたみランドリーバスケット-60l-キャスター付き-2個セット-モノトーン-c-27 | 折りたたみランドリーバスケット 60L キャスター付き 2個 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421408608566-a-01.jpg?width=120) | OK |
 | 39 | planned | jk制服セット-ブルーリボン-ブレザー-チェックスカート-長袖-半袖-bsgh-03 | JK制服セット ブルーリボン ブレザー×チェックスカート 長 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121379474.jpg?width=120) | OK |
