@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-05T12:13Z）
+# 投稿と商品の対応チェック single（2026-11-06T12:14Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -40,17 +40,17 @@
 | 34 | planned | 赤瑪瑙ストロベリークォーツ-8mm-天然石ブレスレット-開運パワーストーン-ta-br-044 | 赤瑪瑙ストロベリークォーツ 8mm 天然石ブレスレット 開運 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121416933.jpg?width=120) | OK |
 | 35 | published | 4in1キッズスポーツセット-バスケットゴール-サッカーゴール-輪投げ-高さ調整可能-hb-05 | 4in1キッズスポーツセット バスケットゴール・サッカーゴー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121385785.jpg?width=120) | OK |
 | 36 | published | 2個セット-折りたたみランドリーバスケット-60l-キャスター付き-防水モノトーン脱衣かご-c-27 | 2個セット 折りたたみランドリーバスケット 60L キャスタ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421420896566-a-01.jpg?width=120) | OK |
-| 37 | planned | 日本製-ミニ香水-6本セット-10ml-アルコールフリー-フレグランス-お試し-ギフト-ciel-1 | 日本製 ミニ香水 6本セット 10mL アルコールフリー フ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121419177.jpg?width=120) | OK |
-| 38 | planned | 折りたたみランドリーバスケット-60l-キャスター付き-2個セット-モノトーン-c-27 | 折りたたみランドリーバスケット 60L キャスター付き 2個 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421408608566-a-01.jpg?width=120) | OK |
+| 37 | published | 日本製-ミニ香水-6本セット-10ml-アルコールフリー-フレグランス-お試し-ギフト-ciel-1 | 日本製 ミニ香水 6本セット 10mL アルコールフリー フ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121419177.jpg?width=120) | OK |
+| 38 | published | 折りたたみランドリーバスケット-60l-キャスター付き-2個セット-モノトーン-c-27 | 折りたたみランドリーバスケット 60L キャスター付き 2個 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421408608566-a-01.jpg?width=120) | OK |
 | 39 | planned | jk制服セット-ブルーリボン-ブレザー-チェックスカート-長袖-半袖-bsgh-03 | JK制服セット ブルーリボン ブレザー×チェックスカート 長 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121379474.jpg?width=120) | OK |
-| 40 | planned | 北欧風クリスマスツリー-ドイツトウヒ-ヌードツリー-スリム-120-210cm-yb-05 | 北欧風クリスマスツリー ドイツトウヒ ヌードツリー スリム  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421275832630-a-01.jpg?width=120) | OK |
+| 40 | error | 北欧風クリスマスツリー-ドイツトウヒ-ヌードツリー-スリム-120-210cm-yb-05 | 北欧風クリスマスツリー ドイツトウヒ ヌードツリー スリム  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421275832630-a-01.jpg?width=120) | OK |
 | 41 | planned | jk制服セット-ブレザー-チェックスカート-リボン付き-コスプレ衣装-bsgh-04 | JK制服セット ブレザー＋チェックスカート リボン付き コス | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121379589.jpg?width=120) | OK |
-| 42 | planned | 折りたたみランドリーバスケット-60l-キャスター付き-2個セット-c-27 | 【ランドリーバスケット 60L 2個セット】キャスター付き・ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421254009142-a-01.jpg?width=120) | OK |
-| 43 | planned | jk制服セット-ホワイトリボン-チェックスカート-ブレザー風コスプレ衣装-bsgh-02 | JK制服セット ホワイトリボン×チェックスカート ブレザー風 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121379687.jpg?width=120) | OK |
-| 44 | planned | 折りたたみランドリーバスケット-60l-キャスター付き-スリム収納-脱衣かご-2個セット | 折りたたみランドリーバスケット 60L キャスター付き スリ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421226320182-a-01.jpg?width=120) | OK |
-| 45 | planned | jk制服セット-ベージュリボンブレザー-チェックスカート-長袖-半袖から選べる-コスプレ-イベント用-bsgh-01 | JK制服セット ベージュリボンブレザー×チェックスカート 長 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121379784.jpg?width=120) | OK |
-| 46 | planned | エアベッド-一人用-電動ポンプ内蔵-2way-厚さ27cm-収納袋-修理パッチ付き-jpgh-02-a | エアベッド 一人用 電動ポンプ内蔵 2WAY 厚さ27cm  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387825.jpg?width=120) | OK |
-| 47 | planned | 水切りラック-分離式トレイ付き-大容量コンパクト設計-箸筒付き-キッチン食器収納 | 水切りラック 分離式トレイ付き 大容量コンパクト設計 箸筒付 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_80fe75c6-c368-41a1-b79e-deda50026690.jpg?width=120) | OK |
+| 42 | published | 折りたたみランドリーバスケット-60l-キャスター付き-2個セット-c-27 | 【ランドリーバスケット 60L 2個セット】キャスター付き・ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421254009142-a-01.jpg?width=120) | OK |
+| 43 | published | jk制服セット-ホワイトリボン-チェックスカート-ブレザー風コスプレ衣装-bsgh-02 | JK制服セット ホワイトリボン×チェックスカート ブレザー風 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121379687.jpg?width=120) | OK |
+| 44 | published | 折りたたみランドリーバスケット-60l-キャスター付き-スリム収納-脱衣かご-2個セット | 折りたたみランドリーバスケット 60L キャスター付き スリ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421226320182-a-01.jpg?width=120) | OK |
+| 45 | published | jk制服セット-ベージュリボンブレザー-チェックスカート-長袖-半袖から選べる-コスプレ-イベント用-bsgh-01 | JK制服セット ベージュリボンブレザー×チェックスカート 長 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121379784.jpg?width=120) | OK |
+| 46 | published | エアベッド-一人用-電動ポンプ内蔵-2way-厚さ27cm-収納袋-修理パッチ付き-jpgh-02-a | エアベッド 一人用 電動ポンプ内蔵 2WAY 厚さ27cm  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387825.jpg?width=120) | OK |
+| 47 | published | 水切りラック-分離式トレイ付き-大容量コンパクト設計-箸筒付き-キッチン食器収納 | 水切りラック 分離式トレイ付き 大容量コンパクト設計 箸筒付 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_80fe75c6-c368-41a1-b79e-deda50026690.jpg?width=120) | OK |
 | 48 | planned | キッチン収納ラック-穴あけ不要-吊り戸棚-穴あきボード付き-高さ調整可能-防水-防錆設計-189118-b85-28 | キッチン収納ラック 穴あけ不要 吊り戸棚・穴あきボード付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121385084.jpg?width=120) | OK |
 | 49 | planned | 布団カバーセット-ベージュ-グレー-掛け布団カバー-枕カバー-ボックスシーツ-4点セット-洗える-防ダニ-gyszx-03 | 布団カバーセット ベージュ/グレー 掛け布団カバー・枕カバー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386030.jpg?width=120) | OK |
 | 50 | planned | 布団カバーセット-掛け布団カバー-枕カバー-ボックスシーツの4点セット-北欧風カラー-シワになりにくくお手入れ簡単-gyszx-04 | 布団カバーセット 掛け布団カバー・枕カバー・ボックスシーツの | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386009.jpg?width=120) | OK |
