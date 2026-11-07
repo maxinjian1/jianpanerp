@@ -12,3 +12,4 @@
 | 2026-11-04 | 1183 | 0 | - |
 | 2026-11-05 | 1182 | 0 | - |
 | 2026-11-06 | 1176 | 0 | - |
+| 2026-11-07 | 1178 | 5 | [39587](https://www.kuajingyifan.com/ja-JP/p/39587/-) [39585](https://www.kuajingyifan.com/ja-JP/p/39585/-) [39584](https://www.kuajingyifan.com/ja-JP/p/39584/-) [39583](https://www.kuajingyifan.com/ja-JP/p/39583/-) [33244](https://www.kuajingyifan.com/ja-JP/p/33244/-) |
