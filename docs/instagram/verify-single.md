@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-06T12:14Z）
+# 投稿と商品の対応チェック single（2026-11-07T12:12Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -51,16 +51,16 @@
 | 45 | published | jk制服セット-ベージュリボンブレザー-チェックスカート-長袖-半袖から選べる-コスプレ-イベント用-bsgh-01 | JK制服セット ベージュリボンブレザー×チェックスカート 長 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121379784.jpg?width=120) | OK |
 | 46 | published | エアベッド-一人用-電動ポンプ内蔵-2way-厚さ27cm-収納袋-修理パッチ付き-jpgh-02-a | エアベッド 一人用 電動ポンプ内蔵 2WAY 厚さ27cm  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387825.jpg?width=120) | OK |
 | 47 | published | 水切りラック-分離式トレイ付き-大容量コンパクト設計-箸筒付き-キッチン食器収納 | 水切りラック 分離式トレイ付き 大容量コンパクト設計 箸筒付 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_80fe75c6-c368-41a1-b79e-deda50026690.jpg?width=120) | OK |
-| 48 | planned | キッチン収納ラック-穴あけ不要-吊り戸棚-穴あきボード付き-高さ調整可能-防水-防錆設計-189118-b85-28 | キッチン収納ラック 穴あけ不要 吊り戸棚・穴あきボード付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121385084.jpg?width=120) | OK |
-| 49 | planned | 布団カバーセット-ベージュ-グレー-掛け布団カバー-枕カバー-ボックスシーツ-4点セット-洗える-防ダニ-gyszx-03 | 布団カバーセット ベージュ/グレー 掛け布団カバー・枕カバー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386030.jpg?width=120) | OK |
-| 50 | planned | 布団カバーセット-掛け布団カバー-枕カバー-ボックスシーツの4点セット-北欧風カラー-シワになりにくくお手入れ簡単-gyszx-04 | 布団カバーセット 掛け布団カバー・枕カバー・ボックスシーツの | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386009.jpg?width=120) | OK |
-| 51 | planned | ひざ上テーブル-マウスパッド一体型-タブレットスロット付き-ラップデスク-sb-04 | ひざ上テーブル マウスパッド一体型・タブレットスロット付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121380572.jpg?width=120) | OK |
+| 48 | published | キッチン収納ラック-穴あけ不要-吊り戸棚-穴あきボード付き-高さ調整可能-防水-防錆設計-189118-b85-28 | キッチン収納ラック 穴あけ不要 吊り戸棚・穴あきボード付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121385084.jpg?width=120) | OK |
+| 49 | published | 布団カバーセット-ベージュ-グレー-掛け布団カバー-枕カバー-ボックスシーツ-4点セット-洗える-防ダニ-gyszx-03 | 布団カバーセット ベージュ/グレー 掛け布団カバー・枕カバー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386030.jpg?width=120) | OK |
+| 50 | published | 布団カバーセット-掛け布団カバー-枕カバー-ボックスシーツの4点セット-北欧風カラー-シワになりにくくお手入れ簡単-gyszx-04 | 布団カバーセット 掛け布団カバー・枕カバー・ボックスシーツの | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386009.jpg?width=120) | OK |
+| 51 | published | ひざ上テーブル-マウスパッド一体型-タブレットスロット付き-ラップデスク-sb-04 | ひざ上テーブル マウスパッド一体型・タブレットスロット付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121380572.jpg?width=120) | OK |
 | 52 | planned | ペットカート-折りたたみ式-犬-猫用カート-サンシェード-安全ロック付き-ub-03 | ペットカート 折りたたみ式 犬・猫用カート サンシェード・安 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121383231.jpg?width=120) | OK |
 | 53 | planned | 花本姿-洗顔クリーム-濃密泡タイプ-200g-3個セット-朝夜兼用-yb-05 | 花本姿 洗顔クリーム 濃密泡タイプ 200g×3個セット 朝 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121381894.jpg?width=120) | OK |
-| 54 | planned | 油圧テーブルリフト-折りたたみ式-積載150kg-足踏み昇降台-yb-05 | 油圧テーブルリフト 折りたたみ式 積載150kg 足踏み昇降 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121381688.jpg?width=120) | OK |
-| 55 | planned | キャンプクッカーセット-アルミ製-直火対応-800ml-カトラリー付き | キャンプクッカーセット アルミ製 直火対応 800ml カト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dmc0r4f9rhta6699oqhea.jpg?width=120) | OK |
-| 56 | planned | 天然石ブレスレット-ストロベリークォーツ-10mm-パワーストーン-wrta-br-a16 | 天然石ブレスレット ストロベリークォーツ 10mm パワース | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_430fcabf-2e21-4937-99fc-70eae3a4707e.jpg?width=120) | OK |
-| 57 | planned | 折りたたみペットカート-軽量4輪-メッシュキャビン-高さ53cm-脱出防止リード付き-yb-05 | 折りたたみペットカート 軽量4輪 メッシュキャビン 高さ53 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dm5ybcymmiwedbkegoxmh.jpg?width=120) | OK |
+| 54 | published | 油圧テーブルリフト-折りたたみ式-積載150kg-足踏み昇降台-yb-05 | 油圧テーブルリフト 折りたたみ式 積載150kg 足踏み昇降 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121381688.jpg?width=120) | OK |
+| 55 | published | キャンプクッカーセット-アルミ製-直火対応-800ml-カトラリー付き | キャンプクッカーセット アルミ製 直火対応 800ml カト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dmc0r4f9rhta6699oqhea.jpg?width=120) | OK |
+| 56 | published | 天然石ブレスレット-ストロベリークォーツ-10mm-パワーストーン-wrta-br-a16 | 天然石ブレスレット ストロベリークォーツ 10mm パワース | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_430fcabf-2e21-4937-99fc-70eae3a4707e.jpg?width=120) | OK |
+| 57 | published | 折りたたみペットカート-軽量4輪-メッシュキャビン-高さ53cm-脱出防止リード付き-yb-05 | 折りたたみペットカート 軽量4輪 メッシュキャビン 高さ53 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dm5ybcymmiwedbkegoxmh.jpg?width=120) | OK |
 | 58 | planned | 超軽量-折りたたみベビーカー-日よけ付き-おでかけバギー-wb-02 | 超軽量 折りたたみベビーカー 日よけ付き おでかけバギー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386626.jpg?width=120) | OK |
 | 59 | planned | 自転車-バイク用防水カバー-防塵-uvカット-収納袋付き-yb-05 | 自転車・バイク用防水カバー 防塵・UVカット 収納袋付き | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386833.jpg?width=120) | OK |
 | 60 | planned | ワイヤレス画面ミラーリングアダプター-フルhd対応-スマホ-pc画面をテレビに映す-ブラック | ワイヤレス画面ミラーリングアダプター フルHD対応 スマホ・ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_69d57064-bb3d-437b-9912-538701d253ee.jpg?width=120) | OK |
