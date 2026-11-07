@@ -139,25 +139,32 @@ function renderStage(spu) {
     const parts = [];
     for (const s of sb.shots) {
       const clip = path.join(d, 'clips', `${String(s.n).padStart(2, '0')}.mp4`), wav = path.join(d, 'vo', `${String(s.n).padStart(2, '0')}.wav`), seg = path.join(d, 'clips', `${String(s.n).padStart(2, '0')}-${tag}.mp4`);
-      const fsz = tag === '9x16' ? 52 : 44, y = tag === '9x16' ? 'h*0.80' : 'h*0.86';
-      // 日本の EC 商品動画の定番：小さめの白文字＋半透明の黒帯。叫ばない。
-      const draw = [`drawtext=fontfile='${esc(FONT)}':text='${esc(s.caption)}':fontsize=${fsz}:fontcolor=white:box=1:boxcolor=black@0.45:boxborderw=16:x=(w-text_w)/2:y=${y}`];
-      if (s.n === 1 && sb.hook) draw.unshift(`drawtext=fontfile='${esc(FONT)}':text='${esc(sb.hook)}':fontsize=${fsz + 8}:fontcolor=white:box=1:boxcolor=#BF0000@0.85:boxborderw=16:x=(w-text_w)/2:y=h*0.10:enable='lt(t,3)'`);
-      if (s.n === sb.shots.length && sb.cta) draw.push(`drawtext=fontfile='${esc(FONT)}':text='${esc(sb.cta)}':fontsize=${fsz - 6}:fontcolor=white:box=1:boxcolor=black@0.55:boxborderw=14:x=(w-text_w)/2:y=h*0.91:enable='gt(t,2)'`);
+      const fsz = tag === '9x16' ? 52 : 44, y = tag === '9x16' ? 'h*0.885' : 'h*0.88';
+      const last = s.n === sb.shots.length && sb.cta;
+      // 日本の EC 商品動画の定番：小さめの白文字＋半透明の黒帯。叫ばない。字幕は写真の下の余白に置き、商品に重ねない。
+      // 写真に既に同じ文字がある場合は caption を空にできる（二重にしない）。最後のカットは字幕→CTA に切り替える。
+      const draw = [];
+      if (s.caption) draw.push(`drawtext=fontfile='${esc(FONT)}':text='${esc(s.caption)}':fontsize=${fsz}:fontcolor=white:box=1:boxcolor=black@0.45:boxborderw=16:x=(w-text_w)/2:y=${y}${last ? ":enable='lt(t,2.5)'" : ''}`);
+      if (s.n === 1 && sb.hook) draw.unshift(`drawtext=fontfile='${esc(FONT)}':text='${esc(sb.hook)}':fontsize=${fsz + 4}:fontcolor=white:box=1:boxcolor=#BF0000@0.85:boxborderw=16:x=(w-text_w)/2:y=h*${tag === '9x16' ? '0.06' : '0.03'}:enable='lt(t,3)'`);
+      if (last) draw.push(`drawtext=fontfile='${esc(FONT)}':text='${esc(sb.cta)}':fontsize=${fsz - 4}:fontcolor=white:box=1:boxcolor=black@0.55:boxborderw=14:x=(w-text_w)/2:y=${y}${s.caption ? ":enable='gte(t,2.5)'" : ''}`);
+      if (!draw.length) draw.push('null');
       const a = (VO_ON && fs.existsSync(wav)) ? ['-i', wav, '-map', '0:v', '-map', '1:a', '-shortest'] : ['-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo', '-map', '0:v', '-map', '1:a', '-shortest'];
       const fade = 'fade=t=in:st=0:d=0.35,fade=t=out:st=4.65:d=0.35';
       if (MOTION === 'real') {
         // 実写静止画を ffmpeg zoompan で動かす（Ken Burns）。AI は一切通さないので商品が変形しない。ショット番号で動きを変える。
         const img = path.join(d, 'src', p.files[s.img - 1]); const F = 150; // 5 秒 × 30fps
+        // 動きは小さく（最大 8%）：写真の端が切れないよう、前景は余白つき安全区に収める
         const mv = [
-          `z='1+0.10*on/${F}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'`,                       // ゆっくり寄る
-          `z='1.12':x='(iw-iw/zoom)*on/${F}':y='ih/2-(ih/zoom/2)'`,                              // 左→右にパン
-          `z='1.12-0.10*on/${F}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'`,                    // ゆっくり引く
-          `z='1.12':x='iw/2-(iw/zoom/2)':y='(ih-ih/zoom)*(1-on/${F})'`,                          // 下→上にパン
+          `z='1+0.08*on/${F}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'`,                       // ゆっくり寄る
+          `z='1.08':x='(iw-iw/zoom)*on/${F}':y='ih/2-(ih/zoom/2)'`,                              // 左→右にパン
+          `z='1.08-0.08*on/${F}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'`,                    // ゆっくり引く
+          `z='1.08':x='iw/2-(iw/zoom/2)':y='(ih-ih/zoom)*(1-on/${F})'`,                          // 下→上にパン
         ][(s.n - 1) % 4];
         const bw = W_ * 2, bh = H_ * 2; // 先に大きく拡大してから zoompan（ガタつき防止）
-        // 写真を切り落とさない：ぼかした同じ写真を背景に敷き、原図は丸ごと収める（縦動画に横写真を入れる EC の定番）
-        const fc = `[0:v]scale=${bw}:${bh}:force_original_aspect_ratio=increase:flags=lanczos,crop=${bw}:${bh},boxblur=40:2,eq=brightness=-0.08[bg];[0:v]scale=${bw}:${bh}:force_original_aspect_ratio=decrease:flags=lanczos[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,zoompan=${mv}:d=${F}:s=${W_}x${H_}:fps=30,${fade},${draw.join(',')},format=yuv420p[v]`;
+        // 写真を切り落とさない：同じ写真を明るくぼかして背景に敷き、原図は安全区（幅 90%・高さ 70〜74%）に丸ごと収める。字幕は下の余白。
+        const portrait = tag === '9x16', fw = Math.round(bw * 0.9), fh = Math.round(bh * (portrait ? 0.70 : 0.78)), oy = Math.round(bh * (portrait ? 0.13 : 0.10));
+        const bgf = portrait ? `color=c=0xF7F3F1:s=${bw}x${bh}:r=30:d=0.034[bg]` : `[0:v]scale=${bw}:${bh}:force_original_aspect_ratio=increase:flags=lanczos,crop=${bw}:${bh},boxblur=70:4,eq=brightness=0.12:saturation=0.5,drawbox=x=0:y=0:w=iw:h=ih:color=white@0.45:t=fill[bg]`;
+        const fc = `${bgf};[0:v]scale=${fw}:${fh}:force_original_aspect_ratio=decrease:flags=lanczos[fg];[bg][fg]overlay=x=(W-w)/2:y=${oy}+(${fh}-h)/2,zoompan=${mv}:d=${F}:s=${W_}x${H_}:fps=30,${fade},${draw.join(',')},format=yuv420p[v]`;
         ffmpeg(['-i', img, ...a.map((x) => (x === '0:v' ? '[v]' : x)), '-filter_complex', fc, '-r', '30', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-c:a', 'aac', '-b:a', '160k', '-t', '5', seg]); parts.push(seg); continue;
       }
       const vf = `scale=${W_}:${H_}:force_original_aspect_ratio=increase,crop=${W_}:${H_},${fade},${draw.join(',')},format=yuv420p`;
@@ -175,7 +182,7 @@ function renderStage(spu) {
 function checkStage(spu) {
   const d = dir(spu); const sb = J(path.join(d, 'storyboard.json')); const issues = [];
   for (const t of [sb.hook, sb.cta, ...sb.shots.flatMap((s) => [s.caption, s.vo])]) { const m = String(t ?? '').match(BANNED); if (m) issues.push(`禁止語「${m[0]}」: ${t}`); }
-  for (const s of sb.shots) if ([...String(s.caption)].length > 12) issues.push(`字幕 12 字超: ${s.caption}`);
+  for (const s of sb.shots) if ([...String(s.caption ?? '')].length > 12) issues.push(`字幕 12 字超: ${s.caption}`);
   for (const tag of ['9x16', '16x9']) { const f = path.join(d, 'final', `${spu}-${tag}.mp4`); if (!fs.existsSync(f)) { issues.push(`${tag} 未生成`); continue; } const st = ffprobe(f); const dur = Number(st.duration); if (dur < 10 || dur > 30) issues.push(`${tag} 尺 ${dur.toFixed(1)}s（10〜30 外）`); if (tag === '9x16' && !(st.width === 1080 && st.height === 1920)) issues.push(`${tag} 解像度 ${st.width}x${st.height}`); }
   W(path.join(d, 'check.json'), { pass: !issues.length, issues, at: new Date().toISOString() }); log('check', spu, issues.length ? issues : 'pass');
 }
