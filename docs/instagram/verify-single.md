@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-07T12:12Z）
+# 投稿と商品の対応チェック single（2026-11-08T12:11Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -62,16 +62,16 @@
 | 56 | published | 天然石ブレスレット-ストロベリークォーツ-10mm-パワーストーン-wrta-br-a16 | 天然石ブレスレット ストロベリークォーツ 10mm パワース | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_430fcabf-2e21-4937-99fc-70eae3a4707e.jpg?width=120) | OK |
 | 57 | published | 折りたたみペットカート-軽量4輪-メッシュキャビン-高さ53cm-脱出防止リード付き-yb-05 | 折りたたみペットカート 軽量4輪 メッシュキャビン 高さ53 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dm5ybcymmiwedbkegoxmh.jpg?width=120) | OK |
 | 58 | planned | 超軽量-折りたたみベビーカー-日よけ付き-おでかけバギー-wb-02 | 超軽量 折りたたみベビーカー 日よけ付き おでかけバギー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386626.jpg?width=120) | OK |
-| 59 | planned | 自転車-バイク用防水カバー-防塵-uvカット-収納袋付き-yb-05 | 自転車・バイク用防水カバー 防塵・UVカット 収納袋付き | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386833.jpg?width=120) | OK |
-| 60 | planned | ワイヤレス画面ミラーリングアダプター-フルhd対応-スマホ-pc画面をテレビに映す-ブラック | ワイヤレス画面ミラーリングアダプター フルHD対応 スマホ・ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_69d57064-bb3d-437b-9912-538701d253ee.jpg?width=120) | OK |
+| 59 | published | 自転車-バイク用防水カバー-防塵-uvカット-収納袋付き-yb-05 | 自転車・バイク用防水カバー 防塵・UVカット 収納袋付き | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386833.jpg?width=120) | OK |
+| 60 | published | ワイヤレス画面ミラーリングアダプター-フルhd対応-スマホ-pc画面をテレビに映す-ブラック | ワイヤレス画面ミラーリングアダプター フルHD対応 スマホ・ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_69d57064-bb3d-437b-9912-538701d253ee.jpg?width=120) | OK |
 | 61 | planned | herbensius-ラグジュアリー歯磨き-110g-3個セット-黒トリュフの香り-ステインケア-息ケア-ハミガキ粉 | HERBENSIUS ラグジュアリー歯磨き 110g×3個セ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387006.jpg?width=120) | OK |
-| 62 | planned | サーマルラベル用紙-感熱ロール-500枚-巻-強粘着-耐水-耐油-100-100mm-100-150mm | サーマルラベル用紙 感熱ロール 500枚/巻 強粘着 耐水・ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dm62djgcixds7zh39w468.jpg?width=120) | OK |
-| 63 | planned | 子供用学習デスクチェア-高さ調整-360-回転-キャスター付き-xb-02 | 子供用学習デスクチェア 高さ調整・360°回転・キャスター付 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421773152566-a-01.jpg?width=120) | OK |
-| 64 | planned | 大判バスタオル-約140-70cm-綿混-ふんわり吸水-速乾-洗濯機対応 | 大判バスタオル 約140×70cm 綿混 ふんわり吸水 速乾 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dmc0th0qj8vk6p45a9tal.jpg?width=120) | OK |
-| 65 | planned | 天然石ブレスレット-12mm-ストロベリークォーツ-パワーストーン-wrta-br-a8 | 天然石ブレスレット 12mm ストロベリークォーツ パワース | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421693395254-a-01.jpg?width=120) | OK |
-| 66 | planned | 猫ケージ-3段-幅広設計-猫ドア-ハンモック付き-組み合わせ自由なスチールキャットケージ-tx309051waa | 猫ケージ 3段 幅広設計 猫ドア・ハンモック付き 組み合わせ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_06ec1c0f-455d-4e85-869b-2727d5c0f08c.jpg?width=120) | OK |
-| 67 | planned | 空気入れ不要の折りたたみキッズプール-直径120cm-自立式-yb-05 | 空気入れ不要の折りたたみキッズプール 直径120cm 自立式 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_ee7888ec-8bc5-4f51-ad18-0ebb274ad76f.jpg?width=120) | OK |
-| 68 | planned | ソーラークリップライト-人感センサー-3点灯モード-ip65防水-屋外照明-sl106 | ソーラークリップライト 人感センサー・3点灯モード IP65 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387534.jpg?width=120) | OK |
+| 62 | published | サーマルラベル用紙-感熱ロール-500枚-巻-強粘着-耐水-耐油-100-100mm-100-150mm | サーマルラベル用紙 感熱ロール 500枚/巻 強粘着 耐水・ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dm62djgcixds7zh39w468.jpg?width=120) | OK |
+| 63 | published | 子供用学習デスクチェア-高さ調整-360-回転-キャスター付き-xb-02 | 子供用学習デスクチェア 高さ調整・360°回転・キャスター付 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421773152566-a-01.jpg?width=120) | OK |
+| 64 | published | 大判バスタオル-約140-70cm-綿混-ふんわり吸水-速乾-洗濯機対応 | 大判バスタオル 約140×70cm 綿混 ふんわり吸水 速乾 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dmc0th0qj8vk6p45a9tal.jpg?width=120) | OK |
+| 65 | published | 天然石ブレスレット-12mm-ストロベリークォーツ-パワーストーン-wrta-br-a8 | 天然石ブレスレット 12mm ストロベリークォーツ パワース | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421693395254-a-01.jpg?width=120) | OK |
+| 66 | published | 猫ケージ-3段-幅広設計-猫ドア-ハンモック付き-組み合わせ自由なスチールキャットケージ-tx309051waa | 猫ケージ 3段 幅広設計 猫ドア・ハンモック付き 組み合わせ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_06ec1c0f-455d-4e85-869b-2727d5c0f08c.jpg?width=120) | OK |
+| 67 | published | 空気入れ不要の折りたたみキッズプール-直径120cm-自立式-yb-05 | 空気入れ不要の折りたたみキッズプール 直径120cm 自立式 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_ee7888ec-8bc5-4f51-ad18-0ebb274ad76f.jpg?width=120) | OK |
+| 68 | published | ソーラークリップライト-人感センサー-3点灯モード-ip65防水-屋外照明-sl106 | ソーラークリップライト 人感センサー・3点灯モード IP65 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387534.jpg?width=120) | OK |
 | 69 | planned | ノートpcスタンド-折りたたみ式-高さ調節可能-三脚式ホルダー-a-04 | ノートPCスタンド 折りたたみ式・高さ調節可能 三脚式ホルダ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_4f647481-3d3b-4567-a966-09f3edaa3d9c.jpg?width=120) | OK |
 | 70 | planned | 非接触赤外線体温計-1秒測定-コンパクト-おでこに近づけるだけ-ext01 | 非接触赤外線体温計 1秒測定・コンパクト・おでこに近づけるだ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_e744fb2d-75d8-43de-8b68-8a3e0fbc784a.jpg?width=120) | OK |
 | 71 | planned | 刈払機-草刈り機用-アルミ合金-グリップハンドル-人間工学設計-wbghs-01-s | 刈払機・草刈り機用 アルミ合金 グリップハンドル 人間工学設 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386650.jpg?width=120) | OK |
