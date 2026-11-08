@@ -1,20 +1,20 @@
 # kjyf B2B → Shopify 同期計画
 
-生成：2026-11-06T21:32:12.605Z（`node tools/kjyf-b2b/sync.mjs plan`）。基準＝view 0（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。
+生成：2026-11-07T21:32:11.778Z（`node tools/kjyf-b2b/sync.mjs plan`）。基準＝view 0（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。
 
 ## 集計
 
 | 項目 | 件数 |
 |---|---|
-| backup | tools\kjyf-b2b\out\shopify-backup-2026-11-06T21-32-12.json |
-| b2bGoods | 1179 |
+| backup | tools\kjyf-b2b\out\shopify-backup-2026-11-07T21-32-11.json |
+| b2bGoods | 1178 |
 | shopifyProducts | 1213 |
 | update | 1167 |
 | updateDraftKept | 246 |
 | draft | 14 |
 | create | 14 |
 | hold | 2 |
-| b2bDuplicate | 290 |
+| b2bDuplicate | 289 |
 | variantsAdd | 0 |
 | variantsDelete | 0 |
 | manual | 24 |
@@ -23,7 +23,7 @@
 | titleChanged | 1153 |
 | descChanged | 1113 |
 | stockUntrackedNow | 3778 |
-| stockZero | 734 |
+| stockZero | 732 |
 
 - update は status を変えない（現在 DRAFT のもの、W杯等 IP で DRAFT にした 6 件を含めて、DRAFT のまま）。
 - 在庫：現在 Shopify は在庫を追跡していない（tracked=false）。アプリに在庫スコープが無いため在庫同期は既定 OFF（`--stock` で有効）。stockZero は B2B 在庫 0 の SKU 数（参考）。
@@ -73,7 +73,7 @@
 | 38282 | 日本語タイトルなし | xiejia |
 | 33902 | SKU なし | 畳ベッド たたみベッド 引き出し収納付きベッド 三段の引き出し付き 床下収納 大容量 小型住宅 CDJ |
 
-## B2B 側の重複出品（SKU が既に Shopify にある → 作成しない）（290 件、先頭 50）
+## B2B 側の重複出品（SKU が既に Shopify にある → 作成しない）（289 件、先頭 50）
 
 | good_id | 同じ SKU の good_id | タイトル |
 |---|---|---|
