@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-08T12:11Z）
+# 投稿と商品の対応チェック single（2026-11-09T12:13Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -72,15 +72,15 @@
 | 66 | published | 猫ケージ-3段-幅広設計-猫ドア-ハンモック付き-組み合わせ自由なスチールキャットケージ-tx309051waa | 猫ケージ 3段 幅広設計 猫ドア・ハンモック付き 組み合わせ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_06ec1c0f-455d-4e85-869b-2727d5c0f08c.jpg?width=120) | OK |
 | 67 | published | 空気入れ不要の折りたたみキッズプール-直径120cm-自立式-yb-05 | 空気入れ不要の折りたたみキッズプール 直径120cm 自立式 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_ee7888ec-8bc5-4f51-ad18-0ebb274ad76f.jpg?width=120) | OK |
 | 68 | published | ソーラークリップライト-人感センサー-3点灯モード-ip65防水-屋外照明-sl106 | ソーラークリップライト 人感センサー・3点灯モード IP65 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387534.jpg?width=120) | OK |
-| 69 | planned | ノートpcスタンド-折りたたみ式-高さ調節可能-三脚式ホルダー-a-04 | ノートPCスタンド 折りたたみ式・高さ調節可能 三脚式ホルダ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_4f647481-3d3b-4567-a966-09f3edaa3d9c.jpg?width=120) | OK |
-| 70 | planned | 非接触赤外線体温計-1秒測定-コンパクト-おでこに近づけるだけ-ext01 | 非接触赤外線体温計 1秒測定・コンパクト・おでこに近づけるだ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_e744fb2d-75d8-43de-8b68-8a3e0fbc784a.jpg?width=120) | OK |
+| 69 | published | ノートpcスタンド-折りたたみ式-高さ調節可能-三脚式ホルダー-a-04 | ノートPCスタンド 折りたたみ式・高さ調節可能 三脚式ホルダ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_4f647481-3d3b-4567-a966-09f3edaa3d9c.jpg?width=120) | OK |
+| 70 | published | 非接触赤外線体温計-1秒測定-コンパクト-おでこに近づけるだけ-ext01 | 非接触赤外線体温計 1秒測定・コンパクト・おでこに近づけるだ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_e744fb2d-75d8-43de-8b68-8a3e0fbc784a.jpg?width=120) | OK |
 | 71 | planned | 刈払機-草刈り機用-アルミ合金-グリップハンドル-人間工学設計-wbghs-01-s | 刈払機・草刈り機用 アルミ合金 グリップハンドル 人間工学設 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386650.jpg?width=120) | OK |
-| 72 | planned | のり不要-部分つけまつげ-2個セット-ナチュラル束感-立体感-繰り返し使える | のり不要 部分つけまつげ 2個セット ナチュラル束感 立体感 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dmbzel0akidhb016ogfj0.jpg?width=120) | OK |
-| 73 | planned | ストロベリークォーツ-天然石ブレスレット-6mm-ピンクのやさしい輝き-wrta-br-a4 | ストロベリークォーツ 天然石ブレスレット 6mm ピンクのや | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cf3be58a-d6c9-400e-998a-7aef09650530.jpg?width=120) | OK |
-| 74 | planned | 猫ケージ-3段-幅広設計-猫ドア-ハンモック付き-組み合わせ自由-多頭飼い対応-スチール製-tx309051paa | 猫ケージ 3段 幅広設計 猫ドア・ハンモック付き 組み合わせ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_61898305-ca0c-4b50-bcc6-1f05455a859e.jpg?width=120) | OK |
+| 72 | published | のり不要-部分つけまつげ-2個セット-ナチュラル束感-立体感-繰り返し使える | のり不要 部分つけまつげ 2個セット ナチュラル束感 立体感 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dmbzel0akidhb016ogfj0.jpg?width=120) | OK |
+| 73 | published | ストロベリークォーツ-天然石ブレスレット-6mm-ピンクのやさしい輝き-wrta-br-a4 | ストロベリークォーツ 天然石ブレスレット 6mm ピンクのや | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cf3be58a-d6c9-400e-998a-7aef09650530.jpg?width=120) | OK |
+| 74 | published | 猫ケージ-3段-幅広設計-猫ドア-ハンモック付き-組み合わせ自由-多頭飼い対応-スチール製-tx309051paa | 猫ケージ 3段 幅広設計 猫ドア・ハンモック付き 組み合わせ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_61898305-ca0c-4b50-bcc6-1f05455a859e.jpg?width=120) | OK |
 | 75 | planned | across-rainbow-チャイルドシート-r129適合-日本語取扱説明書付き-gys-01-d | Across Rainbow チャイルドシート R129適合 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386607.jpg?width=120) | OK |
-| 76 | planned | マリンシューズ-水陸両用ビーチシューズ-滑り止め-速乾-通気性-男女兼用-ob-02 | マリンシューズ 水陸両用ビーチシューズ 滑り止め・速乾・通気 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421642277174-a-01.jpg?width=120) | OK |
-| 77 | planned | ノートpcスタンド-折りたたみ式-高さ調節55-90cm-三脚式-ホルダー-a-04 | ノートPCスタンド 折りたたみ式 高さ調節55-90cm 三 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_e753f1cb-c880-477c-85da-6481cd77e61c.jpg?width=120) | OK |
+| 76 | published | マリンシューズ-水陸両用ビーチシューズ-滑り止め-速乾-通気性-男女兼用-ob-02 | マリンシューズ 水陸両用ビーチシューズ 滑り止め・速乾・通気 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421642277174-a-01.jpg?width=120) | OK |
+| 77 | published | ノートpcスタンド-折りたたみ式-高さ調節55-90cm-三脚式-ホルダー-a-04 | ノートPCスタンド 折りたたみ式 高さ調節55-90cm 三 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_e753f1cb-c880-477c-85da-6481cd77e61c.jpg?width=120) | OK |
 | 78 | planned | 非接触-赤外線デジタル温度計-50-400-0-5秒測定-クッキング-工業用-gm320_c1 | 非接触 赤外線デジタル温度計 -50℃～400℃ 0.5秒測 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387618.jpg?width=120) | OK |
 | 79 | planned | サッシ窓用補助錠-穴あけ不要で取り付け簡単-防犯対策に-ウインドロック-zk093 | サッシ窓用補助錠 穴あけ不要で取り付け簡単 防犯対策に ウイ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421714825526-a-01.jpg?width=120) | OK |
 | 80 | planned | 伸縮式ledランタン-乾電池式-フック付き-360-照明-防災-キャンプに | 伸縮式LEDランタン 乾電池式 フック付き 360°照明 防 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121379038.jpg?width=120) | OK |
