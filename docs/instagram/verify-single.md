@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-09T12:13Z）
+# 投稿と商品の対応チェック single（2026-11-10T12:12Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -82,13 +82,13 @@
 | 76 | published | マリンシューズ-水陸両用ビーチシューズ-滑り止め-速乾-通気性-男女兼用-ob-02 | マリンシューズ 水陸両用ビーチシューズ 滑り止め・速乾・通気 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421642277174-a-01.jpg?width=120) | OK |
 | 77 | published | ノートpcスタンド-折りたたみ式-高さ調節55-90cm-三脚式-ホルダー-a-04 | ノートPCスタンド 折りたたみ式 高さ調節55-90cm 三 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_e753f1cb-c880-477c-85da-6481cd77e61c.jpg?width=120) | OK |
 | 78 | planned | 非接触-赤外線デジタル温度計-50-400-0-5秒測定-クッキング-工業用-gm320_c1 | 非接触 赤外線デジタル温度計 -50℃～400℃ 0.5秒測 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387618.jpg?width=120) | OK |
-| 79 | planned | サッシ窓用補助錠-穴あけ不要で取り付け簡単-防犯対策に-ウインドロック-zk093 | サッシ窓用補助錠 穴あけ不要で取り付け簡単 防犯対策に ウイ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421714825526-a-01.jpg?width=120) | OK |
-| 80 | planned | 伸縮式ledランタン-乾電池式-フック付き-360-照明-防災-キャンプに | 伸縮式LEDランタン 乾電池式 フック付き 360°照明 防 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121379038.jpg?width=120) | OK |
-| 81 | planned | ストロベリークォーツ-天然石ブレスレット-6mm-パワーストーン-wrta-br-a2 | ストロベリークォーツ 天然石ブレスレット 6mm パワースト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cbf21d1f-2b66-4119-abf5-25ebb31023c7.jpg?width=120) | OK |
-| 82 | planned | 猫ケージ-2段-おしゃれ-キャットケージ-留守番-多頭飼いに-飛び出し防止屋根-梯子付き-ホワイト-m | 猫ケージ 2段 おしゃれ キャットケージ 留守番・多頭飼いに | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_51d3f657-2b18-4a1e-89cd-48cd27453f90.jpg?width=120) | OK |
+| 79 | published | サッシ窓用補助錠-穴あけ不要で取り付け簡単-防犯対策に-ウインドロック-zk093 | サッシ窓用補助錠 穴あけ不要で取り付け簡単 防犯対策に ウイ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421714825526-a-01.jpg?width=120) | OK |
+| 80 | error | 伸縮式ledランタン-乾電池式-フック付き-360-照明-防災-キャンプに | 伸縮式LEDランタン 乾電池式 フック付き 360°照明 防 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121379038.jpg?width=120) | OK |
+| 81 | published | ストロベリークォーツ-天然石ブレスレット-6mm-パワーストーン-wrta-br-a2 | ストロベリークォーツ 天然石ブレスレット 6mm パワースト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cbf21d1f-2b66-4119-abf5-25ebb31023c7.jpg?width=120) | OK |
+| 82 | published | 猫ケージ-2段-おしゃれ-キャットケージ-留守番-多頭飼いに-飛び出し防止屋根-梯子付き-ホワイト-m | 猫ケージ 2段 おしゃれ キャットケージ 留守番・多頭飼いに | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_51d3f657-2b18-4a1e-89cd-48cd27453f90.jpg?width=120) | OK |
 | 83 | planned | across-rainbow-ゆらゆらスタッキング玩具-食品衛生法適合-3歳頃から-gys-01-e | Across Rainbow ゆらゆらスタッキング玩具 食品 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386597.jpg?width=120) | OK |
-| 84 | planned | 焚き火シート-耐熱550-シリコンコーティング-防火マット-キャンプ-bbq用 | 焚き火シート 耐熱550℃ シリコンコーティング 防火マット | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421560291638-a-01.jpg?width=120) | OK |
-| 85 | planned | ノートpcスタンド-三脚式-高さ調節55-90cm-折りたたみ式-a-04 | ノートPCスタンド 三脚式 高さ調節55-90cm 折りたた | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_8b9774d8-d3c0-40ca-bc02-ad36326c2529.jpg?width=120) | OK |
+| 84 | published | 焚き火シート-耐熱550-シリコンコーティング-防火マット-キャンプ-bbq用 | 焚き火シート 耐熱550℃ シリコンコーティング 防火マット | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421560291638-a-01.jpg?width=120) | OK |
+| 85 | published | ノートpcスタンド-三脚式-高さ調節55-90cm-折りたたみ式-a-04 | ノートPCスタンド 三脚式 高さ調節55-90cm 折りたた | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_8b9774d8-d3c0-40ca-bc02-ad36326c2529.jpg?width=120) | OK |
 | 86 | planned | 洗える冷感マスク-10-20枚から選べる-個包装-携帯ケース付き-msk-mix | 洗える冷感マスク 10〜20枚から選べる 個包装・携帯ケース | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387865.jpg?width=120) | OK |
 | 87 | planned | タイ製-丸型ペダル式ゴミ箱-4l-蓋付き-マッシュルーム型-yb-05 | タイ製 丸型ペダル式ゴミ箱 4L 蓋付き・マッシュルーム型 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421708796214-a-01.jpg?width=120) | OK |
 | 88 | planned | 木目デザイン-スマホ用スピーカー-置くだけ拡声-6-8時間再生 | 木目デザイン スマホ用スピーカー 置くだけ拡声 6～8時間再 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378951.jpg?width=120) | OK |
