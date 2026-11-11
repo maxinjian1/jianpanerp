@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-10T12:12Z）
+# 投稿と商品の対応チェック single（2026-11-11T12:15Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -90,18 +90,18 @@
 | 84 | published | 焚き火シート-耐熱550-シリコンコーティング-防火マット-キャンプ-bbq用 | 焚き火シート 耐熱550℃ シリコンコーティング 防火マット | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421560291638-a-01.jpg?width=120) | OK |
 | 85 | published | ノートpcスタンド-三脚式-高さ調節55-90cm-折りたたみ式-a-04 | ノートPCスタンド 三脚式 高さ調節55-90cm 折りたた | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_8b9774d8-d3c0-40ca-bc02-ad36326c2529.jpg?width=120) | OK |
 | 86 | planned | 洗える冷感マスク-10-20枚から選べる-個包装-携帯ケース付き-msk-mix | 洗える冷感マスク 10〜20枚から選べる 個包装・携帯ケース | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387865.jpg?width=120) | OK |
-| 87 | planned | タイ製-丸型ペダル式ゴミ箱-4l-蓋付き-マッシュルーム型-yb-05 | タイ製 丸型ペダル式ゴミ箱 4L 蓋付き・マッシュルーム型 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421708796214-a-01.jpg?width=120) | OK |
-| 88 | planned | 木目デザイン-スマホ用スピーカー-置くだけ拡声-6-8時間再生 | 木目デザイン スマホ用スピーカー 置くだけ拡声 6～8時間再 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378951.jpg?width=120) | OK |
-| 89 | planned | 天然石ブレスレット-12mm-ストロベリークォーツ-ほっとする色柄のパワーストーンアクセサリー-wrta-br-588 | 天然石ブレスレット 12mm ストロベリークォーツ ほっとす | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421677207862-a-01.jpg?width=120) | OK |
-| 90 | planned | 猫ケージ-3段-多頭飼い対応-幅100cm-飛び出し防止屋根-梯子付き-キャットケージ-tx198288caa | 猫ケージ 3段 多頭飼い対応 幅100cm 飛び出し防止屋根 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_4e67bb69-2439-422a-a043-ac95dd553011.jpg?width=120) | OK |
-| 91 | planned | across-rainbow-スペーススタッキング-白い箱-日本語表示ラ付き-知育玩具-gys-01-f | Across Rainbow スペーススタッキング 白い箱  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_3207b27a-9a02-4adf-a2e0-cb1384e9db8c.jpg?width=120) | OK |
-| 92 | planned | ドットサイト-40mm-レンズ-レッド-グリーン5段階切替-11mm-20mmレール対応-レンズカバー付き-ac20240220 | ドットサイト 40mm レンズ レッド/グリーン5段階切替  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421546758454-a-01.jpg?width=120) | OK |
-| 93 | planned | タブレットスタンド-折りたたみ式-角度調節可能-アルミ合金製-ipad-タブレット対応-a-03 | タブレットスタンド 折りたたみ式 角度調節可能 アルミ合金製 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_1543c299-a78c-46a7-b83d-195510a16ad8.jpg?width=120) | OK |
-| 94 | planned | 3d立体構造マスク-冬夏兼用-4層構造-洗えて繰り返し使える-uvカット-防寒マスク-5-15枚入 | 3D立体構造マスク 冬夏兼用 4層構造 洗えて繰り返し使える | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421651091766-a-01.jpg?width=120) | OK |
-| 95 | planned | x30-シーリングファンライト-led照明付き-静音リモコン式-50cm-ブラック-b4-cbfi-sd49 | X30 シーリングファンライト LED照明付き 静音リモコン | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421594140982-a-01.jpg?width=120) | OK |
-| 96 | planned | 晴雨兼用ミニ折りたたみ傘-ハンディファンセット-五つ折りコンパクト収納 | 晴雨兼用ミニ折りたたみ傘＋ハンディファンセット 五つ折りコン | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dmc0oor8x1nu5r7pm06cw.jpg?width=120) | OK |
+| 87 | published | タイ製-丸型ペダル式ゴミ箱-4l-蓋付き-マッシュルーム型-yb-05 | タイ製 丸型ペダル式ゴミ箱 4L 蓋付き・マッシュルーム型 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421708796214-a-01.jpg?width=120) | OK |
+| 88 | published | 木目デザイン-スマホ用スピーカー-置くだけ拡声-6-8時間再生 | 木目デザイン スマホ用スピーカー 置くだけ拡声 6～8時間再 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378951.jpg?width=120) | OK |
+| 89 | published | 天然石ブレスレット-12mm-ストロベリークォーツ-ほっとする色柄のパワーストーンアクセサリー-wrta-br-588 | 天然石ブレスレット 12mm ストロベリークォーツ ほっとす | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421677207862-a-01.jpg?width=120) | OK |
+| 90 | published | 猫ケージ-3段-多頭飼い対応-幅100cm-飛び出し防止屋根-梯子付き-キャットケージ-tx198288caa | 猫ケージ 3段 多頭飼い対応 幅100cm 飛び出し防止屋根 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_4e67bb69-2439-422a-a043-ac95dd553011.jpg?width=120) | OK |
+| 91 | published | across-rainbow-スペーススタッキング-白い箱-日本語表示ラ付き-知育玩具-gys-01-f | Across Rainbow スペーススタッキング 白い箱  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_3207b27a-9a02-4adf-a2e0-cb1384e9db8c.jpg?width=120) | OK |
+| 92 | published | ドットサイト-40mm-レンズ-レッド-グリーン5段階切替-11mm-20mmレール対応-レンズカバー付き-ac20240220 | ドットサイト 40mm レンズ レッド/グリーン5段階切替  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421546758454-a-01.jpg?width=120) | OK |
+| 93 | published | タブレットスタンド-折りたたみ式-角度調節可能-アルミ合金製-ipad-タブレット対応-a-03 | タブレットスタンド 折りたたみ式 角度調節可能 アルミ合金製 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_1543c299-a78c-46a7-b83d-195510a16ad8.jpg?width=120) | OK |
+| 94 | published | 3d立体構造マスク-冬夏兼用-4層構造-洗えて繰り返し使える-uvカット-防寒マスク-5-15枚入 | 3D立体構造マスク 冬夏兼用 4層構造 洗えて繰り返し使える | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421651091766-a-01.jpg?width=120) | OK |
+| 95 | published | x30-シーリングファンライト-led照明付き-静音リモコン式-50cm-ブラック-b4-cbfi-sd49 | X30 シーリングファンライト LED照明付き 静音リモコン | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421594140982-a-01.jpg?width=120) | OK |
+| 96 | published | 晴雨兼用ミニ折りたたみ傘-ハンディファンセット-五つ折りコンパクト収納 | 晴雨兼用ミニ折りたたみ傘＋ハンディファンセット 五つ折りコン | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dmc0oor8x1nu5r7pm06cw.jpg?width=120) | OK |
 | 97 | planned | ストロベリークォーツ-天然石ブレスレット-10mm-wrta-br-a14 | ストロベリークォーツ 天然石ブレスレット 10mm WRTA | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387976.jpg?width=120) | OK |
-| 98 | planned | 猫ケージ-3段-多頭飼い対応-幅100cm-ホワイト-tx198288daa | 猫ケージ 3段 多頭飼い対応 幅100cm ホワイト TX1 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_6b406097-cfd9-41a7-94fd-7ff7f55f62af.jpg?width=120) | OK |
+| 98 | published | 猫ケージ-3段-多頭飼い対応-幅100cm-ホワイト-tx198288daa | 猫ケージ 3段 多頭飼い対応 幅100cm ホワイト TX1 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_6b406097-cfd9-41a7-94fd-7ff7f55f62af.jpg?width=120) | OK |
 | 99 | planned | across-rainbow-たこおもちゃ-食品衛生法適合-ce-en71合格-gys-01-k | Across Rainbow たこおもちゃ 食品衛生法適合・ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_a6b61e21-f0c9-49d3-a3fa-29b32c5683c9.jpg?width=120) | OK |
 | 100 | planned | バスケットゴール-屋外用-高さ6段調節-230-305cm-ミニバス対応-移動ローラー付き-yb-05 | バスケットゴール 屋外用 高さ6段調節 230～305cm  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421518053686-a-01.jpg?width=120) | OK |
 | 101 | planned | sdカードリーダー-4in1-iphone-スマホ対応-写真-データ保存-バックアップに-最大1tb対応-a-01 | SDカードリーダー 4in1 iPhone・スマホ対応 写真 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_19d23e61-b2e3-4c63-aa7d-92059dfd2fd8.jpg?width=120) | OK |
