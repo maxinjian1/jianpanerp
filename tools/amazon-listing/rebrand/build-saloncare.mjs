@@ -153,8 +153,9 @@ function fillRequired(v, { pt, asin, prefix, price, listPrice }) {
   put('fit_type#1.value', pick('フィットタイプ', pt, [...(/ゆったり|オーバーサイズ/.test(text) ? ['ゆったり'] : []), 'レギュラー'], 'レギュラー'));
   { const c = COL['sleeve#1.type#2.value']; if (c != null) delete v[c]; } // 袖のタイプは 1 つまで
   { const c = COL['waist#1.size#1.unit']; if (c != null && /センチ/.test(v[c] ?? '')) v[c] = 'cm'; }
-  for (const d of ['length', 'width', 'height']) put(`item_package_dimensions#1.${d}.unit`, 'センチメートル'); // 値が無くても単位は必須（90220）
-  put('item_package_weight#1.unit', 'キログラム');
+  // 単位は値があるときだけ（値なしで単位だけ入れると 99022）。値が無い行は後で同じ型番・商品タイプの兄弟から写す
+  for (const d of ['length', 'width', 'height']) if (v[COL[`item_package_dimensions#1.${d}.value`]] != null) put(`item_package_dimensions#1.${d}.unit`, 'センチメートル');
+  if (v[COL['item_package_weight#1.value']] != null) put('item_package_weight#1.unit', 'キログラム');
   // 素材（material）：素材構成の主繊維 → 推奨値の語
   const MAT = [[/ポリエステル/, 'ポリエステル'], [/綿|コットン/, 'コットン'], [/ナイロン|ポリアミド/, 'ナイロン'], [/レーヨン|ビスコース/, 'レーヨン'], [/麻|リネン/, 'リネン'], [/ウール/, 'ウール'], [/シルク/, 'シルク'], [/アクリル/, 'アクリル'], [/モダール/, 'モダール'], [/スパンデックス|ポリウレタン/, 'スパンデックス']];
   const fab = String(v[COL['fabric_type#1.value']] ?? '');
@@ -183,7 +184,10 @@ const uploads = new Map();
 function imagesFor(asin, f) {
   let list = [];
   try { list = JSON.parse(fs.readFileSync(A(`out/opt/${asin}/current.json`), 'utf8')).images ?? []; } catch {}
-  if (!list.length) list = Object.keys(f).filter((k) => /^(main_product_image_locator|pt0\d_image_url|detail_page_primary_image_url)/.test(k)).map((k) => f[k]);
+  // ページの画像に加え、属性 JSON の pt01〜08 も足す（空欄の枠は Amazon 側に前回の画像が残るため、できるだけ埋める）
+  const idOf = (u) => (u.match(/\/I\/([^._]+)/) ?? [])[1];
+  const extra = Object.keys(f).filter((k) => /^(main_product_image_locator|pt0\d_image_url|detail_page_primary_image_url)/.test(k)).sort().map((k) => f[k]);
+  for (const u of extra) if (!list.some((x) => idOf(x) === idOf(u))) list.push(u);
   const norm = (u) => u.replace(/\._[^.]+_(?=\.(jpg|png|jpeg)$)/i, '');
   const outL = [];
   for (const u0 of list) {
@@ -278,6 +282,21 @@ for (const f of families) {
 }
 
 const q = (s) => /[",\r\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s);
+// 前回送った画像（動画サムネイル）が Amazon 側の枠に残っている SKU（image-reject.json fillSlot）→ 手持ちの画像を繰り返して、その枠まで埋めて上書きする
+for (const v of rows) {
+  const n = REJECT.fillSlot?.[v[C('contribution_sku#1.value')]]; if (!n) continue;
+  const slot = (i) => C(i === 0 ? 'main_product_image_locator#1.media_location' : `other_product_image_locator_${i}#1.media_location`);
+  const have = []; for (let i = 0; i <= 8; i++) if (v[slot(i)]) have.push(v[slot(i)]);
+  for (let i = 1; i <= n; i++) if (!v[slot(i)]) v[slot(i)] = have[i % have.length];
+}
+// 梱包サイズ・重量が無い行（例 220523-b）→ 同じ型番・商品タイプの行から写す
+{
+  const PK = ['length', 'width', 'height'].flatMap((d) => [`item_package_dimensions#1.${d}.value`, `item_package_dimensions#1.${d}.unit`]).concat(['item_package_weight#1.value', 'item_package_weight#1.unit']).map((k) => COL[k]);
+  const key = (v) => `${modelOf(String(v[C('contribution_sku#1.value')]).replace(/^SC-/, '').replace(/-SC$/, ''))}|${v[C('product_type#1.value')]}`;
+  const donor = {}; for (const v of rows) if (PK.every((c) => v[c] != null && v[c] !== '')) donor[key(v)] ??= v;
+  let filled = 0; for (const v of rows) if (PK.some((c) => v[c] == null || v[c] === '')) { const d = donor[key(v)]; if (d) { PK.forEach((c) => { v[c] = d[c]; }); filled++; } else warns.push(`${v[C('contribution_sku#1.value')]}\t梱包サイズなし`); }
+  console.log('package dims copied', filled);
+}
 fs.writeFileSync(path.join(OUT, 'rows.json'), JSON.stringify(rows));
 fs.writeFileSync(path.join(OUT, 'review.csv'), '﻿' + review.map((r) => r.map(q).join(',')).join('\r\n'));
 fs.writeFileSync(path.join(OUT, 'warnings.txt'), warns.join('\n'));
