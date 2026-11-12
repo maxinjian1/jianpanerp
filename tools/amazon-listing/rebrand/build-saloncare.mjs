@@ -46,7 +46,7 @@ const PTMAP = (() => { // 商品タイプ → 使える列
   return ok;
 })();
 
-const attrs = { ...JSON.parse(fs.readFileSync(A('out/rebrand/attrs/part1.json'), 'utf8')), ...JSON.parse(fs.readFileSync(A('out/rebrand/attrs/part2.json'), 'utf8')) };
+const attrs = Object.assign({}, ...['part1', 'part2', 'part3'].map((p) => A(`out/rebrand/attrs/${p}.json`)).filter((f) => fs.existsSync(f)).map((f) => JSON.parse(fs.readFileSync(f, 'utf8')))); // part3 = 11-12 補読（211218TPC-PINK-L）
 const imsv = (sku) => { const d = attrs[sku]?.data?.reconciledListing?.detailPageListingResponseImsv3; try { return d ? JSON.parse(d) : null; } catch { return null; } };
 const plan = JSON.parse(fs.readFileSync(A('out/rebrand/image-plan.json'), 'utf8'));
 const parentOf = (() => { const m = {}; const t = fs.readFileSync(A('in/business-report-90d-2026-10-30.csv'), 'utf8').replace(/^﻿/, '').split(/\r?\n/).slice(1);
@@ -114,16 +114,21 @@ const FIBER = /(ポリエステル|ポリウレタン|ポリアミド|ナイロ�
 function fillRequired(v, { pt, asin, prefix, price, listPrice }) {
   const pg = pageOf(asin); const text = [v[C('item_name#1.value')], pg.title, ...(pg.bullets ?? []), pg.description, v[C('product_description#1.value')]].filter(Boolean).join('\n');
   const put = (k, val) => { const c = COL[k]; if (c != null && (v[c] == null || v[c] === '') && val != null && val !== '') v[c] = val; };
+  // 旧出品に残っていた中国語の文言（かな無し＋簡体字）は使わない：説明は旧ページの日本語説明に、箇条書きは削除、単位は「個」
+  const ZH = (x) => typeof x === 'string' && !/[ぁ-ん]/.test(x) && /[这们个么产设适颜码时让为发热请选择号该款开带罩弹压长贴种]/.test(x);
+  for (const k of ['product_description#1.value', ...[1, 2, 3, 4, 5].map((n) => `bullet_point#${n}.value`)]) { const c = COL[k]; if (c != null && ZH(v[c])) delete v[c]; }
+  for (const c of Object.keys(v)) if (v[c] === '每个') v[c] = '個'; else if (v[c] === '魔术贴') v[c] = '面ファスナー'; else if (ZH(v[c])) delete v[c];
   put('model_name#1.value', prefix);
   put('list_price#1.value', listPrice || price);
-  put('product_description#1.value', pg.description ? rebrand(pg.description).slice(0, 2000) : (pg.bullets ?? []).map(rebrand).join('\n').slice(0, 2000));
+  put('product_description#1.value', pg.description && !ZH(pg.description) ? rebrand(pg.description).slice(0, 2000) : (pg.bullets ?? []).map(rebrand).join('\n').slice(0, 2000));
   BRAND_RE.lastIndex = 0;
   const cl = /ファスナー|ジッパー/.test(text) ? ['ファスナー', 'ジッパー'] : /ホック/.test(text) ? ['鉤ホック', 'かぎホック', 'フックアンドバー'] : /ボタン/.test(text) ? ['ボタン'] : [];
   put('closure#1.type#1.value', pick('留め具の種類', pt, [...cl, 'プルオン'], 'プルオン'));
   const fib = [...new Set((text.match(FIBER) ?? []).map((s) => s.trim()))];
   if (fib.length) put('fabric_type#1.value', fib.slice(0, 4).join('、'));
   else if (v[C('fabric_type#1.value')] == null) warns.push(`${prefix}\t${asin}\t素材が文言に無い`);
-  put('style#1.value', pick('スタイル', pt, ['カジュアル', 'モダン', 'クラシック'], 'カジュアル'));
+  { const c = COL['style#1.value']; if (c != null && typeof v[c] === 'string' && !/[ぁ-んァ-ヶA-Za-z]/.test(v[c])) delete v[c]; } // 旧データの中国語（「只需套上即可」等）は捨てる
+  put('style#1.value', pick('スタイル', pt, [...(/ポンチョ/.test(text) ? ['ポンチョコート'] : []), ...(/かぶる/.test(text) ? ['ピナフォア'] : []), 'カジュアル', 'モダン', 'クラシック'], 'カジュアル'));
   const care = /手洗い/.test(text) ? ['手洗い'] : /洗濯機|ネット/.test(text) ? ['洗濯機'] : ['手洗い'];
   put('care_instructions#1.value', pick('お手入れ方法', pt, care, '手洗いのみ'));
   put('number_of_items#1.value', '1'); put('number_of_pieces#1.value', '1');

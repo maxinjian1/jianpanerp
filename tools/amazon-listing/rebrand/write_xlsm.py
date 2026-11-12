@@ -1,6 +1,6 @@
 """rows.json（build-saloncare.mjs の出力）を 11-11 カテゴリー別出品レポートの xlsm に書き込み、アップロード用ファイルを作る。
 
-  python tools/amazon-listing/rebrand/write_xlsm.py <out.xlsm> [--prefix 2238,HM220831] [--skip-prefix ...]
+  python tools/amazon-listing/rebrand/write_xlsm.py <out.xlsm> [--prefix 2238,HM220831] [--skip-prefix ...] [--skus skus.json（新SKUのリスト）]
 
 テンプレート行（1〜6 行目）とマクロ・入力規則はそのまま、7 行目以降の既存データを消して新 SKU を書く。
 """
@@ -23,6 +23,9 @@ def prefix(r):
     return sku.split('-')[1] if sku.startswith('SC-') else sku.split('-')[0]
 if only: rows = [r for r in rows if prefix(r) in only]
 if skip: rows = [r for r in rows if prefix(r) not in skip]
+if '--skus' in sys.argv:
+    want = set(json.loads(Path(sys.argv[sys.argv.index('--skus') + 1]).read_text(encoding='utf-8')))
+    rows = [r for r in rows if r['2'] in want]
 
 wb = openpyxl.load_workbook(SRC, keep_vba=True)
 ws = wb['テンプレート']
