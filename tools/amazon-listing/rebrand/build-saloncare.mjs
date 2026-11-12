@@ -153,8 +153,8 @@ function fillRequired(v, { pt, asin, prefix, price, listPrice }) {
   put('fit_type#1.value', pick('フィットタイプ', pt, [...(/ゆったり|オーバーサイズ/.test(text) ? ['ゆったり'] : []), 'レギュラー'], 'レギュラー'));
   { const c = COL['sleeve#1.type#2.value']; if (c != null) delete v[c]; } // 袖のタイプは 1 つまで
   { const c = COL['waist#1.size#1.unit']; if (c != null && /センチ/.test(v[c] ?? '')) v[c] = 'cm'; }
-  for (const d of ['length', 'width', 'height']) if (v[COL[`item_package_dimensions#1.${d}.value`]] != null) put(`item_package_dimensions#1.${d}.unit`, 'センチメートル');
-  if (v[COL['item_package_weight#1.value']] != null) put('item_package_weight#1.unit', 'キログラム');
+  for (const d of ['length', 'width', 'height']) put(`item_package_dimensions#1.${d}.unit`, 'センチメートル'); // 値が無くても単位は必須（90220）
+  put('item_package_weight#1.unit', 'キログラム');
   // 素材（material）：素材構成の主繊維 → 推奨値の語
   const MAT = [[/ポリエステル/, 'ポリエステル'], [/綿|コットン/, 'コットン'], [/ナイロン|ポリアミド/, 'ナイロン'], [/レーヨン|ビスコース/, 'レーヨン'], [/麻|リネン/, 'リネン'], [/ウール/, 'ウール'], [/シルク/, 'シルク'], [/アクリル/, 'アクリル'], [/モダール/, 'モダール'], [/スパンデックス|ポリウレタン/, 'スパンデックス']];
   const fab = String(v[COL['fabric_type#1.value']] ?? '');
@@ -168,7 +168,11 @@ function fillRequired(v, { pt, asin, prefix, price, listPrice }) {
   [1, 2, 3, 4, 5].forEach((n, i) => { const c = COL[`bullet_point#${n}.value`]; if (bl[i]) v[c] = bl[i]; else delete v[c]; });
 }
 // 商品名：同じ語を 2 回以上使うと 100470（例「ショートパンツ … パンツ」）→ 他の語に含まれる語・重複語を落とす
-const dedupeTitle = (t) => { const w = t.split(/\s+/); return w.filter((x, i) => !w.some((y, j) => j !== i && y !== x && y.includes(x) && x.length >= 2) && w.indexOf(x) === i).join(' '); };
+const dedupeTitle0 = (t) => { const w = t.split(/\s+/); return w.filter((x, i) => !w.some((y, j) => j !== i && y !== x && y.includes(x) && x.length >= 2) && w.indexOf(x) === i).join(' '); };
+// 複合語でも同じカタカナ語（3 字以上、例「毛糸パンツ 腹巻きパンツ ニットパンツ」）が 2 語以上に出たら、2 つ目以降の語を落とす（末尾 2 語＝色・サイズは残す）
+const dedupeTitle = (t) => { const w = dedupeTitle0(t).split(' '); const seen = new Set(); return w.filter((x, i) => { if (i >= w.length - 2) return true; const ks = x.match(/[ァ-ヶー]{3,}/g) ?? []; if (ks.some((k) => [...seen].some((s) => s.includes(k) || k.includes(s)))) return false; ks.forEach((k) => seen.add(k)); return true; }).join(' '); };
+const REJECT = (() => { try { return JSON.parse(fs.readFileSync(path.join(OUT, 'image-reject.json'), 'utf8')); } catch { return {}; } })();
+const modelOf = (sku) => (sku.startsWith('FBA-') ? sku.split('-')[1] : sku.split('-')[0]);
 // SKU は 40 バイトまで（90118）。超える場合は非 ASCII 部分を短いハッシュに
 const newSku = (old) => { const s = old + '-SC'; if (Buffer.byteLength(s) <= 40) return s; return old.replace(/[^\x00-\x7f]+/g, (m) => 'j' + crypto.createHash('md5').update(m).digest('hex').slice(0, 6)) + '-SC'; };
 // メイン画像にマネキン（18185）→ 2 枚目をメインに
@@ -188,6 +192,7 @@ function imagesFor(asin, f) {
     if (p?.action === 'drop') continue;
     if (p?.action === 'replace') { const rel = p.file.split('/fixed/')[1]; const pub = HOSTED[rel]; uploads.set(p.file, rel); if (pub) outL.push(pub); else warns.push(`${asin}\t修正画像未ホスト ${rel}`); continue; }
     if (/\.gif$/i.test(u)) continue; // 160px のプレースホルダ GIF（20009）
+    if (/play-button|PKmb|SX\d+_SY\d+/.test(u)) continue; // 動画サムネイル（38×50、再生ボタン付き）→ 100232「性的に露骨/子供モデル」と誤判定される
     outL.push(u);
   }
   return outL.slice(0, 9);
@@ -198,6 +203,7 @@ const children = [];
 for (const row of OLD) {
   const sku = row[2]; const asin = row[C('amzn1.volt.ca.product_id_value')]; const pt = row[3];
   if (ONLY && !ONLY.includes(sku.split('-')[0])) continue;
+  if (REJECT.skip?.[sku]) { warns.push(`${sku}\t除外：${REJECT.skip[sku]}`); continue; }
   const o = imsv(sku);
   if (!o && !full(row)) { warns.push(`${sku}\t属性なし・スキップ`); continue; }
   const v = {};
@@ -208,7 +214,7 @@ for (const row of OLD) {
   // 文字列の旧ブランド置換
   for (const k of Object.keys(v)) if (typeof v[k] === 'string' && BRAND_RE.test(v[k])) { BRAND_RE.lastIndex = 0; v[k] = rebrand(v[k]); }
   BRAND_RE.lastIndex = 0;
-  const prefix = sku.split('-')[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const prefix = modelOf(sku).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const title = titleOf(v[C('item_name#1.value')] ?? row[1]).replace(new RegExp(`\\s*\\S*${prefix}\\S*`, 'gi'), '').trim(); // 型番を除く
   const titleD = dedupeTitle(title);
   const imgs = imagesFor(asin, o ? flatten(o) : {});
@@ -251,7 +257,7 @@ for (const f of families) {
     set(v, 'brand#1.value', 'SALONCARE'); set(v, 'amzn1.volt.ca.product_id_type', 'GTIN免除');
     a.imgs.forEach((u, i) => set(v, i === 0 ? 'main_product_image_locator#1.media_location' : `other_product_image_locator_${i}#1.media_location`, u));
     set(v, 'condition_type#1.value', '新品'); set(v, 'skip_offer#1.value', 'いいえ'); set(v, 'batteries_required#1.value', 'いいえ');
-    fillRequired(v, { pt: a.pt, asin: a.asin, prefix: a.sku.split('-')[0] });
+    fillRequired(v, { pt: a.pt, asin: a.asin, prefix: modelOf(a.sku) });
     rows.push(v); review.push([f.parent, '', '', '', a.pt, '', '', '', a.imgs.length, '', v[C('item_name#1.value')]]);
   }
   for (const c of f.items) {
@@ -263,7 +269,7 @@ for (const f of families) {
     set(v, 'condition_type#1.value', '新品');
     // 試作 2238 の処理レポートで必須と出た項目（無ければ既定値）
     v[C('special_size_type#1.value')] ??= '標準'; v[C('distribution_designation#1.value')] ??= '正規品'; v[C('batteries_required#1.value')] ??= 'いいえ';
-    fillRequired(v, { pt: c.pt, asin: c.asin, prefix: c.sku.split('-')[0], price: c.price, listPrice: c.listPrice });
+    fillRequired(v, { pt: c.pt, asin: c.asin, prefix: modelOf(c.sku), price: c.price, listPrice: c.listPrice });
     if (c.price) set(v, 'purchasable_offer#1.our_price#1.schedule#1.value_with_tax', c.price); else warns.push(`${c.sku}\t価格なし`);
     set(v, 'fulfillment_availability#1.fulfillment_channel_code', c.fc || 'フルフィルメントby Amazon（JP）');
     rows.push(v);
