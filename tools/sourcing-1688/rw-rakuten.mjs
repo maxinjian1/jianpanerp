@@ -1,5 +1,6 @@
 /** 1688 ルームウェア 9 款を楽天に登録（RMS 商品 API 2.0 PUT + 在庫 API 2.1）。
- *   node tools/sourcing-1688/rw-rakuten.mjs [--dry] [--only rw1688-01] [--stock 0]
+ *   node tools/sourcing-1688/rw-rakuten.mjs [--dry] [--only rw1688-01] [--stock 0] [--stock-only]
+ *   ※ 初回登録後は必ず --stock-only で在庫だけ変える（PUT すると rw-desc-apply.mjs の文字入り主画像・画像説明が消える）
  * 前提：rw-images.py → R-Cabinet フォルダ rw1688 に c-wNN-MM.jpg（cabinet-urls.json）。
  * 公開（hideItem=false）・在庫は --stock（既定 0＝入荷待ち。到着後 --stock で数量を入れ直す）。
  * 既存の管理番号は上書き（PUT は全置換）。結果 out/rakuten-pj/rakuten-result.json
@@ -90,7 +91,7 @@ for (const p of spec.products.filter((x) => !args.only || x.mn === args.only)) {
   fs.writeFileSync(path.join(B, `out/rakuten-pj/item-${p.mn}.json`), JSON.stringify(item, null, 1));
   if (args.dry) { console.log(p.mn, 'variants', Object.keys(item.variants).length, 'images', item.images.length); continue; }
   try {
-    await api('PUT', `https://api.rms.rakuten.co.jp/es/2.0/items/manage-numbers/${p.mn}`, item);
+    if (!args['stock-only']) await api('PUT', `https://api.rms.rakuten.co.jp/es/2.0/items/manage-numbers/${p.mn}`, item); // 在庫だけ変える時は --stock-only（PUT は全置換なので、rw-desc-apply の画像・説明文を消してしまう）
     const qty = Number(args.stock ?? 0);
     for (const vid of Object.keys(item.variants)) { await api('PUT', `https://api.rms.rakuten.co.jp/es/2.1/inventories/manage-numbers/${p.mn}/variants/${vid}`, { mode: 'ABSOLUTE', quantity: qty }); await sleep(1100); }
     const got = await api('GET', `https://api.rms.rakuten.co.jp/es/2.0/items/manage-numbers/${p.mn}`);
