@@ -105,6 +105,32 @@ const toLabel = (c, code) => {
   return CODE[a]?.[code] ?? (/_size$/.test(a.split('.')[0]) ? CODE[leaf]?.[code] : undefined) ?? null;
 };
 
+// 試作 2 回目（92 行中 4 成功）の処理レポートで必須と出た項目を、旧ページの文言から埋める。
+// 選択肢は「推奨値」シートの商品タイプ別リスト（無い商品タイプは汎用値）。素材が文言に無ければ埋めない（推測しない）
+const REC = (() => { const m = {}; for (const r of R['0_APPAREL-VEST.xlsm|推奨値']) { const h = String(r[1]); const mm = h.match(/^(.+?) - \[ (\w+) \]$/); if (mm) (m[mm[1]] ??= {})[mm[2]] = r.slice(2).filter(Boolean); } return m; })();
+const pick = (attr, pt, prefs, dflt) => { const opts = REC[attr]?.[pt]; if (!opts) return dflt; for (const p of prefs) { const o = opts.find((x) => x.startsWith(p)); if (o) return o; } return dflt === null ? null : opts.includes(dflt) ? dflt : null; };
+const pageOf = (asin) => { try { return JSON.parse(fs.readFileSync(A(`out/opt/${asin}/current.json`), 'utf8')); } catch { return {}; } };
+const FIBER = /(ポリエステル|ポリウレタン|ポリアミド|ナイロン|コットン|綿|レーヨン|スパンデックス|ナイロン|アクリル|ウール|シルク|麻|リネン|モダール|ビスコース)\s*[0-9０-９]{0,3}\s*[%％]?/g;
+function fillRequired(v, { pt, asin, prefix, price, listPrice }) {
+  const pg = pageOf(asin); const text = [v[C('item_name#1.value')], pg.title, ...(pg.bullets ?? []), pg.description, v[C('product_description#1.value')]].filter(Boolean).join('\n');
+  const put = (k, val) => { const c = COL[k]; if (c != null && (v[c] == null || v[c] === '') && val != null && val !== '') v[c] = val; };
+  put('model_name#1.value', prefix);
+  put('list_price#1.value', listPrice || price);
+  put('product_description#1.value', pg.description ? rebrand(pg.description).slice(0, 2000) : (pg.bullets ?? []).map(rebrand).join('\n').slice(0, 2000));
+  BRAND_RE.lastIndex = 0;
+  const cl = /ファスナー|ジッパー/.test(text) ? ['ファスナー', 'ジッパー'] : /ホック/.test(text) ? ['鉤ホック', 'かぎホック', 'フックアンドバー'] : /ボタン/.test(text) ? ['ボタン'] : [];
+  put('closure#1.type#1.value', pick('留め具の種類', pt, [...cl, 'プルオン'], 'プルオン'));
+  const fib = [...new Set((text.match(FIBER) ?? []).map((s) => s.trim()))];
+  if (fib.length) put('fabric_type#1.value', fib.slice(0, 4).join('、'));
+  else if (v[C('fabric_type#1.value')] == null) warns.push(`${prefix}\t${asin}\t素材が文言に無い`);
+  put('style#1.value', pick('スタイル', pt, ['カジュアル', 'モダン', 'クラシック'], 'カジュアル'));
+  const care = /手洗い/.test(text) ? ['手洗い'] : /洗濯機|ネット/.test(text) ? ['洗濯機'] : ['手洗い'];
+  put('care_instructions#1.value', pick('お手入れ方法', pt, care, '手洗いのみ'));
+  put('number_of_items#1.value', '1'); put('number_of_pieces#1.value', '1');
+  put('item_length_description#1.value', pick('商品の長さの説明', pt, ['スタンダード', '標準'], null));
+  put('apparel_size#1.size_class', 'アルファベット'); put('apparel_size#1.size_system', 'JP');
+}
+
 // 画像：ページの画像（フルサイズ）→ image-plan に従い置換/除外
 const uploads = new Map();
 function imagesFor(asin, f) {
@@ -134,7 +160,7 @@ for (const row of OLD) {
   if (full(row)) row.forEach((x, i) => { if (x !== '') v[i] = x; });
   else for (const [k, code] of Object.entries(flatten(o))) { const c = COL[k]; if (c == null) continue; const l = toLabel(c, code); if (l != null) v[c] = l; }
   // 参照列・識別子・バリエーション・画像・オファー系はクリアして作り直す
-  for (const k of Object.keys(v)) { const key = strip(H[k]); if (/^::|^amzn1\.volt|^contribution_sku|^parentage_level|^child_parent|^variation_theme|image_locator|_image_url|^purchasable_offer|^fulfillment_availability|^list_price|^merchant_shipping|^externally_assigned|^skip_offer|^product_site_launch|^sales_rank|^detail_page/.test(key)) delete v[k]; }
+  for (const k of Object.keys(v)) { const key = strip(H[k]); if (/^::|^amzn1\.volt|^contribution_sku|^parentage_level|^child_parent|^variation_theme|image_locator|_image_url|^purchasable_offer|^fulfillment_availability|^merchant_shipping|^externally_assigned|^skip_offer|^product_site_launch|^sales_rank|^detail_page/.test(key)) delete v[k]; }
   // 文字列の旧ブランド置換
   for (const k of Object.keys(v)) if (typeof v[k] === 'string' && BRAND_RE.test(v[k])) { BRAND_RE.lastIndex = 0; v[k] = rebrand(v[k]); }
   BRAND_RE.lastIndex = 0;
@@ -144,7 +170,7 @@ for (const row of OLD) {
   if (!imgs.length) warns.push(`${sku}\t画像なし`);
   const color = v[C('color#1.value')] ?? ''; const size = v[C('size#1.value')] ?? '';
   const theme = o?.variation_theme?.[0]?.name ?? '';
-  children.push({ sku, asin, pt, v, title, imgs, color, size, theme, price: row[C('purchasable_offer#1.our_price#1.schedule#1.value_with_tax')], fc: row[C('fulfillment_availability#1.fulfillment_channel_code')], par: parentOf[asin] ?? '' });
+  children.push({ sku, asin, pt, v, title, imgs, color, size, theme, listPrice: row[C('list_price#1.value')] || (o ? flatten(o)['list_price#1.value'] : ''), price: row[C('purchasable_offer#1.our_price#1.schedule#1.value_with_tax')], fc: row[C('fulfillment_availability#1.fulfillment_channel_code')], par: parentOf[asin] ?? '' });
   if (LIMIT && children.length >= LIMIT) break;
 }
 
@@ -180,6 +206,7 @@ for (const f of families) {
     set(v, 'brand#1.value', 'SALONCARE'); set(v, 'amzn1.volt.ca.product_id_type', 'GTIN免除');
     a.imgs.forEach((u, i) => set(v, i === 0 ? 'main_product_image_locator#1.media_location' : `other_product_image_locator_${i}#1.media_location`, u));
     set(v, 'condition_type#1.value', '新品'); set(v, 'skip_offer#1.value', 'いいえ'); set(v, 'batteries_required#1.value', 'いいえ');
+    fillRequired(v, { pt: a.pt, asin: a.asin, prefix: a.sku.split('-')[0] });
     rows.push(v); review.push([f.parent, '', '', '', a.pt, '', '', '', a.imgs.length, '', v[C('item_name#1.value')]]);
   }
   for (const c of f.items) {
@@ -191,6 +218,7 @@ for (const f of families) {
     set(v, 'condition_type#1.value', '新品');
     // 試作 2238 の処理レポートで必須と出た項目（無ければ既定値）
     v[C('special_size_type#1.value')] ??= '標準'; v[C('distribution_designation#1.value')] ??= '正規品'; v[C('batteries_required#1.value')] ??= 'いいえ';
+    fillRequired(v, { pt: c.pt, asin: c.asin, prefix: c.sku.split('-')[0], price: c.price, listPrice: c.listPrice });
     if (c.price) set(v, 'purchasable_offer#1.our_price#1.schedule#1.value_with_tax', c.price); else warns.push(`${c.sku}\t価格なし`);
     set(v, 'fulfillment_availability#1.fulfillment_channel_code', c.fc || 'フルフィルメントby Amazon（JP）');
     rows.push(v);
