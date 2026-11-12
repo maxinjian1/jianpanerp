@@ -21,6 +21,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 const ROOT = process.cwd();
 const A = (p) => path.join(ROOT, 'tools/amazon-listing', p);
@@ -117,6 +118,9 @@ function fillRequired(v, { pt, asin, prefix, price, listPrice }) {
   // 旧出品に残っていた中国語の文言（かな無し＋簡体字）は使わない：説明は旧ページの日本語説明に、箇条書きは削除、単位は「個」
   const ZH = (x) => typeof x === 'string' && !/[ぁ-ん]/.test(x) && /[这们个么产设适颜码时让为发热请选择号该款开带罩弹压长贴种]/.test(x);
   for (const k of ['product_description#1.value', ...[1, 2, 3, 4, 5].map((n) => `bullet_point#${n}.value`)]) { const c = COL[k]; if (c != null && ZH(v[c])) delete v[c]; }
+  const ZHW = [[/涤纶/g, 'ポリエステル'], [/尼龙/g, 'ナイロン'], [/丙烯酸/g, 'アクリル'], [/粘纤/g, 'レーヨン'], [/亚麻/g, 'リネン'], [/混纺/g, '混'], [/丝绸/g, 'シルク'], [/^棉$|棉(?=[ ,、混]|$)/g, 'コットン']];
+  for (const k of ['material#1.value', 'material#2.value', 'material#3.value', 'fabric_type#1.value']) { const c = COL[k]; if (c != null && typeof v[c] === 'string') { for (const [re, w] of ZHW) v[c] = v[c].replace(re, w); if (/泰派/.test(v[c])) delete v[c]; } }
+  for (const c of Object.keys(v)) if (typeof v[c] === 'string' && !/[ぁ-ん]/.test(v[c]) && /[涤纶尼龙丙烯粘纤亚纺宽松泰]/.test(v[c])) delete v[c];
   for (const c of Object.keys(v)) if (v[c] === '每个') v[c] = '個'; else if (v[c] === '魔术贴') v[c] = '面ファスナー'; else if (ZH(v[c])) delete v[c];
   put('model_name#1.value', prefix);
   put('list_price#1.value', listPrice || price);
@@ -132,9 +136,43 @@ function fillRequired(v, { pt, asin, prefix, price, listPrice }) {
   const care = /手洗い/.test(text) ? ['手洗い'] : /洗濯機|ネット/.test(text) ? ['洗濯機'] : ['手洗い'];
   put('care_instructions#1.value', pick('お手入れ方法', pt, care, '手洗いのみ'));
   put('number_of_items#1.value', '1'); put('number_of_pieces#1.value', '1');
-  put('item_length_description#1.value', pick('商品の長さの説明', pt, ['スタンダード', '標準'], null));
-  put('apparel_size#1.size_class', 'アルファベット'); put('apparel_size#1.size_system', 'JP');
+  const len = /マキシ|ロング/.test(text) ? ['ロング', 'マキシ', 'アンクル'] : /ミニ/.test(text) ? ['ミニ'] : /膝|ひざ|ニー/.test(text) ? ['ニー', '膝'] : [];
+  put('item_length_description#1.value', pick('商品の長さの説明', pt, [...len, 'スタンダード', '標準', 'ミディ'], null));
+  // ---- 本番 A/B（810/1231 成功）の処理レポート対応 ----
+  // サイズ：商品タイプごとに要る構造が違う（アパレル/シェイプウェア/ボトムス/シャツ）。全部に同じ値を入れ、対象外は Amazon が無視（警告のみ）
+  const SZ = { s: 'S', m: 'M', l: 'L', x_l: 'XL', xx_l: '2XL', '2x_l': '2XL', '3x_l': '3XL', x_s: 'XS', free_size: 'Free Size', 'フリーサイズ': 'Free Size', 'フリー': 'Free Size', 'ワンサイズ': 'Free Size', LL: 'XL', '2L': '2XL', '3L': '3XL' };
+  const raw = ['apparel_size#1.size', 'shapewear_size#1.size', 'bottoms_size#1.size', 'shirt_size#1.size', 'size#1.value'].map((k) => v[COL[k]]).find((x) => x != null && x !== '');
+  let sz = raw == null ? 'Free Size' : (SZ[raw] ?? SZ[String(raw).toUpperCase()] ?? String(raw).toUpperCase().replace(/^XXL$/, '2XL').replace(/^XXXL$/, '3XL'));
+  if (!/^(XS|S|M|L|XL|[2-5]XL|Free Size)$/.test(sz)) sz = /フリー|FREE|ONE/i.test(String(raw)) ? 'Free Size' : sz;
+  for (const g of ['apparel_size', 'shapewear_size', 'bottoms_size', 'shirt_size']) {
+    const c = COL[`${g}#1.size`]; if (c != null && (v[c] == null || v[c] === '' || /_/.test(v[c]))) v[c] = sz;
+    put(`${g}#1.size_class`, 'アルファベット'); put(`${g}#1.size_system`, 'JP');
+  }
+  put('target_gender#1.value', /メンズ|男性/.test(text) && !/レディース|女性/.test(text) ? '男性' : '女性');
+  put('age_range_description#1.value', '大人');
+  put('fit_type#1.value', pick('フィットタイプ', pt, [...(/ゆったり|オーバーサイズ/.test(text) ? ['ゆったり'] : []), 'レギュラー'], 'レギュラー'));
+  { const c = COL['sleeve#1.type#2.value']; if (c != null) delete v[c]; } // 袖のタイプは 1 つまで
+  { const c = COL['waist#1.size#1.unit']; if (c != null && /センチ/.test(v[c] ?? '')) v[c] = 'cm'; }
+  for (const d of ['length', 'width', 'height']) if (v[COL[`item_package_dimensions#1.${d}.value`]] != null) put(`item_package_dimensions#1.${d}.unit`, 'センチメートル');
+  if (v[COL['item_package_weight#1.value']] != null) put('item_package_weight#1.unit', 'キログラム');
+  // 素材（material）：素材構成の主繊維 → 推奨値の語
+  const MAT = [[/ポリエステル/, 'ポリエステル'], [/綿|コットン/, 'コットン'], [/ナイロン|ポリアミド/, 'ナイロン'], [/レーヨン|ビスコース/, 'レーヨン'], [/麻|リネン/, 'リネン'], [/ウール/, 'ウール'], [/シルク/, 'シルク'], [/アクリル/, 'アクリル'], [/モダール/, 'モダール'], [/スパンデックス|ポリウレタン/, 'スパンデックス']];
+  const fab = String(v[COL['fabric_type#1.value']] ?? '');
+  const mats = MAT.filter(([re]) => re.test(fab)).map(([, w]) => w);
+  if (mats.length) put('material#1.value', pick('素材', pt, mats.length > 1 ? [mats[0] + '混', mats[0]] : [mats[0]], mats[0]) ?? mats[0]);
+  // 箇条書き：レビュー依頼・満足保証・返品の文言は規約違反（99300）→ その行を落とし、空いたら旧ページの箇条書きで補う
+  const bad = /レビュー|口コミ|満足度?保証|返金|返品|★5|星5/;
+  const bl = [1, 2, 3, 4, 5].map((n) => v[COL[`bullet_point#${n}.value`]]).filter((x) => x && !bad.test(x) && !ZH(x));
+  if (!bl.length) for (const b of pg.bullets ?? []) if (!bad.test(b) && !ZH(b)) bl.push(rebrand(b));
+  BRAND_RE.lastIndex = 0;
+  [1, 2, 3, 4, 5].forEach((n, i) => { const c = COL[`bullet_point#${n}.value`]; if (bl[i]) v[c] = bl[i]; else delete v[c]; });
 }
+// 商品名：同じ語を 2 回以上使うと 100470（例「ショートパンツ … パンツ」）→ 他の語に含まれる語・重複語を落とす
+const dedupeTitle = (t) => { const w = t.split(/\s+/); return w.filter((x, i) => !w.some((y, j) => j !== i && y !== x && y.includes(x) && x.length >= 2) && w.indexOf(x) === i).join(' '); };
+// SKU は 40 バイトまで（90118）。超える場合は非 ASCII 部分を短いハッシュに
+const newSku = (old) => { const s = old + '-SC'; if (Buffer.byteLength(s) <= 40) return s; return old.replace(/[^\x00-\x7f]+/g, (m) => 'j' + crypto.createHash('md5').update(m).digest('hex').slice(0, 6)) + '-SC'; };
+// メイン画像にマネキン（18185）→ 2 枚目をメインに
+const MANNEQUIN = new Set(['221111T-beige', '221111T-pink']);
 
 // 画像：ページの画像（フルサイズ）→ image-plan に従い置換/除外
 const uploads = new Map();
@@ -149,6 +187,7 @@ function imagesFor(asin, f) {
     const p = plan[u];
     if (p?.action === 'drop') continue;
     if (p?.action === 'replace') { const rel = p.file.split('/fixed/')[1]; const pub = HOSTED[rel]; uploads.set(p.file, rel); if (pub) outL.push(pub); else warns.push(`${asin}\t修正画像未ホスト ${rel}`); continue; }
+    if (/\.gif$/i.test(u)) continue; // 160px のプレースホルダ GIF（20009）
     outL.push(u);
   }
   return outL.slice(0, 9);
@@ -171,11 +210,12 @@ for (const row of OLD) {
   BRAND_RE.lastIndex = 0;
   const prefix = sku.split('-')[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const title = titleOf(v[C('item_name#1.value')] ?? row[1]).replace(new RegExp(`\\s*\\S*${prefix}\\S*`, 'gi'), '').trim(); // 型番を除く
+  const titleD = dedupeTitle(title);
   const imgs = imagesFor(asin, o ? flatten(o) : {});
-  if (!imgs.length) warns.push(`${sku}\t画像なし`);
+  if (!imgs.length) { warns.push(`${sku}\t画像なし・スキップ`); continue; }
   const color = v[C('color#1.value')] ?? ''; const size = v[C('size#1.value')] ?? '';
   const theme = o?.variation_theme?.[0]?.name ?? '';
-  children.push({ sku, asin, pt, v, title, imgs, color, size, theme, listPrice: row[C('list_price#1.value')] || (o ? flatten(o)['list_price#1.value'] : ''), price: row[C('purchasable_offer#1.our_price#1.schedule#1.value_with_tax')], fc: row[C('fulfillment_availability#1.fulfillment_channel_code')], par: parentOf[asin] ?? '' });
+  children.push({ sku, asin, pt, v, title: titleD, imgs: MANNEQUIN.has(sku) && imgs.length > 1 ? [...imgs.slice(1), imgs[0]] : imgs, color, size, theme, listPrice: row[C('list_price#1.value')] || (o ? flatten(o)['list_price#1.value'] : ''), price: row[C('purchasable_offer#1.our_price#1.schedule#1.value_with_tax')], fc: row[C('fulfillment_availability#1.fulfillment_channel_code')], par: parentOf[asin] ?? '' });
   if (LIMIT && children.length >= LIMIT) break;
 }
 
@@ -216,7 +256,7 @@ for (const f of families) {
   }
   for (const c of f.items) {
     const v = { ...c.v };
-    set(v, 'contribution_sku#1.value', c.sku + '-SC'); set(v, 'product_type#1.value', c.pt); set(v, '::record_action', '作成または置換 (完全更新)');
+    set(v, 'contribution_sku#1.value', newSku(c.sku)); set(v, 'product_type#1.value', c.pt); set(v, '::record_action', '作成または置換 (完全更新)');
     if (f.parent) { set(v, 'parentage_level#1.value', '子供'); set(v, 'child_parent_sku_relationship#1.parent_sku', f.parent); set(v, 'variation_theme#1.name', f.theme); }
     set(v, 'item_name#1.value', c.title); set(v, 'brand#1.value', 'SALONCARE'); set(v, 'amzn1.volt.ca.product_id_type', 'GTIN免除');
     c.imgs.forEach((u, i) => set(v, i === 0 ? 'main_product_image_locator#1.media_location' : `other_product_image_locator_${i}#1.media_location`, u));
@@ -227,7 +267,7 @@ for (const f of families) {
     if (c.price) set(v, 'purchasable_offer#1.our_price#1.schedule#1.value_with_tax', c.price); else warns.push(`${c.sku}\t価格なし`);
     set(v, 'fulfillment_availability#1.fulfillment_channel_code', c.fc || 'フルフィルメントby Amazon（JP）');
     rows.push(v);
-    review.push([c.sku + '-SC', f.parent ?? '', c.sku, c.asin, c.pt, c.color, c.size, c.price, c.imgs.length, c.imgs.filter((u) => u.startsWith(IMG_BASE)).length, c.title]);
+    review.push([newSku(c.sku), f.parent ?? '', c.sku, c.asin, c.pt, c.color, c.size, c.price, c.imgs.length, c.imgs.filter((u) => u.startsWith(IMG_BASE)).length, c.title]);
   }
 }
 
