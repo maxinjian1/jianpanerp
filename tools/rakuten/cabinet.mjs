@@ -256,13 +256,19 @@ async function upload() {
   log('folder', fo.name, fo.id, 'files', fo.count);
   const py = process.env.PYTHON || path.join(ROOT, 'apps/image-service/venv/Scripts/python.exe');
   const out = [];
+  // 既にあるファイル（同じ filePath）は上げ直さない（3007 same file path 回避）。503 SystemError は待って再試行
+  const existing = new Map();
+  for (let off = 1; ; off++) { const xml = await rms(`folder/files/get?folderId=${fo.id}&offset=${off}&limit=100`); const list = tags(xml, 'file'); for (const x of list) existing.set(String(tag(x, 'FilePath')).toLowerCase(), tag(x, 'FileId')); if (list.length < 100) break; }
   for (const f of files) {
+    const nm0 = (path.basename(path.dirname(path.dirname(f))) + '-' + path.basename(f)).toLowerCase();
+    if (existing.has(nm0)) { out.push({ src: f, fileId: existing.get(nm0), name: nm0 }); continue; }
     let buf = fs.readFileSync(f);
     if (buf.length > 1.9 * 1024 * 1024) { const t = path.join(OUT, 'upload-tmp.jpg'); execFileSync(py, ['-c', 'import sys;from PIL import Image;im=Image.open(sys.argv[1]).convert("RGB");im.thumbnail((1200,1200));im.save(sys.argv[2],quality=85)', f, t]); buf = fs.readFileSync(t); }
     const name = path.basename(path.dirname(path.dirname(f))) + '-' + path.basename(f);
     const xml = `<?xml version="1.0" encoding="UTF-8"?><request><fileInsertRequest><file><fileName>${name.replace(/\.[^.]+$/, '')}</fileName><folderId>${fo.id}</folderId><filePath>${name.toLowerCase()}</filePath><overWrite>false</overWrite></file></fileInsertRequest></request>`;
     const fd = new FormData(); fd.append('xml', new Blob([xml], { type: 'text/xml' }), 'request.xml'); fd.append('file', new Blob([buf], { type: 'image/jpeg' }), name);
-    const res = await rms('file/insert', { method: 'POST', body: fd }); out.push({ src: f, fileId: tag(res, 'FileId'), name }); log('uploaded', name, tag(res, 'FileId'));
+    let res; for (let t = 1; ; t++) { try { res = await rms('file/insert', { method: 'POST', body: fd }); break; } catch (e) { if (t >= 6 || !/http 503/.test(e.message)) throw e; log('503 retry', t, name); await new Promise((r) => setTimeout(r, 5000 * t)); } }
+    out.push({ src: f, fileId: tag(res, 'FileId'), name }); log('uploaded', name, tag(res, 'FileId'));
   }
   // URL は folder/files/get から取る（ディレクトリ名を推測しない）
   const urls = new Map();
