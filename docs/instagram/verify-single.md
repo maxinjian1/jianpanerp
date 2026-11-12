@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-11T12:15Z）
+# 投稿と商品の対応チェック single（2026-11-12T12:13Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -102,16 +102,16 @@
 | 96 | published | 晴雨兼用ミニ折りたたみ傘-ハンディファンセット-五つ折りコンパクト収納 | 晴雨兼用ミニ折りたたみ傘＋ハンディファンセット 五つ折りコン | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/1sy3y611000dmc0oor8x1nu5r7pm06cw.jpg?width=120) | OK |
 | 97 | planned | ストロベリークォーツ-天然石ブレスレット-10mm-wrta-br-a14 | ストロベリークォーツ 天然石ブレスレット 10mm WRTA | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387976.jpg?width=120) | OK |
 | 98 | published | 猫ケージ-3段-多頭飼い対応-幅100cm-ホワイト-tx198288daa | 猫ケージ 3段 多頭飼い対応 幅100cm ホワイト TX1 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_6b406097-cfd9-41a7-94fd-7ff7f55f62af.jpg?width=120) | OK |
-| 99 | planned | across-rainbow-たこおもちゃ-食品衛生法適合-ce-en71合格-gys-01-k | Across Rainbow たこおもちゃ 食品衛生法適合・ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_a6b61e21-f0c9-49d3-a3fa-29b32c5683c9.jpg?width=120) | OK |
-| 100 | planned | バスケットゴール-屋外用-高さ6段調節-230-305cm-ミニバス対応-移動ローラー付き-yb-05 | バスケットゴール 屋外用 高さ6段調節 230～305cm  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421518053686-a-01.jpg?width=120) | OK |
-| 101 | planned | sdカードリーダー-4in1-iphone-スマホ対応-写真-データ保存-バックアップに-最大1tb対応-a-01 | SDカードリーダー 4in1 iPhone・スマホ対応 写真 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_19d23e61-b2e3-4c63-aa7d-92059dfd2fd8.jpg?width=120) | OK |
-| 102 | planned | 膝サポーター-シリコン製-1枚入り-男女兼用-蒸れにくく動きやすい-h-4 | 膝サポーター シリコン製 1枚入り 男女兼用 蒸れにくく動き | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421513302326-a-01.jpg?width=120) | OK |
-| 103 | planned | もちもちふわふわ犬のぬいぐるみ抱き枕-添い寝-ソファー用クッション-30-35cm | もちもちふわふわ犬のぬいぐるみ抱き枕 添い寝・ソファー用クッ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_b33fc458-1414-4897-847e-f70ceacc9fd3.jpg?width=120) | OK |
-| 104 | planned | のり不要-部分つけまつげ-2個セット-ナチュラル束感-繰り返し使える | のり不要 部分つけまつげ 2個セット ナチュラル束感 繰り返 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378522.jpg?width=120) | OK |
+| 99 | published | across-rainbow-たこおもちゃ-食品衛生法適合-ce-en71合格-gys-01-k | Across Rainbow たこおもちゃ 食品衛生法適合・ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_a6b61e21-f0c9-49d3-a3fa-29b32c5683c9.jpg?width=120) | OK |
+| 100 | published | バスケットゴール-屋外用-高さ6段調節-230-305cm-ミニバス対応-移動ローラー付き-yb-05 | バスケットゴール 屋外用 高さ6段調節 230～305cm  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421518053686-a-01.jpg?width=120) | OK |
+| 101 | published | sdカードリーダー-4in1-iphone-スマホ対応-写真-データ保存-バックアップに-最大1tb対応-a-01 | SDカードリーダー 4in1 iPhone・スマホ対応 写真 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_19d23e61-b2e3-4c63-aa7d-92059dfd2fd8.jpg?width=120) | OK |
+| 102 | published | 膝サポーター-シリコン製-1枚入り-男女兼用-蒸れにくく動きやすい-h-4 | 膝サポーター シリコン製 1枚入り 男女兼用 蒸れにくく動き | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421513302326-a-01.jpg?width=120) | OK |
+| 103 | published | もちもちふわふわ犬のぬいぐるみ抱き枕-添い寝-ソファー用クッション-30-35cm | もちもちふわふわ犬のぬいぐるみ抱き枕 添い寝・ソファー用クッ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_b33fc458-1414-4897-847e-f70ceacc9fd3.jpg?width=120) | OK |
+| 104 | published | のり不要-部分つけまつげ-2個セット-ナチュラル束感-繰り返し使える | のり不要 部分つけまつげ 2個セット ナチュラル束感 繰り返 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378522.jpg?width=120) | OK |
 | 105 | planned | ストロベリークォーツ-4mm-天然石ブレスレット-wrta-br-a20 | ストロベリークォーツ 4mm 天然石ブレスレット WRTA- | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387966.jpg?width=120) | OK |
-| 106 | planned | 猫ケージ-3段-多頭飼い対応-組み替え可能-梯子-屋根付き-グレー-tx198288baa | 猫ケージ 3段 多頭飼い対応 組み替え可能・梯子・屋根付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_116052aa-4a45-4262-a032-78d81aee6613.jpg?width=120) | OK |
-| 107 | planned | across-rainbow-離乳食フィーダーセット-くすみカラー-洗えるケース付き-gys-01-m | Across Rainbow 離乳食フィーダーセット くすみ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_8397f411-8720-44a7-800e-14290517e8b4.jpg?width=120) | OK |
-| 108 | planned | 移動式バスケットゴール-高さ6段階調節-210-305cm-屋外対応-ミニバス-一般用-ms294262aaa | 移動式バスケットゴール 高さ6段階調節 210-305cm  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421517889846-a-01.jpg?width=120) | OK |
+| 106 | published | 猫ケージ-3段-多頭飼い対応-組み替え可能-梯子-屋根付き-グレー-tx198288baa | 猫ケージ 3段 多頭飼い対応 組み替え可能・梯子・屋根付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_116052aa-4a45-4262-a032-78d81aee6613.jpg?width=120) | OK |
+| 107 | published | across-rainbow-離乳食フィーダーセット-くすみカラー-洗えるケース付き-gys-01-m | Across Rainbow 離乳食フィーダーセット くすみ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_8397f411-8720-44a7-800e-14290517e8b4.jpg?width=120) | OK |
+| 108 | published | 移動式バスケットゴール-高さ6段階調節-210-305cm-屋外対応-ミニバス-一般用-ms294262aaa | 移動式バスケットゴール 高さ6段階調節 210-305cm  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421517889846-a-01.jpg?width=120) | OK |
 | 109 | planned | タブレットスタンド-折りたたみ式-角度調節-アルミ合金製-ipad-ipad-pro-ipad-air-対応-滑り止め付き-a-03 | タブレットスタンド 折りたたみ式 角度調節 アルミ合金製 i | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_efd12120-01bb-437e-84f6-bde6dad76514.jpg?width=120) | OK |
 | 110 | planned | 膝サポーター-2枚セット-蒸れにくく動きやすい-男女兼用-h-02 | 膝サポーター 2枚セット 蒸れにくく動きやすい 男女兼用 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421512974646-a-01.jpg?width=120) | OK |
 | 111 | planned | ミラ熊のぬいぐるみ-クマの抱き枕-童心タグリボン付き-フカフカ-テディベア-yb-05 | ミラ熊のぬいぐるみ クマの抱き枕 童心タグリボン付き フカフ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_44dc63ac-019a-4b36-93bc-b058136a7eb2.jpg?width=120) | OK |
