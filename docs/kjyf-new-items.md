@@ -16,3 +16,5 @@
 | 2026-11-08 | 1177 | 0 | - |
 | 2026-11-09 | 1177 | 0 | - |
 | 2026-11-10 | 1177 | 0 | - |
+| 2026-11-11 | 1175 | 0 | - |
+| 2026-11-13 | 1186 | 12 | [39603](https://www.kuajingyifan.com/ja-JP/p/39603/-) [39602](https://www.kuajingyifan.com/ja-JP/p/39602/-) [39601](https://www.kuajingyifan.com/ja-JP/p/39601/-) [39600](https://www.kuajingyifan.com/ja-JP/p/39600/-) [39599](https://www.kuajingyifan.com/ja-JP/p/39599/-) [39598](https://www.kuajingyifan.com/ja-JP/p/39598/-) [39597](https://www.kuajingyifan.com/ja-JP/p/39597/-) [39596](https://www.kuajingyifan.com/ja-JP/p/39596/-) [36500](https://www.kuajingyifan.com/ja-JP/p/36500/-) [36490](https://www.kuajingyifan.com/ja-JP/p/36490/-) [36481](https://www.kuajingyifan.com/ja-JP/p/36481/-) [36477](https://www.kuajingyifan.com/ja-JP/p/36477/-) |
