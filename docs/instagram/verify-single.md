@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-12T12:13Z）
+# 投稿と商品の対応チェック single（2026-11-13T12:15Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -112,16 +112,16 @@
 | 106 | published | 猫ケージ-3段-多頭飼い対応-組み替え可能-梯子-屋根付き-グレー-tx198288baa | 猫ケージ 3段 多頭飼い対応 組み替え可能・梯子・屋根付き  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_116052aa-4a45-4262-a032-78d81aee6613.jpg?width=120) | OK |
 | 107 | published | across-rainbow-離乳食フィーダーセット-くすみカラー-洗えるケース付き-gys-01-m | Across Rainbow 離乳食フィーダーセット くすみ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_8397f411-8720-44a7-800e-14290517e8b4.jpg?width=120) | OK |
 | 108 | published | 移動式バスケットゴール-高さ6段階調節-210-305cm-屋外対応-ミニバス-一般用-ms294262aaa | 移動式バスケットゴール 高さ6段階調節 210-305cm  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421517889846-a-01.jpg?width=120) | OK |
-| 109 | planned | タブレットスタンド-折りたたみ式-角度調節-アルミ合金製-ipad-ipad-pro-ipad-air-対応-滑り止め付き-a-03 | タブレットスタンド 折りたたみ式 角度調節 アルミ合金製 i | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_efd12120-01bb-437e-84f6-bde6dad76514.jpg?width=120) | OK |
-| 110 | planned | 膝サポーター-2枚セット-蒸れにくく動きやすい-男女兼用-h-02 | 膝サポーター 2枚セット 蒸れにくく動きやすい 男女兼用 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421512974646-a-01.jpg?width=120) | OK |
-| 111 | planned | ミラ熊のぬいぐるみ-クマの抱き枕-童心タグリボン付き-フカフカ-テディベア-yb-05 | ミラ熊のぬいぐるみ クマの抱き枕 童心タグリボン付き フカフ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_44dc63ac-019a-4b36-93bc-b058136a7eb2.jpg?width=120) | OK |
-| 112 | planned | 部分つけまつげ-2個セット-ナチュラル束感-のり不要-柔らかい-繰り返し使える | 部分つけまつげ 2個セット ナチュラル束感 のり不要 柔らか | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378437.jpg?width=120) | OK |
+| 109 | published | タブレットスタンド-折りたたみ式-角度調節-アルミ合金製-ipad-ipad-pro-ipad-air-対応-滑り止め付き-a-03 | タブレットスタンド 折りたたみ式 角度調節 アルミ合金製 i | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_efd12120-01bb-437e-84f6-bde6dad76514.jpg?width=120) | OK |
+| 110 | published | 膝サポーター-2枚セット-蒸れにくく動きやすい-男女兼用-h-02 | 膝サポーター 2枚セット 蒸れにくく動きやすい 男女兼用 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421512974646-a-01.jpg?width=120) | OK |
+| 111 | published | ミラ熊のぬいぐるみ-クマの抱き枕-童心タグリボン付き-フカフカ-テディベア-yb-05 | ミラ熊のぬいぐるみ クマの抱き枕 童心タグリボン付き フカフ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_44dc63ac-019a-4b36-93bc-b058136a7eb2.jpg?width=120) | OK |
+| 112 | published | 部分つけまつげ-2個セット-ナチュラル束感-のり不要-柔らかい-繰り返し使える | 部分つけまつげ 2個セット ナチュラル束感 のり不要 柔らか | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378437.jpg?width=120) | OK |
 | 113 | planned | ストロベリークォーツ-天然石ブレスレット-8mm-wrta-br-a22 | ストロベリークォーツ 天然石ブレスレット 8mm（WRTA- | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387943.jpg?width=120) | OK |
-| 114 | planned | おしゃれな2段猫ケージ-飛び出し防止屋根-梯子付き-多頭飼い対応-ピンク-tx198289caa | おしゃれな2段猫ケージ 飛び出し防止屋根・梯子付き 多頭飼い | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_e9a80d95-cffb-45d7-9cd7-016b9e39e564.jpg?width=120) | OK |
-| 115 | planned | across-rainbow-離乳食フィーダー-フルーツフィーダー-外して洗える-くすみカラー-gys-01-b | Across Rainbow 離乳食フィーダー フルーツフィ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_fed9a5cf-ddb3-4786-8cc1-9b4c3928eab9.jpg?width=120) | OK |
-| 116 | planned | 大容量ボストンバッグ-yb-05-旅行-入院-スポーツに使える防水軽量トート | 大容量ボストンバッグ YB-05｜旅行・入院・スポーツに使え | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421440688438-a-01.jpg?width=120) | OK |
+| 114 | published | おしゃれな2段猫ケージ-飛び出し防止屋根-梯子付き-多頭飼い対応-ピンク-tx198289caa | おしゃれな2段猫ケージ 飛び出し防止屋根・梯子付き 多頭飼い | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_e9a80d95-cffb-45d7-9cd7-016b9e39e564.jpg?width=120) | OK |
+| 115 | published | across-rainbow-離乳食フィーダー-フルーツフィーダー-外して洗える-くすみカラー-gys-01-b | Across Rainbow 離乳食フィーダー フルーツフィ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_fed9a5cf-ddb3-4786-8cc1-9b4c3928eab9.jpg?width=120) | OK |
+| 116 | published | 大容量ボストンバッグ-yb-05-旅行-入院-スポーツに使える防水軽量トート | 大容量ボストンバッグ YB-05｜旅行・入院・スポーツに使え | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421440688438-a-01.jpg?width=120) | OK |
 | 117 | planned | sdカードリーダー-4in1-iphone-スマホ対応-写真-データ保存-バックアップに-a-01 | SDカードリーダー 4in1 iPhone・スマホ対応 写真 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_d6c1709c-2655-4fa2-aa20-14a493040bf4.jpg?width=120) | OK |
-| 118 | planned | 膝サポーター-2枚セット-蒸れにくく動きやすい-簡単装着-男女兼用-h-02 | 膝サポーター 2枚セット 蒸れにくく動きやすい 簡単装着 男 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421512417590-a-01.jpg?width=120) | OK |
+| 118 | published | 膝サポーター-2枚セット-蒸れにくく動きやすい-簡単装着-男女兼用-h-02 | 膝サポーター 2枚セット 蒸れにくく動きやすい 簡単装着 男 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421512417590-a-01.jpg?width=120) | OK |
 | 119 | planned | コの字型サイドテーブル-ソファに差し込めるスリム収納-木目調-z-10 | コの字型サイドテーブル ソファに差し込めるスリム収納 木目調 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_4706145b-0bf7-4856-821d-2e9a75e03ff5.jpg?width=120) | OK |
 | 120 | planned | 部分用つけまつげ-2個セット-ナチュラル-のり不要-軽量-繰り返し使える | 部分用つけまつげ 2個セット ナチュラル のり不要 軽量 繰 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378347.jpg?width=120) | OK |
 | 121 | planned | ストロベリークォーツ-天然石ブレスレット-8mm-パワーストーン-wrta-br-a1 | ストロベリークォーツ 天然石ブレスレット 8mm パワースト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cd6fa5ea-6f91-4ba6-b3e3-6ae3183ad86f.jpg?width=120) | OK |
