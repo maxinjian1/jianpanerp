@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-13T12:15Z）
+# 投稿と商品の対応チェック single（2026-11-14T12:11Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -120,18 +120,18 @@
 | 114 | published | おしゃれな2段猫ケージ-飛び出し防止屋根-梯子付き-多頭飼い対応-ピンク-tx198289caa | おしゃれな2段猫ケージ 飛び出し防止屋根・梯子付き 多頭飼い | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_e9a80d95-cffb-45d7-9cd7-016b9e39e564.jpg?width=120) | OK |
 | 115 | published | across-rainbow-離乳食フィーダー-フルーツフィーダー-外して洗える-くすみカラー-gys-01-b | Across Rainbow 離乳食フィーダー フルーツフィ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_fed9a5cf-ddb3-4786-8cc1-9b4c3928eab9.jpg?width=120) | OK |
 | 116 | published | 大容量ボストンバッグ-yb-05-旅行-入院-スポーツに使える防水軽量トート | 大容量ボストンバッグ YB-05｜旅行・入院・スポーツに使え | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421440688438-a-01.jpg?width=120) | OK |
-| 117 | planned | sdカードリーダー-4in1-iphone-スマホ対応-写真-データ保存-バックアップに-a-01 | SDカードリーダー 4in1 iPhone・スマホ対応 写真 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_d6c1709c-2655-4fa2-aa20-14a493040bf4.jpg?width=120) | OK |
+| 117 | error | sdカードリーダー-4in1-iphone-スマホ対応-写真-データ保存-バックアップに-a-01 | SDカードリーダー 4in1 iPhone・スマホ対応 写真 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_d6c1709c-2655-4fa2-aa20-14a493040bf4.jpg?width=120) | OK |
 | 118 | published | 膝サポーター-2枚セット-蒸れにくく動きやすい-簡単装着-男女兼用-h-02 | 膝サポーター 2枚セット 蒸れにくく動きやすい 簡単装着 男 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421512417590-a-01.jpg?width=120) | OK |
-| 119 | planned | コの字型サイドテーブル-ソファに差し込めるスリム収納-木目調-z-10 | コの字型サイドテーブル ソファに差し込めるスリム収納 木目調 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_4706145b-0bf7-4856-821d-2e9a75e03ff5.jpg?width=120) | OK |
-| 120 | planned | 部分用つけまつげ-2個セット-ナチュラル-のり不要-軽量-繰り返し使える | 部分用つけまつげ 2個セット ナチュラル のり不要 軽量 繰 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378347.jpg?width=120) | OK |
-| 121 | planned | ストロベリークォーツ-天然石ブレスレット-8mm-パワーストーン-wrta-br-a1 | ストロベリークォーツ 天然石ブレスレット 8mm パワースト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cd6fa5ea-6f91-4ba6-b3e3-6ae3183ad86f.jpg?width=120) | OK |
-| 122 | planned | 猫ケージ-2段-組み替え可能な多段タイプ-脱走防止屋根-梯子付き-キャットケージ-tx198289daa | 猫ケージ 2段 組み替え可能な多段タイプ 脱走防止屋根・梯子 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_e7bb04a4-a855-4f1e-89b2-50e6617a7bf2.jpg?width=120) | OK |
-| 123 | planned | 添い寝ベビーベッド-高さ調節-ゆりかご機能付き-蚊帳-キャスター付き-洗えるシート-wbghs-01-j | 添い寝ベビーベッド 高さ調節・ゆりかご機能付き 蚊帳・キャス | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386811.jpg?width=120) | OK |
-| 124 | planned | パソコンデスク-左右入替可-耐荷重50kg-スチールフレームのハイタイプデスク-wf292303eaa | パソコンデスク 左右入替可・耐荷重50kg・スチールフレーム | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421439770934-a-01.jpg?width=120) | OK |
-| 125 | planned | 折りたたみ式タブレットスタンド-角度調節-アルミ合金製-ipad-ipad-pro対応-a-03 | 折りたたみ式タブレットスタンド 角度調節・アルミ合金製 iP | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_c444da1d-7a47-4620-b9b8-11a3322bc3b2.jpg?width=120) | OK |
-| 126 | planned | 膝サポーター-シリコン製-1枚入り-男女兼用-蒸れにくく動きやすい-h-3 | 膝サポーター シリコン製 1枚入り 男女兼用 蒸れにくく動き | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_c688dcb0-83c5-4d20-b41f-09d738365f46.jpg?width=120) | OK |
-| 127 | planned | コの字型サイドテーブル-木目調-スリム収納-z-10 | コの字型サイドテーブル 木目調 スリム収納 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_d1cc14ab-8493-47fd-a05b-810ecf406b3f.jpg?width=120) | OK |
-| 128 | planned | 部分つけまつげ-2個セット-のり不要-ナチュラル-束感-簡単装着 | 部分つけまつげ 2個セット のり不要 ナチュラル 束感 簡単 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378265.jpg?width=120) | OK |
+| 119 | published | コの字型サイドテーブル-ソファに差し込めるスリム収納-木目調-z-10 | コの字型サイドテーブル ソファに差し込めるスリム収納 木目調 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_4706145b-0bf7-4856-821d-2e9a75e03ff5.jpg?width=120) | OK |
+| 120 | published | 部分用つけまつげ-2個セット-ナチュラル-のり不要-軽量-繰り返し使える | 部分用つけまつげ 2個セット ナチュラル のり不要 軽量 繰 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378347.jpg?width=120) | OK |
+| 121 | published | ストロベリークォーツ-天然石ブレスレット-8mm-パワーストーン-wrta-br-a1 | ストロベリークォーツ 天然石ブレスレット 8mm パワースト | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cd6fa5ea-6f91-4ba6-b3e3-6ae3183ad86f.jpg?width=120) | OK |
+| 122 | published | 猫ケージ-2段-組み替え可能な多段タイプ-脱走防止屋根-梯子付き-キャットケージ-tx198289daa | 猫ケージ 2段 組み替え可能な多段タイプ 脱走防止屋根・梯子 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_e7bb04a4-a855-4f1e-89b2-50e6617a7bf2.jpg?width=120) | OK |
+| 123 | published | 添い寝ベビーベッド-高さ調節-ゆりかご機能付き-蚊帳-キャスター付き-洗えるシート-wbghs-01-j | 添い寝ベビーベッド 高さ調節・ゆりかご機能付き 蚊帳・キャス | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386811.jpg?width=120) | OK |
+| 124 | published | パソコンデスク-左右入替可-耐荷重50kg-スチールフレームのハイタイプデスク-wf292303eaa | パソコンデスク 左右入替可・耐荷重50kg・スチールフレーム | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421439770934-a-01.jpg?width=120) | OK |
+| 125 | published | 折りたたみ式タブレットスタンド-角度調節-アルミ合金製-ipad-ipad-pro対応-a-03 | 折りたたみ式タブレットスタンド 角度調節・アルミ合金製 iP | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_c444da1d-7a47-4620-b9b8-11a3322bc3b2.jpg?width=120) | OK |
+| 126 | published | 膝サポーター-シリコン製-1枚入り-男女兼用-蒸れにくく動きやすい-h-3 | 膝サポーター シリコン製 1枚入り 男女兼用 蒸れにくく動き | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_c688dcb0-83c5-4d20-b41f-09d738365f46.jpg?width=120) | OK |
+| 127 | published | コの字型サイドテーブル-木目調-スリム収納-z-10 | コの字型サイドテーブル 木目調 スリム収納 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_d1cc14ab-8493-47fd-a05b-810ecf406b3f.jpg?width=120) | OK |
+| 128 | published | 部分つけまつげ-2個セット-のり不要-ナチュラル-束感-簡単装着 | 部分つけまつげ 2個セット のり不要 ナチュラル 束感 簡単 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378265.jpg?width=120) | OK |
 | 129 | planned | ストロベリークォーツ-天然石ブレスレット-8mm-ピンクのやさしい輝き-wrta-br-a5 | ストロベリークォーツ 天然石ブレスレット 8mm ピンクのや | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_4610adb2-8132-4d5f-a695-de761c1fe2da.jpg?width=120) | OK |
 | 130 | planned | 猫ケージ-2段-幅100cm-多頭飼い対応-飛び出し防止屋根-梯子付き-キャットケージ-グリーン | 猫ケージ 2段 幅100cm 多頭飼い対応 飛び出し防止屋根 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_7122226d-ebed-46b8-9220-b4c762c99cf3.jpg?width=120) | OK |
 | 131 | planned | across-rainbow-積み木ブロック100ピース-知育玩具-建築-工具おもちゃ-gys-01-a | Across Rainbow 積み木ブロック100ピース 知 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386943.jpg?width=120) | OK |
