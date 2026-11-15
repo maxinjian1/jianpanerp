@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-14T12:11Z）
+# 投稿と商品の対応チェック single（2026-11-15T12:11Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -132,16 +132,16 @@
 | 126 | published | 膝サポーター-シリコン製-1枚入り-男女兼用-蒸れにくく動きやすい-h-3 | 膝サポーター シリコン製 1枚入り 男女兼用 蒸れにくく動き | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_c688dcb0-83c5-4d20-b41f-09d738365f46.jpg?width=120) | OK |
 | 127 | published | コの字型サイドテーブル-木目調-スリム収納-z-10 | コの字型サイドテーブル 木目調 スリム収納 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_d1cc14ab-8493-47fd-a05b-810ecf406b3f.jpg?width=120) | OK |
 | 128 | published | 部分つけまつげ-2個セット-のり不要-ナチュラル-束感-簡単装着 | 部分つけまつげ 2個セット のり不要 ナチュラル 束感 簡単 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121378265.jpg?width=120) | OK |
-| 129 | planned | ストロベリークォーツ-天然石ブレスレット-8mm-ピンクのやさしい輝き-wrta-br-a5 | ストロベリークォーツ 天然石ブレスレット 8mm ピンクのや | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_4610adb2-8132-4d5f-a695-de761c1fe2da.jpg?width=120) | OK |
-| 130 | planned | 猫ケージ-2段-幅100cm-多頭飼い対応-飛び出し防止屋根-梯子付き-キャットケージ-グリーン | 猫ケージ 2段 幅100cm 多頭飼い対応 飛び出し防止屋根 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_7122226d-ebed-46b8-9220-b4c762c99cf3.jpg?width=120) | OK |
+| 129 | published | ストロベリークォーツ-天然石ブレスレット-8mm-ピンクのやさしい輝き-wrta-br-a5 | ストロベリークォーツ 天然石ブレスレット 8mm ピンクのや | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_4610adb2-8132-4d5f-a695-de761c1fe2da.jpg?width=120) | OK |
+| 130 | published | 猫ケージ-2段-幅100cm-多頭飼い対応-飛び出し防止屋根-梯子付き-キャットケージ-グリーン | 猫ケージ 2段 幅100cm 多頭飼い対応 飛び出し防止屋根 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_7122226d-ebed-46b8-9220-b4c762c99cf3.jpg?width=120) | OK |
 | 131 | planned | across-rainbow-積み木ブロック100ピース-知育玩具-建築-工具おもちゃ-gys-01-a | Across Rainbow 積み木ブロック100ピース 知 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386943.jpg?width=120) | OK |
-| 132 | planned | パソコンデスク-幅115cm-耐荷重50kg-スチールフレーム-収納しやすいハイタイプ-wf292303faa | パソコンデスク・幅115cm・耐荷重50kg・スチールフレー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421436035382-a-01.jpg?width=120) | OK |
-| 133 | planned | 4in1-sdカードリーダー-iphone-スマホ-pc対応-写真やデータのバックアップに便利-a-01 | 4in1 SDカードリーダー iPhone・スマホ・PC対応 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_f2acf827-e00c-4019-9619-8da3dc133061.jpg?width=120) | OK |
-| 134 | planned | ウエストシェイパーベルト-男女兼用-加圧-保温で引き締めサポート-e-09 | ウエストシェイパーベルト 男女兼用 加圧・保温で引き締めサポ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421439279414-a-01.jpg?width=120) | OK |
-| 135 | planned | はっ水-極厚20mm-ラグマット-200-200cm-抗菌防臭-滑り止め-洗える-角型-th307842caa | ラグマット 200×200cm 洗える・はっ水・抗菌防臭・極 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cbe56b5e-9aca-4a8f-b3e0-3553867a29d6.jpg?width=120) | OK |
-| 136 | planned | 感熱ラベル用紙-500枚入り-折り畳み-強粘着-防水耐油-100-100-100-150mm-ckhc-05 | 感熱ラベル用紙 500枚入り 折り畳み 強粘着 防水耐油 1 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386315.jpg?width=120) | OK |
-| 137 | planned | 天然石ブレスレット-8mm-ストロベリークォーツ-ブレスレット-wrta-br-a6 | 天然石ブレスレット 8mm ストロベリークォーツ ブレスレッ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_c36a08fe-1f7b-42f5-8c14-17e514f82774.jpg?width=120) | OK |
-| 138 | planned | 猫ケージ-2段-組み替え可能な多段タイプ-脱走防止屋根-梯子付き-キャットケージ-グレー | 猫ケージ 2段 組み替え可能な多段タイプ 脱走防止屋根・梯子 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_21cd5f58-416f-4af7-b92a-728edbbd5e7c.jpg?width=120) | OK |
+| 132 | published | パソコンデスク-幅115cm-耐荷重50kg-スチールフレーム-収納しやすいハイタイプ-wf292303faa | パソコンデスク・幅115cm・耐荷重50kg・スチールフレー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421436035382-a-01.jpg?width=120) | OK |
+| 133 | published | 4in1-sdカードリーダー-iphone-スマホ-pc対応-写真やデータのバックアップに便利-a-01 | 4in1 SDカードリーダー iPhone・スマホ・PC対応 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_f2acf827-e00c-4019-9619-8da3dc133061.jpg?width=120) | OK |
+| 134 | published | ウエストシェイパーベルト-男女兼用-加圧-保温で引き締めサポート-e-09 | ウエストシェイパーベルト 男女兼用 加圧・保温で引き締めサポ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421439279414-a-01.jpg?width=120) | OK |
+| 135 | published | はっ水-極厚20mm-ラグマット-200-200cm-抗菌防臭-滑り止め-洗える-角型-th307842caa | ラグマット 200×200cm 洗える・はっ水・抗菌防臭・極 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cbe56b5e-9aca-4a8f-b3e0-3553867a29d6.jpg?width=120) | OK |
+| 136 | published | 感熱ラベル用紙-500枚入り-折り畳み-強粘着-防水耐油-100-100-100-150mm-ckhc-05 | 感熱ラベル用紙 500枚入り 折り畳み 強粘着 防水耐油 1 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386315.jpg?width=120) | OK |
+| 137 | published | 天然石ブレスレット-8mm-ストロベリークォーツ-ブレスレット-wrta-br-a6 | 天然石ブレスレット 8mm ストロベリークォーツ ブレスレッ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_c36a08fe-1f7b-42f5-8c14-17e514f82774.jpg?width=120) | OK |
+| 138 | published | 猫ケージ-2段-組み替え可能な多段タイプ-脱走防止屋根-梯子付き-キャットケージ-グレー | 猫ケージ 2段 組み替え可能な多段タイプ 脱走防止屋根・梯子 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_21cd5f58-416f-4af7-b92a-728edbbd5e7c.jpg?width=120) | OK |
 | 139 | planned | 折りたたみバケツ-大容量-排水栓付き-コンパクト収納-yb-05 | 折りたたみバケツ 大容量・排水栓付き コンパクト収納 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387448.jpg?width=120) | OK |
 | 140 | planned | 洗える封筒型シュラフ-軽量コンパクト寝袋-キャンプ-防災に-h-5 | 洗える封筒型シュラフ 軽量コンパクト寝袋 キャンプ・防災に | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421433774390-a-01.jpg?width=120) | OK |
 | 141 | planned | マイクロsdカード-大容量-480gb-512gb-1tb-高速転送-耐衝撃設計-多機器対応-nck | マイクロSDカード 大容量 480GB/512GB/1TB  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2058511a068245f6b0cdb44b0111d952.jpg?width=120) | OK |
