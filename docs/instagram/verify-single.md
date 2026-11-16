@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-15T12:11Z）
+# 投稿と商品の対応チェック single（2026-11-16T12:16Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -142,14 +142,14 @@
 | 136 | published | 感熱ラベル用紙-500枚入り-折り畳み-強粘着-防水耐油-100-100-100-150mm-ckhc-05 | 感熱ラベル用紙 500枚入り 折り畳み 強粘着 防水耐油 1 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386315.jpg?width=120) | OK |
 | 137 | published | 天然石ブレスレット-8mm-ストロベリークォーツ-ブレスレット-wrta-br-a6 | 天然石ブレスレット 8mm ストロベリークォーツ ブレスレッ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_c36a08fe-1f7b-42f5-8c14-17e514f82774.jpg?width=120) | OK |
 | 138 | published | 猫ケージ-2段-組み替え可能な多段タイプ-脱走防止屋根-梯子付き-キャットケージ-グレー | 猫ケージ 2段 組み替え可能な多段タイプ 脱走防止屋根・梯子 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_21cd5f58-416f-4af7-b92a-728edbbd5e7c.jpg?width=120) | OK |
-| 139 | planned | 折りたたみバケツ-大容量-排水栓付き-コンパクト収納-yb-05 | 折りたたみバケツ 大容量・排水栓付き コンパクト収納 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387448.jpg?width=120) | OK |
-| 140 | planned | 洗える封筒型シュラフ-軽量コンパクト寝袋-キャンプ-防災に-h-5 | 洗える封筒型シュラフ 軽量コンパクト寝袋 キャンプ・防災に | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421433774390-a-01.jpg?width=120) | OK |
-| 141 | planned | マイクロsdカード-大容量-480gb-512gb-1tb-高速転送-耐衝撃設計-多機器対応-nck | マイクロSDカード 大容量 480GB/512GB/1TB  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2058511a068245f6b0cdb44b0111d952.jpg?width=120) | OK |
-| 142 | planned | 姿勢サポートベルト-通気性素材で快適-猫背対策-子供-大人兼用-e-08 | 姿勢サポートベルト 通気性素材で快適 猫背対策 子供・大人兼 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421439017270-a-01.jpg?width=120) | OK |
-| 143 | planned | ラタン調ガーデンソファ3点セット-ベージュ-テーブル-チェア-屋外-室内兼用-yb-05 | ラタン調ガーデンソファ3点セット ベージュ テーブル＆チェア | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421516284214-a-01.jpg?width=120) | OK |
-| 144 | planned | 宅配ビニール袋-100枚入り-2サイズ-防水-防塵-テープ付き-ckhc-06 | 宅配ビニール袋 100枚入り 2サイズ 防水・防塵 テープ付 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386295.jpg?width=120) | OK |
-| 145 | planned | ストロベリークォーツ-天然石ブレスレット-8mm-wrta-br-a7 | ストロベリークォーツ 天然石ブレスレット 8mm（WRTA- | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_58ce1495-d3ca-40b3-b66d-2a1889866748.jpg?width=120) | OK |
-| 146 | planned | 猫ケージ-3段-トイレ-収納-ハンモック付き-キャスター付-クリームイエロー-tx294682caa | 猫ケージ 3段 トイレ・収納・ハンモック付き キャスター付  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_511a5414-a364-498d-807f-ed27ea495f14.jpg?width=120) | OK |
+| 139 | published | 折りたたみバケツ-大容量-排水栓付き-コンパクト収納-yb-05 | 折りたたみバケツ 大容量・排水栓付き コンパクト収納 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387448.jpg?width=120) | OK |
+| 140 | published | 洗える封筒型シュラフ-軽量コンパクト寝袋-キャンプ-防災に-h-5 | 洗える封筒型シュラフ 軽量コンパクト寝袋 キャンプ・防災に | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421433774390-a-01.jpg?width=120) | OK |
+| 141 | published | マイクロsdカード-大容量-480gb-512gb-1tb-高速転送-耐衝撃設計-多機器対応-nck | マイクロSDカード 大容量 480GB/512GB/1TB  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/2058511a068245f6b0cdb44b0111d952.jpg?width=120) | OK |
+| 142 | published | 姿勢サポートベルト-通気性素材で快適-猫背対策-子供-大人兼用-e-08 | 姿勢サポートベルト 通気性素材で快適 猫背対策 子供・大人兼 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421439017270-a-01.jpg?width=120) | OK |
+| 143 | published | ラタン調ガーデンソファ3点セット-ベージュ-テーブル-チェア-屋外-室内兼用-yb-05 | ラタン調ガーデンソファ3点セット ベージュ テーブル＆チェア | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421516284214-a-01.jpg?width=120) | OK |
+| 144 | published | 宅配ビニール袋-100枚入り-2サイズ-防水-防塵-テープ付き-ckhc-06 | 宅配ビニール袋 100枚入り 2サイズ 防水・防塵 テープ付 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386295.jpg?width=120) | OK |
+| 145 | published | ストロベリークォーツ-天然石ブレスレット-8mm-wrta-br-a7 | ストロベリークォーツ 天然石ブレスレット 8mm（WRTA- | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_58ce1495-d3ca-40b3-b66d-2a1889866748.jpg?width=120) | OK |
+| 146 | published | 猫ケージ-3段-トイレ-収納-ハンモック付き-キャスター付-クリームイエロー-tx294682caa | 猫ケージ 3段 トイレ・収納・ハンモック付き キャスター付  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_511a5414-a364-498d-807f-ed27ea495f14.jpg?width=120) | OK |
 | 147 | planned | ベビーチェア-バウンサー-おもちゃ付き-3段階リクライニング-折りたたみ式-ub-02 | ベビーチェア バウンサー おもちゃ付き・3段階リクライニング | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387589.jpg?width=120) | OK |
 | 148 | planned | 洗える封筒型シュラフ-軽量コンパクト寝袋-キャンプ-防災に-h-05 | 洗える封筒型シュラフ 軽量コンパクト寝袋 キャンプ・防災に | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421415817526-a-01.jpg?width=120) | OK |
 | 149 | planned | マグネット式ケーブルクリップ-繰り返し使える配線整理ホルダー-デスク-車内に-lxqbw | マグネット式ケーブルクリップ 繰り返し使える配線整理ホルダー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121385691.jpg?width=120) | OK |
