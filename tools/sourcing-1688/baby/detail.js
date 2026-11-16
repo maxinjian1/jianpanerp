@@ -1,0 +1,7 @@
+(()=>{const m=window.context.result.global.globalData.model,o=m.offerDetail,t=m.tradeModel;let sel='';const id=s=>{const x=(String(s).match(/O1CN01([^.?"\/]+?)_!!(\d+)-0-cib/)||[]);if(x[2])sel=x[2];return x[1]||''};
+const sp=o.skuProps||[];const props=sp.map(p=>p.prop+'::'+(p.value||[]).map(v=>v.name+(v.imageUrl?'@'+id(v.imageUrl):'')).join('|'));
+const sm=t.skuMap?(Array.isArray(t.skuMap)?t.skuMap:Object.values(t.skuMap)):[];
+const pr=sp.map((p,i)=>{const r={};sm.forEach(s=>{const v=s.specAttrs.replace(/&gt;/g,'>').split('>')[i];const x=+(s.price||s.discountPrice||t.minPrice);if(!r[v])r[v]=[x,x];r[v][0]=Math.min(r[v][0],x);r[v][1]=Math.max(r[v][1],x)});const vs=Object.values(r);if(vs.every(a=>a[0]==vs[0][0]&&a[1]==vs[0][1]))return '';return p.prop+': '+Object.entries(r).map(([k,a])=>k.slice(0,14)+' '+a[0]+(a[1]!=a[0]?'-'+a[1]:'')).join(' | ')}).filter(Boolean);
+const skip=/品牌|货号|纳税|加工定制|是否|跨境|销售|专利|上市|产地|货源|主图来源|颜色|尺码|花型|尺寸规格|规格|颜色分类/;
+const img=(o.imageList||[]).map(x=>id(x.fullPathImageURI||x.originalImageURI||x)).filter(Boolean);
+window.__o=('ID '+o.offerId+' SEL '+sel+' RANGE '+t.minPrice+'-'+t.maxPrice+' N'+sm.length+'\nS '+o.subject+'\nA '+(o.featureAttributes||[]).filter(a=>!skip.test(a.name)).map(a=>a.name+':'+(a.values||[a.value]).join(',')).join('; ').slice(0,400)+'\n'+props.join('\n')+'\nP '+pr.join('\n')+'\nIMG '+img.join(' ')).replace(/[=&?]/g,' ');return window.__o.length})()
