@@ -1,16 +1,16 @@
 # kjyf B2B → Shopify 同期計画
 
-生成：2026-11-15T21:32:09.668Z（`node tools/kjyf-b2b/sync.mjs plan`）。基準＝view 0（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。
+生成：2026-11-16T21:32:08.144Z（`node tools/kjyf-b2b/sync.mjs plan`）。基準＝view 0（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。
 
 ## 集計
 
 | 項目 | 件数 |
 |---|---|
-| backup | tools\kjyf-b2b\out\shopify-backup-2026-11-15T21-32-08.json |
-| b2bGoods | 1182 |
+| backup | tools\kjyf-b2b\out\shopify-backup-2026-11-16T21-32-07.json |
+| b2bGoods | 1181 |
 | shopifyProducts | 1213 |
-| update | 1161 |
-| updateDraftKept | 247 |
+| update | 1160 |
+| updateDraftKept | 246 |
 | draft | 21 |
 | create | 26 |
 | hold | 2 |
@@ -20,10 +20,10 @@
 | manual | 24 |
 | productsPriceChanged | 35 |
 | variantsPriceChanged | 149 |
-| titleChanged | 1147 |
-| descChanged | 1107 |
-| stockUntrackedNow | 3775 |
-| stockZero | 731 |
+| titleChanged | 1146 |
+| descChanged | 1106 |
+| stockUntrackedNow | 3771 |
+| stockZero | 754 |
 
 - update は status を変えない（現在 DRAFT のもの、W杯等 IP で DRAFT にした 6 件を含めて、DRAFT のまま）。
 - 在庫：現在 Shopify は在庫を追跡していない（tracked=false）。アプリに在庫スコープが無いため在庫同期は既定 OFF（`--stock` で有効）。stockZero は B2B 在庫 0 の SKU 数（参考）。
@@ -197,7 +197,7 @@
 | handle | 削除 SKU |
 |---|---|
 
-## タイトル変更（1147 件、先頭 50）
+## タイトル変更（1146 件、先頭 50）
 
 | 旧 | 新 |
 |---|---|
