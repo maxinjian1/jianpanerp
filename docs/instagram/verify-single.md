@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-16T12:16Z）
+# 投稿と商品の対応チェック single（2026-11-17T12:12Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -151,17 +151,17 @@
 | 145 | published | ストロベリークォーツ-天然石ブレスレット-8mm-wrta-br-a7 | ストロベリークォーツ 天然石ブレスレット 8mm（WRTA- | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_58ce1495-d3ca-40b3-b66d-2a1889866748.jpg?width=120) | OK |
 | 146 | published | 猫ケージ-3段-トイレ-収納-ハンモック付き-キャスター付-クリームイエロー-tx294682caa | 猫ケージ 3段 トイレ・収納・ハンモック付き キャスター付  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_511a5414-a364-498d-807f-ed27ea495f14.jpg?width=120) | OK |
 | 147 | planned | ベビーチェア-バウンサー-おもちゃ付き-3段階リクライニング-折りたたみ式-ub-02 | ベビーチェア バウンサー おもちゃ付き・3段階リクライニング | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387589.jpg?width=120) | OK |
-| 148 | planned | 洗える封筒型シュラフ-軽量コンパクト寝袋-キャンプ-防災に-h-05 | 洗える封筒型シュラフ 軽量コンパクト寝袋 キャンプ・防災に | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421415817526-a-01.jpg?width=120) | OK |
-| 149 | planned | マグネット式ケーブルクリップ-繰り返し使える配線整理ホルダー-デスク-車内に-lxqbw | マグネット式ケーブルクリップ 繰り返し使える配線整理ホルダー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121385691.jpg?width=120) | OK |
-| 150 | planned | 姿勢サポートベルト-通気性素材で快適-猫背対策に-子供-大人兼用-yb-05 | 姿勢サポートベルト 通気性素材で快適 猫背対策に 子供・大人 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421438689590-a-01.jpg?width=120) | OK |
-| 151 | planned | ラタン調-ガーデンソファ-3点セット-テーブル-チェア-屋内外兼用-グレー | ラタン調 ガーデンソファ 3点セット テーブル＆チェア 屋内 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421516185910-a-01.jpg?width=120) | OK |
-| 152 | planned | 使い捨て洗顔タオル-綿100-個包装-やわらか吸水-袋タイプ-ckhc-08 | 使い捨て洗顔タオル 綿100% 個包装 やわらか吸水 袋タイ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15428383998262-a-01.jpg?width=120) | OK |
-| 153 | planned | ストロベリークォーツ-天然石ブレスレット-10mm-wrta-br-a12 | ストロベリークォーツ 天然石ブレスレット 10mm WRTA | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421643194678-a-01.jpg?width=120) | OK |
-| 154 | planned | 猫ケージ-3段-トイレ-収納-ハンモック付き-キャスター付-キャットケージ-グレー | 猫ケージ 3段 トイレ・収納・ハンモック付き キャスター付  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_88b399d5-2739-438c-a5bf-f85ddd553c48.jpg?width=120) | OK |
+| 148 | published | 洗える封筒型シュラフ-軽量コンパクト寝袋-キャンプ-防災に-h-05 | 洗える封筒型シュラフ 軽量コンパクト寝袋 キャンプ・防災に | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421415817526-a-01.jpg?width=120) | OK |
+| 149 | published | マグネット式ケーブルクリップ-繰り返し使える配線整理ホルダー-デスク-車内に-lxqbw | マグネット式ケーブルクリップ 繰り返し使える配線整理ホルダー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121385691.jpg?width=120) | OK |
+| 150 | published | 姿勢サポートベルト-通気性素材で快適-猫背対策に-子供-大人兼用-yb-05 | 姿勢サポートベルト 通気性素材で快適 猫背対策に 子供・大人 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421438689590-a-01.jpg?width=120) | OK |
+| 151 | published | ラタン調-ガーデンソファ-3点セット-テーブル-チェア-屋内外兼用-グレー | ラタン調 ガーデンソファ 3点セット テーブル＆チェア 屋内 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421516185910-a-01.jpg?width=120) | OK |
+| 152 | published | 使い捨て洗顔タオル-綿100-個包装-やわらか吸水-袋タイプ-ckhc-08 | 使い捨て洗顔タオル 綿100% 個包装 やわらか吸水 袋タイ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15428383998262-a-01.jpg?width=120) | OK |
+| 153 | published | ストロベリークォーツ-天然石ブレスレット-10mm-wrta-br-a12 | ストロベリークォーツ 天然石ブレスレット 10mm WRTA | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421643194678-a-01.jpg?width=120) | OK |
+| 154 | published | 猫ケージ-3段-トイレ-収納-ハンモック付き-キャスター付-キャットケージ-グレー | 猫ケージ 3段 トイレ・収納・ハンモック付き キャスター付  | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_88b399d5-2739-438c-a5bf-f85ddd553c48.jpg?width=120) | OK |
 | 155 | planned | across-rainbow-ベビー-ハンドスピナー-お風呂おもちゃ-カエル-柴犬2点セット-食品衛生法適合 | Across Rainbow ベビー ハンドスピナー お風呂 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387826.jpg?width=120) | OK |
-| 156 | planned | 洗える封筒型シュラフ-軽量コンパクト寝袋-快適温度目安-4-yb-05 | 洗える封筒型シュラフ 軽量コンパクト寝袋 快適温度目安-4℃ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421413327158-a-01.jpg?width=120) | OK |
-| 157 | planned | マグネット式ケーブルクリップ-繰り返し使える配線整理ホルダー-3-6-8-12個セット | マグネット式ケーブルクリップ 繰り返し使える配線整理ホルダー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_b6fd9e82-d4e3-4c77-b47b-3ca4b0d6072c.jpg?width=120) | OK |
-| 158 | planned | ループエクササイズバンド-5段階強度セット-天然ラテックス製-収納袋付き-筋トレ-ストレッチに-e-03 | ループエクササイズバンド 5段階強度セット 天然ラテックス製 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_bfb84892-047e-48bd-b0bf-9fe6b95b7384.jpg?width=120) | OK |
+| 156 | published | 洗える封筒型シュラフ-軽量コンパクト寝袋-快適温度目安-4-yb-05 | 洗える封筒型シュラフ 軽量コンパクト寝袋 快適温度目安-4℃ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421413327158-a-01.jpg?width=120) | OK |
+| 157 | published | マグネット式ケーブルクリップ-繰り返し使える配線整理ホルダー-3-6-8-12個セット | マグネット式ケーブルクリップ 繰り返し使える配線整理ホルダー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_b6fd9e82-d4e3-4c77-b47b-3ca4b0d6072c.jpg?width=120) | OK |
+| 158 | published | ループエクササイズバンド-5段階強度セット-天然ラテックス製-収納袋付き-筋トレ-ストレッチに-e-03 | ループエクササイズバンド 5段階強度セット 天然ラテックス製 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_bfb84892-047e-48bd-b0bf-9fe6b95b7384.jpg?width=120) | OK |
 | 159 | planned | 2人掛けローソファ-収納付きファブリックカウチソファー-木脚取り外し可能-w1082p151240 | 2人掛けローソファ 収納付きファブリックカウチソファー 木脚 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421515661622-a-01.jpg?width=120) | OK |
 | 160 | planned | 高吸収ペットシーツ-竹炭配合で消臭-防水バックシート-犬猫用-使い捨て-ckhc-07 | 高吸収ペットシーツ 竹炭配合で消臭 防水バックシート 犬猫用 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15428381868342-a-01.jpg?width=120) | OK |
 | 161 | planned | ストロベリークォーツ-天然石ブレスレット-4mm-ピンクのやさしい輝き-wrta-br-556 | ストロベリークォーツ 天然石ブレスレット 4mm ピンクのや | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421642047798-a-01.jpg?width=120) | OK |
