@@ -1,4 +1,4 @@
-# 投稿と商品の対応チェック single（2026-11-17T12:12Z）
+# 投稿と商品の対応チェック single（2026-11-19T12:18Z）
 
 対象 935 件、問題あり 0 件。画像は 1 枚目のみ表示。リンクは商品ページ（https://anetmc.com/products/<handle>）。
 
@@ -162,21 +162,21 @@
 | 156 | published | 洗える封筒型シュラフ-軽量コンパクト寝袋-快適温度目安-4-yb-05 | 洗える封筒型シュラフ 軽量コンパクト寝袋 快適温度目安-4℃ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421413327158-a-01.jpg?width=120) | OK |
 | 157 | published | マグネット式ケーブルクリップ-繰り返し使える配線整理ホルダー-3-6-8-12個セット | マグネット式ケーブルクリップ 繰り返し使える配線整理ホルダー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_b6fd9e82-d4e3-4c77-b47b-3ca4b0d6072c.jpg?width=120) | OK |
 | 158 | published | ループエクササイズバンド-5段階強度セット-天然ラテックス製-収納袋付き-筋トレ-ストレッチに-e-03 | ループエクササイズバンド 5段階強度セット 天然ラテックス製 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_bfb84892-047e-48bd-b0bf-9fe6b95b7384.jpg?width=120) | OK |
-| 159 | planned | 2人掛けローソファ-収納付きファブリックカウチソファー-木脚取り外し可能-w1082p151240 | 2人掛けローソファ 収納付きファブリックカウチソファー 木脚 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421515661622-a-01.jpg?width=120) | OK |
-| 160 | planned | 高吸収ペットシーツ-竹炭配合で消臭-防水バックシート-犬猫用-使い捨て-ckhc-07 | 高吸収ペットシーツ 竹炭配合で消臭 防水バックシート 犬猫用 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15428381868342-a-01.jpg?width=120) | OK |
-| 161 | planned | ストロベリークォーツ-天然石ブレスレット-4mm-ピンクのやさしい輝き-wrta-br-556 | ストロベリークォーツ 天然石ブレスレット 4mm ピンクのや | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421642047798-a-01.jpg?width=120) | OK |
-| 162 | planned | 折りたたみ式ペット-トリミングテーブル-h型アーム-カゴ付き-ブラック-wf194355aaa | 折りたたみ式ペット トリミングテーブル H型アーム・カゴ付き | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_3a016eab-f811-4352-a142-d755c71f0a62.jpg?width=120) | OK |
+| 159 | published | 2人掛けローソファ-収納付きファブリックカウチソファー-木脚取り外し可能-w1082p151240 | 2人掛けローソファ 収納付きファブリックカウチソファー 木脚 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421515661622-a-01.jpg?width=120) | OK |
+| 160 | published | 高吸収ペットシーツ-竹炭配合で消臭-防水バックシート-犬猫用-使い捨て-ckhc-07 | 高吸収ペットシーツ 竹炭配合で消臭 防水バックシート 犬猫用 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15428381868342-a-01.jpg?width=120) | OK |
+| 161 | published | ストロベリークォーツ-天然石ブレスレット-4mm-ピンクのやさしい輝き-wrta-br-556 | ストロベリークォーツ 天然石ブレスレット 4mm ピンクのや | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421642047798-a-01.jpg?width=120) | OK |
+| 162 | published | 折りたたみ式ペット-トリミングテーブル-h型アーム-カゴ付き-ブラック-wf194355aaa | 折りたたみ式ペット トリミングテーブル H型アーム・カゴ付き | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_3a016eab-f811-4352-a142-d755c71f0a62.jpg?width=120) | OK |
 | 163 | planned | across-rainbow-かにおもちゃ-ラトル-知育玩具-赤ちゃんのおもちゃ-yb-05 | Across Rainbow かにおもちゃ ラトル 知育玩具 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121387765.jpg?width=120) | OK |
-| 164 | planned | 軽量ボストンバッグ-大容量30l-折りたたみ旅行バッグ-機内持ち込み対応-c-7 | 【折りたたみボストンバッグ 30L】軽量150g・大容量・耐 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421412344118-a-01.jpg?width=120) | OK |
+| 164 | published | 軽量ボストンバッグ-大容量30l-折りたたみ旅行バッグ-機内持ち込み対応-c-7 | 【折りたたみボストンバッグ 30L】軽量150g・大容量・耐 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421412344118-a-01.jpg?width=120) | OK |
 | 165 | planned | マグネット式ケーブルクリップ-繰り返し使える配線整理ホルダー-lxqb | マグネット式ケーブルクリップ 繰り返し使える配線整理ホルダー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121385655.jpg?width=120) | OK |
-| 166 | planned | ネックストレッチ枕-首の負担をやわらげる牽引サポート枕-yb-05-e-13 | ネックストレッチ枕 首の負担をやわらげる牽引サポート枕 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421425811766-a-01.jpg?width=120) | OK |
-| 167 | planned | ラタン調-ガーデンソファ3点セット-テーブル-チェア-屋外-室内両用-wf318611waa | ラタン調 ガーデンソファ3点セット テーブル＆チェア 屋外・ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421514678582-a-01.jpg?width=120) | OK |
+| 166 | published | ネックストレッチ枕-首の負担をやわらげる牽引サポート枕-yb-05-e-13 | ネックストレッチ枕 首の負担をやわらげる牽引サポート枕 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421425811766-a-01.jpg?width=120) | OK |
+| 167 | published | ラタン調-ガーデンソファ3点セット-テーブル-チェア-屋外-室内両用-wf318611waa | ラタン調 ガーデンソファ3点セット テーブル＆チェア 屋外・ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421514678582-a-01.jpg?width=120) | OK |
 | 168 | planned | 長繊維綿タオル3点セット-モランディカラー-ギフトボックス入り-ykogh-05 | 長繊維綿タオル3点セット モランディカラー ギフトボックス入 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121419130.jpg?width=120) | OK |
-| 169 | planned | 天然石ブレスレット-12mm-ストロベリークォーツ-パワーストーン-wrta-br-274-276 | 天然石ブレスレット 12mm ストロベリークォーツ パワース | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421641785654-a-01.jpg?width=120) | OK |
+| 169 | published | 天然石ブレスレット-12mm-ストロベリークォーツ-パワーストーン-wrta-br-274-276 | 天然石ブレスレット 12mm ストロベリークォーツ パワース | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421641785654-a-01.jpg?width=120) | OK |
 | 170 | planned | 猫ケージ-2段-キャットケージ-猫トイレ-ハンモック-キャスター付き-スチール製-tx212771baa | 猫ケージ 2段 キャットケージ 猫トイレ・ハンモック・キャス | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_5f2ad032-b169-4f8c-8b00-3926f362fe8f.jpg?width=120) | OK |
 | 171 | planned | across-rainbow-ベビー歯固め-シリコン-ケヤキ素材-取っ手付き-生後30日頃から-yb-05 | Across Rainbow ベビー歯固め シリコン＆ケヤキ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_5cd99c4d-1e61-41ee-bd26-37a591274e35.jpg?width=120) | OK |
 | 172 | planned | 封筒型シュラフ-洗える-コンパクト-軽量-寝袋-h-04 | 封筒型シュラフ 洗える・コンパクト・軽量 寝袋 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121420304.jpg?width=120) | OK |
-| 173 | planned | arrows-we3-クリアケース-耐衝撃-薄型-軽量-カメラレンズ保護-sjkli-02 | arrows We3 クリアケース 耐衝撃 薄型 軽量 カメ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386757.jpg?width=120) | OK |
+| 173 | published | arrows-we3-クリアケース-耐衝撃-薄型-軽量-カメラレンズ保護-sjkli-02 | arrows We3 クリアケース 耐衝撃 薄型 軽量 カメ | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121386757.jpg?width=120) | OK |
 | 174 | planned | 巻き肩はがしシェイパー-2枚セット-姿勢サポートインナー-e-12 | 巻き肩はがしシェイパー 2枚セット 姿勢サポートインナー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/01_cb096181-1791-408f-a60e-5da53e38e9f4.jpg?width=120) | OK |
 | 175 | planned | 北欧風-おしゃれスツール-木製脚-ダイニングチェア-カバー着脱式-c-71 | 北欧風 おしゃれスツール 木製脚 ダイニングチェア カバー着 | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/amz-15421512646966-a-01.jpg?width=120) | OK |
 | 176 | planned | 拡大鏡-保護メガネ-3点セット-高倍率レンズ-軽量-保護ガード付き-ykogh-01 | 拡大鏡＆保護メガネ 3点セット 高倍率レンズ 軽量 保護ガー | ![](https://cdn.shopify.com/s/files/1/0983/3326/2134/files/imgrc0121419165.jpg?width=120) | OK |
