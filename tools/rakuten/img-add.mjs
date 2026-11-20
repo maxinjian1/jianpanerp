@@ -23,7 +23,11 @@ async function api(method, url, body) {
   }
 }
 const res = path.join(OUT, 'extra', `${mn}-cab.json`);
-execFileSync('node', [path.join(ROOT, 'tools/rakuten/cabinet.mjs'), 'upload', '--folder', 'anet2025-02', '--out', res, ...files.map((f) => path.resolve(f))], { stdio: 'inherit' });
+// R-Cabinet のファイル名は 20 字以内：out/img-audit/xa/up/<短い名>.jpg にコピーして上げる（名前 = xa-<短い名>）
+const stage = path.join(OUT, 'xa', 'up'); fs.mkdirSync(stage, { recursive: true });
+const short = mn.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 9);
+const staged = files.map((f, i) => { const d = path.join(stage, `${short}-${Date.now().toString(36).slice(-3)}${i}.jpg`); fs.copyFileSync(path.resolve(f), d); return d; });
+execFileSync('node', [path.join(ROOT, 'tools/rakuten/cabinet.mjs'), 'upload', '--folder', 'anet2025-02', '--out', res, ...staged], { stdio: 'inherit' });
 const locs = JSON.parse(fs.readFileSync(res, 'utf8')).map((o) => { if (!o.url) throw new Error('no url ' + o.src); return o.url.replace(/^.*\/cabinet/, ''); });
 const it = await api('GET', `/items/manage-numbers/${encodeURIComponent(mn)}`);
 const imgs = it.images || [];
