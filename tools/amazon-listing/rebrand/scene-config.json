@@ -1,0 +1,77 @@
+{
+ "_note": "SALONCARE 服装 追加画像（2026-11-20）。{item}=商品の英語説明、{color}=色。cap1/cap2 は商品タイトル・箇条書きにある事実だけ。lingerie は人物着用なし。",
+ "templates": {
+  "slip": {
+   "p1": "This image shows our product: {item} in {color}. Create a natural, elegant (not sexy) lifestyle photo for a Japanese online store: a Japanese woman in her 30s wearing exactly this {color} satin slip as loungewear with a soft beige knit cardigan loosely over her shoulders, sitting on a bed with white linen by a window in a calm Japanese bedroom in the morning, holding a mug of tea, knee-length view. The garment must look exactly like the reference (same color, satin sheen, lace or trim, straps, length).",
+   "p2": "Now a product photo without a person: exactly the same {color} garment hanging on a light wooden hanger against a soft warm-white plaster wall, soft window light showing the fabric sheen and details, with calm empty space in the top 25%. The garment must match the reference exactly."
+  },
+  "lingerie": {
+   "p1": "This image shows our product: {item} in {color}. Create an elegant, tasteful product lifestyle photo for a Japanese online store WITHOUT any person: exactly this {color} lingerie set laid out neatly and flat on a bed with crisp white linen, a small vase of flowers and a folded cardigan nearby, soft morning window light, seen from above at an angle. The garment must look exactly like the reference (same color, lace, sheer fabric, straps, all included pieces).",
+   "p2": "Now a product photo without a person: exactly the same {color} garment hanging on a slim light wooden hanger against a soft warm-white plaster wall, soft window light showing the lace and fabric details, with calm empty space in the top 25%. The garment must match the reference exactly."
+  },
+  "knitvest": {
+   "p1": "This image shows our product: {item} in {color}. Create a natural lifestyle photo for a Japanese online store: a Japanese woman in her late 20s wearing exactly this {color} knit vest layered over a crisp white long-sleeve blouse with beige wide trousers, walking on a quiet autumn street in Tokyo with yellow ginkgo trees, upper-body to knee view. The knit vest must look exactly like the reference (same color, neckline, knit texture, length).",
+   "p2": "Now a product photo without a person: exactly the same {color} knit vest folded neatly flat-lay on a light natural linen surface with a pair of glasses and a small coffee cup beside it, soft daylight from above, with calm empty space in the top 25%. The knit must match the reference exactly."
+  },
+  "tank": {
+   "p1": "This image shows our product: {item} in {color}. Create a natural lifestyle photo for a Japanese online store: a Japanese woman in her late 20s wearing exactly this {color} top with light beige wide trousers and a straw tote bag, standing in a bright summer street in Japan with green trees, relaxed smile, upper body to knee view. The top must look exactly like the reference (same color, neckline, straps or sleeves, fabric, fit).",
+   "p2": "Now a product photo without a person: exactly the same {color} top folded neatly flat-lay on a light natural linen surface with sunglasses beside it, soft summer daylight from above, with calm empty space in the top 25%. The top must match the reference exactly."
+  },
+  "cardigan": {
+   "p1": "This image shows our product: {item} in {color}. Create a natural lifestyle photo for a Japanese online store: a Japanese woman in her 30s wearing exactly this {color} thin knit cardigan over a simple sleeveless summer dress, in a bright air-conditioned Japanese office lounge or cafe, relaxed, upper body to knee view. The cardigan must look exactly like the reference (same color, knit, length, sleeves).",
+   "p2": "Now a product photo without a person: exactly the same {color} cardigan hanging on a light wooden hanger against a soft warm-white plaster wall, soft window light, calm empty space in the top 25%. The cardigan must match the reference exactly."
+  },
+  "dress": {
+   "p1": "This image shows our product: {item} in {color}. Create a natural lifestyle photo for a Japanese online store: a Japanese woman in her 30s wearing exactly this {color} dress with simple sandals, walking in a bright Japanese seaside town or park in early summer, full body view. The dress must look exactly like the reference (same color, neckline, straps, silhouette, length).",
+   "p2": "Now a product photo without a person: exactly the same {color} dress hanging on a light wooden hanger against a soft warm-white plaster wall, soft window light, calm empty space in the top 20%. The dress must match the reference exactly."
+  },
+  "roomdress": {
+   "p1": "This image shows our product: {item} in {color}. Create a natural, relaxed lifestyle photo for a Japanese online store: a Japanese woman in her 40s wearing exactly this {color} short-sleeve room dress, reading a book on a sofa in a bright Japanese living room in the evening light, full body view. The garment must look exactly like the reference (same color, embroidery, satin fabric, length, sleeves).",
+   "p2": "Now a product photo without a person: exactly the same {color} garment hanging on a light wooden hanger against a soft warm-white plaster wall, soft window light, calm empty space in the top 20%. The garment must match the reference exactly."
+  },
+  "skirt": {
+   "p1": "This image shows our product: {item} in {color}. Create a natural lifestyle photo for a Japanese online store: a Japanese woman in her 30s wearing exactly this {color} long pleated skirt with a simple white T-shirt, walking in a bright Japanese park in spring, full body view, the skirt moving softly. The skirt must look exactly like the reference (same color, pleats, chiffon texture, length).",
+   "p2": "Now a product photo without a person: exactly the same {color} skirt hanging on a light wooden skirt hanger against a soft warm-white plaster wall, soft window light, calm empty space in the top 20%. The skirt must match the reference exactly."
+  },
+  "office": {
+   "p1": "This image shows our product: {item} in {color}. Create a natural lifestyle photo for a Japanese online store: a Japanese woman in her 30s wearing exactly this {color} tight office skirt with a white blouse, standing at a reception desk in a bright modern Japanese office, knee-length view. The skirt must look exactly like the reference.",
+   "p2": "Now a product photo without a person: exactly the same {color} skirt hanging on a wooden skirt hanger against a soft warm-white plaster wall, soft light, calm empty space in the top 20%. The skirt must match the reference exactly."
+  }
+ },
+ "families": {
+  "240208": {"t": "slip", "item": "a satin slip dress (camisole nightdress) with lace trim at neckline and hem", "cap1": "ルームウェアにも、ワンピースのインナーにも", "cap2": "胸元と裾に花柄レース　肩ひもはアジャスター付き"},
+  "220727t": {"t": "slip", "item": "a satin half slip camisole dress", "cap1": "ルームウェアにも、ワンピースのインナーにも", "cap2": "サテンの光沢　肩ひもは長さ調整可能"},
+  "220826t-short": {"t": "slip", "item": "a short satin slip camisole dress", "cap1": "ルームウェアにも、ワンピースのインナーにも", "cap2": "サテンの光沢　アジャスター付きで肩ひも調整可能"},
+  "220826t-half": {"t": "slip", "item": "a knee-length satin slip camisole dress", "cap1": "ルームウェアにも、ワンピースのインナーにも", "cap2": "サテンの光沢　アジャスター付きで肩ひも調整可能"},
+  "220826t-long": {"t": "slip", "item": "a long maxi-length satin slip camisole dress", "cap1": "ルームウェアにも、ワンピースのインナーにも", "cap2": "サテンの光沢　アジャスター付きで肩ひも調整可能"},
+  "260330": {"t": "dress", "item": "a stretch tube-top slip dress", "cap1": "ストレッチ素材のチューブトップドレス", "cap2": "洗濯機洗いOK"},
+  "191120": {"t": "lingerie", "item": "a sheer babydoll lingerie set (babydoll with matching shorts)", "cap1": "レースのベビードール セット", "cap2": "透け感のあるレース素材"},
+  "191120-bra": {"t": "lingerie", "item": "a sheer babydoll lingerie set with bra cups", "cap1": "カップ付きベビードール セット", "cap2": "透け感のあるレース素材"},
+  "200327": {"t": "lingerie", "item": "a lace babydoll camisole with matching shorts and rose embroidery", "cap1": "薔薇の刺繍とレースのベビードール", "cap2": "ショーツ付きセット"},
+  "221209t-b": {"t": "lingerie", "item": "an off-shoulder lace babydoll lingerie set", "cap1": "オフショルダーのレースベビードール", "cap2": "透け感のあるレース素材"},
+  "221211t-a": {"t": "lingerie", "item": "an off-shoulder lace babydoll lingerie set", "cap1": "オフショルダーのレースベビードール", "cap2": "透け感のあるレース素材"},
+  "221211t-b": {"t": "lingerie", "item": "an off-shoulder lace babydoll lingerie set", "cap1": "オフショルダーのレースベビードール", "cap2": "透け感のあるレース素材"},
+  "2087black": {"t": "lingerie", "item": "a sheer babydoll slip with ruffle hem and matching shorts", "cap1": "フリル裾のシースルーベビードール", "cap2": "ショーツ付きセット"},
+  "2087salmonpink": {"t": "lingerie", "item": "a sheer babydoll slip with ruffle hem and matching shorts", "cap1": "フリル裾のシースルーベビードール", "cap2": "ショーツ付きセット"},
+  "191227-d": {"t": "lingerie", "item": "a sheer shirt-style babydoll lingerie", "cap1": "シャツ風のシースルーベビードール", "cap2": "透け感のある素材"},
+  "b0csyc86mn": {"t": "lingerie", "item": "a sheer babydoll negligee half slip", "cap1": "シースルーのベビードール", "cap2": "透け感のある素材"},
+  "232615bx-a": {"t": "tank", "item": "a cotton tank top", "cap1": "綿コットンのタンクトップ", "cap2": "大きいサイズまで展開"},
+  "230401tbx-a": {"t": "tank", "item": "a crew-neck tank top that hides bra straps", "cap1": "ブラ紐が隠れるクルーネック", "cap2": "接触冷感の無地タンクトップ"},
+  "230401tbx-b": {"t": "tank", "item": "a crew-neck tank top", "cap1": "インナーにも1枚でも", "cap2": "接触冷感の無地タンクトップ"},
+  "230423tbx-a": {"t": "tank", "item": "a linen-cotton summer knit tank top", "cap1": "リネン・コットンのサマーニット", "cap2": "速乾で夏に爽やか"},
+  "230408tst-a": {"t": "tank", "item": "a short-sleeve knit T-shirt", "cap1": "半袖のニットTシャツ", "cap2": "無地でシンプル"},
+  "251015t-a": {"t": "knitvest", "item": "a soft V-neck knit vest", "cap1": "重ね着しやすいVネックのニットベスト", "cap2": "ソフトタッチのニット"},
+  "211121-a": {"t": "knitvest", "item": "a loose V-neck knit vest", "cap1": "Vネックのゆったりニットベスト", "cap2": "シャツやブラウスに重ねて"},
+  "221109t-a": {"t": "knitvest", "item": "a V-neck drop-shoulder knit vest", "cap1": "ドロップショルダーのニットベスト", "cap2": "重ね着にちょうどいいVネック"},
+  "231116tbx-c": {"t": "knitvest", "item": "an openwork knit vest with small hand-embroidered flowers and pockets", "cap1": "小花刺繍の透かし編みニットベスト", "cap2": "ポケット付き"},
+  "221003t-a": {"t": "knitvest", "item": "a V-neck button knit vest", "cap1": "ボタン付きVネックのニットベスト", "cap2": "シャツやブラウスに重ねて"},
+  "220321": {"t": "cardigan", "item": "a thin open-front knit cardigan without buttons", "cap1": "冷房対策に　薄手のはおりカーディガン", "cap2": "ボタンなしのオープンデザイン"},
+  "220319-longsleeves": {"t": "cardigan", "item": "a long thin knit cardigan with side slits", "cap1": "冷房対策に　ロング丈の薄手カーディガン", "cap2": "スリット入り"},
+  "220720t-b": {"t": "cardigan", "item": "a cropped openwork knit top with three-quarter sleeves", "cap1": "透かし編みのショート丈トップス", "cap2": "七分袖で冷房対策に"},
+  "220720t-c": {"t": "cardigan", "item": "a cropped openwork knit bolero with three-quarter sleeves", "cap1": "透かし編みのショート丈ボレロ", "cap2": "七分袖で冷房対策に"},
+  "220718t": {"t": "dress", "item": "a long A-line camisole dress with adjustable straps", "cap1": "Aラインのロング丈キャミワンピース", "cap2": "肩ひも調整可能"},
+  "221218tsq": {"t": "roomdress", "item": "a short-sleeve satin room dress with floral embroidery", "cap1": "刺繍入りサテンのルームワンピース", "cap2": "半袖でゆったり"},
+  "230503tskt": {"t": "skirt", "item": "a long chiffon pleated skirt with elastic waist", "cap1": "シフォンのロングプリーツスカート", "cap2": "ウエストゴムでゆったり"},
+  "230408tzyq-58cm": {"t": "office", "item": "a black tight office uniform skirt", "cap1": "オフィス・通勤・式典に", "cap2": "タイトなシルエット"}
+ }
+}
