@@ -24,3 +24,4 @@
 | 2026-11-17 | 1180 | 0 | - |
 | 2026-11-18 | 1177 | 1 | [39604](https://www.kuajingyifan.com/ja-JP/p/39604/-) |
 | 2026-11-19 | 1176 | 1 | [39397](https://www.kuajingyifan.com/ja-JP/p/39397/-) |
+| 2026-11-21 | 1178 | 3 | [39616](https://www.kuajingyifan.com/ja-JP/p/39616/-) [39615](https://www.kuajingyifan.com/ja-JP/p/39615/-) [39614](https://www.kuajingyifan.com/ja-JP/p/39614/-) |
