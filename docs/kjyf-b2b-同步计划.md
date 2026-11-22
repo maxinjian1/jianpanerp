@@ -1,17 +1,17 @@
 # kjyf B2B → Shopify 同期計画
 
-生成：2026-11-20T21:32:10.684Z（`node tools/kjyf-b2b/sync.mjs plan`）。基準＝view 0（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。
+生成：2026-11-21T21:32:09.952Z（`node tools/kjyf-b2b/sync.mjs plan`）。基準＝view 0（0=日文站, 2=B2B）・上架中。タイトル・説明は同じ good_id の view 0（日本語原文）。画像は変更しない。
 
 ## 集計
 
 | 項目 | 件数 |
 |---|---|
-| backup | tools\kjyf-b2b\out\shopify-backup-2026-11-20T21-32-10.json |
-| b2bGoods | 1179 |
+| backup | tools\kjyf-b2b\out\shopify-backup-2026-11-21T21-32-09.json |
+| b2bGoods | 1178 |
 | shopifyProducts | 1213 |
-| update | 1159 |
+| update | 1158 |
 | updateDraftKept | 247 |
-| draft | 23 |
+| draft | 24 |
 | create | 28 |
 | hold | 2 |
 | b2bDuplicate | 286 |
@@ -20,15 +20,15 @@
 | manual | 24 |
 | productsPriceChanged | 42 |
 | variantsPriceChanged | 167 |
-| titleChanged | 1145 |
-| descChanged | 1106 |
-| stockUntrackedNow | 3759 |
-| stockZero | 765 |
+| titleChanged | 1144 |
+| descChanged | 1105 |
+| stockUntrackedNow | 3758 |
+| stockZero | 769 |
 
 - update は status を変えない（現在 DRAFT のもの、W杯等 IP で DRAFT にした 6 件を含めて、DRAFT のまま）。
 - 在庫：現在 Shopify は在庫を追跡していない（tracked=false）。アプリに在庫スコープが無いため在庫同期は既定 OFF（`--stock` で有効）。stockZero は B2B 在庫 0 の SKU 数（参考）。
 
-## draft（基準ビューに無い → DRAFT）（23 件、先頭 50）
+## draft（基準ビューに無い → DRAFT）（24 件、先頭 50）
 
 | handle | 現在 | タイトル | SKU |
 |---|---|---|---|
@@ -47,6 +47,7 @@
 | ロフトベッド-シングル-デスク-コンセント-収納付き-耐荷重150kg-北欧風- | ACTIVE | ロフトベッド シングル デスク・コンセント・収納付き 耐荷重150kg 北欧風 スチール製 SA30 | SA308461AAA |
 | 布団クリーナー-ダニ対策-掃除機-uv除菌-温風機能-ダストセンサー搭載-15k | ACTIVE | 布団クリーナー ダニ対策 掃除機 UV除菌・温風機能・ダストセンサー搭載 15Kpa吸引 500Wた | Jimmy-WB81 |
 | チェック柄-長袖パジャマ-上下セット-前開き-子ども用-春秋冬-yb-05 | ACTIVE | チェック柄 長袖パジャマ 上下セット 前開き 子ども用 春秋冬 | JJ003-1,JJ002-1,JJ001-1,JJ009-1,JJ008-1, |
+| across-rainbow-ゆらゆらスタッキング玩具-食品衛生法適合-3歳頃か | ACTIVE | Across Rainbow ゆらゆらスタッキング玩具 食品衛生法適合 3歳頃から | GYS-01-E |
 | 油圧テーブルリフト-折りたたみ式-積載150kg-足踏み昇降台-yb-05 | ACTIVE | 油圧テーブルリフト 折りたたみ式 積載150kg 足踏み昇降台 | Z0535320 |
 | 軽トラ荷台用-アルミ工具箱-1230-385-385mm-防水-ロック付き-ツー | ACTIVE | 軽トラ荷台用 アルミ工具箱 1230×385×385mm 防水・ロック付き ツールボックス X052 | X0520850 |
 | 木工用ホールソーセット-11点組-19-64mm対応-専用ケース付-a06604 | ACTIVE | 木工用ホールソーセット 11点組 19〜64mm対応 専用ケース付 A0660440 | A0660440 |
@@ -208,7 +209,7 @@
 | handle | 削除 SKU |
 |---|---|
 
-## タイトル変更（1145 件、先頭 50）
+## タイトル変更（1144 件、先頭 50）
 
 | 旧 | 新 |
 |---|---|
