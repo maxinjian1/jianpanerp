@@ -1,6 +1,6 @@
 # Instagram 計画 single（@maxinjian）
 
-用户が見て「承認」→ `ig.mjs approve --week 2026-11-23`（catalog は `--file catalog`）。承認した投稿だけ予定時刻に公開。キャプションの価格・送料は書かない（変わるため）。リンクはプロフィールの anetmc.com（UTM 付き）。
+用户が見て「承認」→ `ig.mjs approve --week 2026-11-30`（catalog は `--file catalog`）。承認した投稿だけ予定時刻に公開。キャプションの価格・送料は書かない（変わるため）。リンクはプロフィールの anetmc.com（UTM 付き）。
 
 | # | 日時(JST) | 種別 | テーマ | 商品 | キャプション | タグ | 素材 | 状態 |
 |---|---|---|---|---|---|---|---|---|
