@@ -15,7 +15,7 @@ SEL_NAME = {'Color': 'カラー', 'Size': 'サイズ', 'color': 'カラー', 'si
 TITLE_DROP = ['新生活応援！', 'バストアップ', '腰痛改善', '2025 ']
 
 args = sys.argv[1:]
-only = None; out_name = 'qoo10-items'
+only = None; out_name = 'qoo10-items'; edit = '--edit' in args
 for i, a in enumerate(args):
     if a == '--only': only = set(args[i + 1].split(','))
     if a == '--out': out_name = args[i + 1]
@@ -60,6 +60,16 @@ def description(it, imgs):
     pics = ''.join(f'<img src="{u}" style="max-width:100%"><br>' for u in imgs)
     return f'<div style="text-align:center">{pics}</div><div>{html}</div>'
 
+# --edit：既存商品の修正用（item_number を入れる）。白底主图：out/white-ok.json + out/white-urls.json
+itemno = {}
+if os.path.exists(f'{ROOT}/item-numbers.txt'):
+    for tok in io.open(f'{ROOT}/item-numbers.txt', encoding='utf-8').read().split():
+        n, c = tok.split(':', 1); itemno[c] = n
+white = {}
+if os.path.exists(f'{ROOT}/out/white-ok.json') and os.path.exists(f'{ROOT}/out/white-urls.json'):
+    ok = json.load(io.open(f'{ROOT}/out/white-ok.json', encoding='utf-8'))
+    byname = {os.path.basename(u['src']).split('.')[0]: u['url'] for u in json.load(io.open(f'{ROOT}/out/white-urls.json', encoding='utf-8')) if u.get('url')}
+    white = {m: byname[h] for m, h in ok.items() if h in byname}
 rows = []; report = []
 for it in items:
     mn = it['manageNumber']
@@ -105,6 +115,7 @@ for it in items:
       imgs = [IMG_HOST + m['location'] for m in it.get('images') or [] if '/award/' not in m['location']]
       imgs = [u for u in imgs if u not in bad]
       if not imgs: report.append(f'NOIMG {mn}'); break
+      if mn in white: imgs = [white[mn]] + imgs   # 白底主图放第 1 张，原主图退到第 2 张
       others = []
       for u in imgs[1:50]:
           if len('$$'.join(others + [u])) > 5000: break
@@ -125,6 +136,9 @@ for it in items:
           'external_product_type': 'JAN' if re.fullmatch(r'\d{13}', jan) else '',
           'external_product_id': jan if re.fullmatch(r'\d{13}', jan) else '',
       }
+      if edit:
+          if code not in itemno: report.append(f'NOITEMNO {code}'); continue
+          r['item_number'] = itemno[code]
       rows.append(r)
       report.append(f'OK {code} | {r["item_status_Y/N/D"]} | ¥{base} | 库存{total} | 规格{len(vs)} | 图{len(imgs)} | {cmap[mn]} | {title[:40]}')
 
