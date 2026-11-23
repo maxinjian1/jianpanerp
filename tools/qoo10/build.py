@@ -70,6 +70,9 @@ if os.path.exists(f'{ROOT}/out/white-ok.json') and os.path.exists(f'{ROOT}/out/w
     ok = json.load(io.open(f'{ROOT}/out/white-ok.json', encoding='utf-8'))
     byname = {os.path.basename(u['src']).split('.')[0]: u['url'] for u in json.load(io.open(f'{ROOT}/out/white-urls.json', encoding='utf-8')) if u.get('url')}
     white = {m: byname[h] for m, h in ok.items() if h in byname}
+# overrides.json：main = 指定主图 URL（现成的白底商品图）；drop = 不带到 Qoo10 的图（乐天评价活动图等）
+ov = json.load(io.open(f'{ROOT}/overrides.json', encoding='utf-8')) if os.path.exists(f'{ROOT}/overrides.json') else {}
+white.update(ov.get('main', {})); bad |= set(ov.get('drop', []))
 rows = []; report = []
 for it in items:
     mn = it['manageNumber']
