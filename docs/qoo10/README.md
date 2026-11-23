@@ -159,5 +159,9 @@
   - ショップロゴ 220×220、カバー画像 PC 980×150 / Mobile 750×180（`tools/qoo10/shop/render.py`，代码渲染，商品图用自店白底图）。
   - メインページ：Mobile 主图 3 张 686×686（BANZ イヤーマフ／BANZ おでかけ／SALON CARE，`render-main.py`），表示設定(Mobile)=ON。
 - 文字只用已有事实：全品送料無料（现在全部商品用送料コード 839554）、イヤーマフ 対象年齢 0〜2 歳頃（乐天属性）。**以后有商品不包邮时要改封面和横幅**。
-- 未做：メインページ的 PC 横幅（要写 HTML）、注目商品、特集ページ(Qspecial)、メニューバー、ショップページ标签页。
+- **PC 主页（同日追加，前台已确认显示）**：`tools/qoo10/shop/render-pc.py` → `shop/pc/`（hero 980×360、cat-1〜3 320×320、pk1〜8 232×232、menu-1/2 485×100），图托管 R-Cabinet `anet2025-03/shop-*.jpg`（文件名 ≤20 字）。
+  - 「1. 画像/HTML」表示設定(PC)=ON，HTML = 大横幅（链到耳罩 /g/1223970346）+ 分类图 3 张 + 「おすすめ商品」8 件（图 + 商品名，链到各商品页，不写价格）。HTML 直接写进 `txtarea_html` 后 `BasicTemplate.Save()`。
+  - 「2. 注目商品」的 HTML（focusEditHtmlArea）在没有登记注目商品时前台不显示 → 推荐商品并入上面的 HTML，注目商品设回 OFF。
+  - 「4. メニューバー(PC)」=ON，2 个：BANZ（条件设定：关键词 BANZ，qid 6097）、SALON CARE（关键词 SALON CARE / SALONCARE，qid 6098）。做法：点槽位 → 传图（file input 在「メニューバー画像」行）→ 点该行「保存」；显示商品在 `/Seller/PopupSellerAdvancedSearch.aspx?idx=N&qid=`（类型选「条件設定」，AddCondition → SetAdvancedSearch），它依赖 opener 回调：单独开标签页时先给 `window.opener` 塞一个假对象拿到 qid，再回主页面选中槽位后调 `CallBackAdvancedFeatureItem(qid)`。
+- **未做 / 做不了**：注目商品（Mobile/PC 的商品选择）——选择窗口用的是前台检索，审查通过前检索不到自家商品（「検索条件に合う商品がありません」）；商品页 /g/<番号> 本身可以打开。菜单栏下方和商品列表同理现在是空的，审查通过后应自动出现（未验证）。特集ページ(Qspecial) 是带掲載期間的活动页（需主题、期间、1440×676 横幅），未建。
 - 11-23 保存后前台 /shop/anet 仍显示默认图、商品 0 件（后台写「リアルタイムで反映されない場合があります」，且出店审查未完成），**前台显示未确认**。
