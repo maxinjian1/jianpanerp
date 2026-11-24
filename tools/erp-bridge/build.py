@@ -18,6 +18,9 @@ for g in b['list']:
     for x in g.get('skus') or []: wsku.setdefault(x['out_id'].lower(), x)
 qno = dict(reversed(t.split(':', 1)) for t in io.open('tools/qoo10/item-numbers.txt', encoding='utf-8').read().split())
 OWN = re.compile(r'^(banz|saloncare|rw1688|baby-|a0\d-)', re.I)   # 自家仓：BANZ、洗护（用户 11-24 确认）；1688 进货品到日本后入自家仓
+# 同一实物的多件装：不建独立 SKU，对照用 units 指向单件 SKU（ERP 会话 11-24 指出：否则库存按多份算）
+PACK = {'saloncare-otc2': ('saloncare-otc1', 2), 'saloncare-otc3': ('saloncare-otc1', 3)}
+NOSTOCK = {'saloncare-otc1'}   # 乐天按 1本/2本/3本 各显示一个库存数，实际瓶数未知 → 不出期初数，等用户给
 DROPW = ['送料無料', '新生活応援！', '2025', '即納', '当日発送', 'あす楽', '楽天1位', 'ランキング1位']
 def short(t, brand):
     t = re.sub(r'[【\[（(][^】\]）)]*[】\]）)]', ' ', t)
@@ -51,6 +54,11 @@ for i in it:
         for k in idxs: qcode[vs[k][0]] = mn if gi == 0 else f'{mn}-g{gi + 1}'
     own = bool(OWN.match(mn))
     for (vid, v), price in zip(vs, prices):
+        if vid in PACK:
+            base, units = PACK[vid]; status = 'active' if not i.get('hideItem') and not v.get('hidden') else 'stopped'
+            L.append(['rakuten-main', base, mn, vid, '', units, 'own' if own else 'dropship', price, status])
+            if qcode[vid] in qno: L.append(['qoo10-main', base, qcode[vid], vid[:50], qno[qcode[vid]], units, 'own' if own else 'dropship', price, status])
+            continue
         if not CODE.fullmatch(vid): R.append(f'SKU 编号含特殊字符或超长，未登记: {mn} | {vid}'); continue
         if vid.lower() in seen: R.append(f'SKU 编号只有大小写不同，未登记: {vid} 与 {seen[vid.lower()]}'); continue
         seen[vid.lower()] = vid
@@ -68,13 +76,14 @@ for i in it:
         vimg = (v.get('images') or [{}])[0].get('location', '')
         if len(f'{sname} {o1} {o2}') > 160: R.append(f'SKU 名称会超 160: {vid}')
         P.append([vid, mn, sname, '', o1, o2, n1, n2, brand, jan if re.fullmatch(r'\d{8}|\d{13}', jan) else '', '個', 10, price, c or '',
-                  '批发商 kuajingyifan' if c else '', simg, IMG + vimg if vimg else ''])
+                  '仕入先 kuajingyifan' if c else '', simg, IMG + vimg if vimg else ''])
         status = 'active' if not i.get('hideItem') and not v.get('hidden') else 'stopped'
         ff = 'own' if own else 'dropship'
         L.append(['rakuten-main', vid, mn, vid, '', 1, ff, price, status])
         qc = qcode[vid]
         if qc in qno: L.append(['qoo10-main', vid, qc, vid[:50] if len(vs) > 1 else qc, qno[qc], 1, ff, price, status])
-        if own: S.append([vid, int(st.get(f'{mn}|{vid}', 0)), '乐天后台显示库存 2026-11-23，未经盘点'])
+        if vid in NOSTOCK: R.append(f'多件装共用库存，实际数量未知，未出期初数: {vid}')
+        elif own: S.append([vid, int(st.get(f'{mn}|{vid}', 0)), '乐天后台显示库存 2026-11-23，未经盘点'])
 jd = [j for j, n in collections.Counter(p[9] for p in P if p[9]).items() if n > 1]
 for p in P:
     if p[9] in jd: R.append(f'JAN 重复，已清空: {p[0]} {p[9]}'); p[9] = ''
