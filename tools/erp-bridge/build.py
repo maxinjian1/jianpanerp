@@ -22,7 +22,8 @@ OWN = re.compile(r'^(banz|saloncare|rw1688|baby-|a0\d-)', re.I)   # 自家仓：
 PACK = {'saloncare-otc2': ('saloncare-otc1', 2), 'saloncare-otc3': ('saloncare-otc1', 3)}
 NOSTOCK = set()
 # 用户 2026-11-24 给的仓库表「库存管理2026-11-24.xlsx」的「日本新库存」（单品，按 JAN 对上）：优先于乐天后台显示数
-WAREHOUSE = {'saloncare-otc1': (5140, '4513574036017'), 'saloncare-bodywash': (9448, '4513574038127')}
+# 值 = (仓库表瓶数, JAN, 每个 SKU 含几瓶)。saloncare-bodywash 在乐天是「2本セット」→ 9448 瓶 = 4724 套
+WAREHOUSE = {'saloncare-otc1': (5140, '4513574036017', 1), 'saloncare-bodywash': (9448, '4513574038127', 2)}
 DROPW = ['送料無料', '新生活応援！', '2025', '即納', '当日発送', 'あす楽', '楽天1位', 'ランキング1位']
 def short(t, brand):
     t = re.sub(r'[【\[（(][^】\]）)]*[】\]）)]', ' ', t)
@@ -85,7 +86,7 @@ for i in it:
         qc = qcode[vid]
         if qc in qno: L.append(['qoo10-main', vid, qc, vid[:50] if len(vs) > 1 else qc, qno[qc], 1, ff, price, status])
         if vid in NOSTOCK: R.append(f'多件装共用库存，实际数量未知，未出期初数: {vid}')
-        elif vid in WAREHOUSE: S.append([vid, WAREHOUSE[vid][0], f'仓库库存表 2026-11-24（JAN {WAREHOUSE[vid][1]}）'])
+        elif vid in WAREHOUSE: S.append([vid, WAREHOUSE[vid][0] // WAREHOUSE[vid][2], f'仓库库存表 2026-11-24（JAN {WAREHOUSE[vid][1]}，{WAREHOUSE[vid][0]} 瓶，每件 {WAREHOUSE[vid][2]} 瓶）'])
         elif own: S.append([vid, int(st.get(f'{mn}|{vid}', 0)), '乐天后台显示库存 2026-11-23，未经盘点'])
 jd = [j for j, n in collections.Counter(p[9] for p in P if p[9]).items() if n > 1]
 for p in P:
