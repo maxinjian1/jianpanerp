@@ -88,8 +88,7 @@ io.open(O + 'review.txt', 'w', encoding='utf-8').write('\n'.join(R) + '\n')
 lk = collections.Counter((l[0], l[2], l[3]) for l in L)
 s = (f"products {len(P)} 行 / 款式 {len({p[1] for p in P})}；有进价 {sum(1 for p in P if p[13])}；有 JAN {sum(1 for p in P if p[9])}\n"
      f"listings {len(L)} 行：乐天 {sum(1 for l in L if l[0]=='rakuten-main')}、Qoo10 {sum(1 for l in L if l[0]=='qoo10-main')}；販売中 {sum(1 for l in L if l[8]=='active')}；键重复 {sum(1 for n in lk.values() if n > 1)}\n"
-     f"external_stock {len(X)} 行（代发，批发商库存）
-"
+     f"external_stock {len(X)} 行（代发，批发商库存）\n"
      f"own_stock {len(S)} 行，合计 {sum(x[1] for x in S)} 件；代发 SKU {sum(1 for l in L if l[0]=='rakuten-main' and l[6]=='dropship')}\n"
      f"待确认 {dict(collections.Counter(r.split(':')[0].split('（')[0] for r in R))}\n"
      f"style_name 例: {[p[2] for p in P if p[1] in ('banz-0001','a01-240208','rw1688-02','yjc-073')][::40][:6]}")
