@@ -1,4 +1,4 @@
-# 乐天全店（+Qoo10）→ ANET ERP 导入文件，列定义 v1（japan-erp/ECOMMERCE_INTEGRATION.md 2026-11-24）
+# 乐天全店（+Qoo10）→ ANET ERP 导入文件，列定义 v1.1（japan-erp/ECOMMERCE_INTEGRATION.md 2026-11-24）
 # 用法: python tools/erp-bridge/build.py
 # 输出: tools/erp-bridge/out/{products.csv,listings.csv,own_stock.csv,review.txt}
 import json, io, csv, re, os, collections, sys
@@ -37,7 +37,9 @@ for i in it:
     names = [s.get('displayName', '')[:40] for s in sels]
     n1 = names[0] if names else ''; n2 = '・'.join(names[1:])[:40] if len(names) > 1 else ''
     sname = short(i['title'], brand); simg = IMG + i['images'][0]['location'] if i.get('images') else ''
-    vs = list(i['variants'].items()); prices = [int(float(v['standardPrice'])) for _, v in vs]
+    order = [{x['displayValue']: n for n, x in enumerate(s_.get('values') or [])} for s_ in sels]   # 按店铺页面上的规格顺序排（白→黑、M→L→XL），不按字母
+    vs = sorted(i['variants'].items(), key=lambda kv: [order[n].get(str(kv[1].get('selectorValues', {}).get(s_['key'], '')), 999) for n, s_ in enumerate(sels)])
+    prices = [int(float(v['standardPrice'])) for _, v in vs]
     qcode = {}
     for gi, idxs in enumerate(groups(prices)):
         for k in idxs: qcode[vs[k][0]] = mn if gi == 0 else f'{mn}-g{gi + 1}'
