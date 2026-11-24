@@ -33,8 +33,8 @@ P = []; L = []; S = []; R = []; seen = {}
 for i in it:
     mn = i['manageNumber']; sels = (i.get('variantSelectors') or [])
     if not CODE.fullmatch(mn): R.append(f'款号含特殊字符，未登记: {mn}'); continue
-    brand = 'BANZ' if mn.lower().startswith('banz') else 'SALON CARE' if mn.lower().startswith('saloncare') else 'SALONCARE' if re.match(r'a0\d-', mn, re.I) else ''
-    names = [s.get('displayName', '')[:40] for s in sels]
+    brand = 'BANZ' if mn.lower().startswith('banz') else 'SALON CARE' if re.match(r'(saloncare|a0\d-)', mn, re.I) else ''   # 统一写成商标登记的写法（带空格）
+    names = [{'color': 'カラー', 'size': 'サイズ'}.get(s.get('displayName', '').strip().lower(), s.get('displayName', ''))[:40] for s in sels]
     n1 = names[0] if names else ''; n2 = '・'.join(names[1:])[:40] if len(names) > 1 else ''
     sname = short(i['title'], brand); simg = IMG + i['images'][0]['location'] if i.get('images') else ''
     order = [{x['displayValue']: n for n, x in enumerate(s_.get('values') or [])} for s_ in sels]   # 按店铺页面上的规格顺序排（白→黑、M→L→XL），不按字母
