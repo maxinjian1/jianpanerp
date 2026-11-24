@@ -7,14 +7,14 @@ import csv, hashlib, io, os
 O = 'tools/erp-bridge/out/sourcing_candidates.csv'
 H = ['batch_code', 'batch_name', 'research_date', 'target_channel', 'group_name', 'reference', 'source_site',
      'source_item_id', 'source_url', 'summary', 'price_cny', 'moq', 'sold_text', 'repeat_rate_pct', 'supplier',
-     'conclusion', 'status', 'note']
+     'conclusion', 'status', 'linked_product', 'note']
 rows = []
 
 
 def add(batch, name, date, group, ref, concl, items):
     for oid, price, moq, sold, rr, sup, summ, note in items:
         rows.append([batch, name, date, 'amazon', group, ref, '1688', oid, f'https://detail.1688.com/offer/{oid}.html',
-                     summ, price, moq, sold, rr, sup, concl, 'candidate', note])
+                     summ, price, moq, sold, rr, sup, concl, 'candidate', '', note])
 
 
 B1, N1, D1 = 'SRC-20261124-XXF', '小香风（不做仿品）饰品・外套', '2026-11-24'
@@ -85,6 +85,47 @@ add(B3, N3, D3, '同款', '用户提供的 CYNOVA 商品图', '', [
     (1097035417836, 98, '', '', '', '梅州速影数码科技有限公司', '三合一充电底座', '运费 7；主图未核对'),
     (1092115014870, 166.2, 5, '1400+', '', '深圳市晨阳智创科技有限公司', '三合一充电底座', '新人价包邮；自称源头工厂（未验证）；价格可能含其他规格'),
 ])
+
+# ---- 乐天 婴儿用品 30 款（2026-11-13 选品，11-16 上架 28 款）：docs/rakuten/baby-30-1688.xlsx ----
+import re, openpyxl
+B4, N4, D4 = 'SRC-20261113-BABY', '乐天婴儿用品 30 款的 1688 货源', '2026-11-13'
+NOT_LISTED = {15: '未上架（窒息风险）', 30: '未上架（无货源）'}
+for r in list(openpyxl.load_workbook('docs/rakuten/baby-30-1688.xlsx').active.iter_rows(values_only=True))[1:]:
+    no, genre, jp, _, rank, _, _, ref_price, u1, p1, s1, rr1, u2, p2, s2, _, _, caution = r[:18]
+    linked = '' if no in NOT_LISTED else f'baby-{int(no):02d}'
+    base = NOT_LISTED.get(no, f'已在乐天上架 {linked}（上架时库存 0）')
+    for k, (u, p, sold, rr) in enumerate(((u1, p1, s1, rr1), (u2, p2, s2, None)), 1):
+        m = re.search(r'offer/(\d+)', str(u or ''))
+        if not m: continue
+        note = '；'.join(x for x in (base, caution) if x)
+        rows.append([B4, N4, D4, 'rakuten', f'{int(no):02d} {genre}', f'楽天週間ランキング：{rank}', '1688', int(m.group(1)),
+                     f'https://detail.1688.com/offer/{m.group(1)}.html', f'{jp}（候选{"①②"[k - 1]}）', p, '', sold or '',
+                     str(rr).rstrip('%') if rr else '', '', 'skip' if no == 15 else '', 'candidate', linked, note])
+
+# ---- 1688 睡衣 14 款 → 乐天（2026-11-12）：docs/rakuten/1688-roomwear-plan-2026-11-12.md ----
+# 用户上传的选品表里的链接只留下了进货清单上的 9 个短链接；没上的 5 款没有链接记录。价格栏是人民币，本批只有日元进货价 → 写在备注。
+B5, N5, D5 = 'SRC-20261112-RW', '1688 睡衣 14 款 → 乐天', '2026-11-12'
+RW = [
+    (1, '蕾丝蝴蝶结缎面吊带睡裙（带胸垫）', 'verify', 'wlMDPH97', 'rw1688-01', '进货约 365 円；乐天售价 2,980 円'),
+    (2, '缎面吊带睡裙 / 外袍+腰带（4458/3957）', 'verify', 'Qrai6hmx', 'rw1688-02', '进货 睡裙约 644 円、套装约 1,616 円；乐天售价 2,480／4,980 円'),
+    (3, '蕾丝露背超短睡裙（1609）', 'skip', '', '', '不上：图尺度偏大，同类几乎没有评价'),
+    (4, '波点吊带睡裙 / +外袍', 'verify', 'A2ne6OdL', 'rw1688-04', '进货 睡裙约 450 円、套装约 984 円；乐天售价 1,980／3,480 円'),
+    (5, '海岛绒（もこもこ）三件套', 'watch', '', '', '暂缓：海运进货后重算；「条纹KT猫」花色排除'),
+    (6, '金丝绒带胸垫两件套', 'watch', '', '', '暂缓：到货后实拍；「帕恰狗」花色排除（IP）'),
+    (7, '德绒卡通 KT 套装', 'skip', '', '', '排除：Hello Kitty 印花，IP 侵权风险'),
+    (8, '冰丝荷叶边长袖长裤套装', 'skip', '', '', '不上：进货约 1,433 円，没有利润空间'),
+    (9, '缎面深V露背吊带睡裙（2134，带胸垫）', 'verify', 'rlFyO2ds', 'rw1688-09', '进货约 729 円；乐天售价 2,980 円'),
+    (11, '蕾丝蝴蝶结缎面吊带裙 / 外套 / 套装', 'verify', '0ACAsGwx', 'rw1688-11', '进货 单品约 341 円、套装约 750 円；乐天售价 1,980／3,480 円'),
+    (12, '交叉露背缎面睡裙 + 和风缎面睡袍', 'verify', 'e10mzxD3', 'rw1688-12', '进货 各约 438 円；乐天售价 1,980／2,280 円'),
+    (13, '立体蝴蝶结缎面睡裙 / 外袍（W6884）', 'verify', 'r0ASgLs3', 'rw1688-13', '进货 睡裙约 608 円、套装约 1,216 円；乐天售价 2,480／4,280 円'),
+    (14, '烫银蝴蝶印花缎面睡裙 / 外袍（L6674）', 'verify', 'wLtPrr9h', 'rw1688-14', '进货 睡裙约 535 円、套装约 1,070 円；乐天售价 2,280／3,980 円'),
+    (16, '蕾丝袖缎面长袖长裤睡衣', 'verify', 'BAQMd8AW', 'rw1688-16', '进货约 875 円；乐天售价 3,480 円；成分未标，不写シルク'),
+]
+for no, summ, concl, qr, linked, note in RW:
+    if linked: note = f'已在乐天上架 {linked}（上架时库存 0，进货清单已给用户，是否已下单未知）；' + note
+    else: note += '；链接未留存（在用户上传的 1688选品.xlsx 里）'
+    rows.append([B5, N5, D5, 'rakuten', f'#{no}', '用户上传的 1688选品.xlsx', '1688', f'qr-{qr}' if qr else f'rw-20261112-{no:02d}',
+                 f'https://qr.1688.com/s/{qr}' if qr else '', summ, '', '', '', '', '', concl, 'candidate', linked, note])
 
 os.makedirs(os.path.dirname(O), exist_ok=True)
 with io.open(O, 'w', encoding='utf-8-sig', newline='') as f:
