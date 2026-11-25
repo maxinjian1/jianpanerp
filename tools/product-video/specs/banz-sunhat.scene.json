@@ -1,0 +1,12 @@
+{
+  "id": "banz-sunhat", "sec": 3, "out": "final/banz-sunhat-scene-9x16.mp4",
+  "hook": "BANZ キッズ サンハット", "cta": "詳しくは商品ページへ",
+  "shots": [
+    {"bg": "bg/park.png", "fg": "src/07.jpg", "caption": "お出かけの日よけに"},
+    {"bg": "bg/beach.png", "fg": "src/01.jpg", "caption": "恐竜柄と無地のリバーシブル"},
+    {"bg": "bg/beach.png", "fg": "src/02.jpg", "caption": "裏返せばネイビー無地"},
+    {"bg": "bg/garden.png", "fg": "src/06c.jpg", "caption": "UVカット"},
+    {"bg": "bg/garden.png", "fg": "src/08.jpg", "caption": "あご紐付き"},
+    {"bg": "bg/park.png", "fg": "src/01.jpg", "caption": "頭囲45〜50cm・49〜56cmの2サイズ"}
+  ]
+}
