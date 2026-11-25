@@ -1,5 +1,6 @@
 // 乐天订单 → ANET ERP 导入文件 ⑤ orders.csv（规格：japan-erp/ECOMMERCE_INTEGRATION.md「⑤ 订单明细」）
-//   node tools/erp-bridge/rakuten-orders.mjs [--from 2026-09-01] [--to 2026-11-24]
+//   node tools/erp-bridge/rakuten-orders.mjs [--from 2026-09-01] [--to 2026-11-24] [--days 90] [--out-dir <目录>]
+//   --days N = 从 N 天前（日本时间）起，每晚自动导出用；--out-dir = 写到别的目录（每晚导出先写临时目录，成功后再改名进 out/）
 // 输出: tools/erp-bridge/out/orders.csv（UTF-8 带 BOM）+ out/orders-review.txt
 // 不写买家姓名、地址、电话、邮箱：只取收货都道府县。API 原始响应不落盘。
 import fs from 'node:fs';
@@ -26,7 +27,9 @@ async function post(p, body) {
   return j;
 }
 const jst = (d) => new Date(d.getTime() + 9 * 3600e3).toISOString().slice(0, 19) + '+0900';
-const from = new Date(arg('from', '2026-09-01') + 'T00:00:00+09:00');
+const OUT = arg('out-dir') ? path.resolve(arg('out-dir')) : O;
+const dayJst = (d) => new Date(d.getTime() + 9 * 3600e3).toISOString().slice(0, 10);
+const from = new Date((arg('days') ? dayJst(new Date(Date.now() - Number(arg('days')) * 86400e3)) : arg('from', '2026-09-01')) + 'T00:00:00+09:00');
 const to = arg('to') ? new Date(arg('to') + 'T23:59:59+09:00') : new Date();
 
 // 1) 订单号（按下单日，每次最多 63 天 → 用 60 天一段）
@@ -88,7 +91,8 @@ for (const o of orders) {
 }
 const esc = (v) => { const s = String(v ?? ''); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
 const csv = '﻿' + [H, ...rows].map((r) => r.map(esc).join(',')).join('\r\n') + '\r\n';
-fs.writeFileSync(path.join(O, 'orders.csv'), csv);
+fs.mkdirSync(OUT, { recursive: true });
+fs.writeFileSync(path.join(OUT, 'orders.csv'), csv);
 
 // 自检与摘要
 const revenue = (f) => { let s = 0; const seen = new Set(); for (const o of orders) { if (o.orderProgress === 900 || !f(o)) continue; if (seen.has(o.orderNumber)) continue; seen.add(o.orderNumber);
@@ -107,5 +111,5 @@ const text = [
   `对不上对照（未取消的行）：${um.length} 个键、${um.reduce((n, x) => n + x[1], 0)} 件`,
   ...um.map(([k, v]) => `  ${k}  ×${v}`),
 ].join('\n');
-fs.writeFileSync(path.join(O, 'orders-review.txt'), text + '\n');
+fs.writeFileSync(path.join(OUT, 'orders-review.txt'), text + '\n');
 console.log(text);
