@@ -1,0 +1,12 @@
+{
+  "id": "240208-white", "sec": 3, "size": [1920, 1080], "out": "final/240208-white-16x9.mp4",
+  "hook": "SALONCARE サテン スリップ",
+  "shots": [
+    {"fg": "src/a02.png", "caption": "なめらかなサテン素材"},
+    {"fg": "src/hero.jpg", "caption": "胸元と裾に花柄レース"},
+    {"fg": "src/a03.png", "caption": "肩ひもはアジャスター付き"},
+    {"fg": "src/a05.png", "caption": "光沢のあるサテン生地"},
+    {"fg": "src/g2.png", "caption": "ルームウェアにも、インナーにも"},
+    {"fg": "src/black.jpg", "caption": "ブラックもあります"}
+  ]
+}

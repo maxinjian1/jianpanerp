@@ -5,8 +5,11 @@
 import json, math, os, subprocess, sys
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-W, H, FPS = 1080, 1920, 30
 spec = json.load(open(sys.argv[1], encoding='utf-8'))
+W, H = spec.get('size', [1080, 1920]); FPS = 30
+LAND = W > H
+# 版式：卡片区（左上角 y、最大宽高）、字幕 y、标题 y。竖屏与横屏各一套。
+L = dict(cy=150, cw=1560, ch=700, cap=905, hook=40, capsize=60, hooksize=50) if LAND else dict(cy=300, cw=960, ch=1130, cap=1610, hook=150, capsize=70, hooksize=58)
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), 'out', spec['id']))
 SEC, XF = spec.get('sec', 3), 0.35            # 每镜秒数、转场秒数
 FONT = 'C:/Windows/Fonts/YuGothB.ttc'
@@ -51,10 +54,11 @@ def fade(im, a):
 class Shot:
     def __init__(self, s, n, total):
         self.n, self.last = n, n == total - 1
-        bg = Image.open(P(s['bg'])).convert('RGB')
+        own = 'bg' not in s                                 # 没给背景：用画面自己放大虚化做底
+        bg = Image.open(P(s.get('bg') or s['fg'])).convert('RGB')
         k = max(W * 1.12 / bg.width, H * 1.12 / bg.height)
-        bg = bg.resize((round(bg.width * k), round(bg.height * k)), Image.LANCZOS).filter(ImageFilter.GaussianBlur(s.get('blur', 5)))
-        self.bg = Image.blend(bg, Image.new('RGB', bg.size, (0, 0, 0)), s.get('dim', 0.18))
+        bg = bg.resize((round(bg.width * k), round(bg.height * k)), Image.LANCZOS).filter(ImageFilter.GaussianBlur(s.get('blur', 28 if own else 5)))
+        self.bg = Image.blend(bg, Image.new('RGB', bg.size, (0, 0, 0)), s.get('dim', 0.28 if own else 0.18))
         self.cards = []
         if 'grid' in s:                                     # 2×2：四个花色逐个出现
             cw, ch = 470, 520
@@ -66,10 +70,10 @@ class Shot:
                 lb = pill(g['label'], 44, bg=(255, 255, 255, 235), fg=(40, 40, 46), padx=30, pady=14)
                 self.cards.append((lb, W // 2 + (-1 if i % 2 == 0 else 1) * (cw // 2 + 18) - lb.width // 2, y + c.height - 70, 0.3 + i * 0.45))
         else:
-            c = card(s['fg'], 960, 1130)
-            self.cards.append((c, (W - c.width) // 2, 300 + (1130 + 120 - c.height) // 2 - 60, 0.0))
-        self.cap = pill(s['caption'], 70) if s.get('caption') else None
-        self.hook = pill(spec['hook'], 58, bg=(191, 0, 0, 235)) if n == 0 and spec.get('hook') else None
+            c = card(s['fg'], L['cw'], L['ch'])
+            self.cards.append((c, (W - c.width) // 2, L['cy'] + (L['ch'] + 120 - c.height) // 2 - 60, 0.0))
+        self.cap = pill(s['caption'], L['capsize']) if s.get('caption') else None
+        self.hook = pill(spec['hook'], L['hooksize'], bg=(191, 0, 0, 235)) if n == 0 and spec.get('hook') else None
         self.cta = pill(spec['cta'], 54, bg=(255, 255, 255, 240), fg=(30, 30, 36)) if self.last and spec.get('cta') else None
 
     def frame(self, t):
@@ -81,14 +85,14 @@ class Shot:
             a = ease((t - t0) / 0.45)
             if a <= 0: continue
             fr.alpha_composite(fade(c, a), (x, round(y + 40 * (1 - a))))
-        if self.hook: fr.alpha_composite(fade(self.hook, ease(t / 0.4)), ((W - self.hook.width) // 2, 150))
-        cap_y = 1610
+        if self.hook: fr.alpha_composite(fade(self.hook, ease(t / 0.4)), ((W - self.hook.width) // 2, L['hook']))
+        cap_y = L['cap']
         if self.cap:
             a = ease((t - 0.25) / 0.4)
             if a > 0: fr.alpha_composite(fade(self.cap, a), ((W - self.cap.width) // 2, round(cap_y + 30 * (1 - a))))
         if self.cta:
             a = ease((t - 1.2) / 0.4)
-            if a > 0: fr.alpha_composite(fade(self.cta, a), ((W - self.cta.width) // 2, cap_y + 150))
+            if a > 0: fr.alpha_composite(fade(self.cta, a), ((W - self.cta.width) // 2, cap_y + (95 if LAND else 150)))
         return fr.convert('RGB')
 
 
