@@ -149,10 +149,10 @@ function renderStage(spu) {
       if (last) draw.push(`drawtext=fontfile='${esc(FONT)}':text='${esc(sb.cta)}':fontsize=${fsz - 4}:fontcolor=white:box=1:boxcolor=black@0.55:boxborderw=14:x=(w-text_w)/2:y=${y}${s.caption ? ":enable='gte(t,2.5)'" : ''}`);
       if (!draw.length) draw.push('null');
       const a = (VO_ON && fs.existsSync(wav)) ? ['-i', wav, '-map', '0:v', '-map', '1:a', '-shortest'] : ['-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo', '-map', '0:v', '-map', '1:a', '-shortest'];
-      const fade = 'fade=t=in:st=0:d=0.35,fade=t=out:st=4.65:d=0.35';
+      const SEC = Number(env.VIDEO_SHOT_SEC || process.env.VIDEO_SHOT_SEC || 5); const fade = `fade=t=in:st=0:d=0.3,fade=t=out:st=${(SEC - 0.3).toFixed(2)}:d=0.3`;
       if (MOTION === 'real') {
         // 実写静止画を ffmpeg zoompan で動かす（Ken Burns）。AI は一切通さないので商品が変形しない。ショット番号で動きを変える。
-        const img = path.join(d, 'src', p.files[s.img - 1]); const F = 150; // 5 秒 × 30fps
+        const img = path.join(d, 'src', p.files[s.img - 1]); const F = Math.round(SEC * 30); // 既定 5 秒 × 30fps（VIDEO_SHOT_SEC で変更）
         // 動きは小さく（最大 8%）：写真の端が切れないよう、前景は余白つき安全区に収める
         const mv = [
           `z='1+0.08*on/${F}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'`,                       // ゆっくり寄る
@@ -165,10 +165,10 @@ function renderStage(spu) {
         const portrait = tag === '9x16', fw = Math.round(bw * 0.9), fh = Math.round(bh * (portrait ? 0.70 : 0.78)), oy = Math.round(bh * (portrait ? 0.13 : 0.10));
         const bgf = portrait ? `color=c=0xF7F3F1:s=${bw}x${bh}:r=30:d=0.034[bg]` : `[0:v]scale=${bw}:${bh}:force_original_aspect_ratio=increase:flags=lanczos,crop=${bw}:${bh},boxblur=70:4,eq=brightness=0.12:saturation=0.5,drawbox=x=0:y=0:w=iw:h=ih:color=white@0.45:t=fill[bg]`;
         const fc = `${bgf};[0:v]scale=${fw}:${fh}:force_original_aspect_ratio=decrease:flags=lanczos[fg];[bg][fg]overlay=x=(W-w)/2:y=${oy}+(${fh}-h)/2,zoompan=${mv}:d=${F}:s=${W_}x${H_}:fps=30,${fade},${draw.join(',')},format=yuv420p[v]`;
-        ffmpeg(['-i', img, ...a.map((x) => (x === '0:v' ? '[v]' : x)), '-filter_complex', fc, '-r', '30', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-c:a', 'aac', '-b:a', '160k', '-t', '5', seg]); parts.push(seg); continue;
+        ffmpeg(['-i', img, ...a.map((x) => (x === '0:v' ? '[v]' : x)), '-filter_complex', fc, '-r', '30', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-c:a', 'aac', '-b:a', '160k', '-t', String(SEC), seg]); parts.push(seg); continue;
       }
       const vf = `scale=${W_}:${H_}:force_original_aspect_ratio=increase,crop=${W_}:${H_},${fade},${draw.join(',')},format=yuv420p`;
-      ffmpeg(['-i', clip, ...a, '-vf', vf, '-r', '30', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-c:a', 'aac', '-b:a', '160k', '-t', '5', seg]); parts.push(seg);
+      ffmpeg(['-i', clip, ...a, '-vf', vf, '-r', '30', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-c:a', 'aac', '-b:a', '160k', '-t', String(SEC), seg]); parts.push(seg);
     }
     const list = path.join(d, `concat-${tag}.txt`); fs.writeFileSync(list, parts.map((p) => `file '${p.replace(/\\/g, '/').replace(/'/g, "'\\''")}'`).join('\n'));
     const out = path.join(fin, `${spu}-${tag}.mp4`);
