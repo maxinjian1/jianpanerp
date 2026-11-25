@@ -1,0 +1,13 @@
+{
+  "id": "banz-0001", "sec": 3, "out": "final/banz-0001-scene-9x16.mp4",
+  "hook": "0〜2歳頃の防音イヤーマフ", "cta": "詳しくは商品ページへ",
+  "shots": [
+    {"bg": "bg/nursery.png", "fg": "src/01.jpg", "caption": "大切な耳をやさしく守る"},
+    {"bg": "bg/fireworks.png", "fg": "src/04.jpg", "caption": "遮音 NRR 約31dB（参考値）", "dim": 0.3},
+    {"bg": "bg/cabin.png", "fg": "src/02.jpg", "caption": "約140gの軽量設計"},
+    {"bg": "bg/nursery.png", "fg": "src/07.jpg", "caption": "ふわふわクッション"},
+    {"bg": "bg/festival.png", "grid": [{"img": "grid/colorful.jpg", "label": "カラフル"}, {"img": "grid/butterfly.jpg", "label": "ちょうちょ"}, {"img": "grid/purple.jpg", "label": "パープル"}, {"img": "grid/vehicle.jpg", "label": "のりもの"}], "caption": "選べる4デザイン", "blur": 9},
+    {"bg": "bg/outing.png", "fg": "src/06.jpg", "caption": "専用の収納袋付き"},
+    {"bg": "bg/fireworks.png", "fg": "src/03.jpg", "caption": "花火・飛行機・イベントに", "dim": 0.3}
+  ]
+}
