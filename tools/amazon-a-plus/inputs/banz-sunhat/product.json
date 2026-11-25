@@ -1,0 +1,132 @@
+{
+  "sku": "banz-sunhat",
+  "marketplace": "JP",
+  "locale": "ja-JP",
+  "brand": "BANZ",
+  "product_name": {
+    "ja-JP": "キッズ サンハット 恐竜柄（リバーシブル）"
+  },
+  "category": "baby",
+  "assets": {
+    "hero_white": "assets/hero.jpg",
+    "angle": "assets/navy.jpg",
+    "packaging": "",
+    "logo": ""
+  },
+  "selling_points": [
+    {
+      "feature": {
+        "ja-JP": "恐竜柄とネイビー無地のリバーシブル"
+      },
+      "benefit": {
+        "ja-JP": "裏返せばネイビー無地"
+      },
+      "proof": "",
+      "evidence": "商品画像 02・03：表＝恐竜柄、裏＝ネイビー無地"
+    },
+    {
+      "feature": {
+        "ja-JP": "UVカット"
+      },
+      "benefit": {
+        "ja-JP": "おでかけの日よけに"
+      },
+      "proof": "",
+      "evidence": "商品画像 06：UVカット（数値の記載なし）"
+    },
+    {
+      "feature": {
+        "ja-JP": "あご紐付き"
+      },
+      "benefit": {
+        "ja-JP": "あご紐付き"
+      },
+      "proof": "",
+      "evidence": "商品画像 01・07：あご紐"
+    },
+    {
+      "feature": {
+        "ja-JP": "2サイズ"
+      },
+      "benefit": {
+        "ja-JP": "頭囲45〜50cm・49〜56cm"
+      },
+      "proof": "",
+      "evidence": "商品画像 04・05"
+    }
+  ],
+  "specifications": [
+    {
+      "name": "0〜2歳",
+      "value": "頭囲45〜50cm／深さ7cm／ツバの長さ7.5cm",
+      "evidence": "商品画像 04"
+    },
+    {
+      "name": "2〜5歳",
+      "value": "頭囲49〜56cm／深さ8cm／ツバの長さ8cm",
+      "evidence": "商品画像 05"
+    }
+  ],
+  "in_the_box": [],
+  "usage_guidance": "",
+  "care_guidance": "",
+  "brand_story": {
+    "ja-JP": ""
+  },
+  "restrictions": [
+    "UVカット率・UPF 値・素材・洗濯方法は未確認のため書かない",
+    "あご紐の仕様（安全バックル等）は未確認のため書かない",
+    "帽子の形・恐竜柄・色を変えない（商品は実写の切り抜きを合成、AI は背景のみ）"
+  ],
+  "style": {
+    "palette": [
+      "#EAF3EC",
+      "#2F4E86",
+      "#FFFFFF"
+    ],
+    "mood": "bright sunny outdoors in Japan, fresh green, natural light"
+  },
+  "embed_text_aplus": false,
+  "copy_overrides": {
+    "A01": {
+      "headline": {
+        "ja-JP": "恐竜柄のキッズサンハット"
+      },
+      "subtitle": {
+        "ja-JP": "恐竜柄のキッズサンハットです。あご紐付きで、夏のおでかけにどうぞ。"
+      }
+    },
+    "A02": {
+      "headline": {
+        "ja-JP": "恐竜柄とネイビー無地のリバーシブル"
+      },
+      "subtitle": {
+        "ja-JP": "表は恐竜柄、裏返せばネイビー無地です。気分に合わせて2通り楽しめます。"
+      }
+    },
+    "A03": {
+      "headline": {
+        "ja-JP": "UVカットのキッズサンハット"
+      },
+      "subtitle": {
+        "ja-JP": "恐竜柄のキッズサンハットです。UVカット仕様で、おでかけの日よけにどうぞ。"
+      }
+    },
+    "A04": {
+      "headline": {
+        "ja-JP": "あご紐付きのキッズサンハット"
+      },
+      "subtitle": {
+        "ja-JP": "あご紐付きのキッズサンハットです。公園など夏のおでかけにどうぞ。"
+      }
+    },
+    "A05": {
+      "headline": {
+        "ja-JP": "0〜2歳・2〜5歳の2サイズ"
+      },
+      "subtitle": {
+        "ja-JP": "頭囲45〜50cmと49〜56cmの2サイズです。お子さまに合わせて選べます。"
+      }
+    }
+  }
+}
