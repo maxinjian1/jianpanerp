@@ -2,7 +2,7 @@
 #   python tools/erp-bridge/amazon-content.py
 # 来源：tools/amazon-listing/out/opt/<ASIN>/current.json（2026-10-18 抓的公开商品页）与同目录 images/NN.jpg（本机原图）。
 # 只整理已有的存档，不访问 Amazon。没有的值留空。fetched_at 是 UTC（存档里写的是 …Z）。
-# 图片包 listing_image_files_NN.zip：每个不同文件一份，文件名 = sha256 + 按内容判断的扩展名，每包 ≤ 28 MB。
+# 图片包 listing_image_files_NN.zip：每个不同文件一份，文件名 = sha256 + 按内容判断的扩展名，每包 ≤ 26 MB。
 import csv, glob, hashlib, io, json, os, re, zipfile
 from collections import Counter, defaultdict
 
@@ -67,7 +67,7 @@ for d in sorted(glob.glob(os.path.join(OPT, '*'))):
     keep = [(n, u) for n, u in enumerate(imgs, 1) if not NOT_PRODUCT.search(u)]; st['去掉的占位图/视频缩略图'] += len(imgs) - len(keep); st['没有主图的页面'] += not any(n == 1 for n, _ in keep)
     rc.append([CH, asin, ';'.join(skus.get(asin, [])), one(j['title']), *b, desc, m, one(j.get('rating')), one(j.get('reviews')),
                val(det.get('Amazon.co.jp での取り扱い開始日')), val(det.get('Amazon 売れ筋ランキング'))[:300], val(det.get('梱包サイズ')),
-               names(j.get('sizes')), names(j.get('colors')), len(keep), fa, '公开商品页（存档）'])
+               names(j.get('sizes')), names(j.get('colors')), len(keep), fa, '公開商品ページ（控え）'])
     st['页面'] += 1; st['没有 SKU 对应'] += 0 if skus.get(asin) else 1; st['没有价格'] += 0 if m else 1
     for n, u in keep:
         lf = os.path.join(d, 'images', f'{n:02d}.jpg')
@@ -87,7 +87,7 @@ packs, cur, size = [], [], 0
 for hx in sorted(blobs):
     lf, n, ext = blobs[hx]
     if not ext or n > 5 * 1024 * 1024: print('跳过', lf, n, ext); continue
-    if cur and size + n > 28 * 1024 * 1024: packs.append(cur); cur, size = [], 0
+    if cur and size + n > 26 * 1000 * 1000: packs.append(cur); cur, size = [], 0
     cur.append((hx, lf, ext)); size += n
 if cur: packs.append(cur)
 for i, pk in enumerate(packs, 1):
