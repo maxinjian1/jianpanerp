@@ -54,7 +54,10 @@ elif model == 'qwen':
         'm2': N('CFGNorm', model=['m1', 0], strength=1),
         'm3': N('LoraLoaderModelOnly', model=['m2', 0], lora_name='Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors', strength_model=1),
         'enc': N('VAEEncode', pixels=['scale', 0], vae=['vae', 0]),
-        'run': N('KSampler', model=['m3', 0], positive=['pos', 0], negative=['neg', 0], latent_image=['enc', 0], seed=seed,
+        # 追加 LoRA：环境变量 EDIT_LORA=文件名[:强度]（例：qwen-edit-fusion.safetensors 商品融合、qwen-edit-relight.safetensors 重打光）
+        'm4': N('LoraLoaderModelOnly', model=['m3', 0], lora_name=os.environ['EDIT_LORA'].split(':')[0],
+                strength_model=float((os.environ['EDIT_LORA'].split(':') + ['1'])[1])) if os.environ.get('EDIT_LORA') else N('ModelSamplingAuraFlow', model=['m3', 0], shift=3.1),
+        'run': N('KSampler', model=['m4', 0], positive=['pos', 0], negative=['neg', 0], latent_image=['enc', 0], seed=seed,
                  steps=steps, cfg=1, sampler_name='euler', scheduler='simple', denoise=1),
         'dec': N('VAEDecode', samples=['run', 0], vae=['vae', 0]),
     })
