@@ -4,11 +4,13 @@
 # spec:
 #   id, dir                         输出目录
 #   bg: {prompt, seed?, mirror?}    背景提示词（英文；必须写 no people, no text, no logos, no products；前景要有放商品的台面）
-#   product: {src, crop?}           实拍图路径（相对仓库根）与裁切框 [x0,y0,x1,y1]
+#   product: {src, crop?, h?, h_sq?} 实拍图路径（相对仓库根）与裁切框 [x0,y0,x1,y1]；h / h_sq = 商品高度占画面高度的比例
+#                                   （横版默认 0.68、正方形默认 0.45；横长的商品要调小）
 #   brand, tag                      左上品牌块与品类名
 #   head: [第1行, 第2行], sub        主标题两行、副标题
 #   chips: [[大字, 小字], …]         事实标签（最多 3 个）
 #   foot: [..]                      底部事实（最多 2 条）
+#   foot_light?: true|"wide"|"sq"   底部文字用白字带阴影（文字不落在浅色台面上时；可只指定横版或正方形）
 #   table?: 0.715                   台面上沿在背景高度的比例；sq_x?: 0.34 正方形版从背景横向哪里开始裁
 # 中间文件（bg.png / bg-4x.png / prod-4x.png / prod-cut.png）已存在就跳过，要重做加 --redo。
 import json, os, subprocess, sys
@@ -54,7 +56,7 @@ def compose(W, H, bg, k, square):
             v = (200 * max(0, 1 - fy / 0.6) + 110 * max(0, 1 - fx / 0.55) * (fy < TB)) if square else 150 * max(0, 1 - fx / 0.62) ** 1.2
             pa[x, y] = int(min(215, v))
     bg.alpha_composite(Image.merge('RGBA', [Image.new('L', (W, H), 0)] * 3 + [a.resize((W, H), Image.BILINEAR)]))
-    ph = round(H * (0.45 if square else 0.68)); cut = CUT.resize((round(CUT.width * ph / CUT.height), ph), Image.LANCZOS)
+    ph = round(H * (S['product'].get('h_sq', 0.45) if square else S['product'].get('h', 0.68))); cut = CUT.resize((round(CUT.width * ph / CUT.height), ph), Image.LANCZOS)
     base = table + round(H * (0.1375 if square else 0.128)); px, py = W - cut.width - round(W * 0.0625), base - ph
     sh = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(sh).ellipse((px + 40, base - 82, px + cut.width - 20, base + 13), fill=(0, 0, 0, 150))
@@ -63,6 +65,7 @@ def compose(W, H, bg, k, square):
     def text(xy, s, f, fill=(255, 255, 255)):
         sd = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ImageDraw.Draw(sd).text((xy[0], xy[1] + 6), s, font=f, fill=(0, 0, 0, 185))
         bg.alpha_composite(sd.filter(ImageFilter.GaussianBlur(11))); d.text(xy, s, font=f, fill=fill)
+    ftext = text if S.get('foot_light') in (True, 'sq' if square else 'wide') else (lambda xy, s, f: d.text(xy, s, font=f, fill=(48, 32, 20)))   # 底部文字：落在深色/杂色背景上时用白字
     def fit(s, size, maxw):
         while d.textlength(s, font=F(size)) > maxw and size > 40: size -= 4
         return F(size)
@@ -84,7 +87,7 @@ def compose(W, H, bg, k, square):
             d.text((x0 + 40, y + ch / 2), small, font=F(38), fill=(90, 96, 120), anchor='lm')
             d.text((x0 + cw - 40, y + ch / 2), big, font=fit(big, round(ch * 0.46), cw - 120 - d.textlength(small, font=F(38))), fill=(191, 0, 0), anchor='rm')
             y += ch + 26
-        for i, s in enumerate(foot): d.text((x0, table + 150 + i * 100), '● ' + s, font=F(66), fill=(48, 32, 20))
+        for i, s in enumerate(foot): ftext((x0, table + 150 + i * 100), '● ' + s, F(66))
     else:
         y = min(y, table - 215); x = x0
         for big, small in chips:
@@ -92,7 +95,7 @@ def compose(W, H, bg, k, square):
             d.rounded_rectangle((x, y, x + w, y + 180), 30, fill=(255, 255, 255, 240))
             d.text((x + w / 2, y + 45), small, font=F(34), fill=(90, 96, 120), anchor='mm')
             d.text((x + w / 2, y + 120), big, font=F(76), fill=(191, 0, 0), anchor='mm'); x += w + 28
-        if foot: d.text((x0, table + 75), ' ・ '.join(foot), font=F(48), fill=(48, 32, 20))
+        if foot: ftext((x0, table + 75), ' ・ '.join(foot), F(48))
     return bg.convert('RGB')
 
 

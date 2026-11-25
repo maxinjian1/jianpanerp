@@ -1,0 +1,18 @@
+{
+  "id": "banz-sunhat",
+  "dir": "tools/comfy/out/ads/banz-sunhat",
+  "bg": {
+    "prompt": "Professional advertising background photograph, sunny day in a quiet park in Japan, soft sunlight through green trees and a wide lawn softly blurred on the left and top, gentle bokeh, in the lower right foreground an empty light wooden picnic table surface in sharp focus with warm sunlight, wide empty negative space, bright and fresh, high detail, no people, no text, no letters, no logos, no products",
+    "seed": 7,
+    "mirror": false
+  },
+  "product": { "src": "tools/product-video/out/banz-sunhat/src/01.jpg", "h": 0.42, "h_sq": 0.3 },
+  "brand": "BANZ",
+  "tag": "キッズ サンハット",
+  "head": ["おでかけの日よけに、", "恐竜柄のサンハット。"],
+  "sub": "裏返せばネイビー無地のリバーシブル",
+  "chips": [["45〜50cm", "頭囲（0〜2歳）"], ["49〜56cm", "頭囲（2〜5歳）"], ["2WAY", "恐竜柄 × ネイビー無地"]],
+  "foot": ["UVカット", "あご紐付き"],
+  "foot_light": "wide",
+  "table": 0.79
+}
