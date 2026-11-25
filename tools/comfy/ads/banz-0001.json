@@ -1,0 +1,16 @@
+{
+  "id": "banz-0001",
+  "dir": "tools/comfy/out/ads/banz-0001",
+  "bg": {
+    "prompt": "Professional advertising background photograph, summer night festival in Japan, large colorful fireworks bursting in a deep navy sky on the left and top, soft glowing bokeh lights, in the lower right foreground an empty light wooden table surface in sharp focus with gentle warm rim light, wide empty negative space, cinematic, high detail, no people, no text, no letters, no logos, no products",
+    "seed": 21,
+    "mirror": true
+  },
+  "product": { "src": "tools/product-video/out/banz-0001/orig/01.jpg", "crop": [520, 800, 1200, 1560] },
+  "brand": "BANZ",
+  "tag": "ベビー用 防音イヤーマフ",
+  "head": ["花火の夜も、", "おでかけを楽しく。"],
+  "sub": "大きな音から赤ちゃんの耳をまもる",
+  "chips": [["0〜2歳頃", "対象年齢"], ["約140g", "重量"], ["約31dB", "遮音性能 NRR（参考値）"]],
+  "foot": ["選べる4デザイン", "専用の収納袋付き"]
+}
