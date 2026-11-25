@@ -16,7 +16,7 @@ const O = path.join(ROOT, 'tools/erp-bridge/out');
 const TMP = path.join(ROOT, 'tools/erp-bridge/tmp-export');
 const PLATFORMS = [
   { channel: 'rakuten-main', script: 'tools/erp-bridge/rakuten-orders.mjs', args: ['--days', '90'], file: 'orders.csv', review: 'orders-review.txt', dest: 'out', minRows: 1 },
-  { channel: 'shopify-main', script: 'tools/erp-bridge/shopify-orders.mjs', args: ['--days', '60'], file: 'orders-shopify-main.csv', review: 'orders-shopify-review.txt', dest: 'pending', minRows: 0 },
+  { channel: 'shopify-main', script: 'tools/erp-bridge/shopify-orders.mjs', args: ['--days', '60'], file: 'orders-shopify-main.csv', review: 'orders-shopify-review.txt', dest: 'out', minRows: 0 },
 ];
 const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1].split(',') : null;
 const HEADER = 'channel_code,order_no,line_id,line_no,order_date,status,shipped_date,parent_key,listing_key,item_name,quantity,line_amount_tax_included,tax_rate,shipping_charged_tax_included,shop_discount_tax_included,platform_discount_tax_included,fulfillment,prefecture,returned_quantity,refund_tax_included,return_date';
