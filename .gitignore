@@ -72,3 +72,6 @@ logs/
 tools/amazon-research/out/
 tools/sourcing-1688/out/
 tools/comfy/out/
+
+# 外部下载的 ComfyUI 工作流合集（13GB，不入库）
+/comfyui进阶工作流集合/
