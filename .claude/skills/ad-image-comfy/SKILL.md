@@ -51,3 +51,4 @@ apps/image-service/venv/Scripts/python.exe -I tools/comfy/ad.py tools/comfy/ads/
 
 - `tools/comfy/zimage.py "<提示词>" out.png 宽 高 种子`：单独出一张图
 - `tools/comfy/upscale.py in out.png`：单独放大 4 倍
+- `tools/comfy/edit.py <klein|qwen|longcat> in "<英文指令>" out.png`：按文字指令改图（2026-11-25 装，均 Apache-2.0）。**会重画商品**：太阳帽试验里三个模型都把帽子缩小、改了花纹位置或下巴绳 → 不能代替本 SOP 的「实拍抠图 + 合成」，成品里的商品本体不要用它的输出。可用在不含商品的地方（背景、去字补底等），用后逐张对照原图。
