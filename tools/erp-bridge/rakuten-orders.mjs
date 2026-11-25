@@ -59,7 +59,7 @@ const keys = new Set(lst.filter((r) => r[0] === CH).map((r) => r[2] + '\t' + r[3
 const H = ['channel_code', 'order_no', 'line_id', 'line_no', 'order_date', 'status', 'shipped_date', 'parent_key', 'listing_key', 'item_name', 'quantity',
   'line_amount_tax_included', 'tax_rate', 'shipping_charged_tax_included', 'shop_discount_tax_included', 'platform_discount_tax_included', 'fulfillment', 'prefecture',
   'returned_quantity', 'refund_tax_included', 'return_date'];
-const rows = [], rev = { byStatus: {}, unmatched: {}, goodsMismatch: [], noShipDate: 0, keySource: {}, progress: {} };
+const rows = [], rev = { byStatus: {}, unmatched: {}, goodsMismatch: [], noShipDate: 0, keySource: {}, progress: {}, undetermined: [] };
 const SHIPPED = new Set([500, 600, 700]);
 orders.sort((a, b) => (a.orderDatetime + a.orderNumber).localeCompare(b.orderDatetime + b.orderNumber));
 for (const o of orders) {
@@ -73,7 +73,11 @@ for (const o of orders) {
   const live = items.filter((it) => !it.deleteItemFlag);
   const sum = live.reduce((n, it) => n + it.priceTaxIncl * it.units, 0);
   if (status !== 'cancelled' && sum !== o.goodsPrice) rev.goodsMismatch.push(`${o.orderNumber} 明细合计 ${sum} ≠ goodsPrice ${o.goodsPrice}`);
-  const first = [o.postagePrice + (o.deliveryPrice || 0) + (o.paymentCharge || 0), o.couponShopPrice || 0, (o.couponOtherPrice || 0) + (o.PointModel?.usedPoint || 0)];
+  // 乐天接口里 postagePrice / deliveryPrice / paymentCharge 为 -9999 表示「未確定」（不是金额）→ 该项按 0 计，三项都未确定时这一格留空，确定后下一晚的导出会带上
+  const fee = [o.postagePrice, o.deliveryPrice, o.paymentCharge].map((v) => (v === -9999 ? null : (v || 0)));
+  if (fee.some((v) => v === null)) rev.undetermined.push(o.orderNumber);
+  const feeSum = fee.reduce((n, v) => n + (v || 0), 0);
+  const first = [fee.every((v) => v === null) ? '' : feeSum, o.couponShopPrice || 0, (o.couponOtherPrice || 0) + (o.PointModel?.usedPoint || 0)];
   let n = 0;
   for (const it of items) {
     n++;
@@ -96,7 +100,7 @@ fs.writeFileSync(path.join(OUT, 'orders.csv'), csv);
 
 // 自检与摘要
 const revenue = (f) => { let s = 0; const seen = new Set(); for (const o of orders) { if (o.orderProgress === 900 || !f(o)) continue; if (seen.has(o.orderNumber)) continue; seen.add(o.orderNumber);
-  s += (o.PackageModelList || []).flatMap((p) => p.ItemModelList || []).filter((it) => !it.deleteItemFlag).reduce((n, it) => n + it.priceTaxIncl * it.units, 0) + o.postagePrice + (o.deliveryPrice || 0) + (o.paymentCharge || 0) - (o.couponShopPrice || 0); } return [seen.size, s]; };
+  s += (o.PackageModelList || []).flatMap((p) => p.ItemModelList || []).filter((it) => !it.deleteItemFlag).reduce((n, it) => n + it.priceTaxIncl * it.units, 0) + [o.postagePrice, o.deliveryPrice, o.paymentCharge].reduce((n, v) => n + (v === -9999 ? 0 : (v || 0)), 0) - (o.couponShopPrice || 0); } return [seen.size, s]; };
 const inWin = (o) => o.orderDatetime >= '2026-09-12' && o.orderDatetime < '2026-11-13';
 const um = Object.entries(rev.unmatched).sort((a, b) => b[1] - a[1]);
 const text = [
@@ -107,6 +111,7 @@ const text = [
   `listing_key 来源 ${JSON.stringify(rev.keySource)}`,
   `店铺收入（税込，未取消）：全期间 ${revenue(() => true).join(' 单 / ')} 円；2026-09-12〜11-12 ${revenue(inWin).join(' 单 / ')} 円`,
   `已出货但没有出货日 → 写成 ordered：${rev.noShipDate} 单`,
+  `送料・手数料未確定（接口返回 -9999，按 0 / 留空）：${rev.undetermined.length} 单 ${rev.undetermined.join(' ')}`,
   `明细合计与 goodsPrice 不一致：${rev.goodsMismatch.length} 单${rev.goodsMismatch.length ? '\n  ' + rev.goodsMismatch.slice(0, 20).join('\n  ') : ''}`,
   `对不上对照（未取消的行）：${um.length} 个键、${um.reduce((n, x) => n + x[1], 0)} 件`,
   ...um.map(([k, v]) => `  ${k}  ×${v}`),

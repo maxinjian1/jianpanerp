@@ -44,6 +44,7 @@ for (const p of PLATFORMS) {
       rows = lines.length - 1;
       orders = new Set(lines.slice(1).map((l) => l.split(',')[1])).size;
       if (lines.slice(1).some((l) => !l.startsWith(p.channel + ','))) err = '有不是本渠道的行';
+      else if (lines.slice(1).some((l) => /(^|,)-\d/.test(l))) err = '有负数的格子（ERP 的金额、数量列只接受 0 以上）';
       else if (rows < p.minRows) err = `只有 ${rows} 行（下限 ${p.minRows}），按失败处理`;
       else if (rows > 20000 || Buffer.byteLength(txt) > 5 * 1024 * 1024) err = '超过 ERP 的上限（20,000 行 / 5MB）';
       sha = crypto.createHash('sha256').update(fs.readFileSync(src)).digest('hex').slice(0, 16);
