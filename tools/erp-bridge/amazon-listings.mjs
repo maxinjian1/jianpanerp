@@ -125,7 +125,12 @@ for (const [st, list] of [...byStyle].sort((a, b) => a[0].localeCompare(b[0]))) 
   }
 }
 // 240208 的新颜色挂在 ERP 已有款式 a01-240208 下面
-for (const p of pRows) if (p.sku_code.startsWith('A01-')) { const e = erpRows.find((r) => r.style_code === 'a01-240208'); if (e) { p.style_code = e.style_code; p.style_name = e.style_name; p.brand = e.brand; p.style_image_url = e.style_image_url; } }
+// 款式级的列照抄 ERP 现有的值；规格的写法也跟该款式现有 SKU 一致（例：现有是全角「２XL」就写全角）
+const a01 = erpRows.filter((r) => r.style_code === 'a01-240208');
+const a01Size = new Map(a01.map((r) => [r.option2.normalize('NFKC').toUpperCase(), r.option2]));
+for (const p of pRows) if (p.sku_code.startsWith('A01-') && a01.length) { const e = a01[0];
+  Object.assign(p, { style_code: e.style_code, style_name: e.style_name, brand: e.brand, style_image_url: e.style_image_url, option1_name: e.option1_name, option2_name: e.option2_name });
+  if (a01Size.has(p.option2)) p.option2 = a01Size.get(p.option2); }
 
 // ---- 检查 ----
 const errs = [];
@@ -159,7 +164,12 @@ for (const o of orderRows) {
   (byOrder.get(o['amazon-order-id']) || byOrder.set(o['amazon-order-id'], []).get(o['amazon-order-id'])).push(o);
 }
 const oRows = [];
-for (const [no, list] of byOrder) {
+for (const [no, list0] of byOrder) {
+  // 整单取消的订单：报告里数量是 0，ERP 要求 1 以上，这一批不写（ERP 里本来也没有这些订单）。部分取消的订单目前没有；出现时按失败处理，不凑数。
+  const isC = (o) => o['order-status'] === 'Cancelled' || o['item-status'] === 'Cancelled';
+  if (list0.every(isC)) { oStat.cancelledOrders = (oStat.cancelledOrders || 0) + 1; oStat.cancelledLines = (oStat.cancelledLines || 0) + list0.length; continue; }
+  if (list0.some((o) => isC(o) && n(o.quantity) < 1)) { console.error('部分取消且数量为 0 的订单 ' + no + '：需要和 ERP 会话商量写法'); process.exit(1); }
+  const list = [...list0].sort((a, b) => (a.sku < b.sku ? -1 : a.sku > b.sku ? 1 : 0));      // line_no = 订单内按出品者 SKU 排序的序号
   const seenItem = new Set(); let i = 0;
   const ship = list.reduce((s, o) => s + n(o['shipping-price']), 0), disc = list.reduce((s, o) => s + n(o['item-promotion-discount']) + n(o['ship-promotion-discount']), 0);
   for (const o of list) {
@@ -175,7 +185,7 @@ for (const [no, list] of byOrder) {
     const day = d.slice(0, 10); if (!oStat.min || day < oStat.min) oStat.min = day; if (day > oStat.max) oStat.max = day;
     oRows.push({ channel_code: 'amazon-main', order_no: no, line_id: id, line_no: i, order_date: d.slice(0, 16).replace('T', ' '), status: st,
       shipped_date: shipped ? jst(o['last-updated-date']).slice(0, 10) : '', parent_key: o.asin, listing_key: o.sku, item_name: o['product-name'].slice(0, 200),
-      quantity: Math.max(1, n(o.quantity)), line_amount_tax_included: amount, tax_rate: 10, shipping_charged_tax_included: i === 1 ? ship : '', shop_discount_tax_included: i === 1 ? disc : '',
+      quantity: n(o.quantity), line_amount_tax_included: amount, tax_rate: 10, shipping_charged_tax_included: i === 1 ? ship : '', shop_discount_tax_included: i === 1 ? disc : '',
       platform_discount_tax_included: i === 1 ? 0 : '', fulfillment: o['fulfillment-channel'] === 'Amazon' ? 'fba' : 'own', prefecture: '', returned_quantity: 0, refund_tax_included: 0, return_date: '' });
   }
 }
@@ -204,7 +214,7 @@ const text = [
   `口径和已知的不准确：`,
   `- line_id = order-item-id（报告里有这一列，和以后 SP-API 的值相同）。`,
   `- shipped_date：报告没有出货日，用的是「last-updated-date」的日期，可能晚于实际出货日。`,
-  `- 取消的行报告里数量是 0，文件里写 1（ERP 要求 1 以上）；金额 0。`,
+  `- 整单取消的订单 ${oStat.cancelledOrders || 0} 单 / ${oStat.cancelledLines || 0} 行没有写：报告里数量是 0，ERP 要求 1 以上，不凑数。部分取消的订单这一批没有。`,
   `- 退货、退款：这份报告里没有，全部写 0。`,
   `- line_amount = item-price（已是 单价×件数，税込）；shop_discount = item-promotion-discount + ship-promotion-discount（是否全部由店铺承担没有核对）；积分没有数据。`,
   `- units 全部写 1。标题或 SKU 里像多件装的（2set、3set、セット 等）没有逐个核对。`,
