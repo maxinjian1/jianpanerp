@@ -49,12 +49,14 @@ const COLOR = { white: 'ホワイト', black: 'ブラック', apricot: 'アプ�
 const SIZE = /^(xs|s|m|l|ll|xl|xxl|2xl|3xl|4xl|free)$/i;
 const DUP = /^(r|rr|rrr|f|n)$/i;
 const OK = /^[A-Za-z0-9._-]{1,40}$/;
+const SAME_COLOR = { winered: 'red', royalblue: 'blue' };
 const FAMILY = { '240208': 'A01' };          // Amazon 型番 → ERP 已有款式的 SKU 前缀（只登记确认过的）
 
 function canon(sku) {
   let tk = sku.replace(/-SC$/i, '').split('-');
   while (tk.length > 1 && DUP.test(tk.at(-1))) tk.pop();
   if (FAMILY[tk[0]]) tk[0] = FAMILY[tk[0]];
+  if (tk[0] === 'A01') tk = tk.map((x) => SAME_COLOR[x.toLowerCase()] || x);   // 2026-11-26 用户确认：240208 的酒红＝乐天的红、宝蓝＝乐天的蓝，同一种货
   const base = tk.join('-');
   const prefix = tk[0], rest = tk.slice(1);
   const si = rest.findLastIndex((x) => SIZE.test(x));
@@ -233,7 +235,7 @@ const text = [
   `- units 全部写 1。标题或 SKU 里像多件装的（2set、3set、セット 等）没有逐个核对。`,
   `- 颜色只把单个英文词翻成日文，其余原样（例如 shorts b black）；尺码取 SKU 里的 S/M/L/XL/2XL 等。款式名是标题去掉品牌后的前几个词。`,
   `- 同一实物的归并只做了机械的部分（-SC、-r/-rr/-R/-F/-n、240208=A01、与 ERP 已有编号相同）。手工建的 A06〜A09 等系列和旧型番（191120、220727T、261028）是同一批货，但颜色写法不同，没有合并，各有各的 sku_code。`,
-  `- 240208 的 winered / royalblue 和 ERP 已有的 A01-red / A01-blue 是否同一种货，等用户确认，没有合并。`,
+  `- 240208 的 winered / royalblue 已并到 ERP 已有的 A01-red / A01-blue（2026-11-26 用户确认是同一种货）。`,
   ``,
   `没有写进对照的 SKU（没有 ASIN）${notes.noAsin.length} 个${notes.noAsin.length ? '：' + notes.noAsin.slice(0, 40).join('、') + (notes.noAsin.length > 40 ? ' 等' : '') : ''}`,
   `改成 AMZ- 编号的（含日文等）${notes.hashed.length} 个${notes.hashed.length ? '：\n  ' + notes.hashed.join('\n  ') : ''}`,
