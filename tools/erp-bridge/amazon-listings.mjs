@@ -63,7 +63,7 @@ function canon(sku) {
   const color = colorTk.length === 1 && COLOR[colorTk[0].toLowerCase()] ? COLOR[colorTk[0].toLowerCase()] : colorTk.join(' ');
   return { base, prefix, color, size };
 }
-const cleanTitle = (t) => t.replace(/[\[［【〔]?\s*(SARADEMUNT|SALONCARE|SALON CARE|サラデマント|Sarademunt)\s*[\]］】〕]?/gi, ' ').replace(/\s+/g, ' ').trim();
+const cleanTitle = (t) => t.replace(/[\[［【〔]?\s*(SARADEMUNT|SALONCARE|SALON CARE|サラデマント|Sarademunt|Banz|BANZ)\s*[\]］】〕]?/gi, ' ').replace(/\s+/g, ' ').trim();
 
 // ---- 汇总每个出品者 SKU ----
 const fbaBySku = new Map(); for (const r of fbaRows) { const m = fbaBySku.get(r.sku) || { fnsku: r.fnsku, asin: r.asin, qty: 0 }; if (r.sellable) m.qty += r.qty; fbaBySku.set(r.sku, m); }
@@ -97,7 +97,7 @@ for (const s of src) {
   if (!have) {
     const it = items.get(code) || { code, prefix: c.prefix, color: c.color, size: c.size, titles: [], brand: '', price: 0, jan: '', active: false };
     if (s.title) it.titles.push({ t: s.title, sc: saloncare });
-    if (saloncare) it.brand = 'SALONCARE'; else if (!it.brand && /SARADEMUNT|サラデマント/i.test(s.title)) it.brand = 'SARADEMUNT';
+    if (saloncare) it.brand = 'SALON CARE'; else if (/banz/i.test(s.title) || /banz/i.test(s.sku)) it.brand = 'BANZ'; else if (!it.brand && /SARADEMUNT|サラデマント/i.test(s.title)) it.brand = 'SARADEMUNT';
     if (s.price && (!it.price || s.active)) it.price = s.price;
     if (s.jan && !it.jan && !erpJan.has(s.jan)) it.jan = s.jan;
     it.active ||= s.active;
@@ -116,7 +116,7 @@ for (const [st, list] of [...byStyle].sort((a, b) => a[0].localeCompare(b[0]))) 
   const all = list.flatMap((x) => x.titles); const tt = (all.find((x) => x.sc) || all[0])?.t || '';
   // 款式名：标题去掉品牌后取前面一段（内部名称，不用平台长标题）；标题为空的（只剩 FBA 库存）用款号
   const styleName = (cleanTitle(tt).split(' ').slice(0, 6).join(' ').slice(0, 60) || st).trim();
-  const brand = list.some((x) => x.brand === 'SALONCARE') ? 'SALONCARE' : (list.find((x) => x.brand)?.brand || '');
+  const brand = list.some((x) => x.brand === 'SALON CARE') ? 'SALON CARE' : (list.find((x) => x.brand)?.brand || '');   // 写法照 ERP 现有：SALON CARE、BANZ
   list.sort((a, b) => a.color.localeCompare(b.color) || sizeOrder.indexOf(a.size) - sizeOrder.indexOf(b.size));
   for (const it of list) {
     let jan = it.jan && !usedJan.has(it.jan) ? it.jan : ''; if (jan) usedJan.add(jan);
@@ -142,8 +142,6 @@ const esc = (v) => { const s = String(v ?? ''); return /[",\r\n]/.test(s) ? '"' 
 const toCsv = (H, rows) => '\uFEFF' + [H, ...rows.map((r) => H.map((h) => r[h]))].map((r) => r.map(esc).join(',')).join('\r\n') + '\r\n';
 const LH = ['channel_code', 'sku_code', 'parent_key', 'listing_key', 'extra_key', 'units', 'fulfillment', 'price_tax_included', 'status'];
 const P = `${ROOT}/tools/erp-bridge/out/pending`; fs.mkdirSync(P + '/amazon', { recursive: true });
-const pCsv = toCsv(EH, pRows), lCsv = toCsv(LH, outListings);
-fs.writeFileSync(P + '/amazon/products.csv', pCsv); fs.writeFileSync(P + '/amazon/listings.csv', lCsv);
 
 // ---- ④ FBA 可售数 ----
 const codeBySku = new Map(outListings.map((l) => [l.listing_key, l.sku_code]));
@@ -168,8 +166,10 @@ for (const [no, list0] of byOrder) {
   // 整单取消的订单：报告里数量是 0，ERP 要求 1 以上，这一批不写（ERP 里本来也没有这些订单）。部分取消的订单目前没有；出现时按失败处理，不凑数。
   const isC = (o) => o['order-status'] === 'Cancelled' || o['item-status'] === 'Cancelled';
   if (list0.every(isC)) { oStat.cancelledOrders = (oStat.cancelledOrders || 0) + 1; oStat.cancelledLines = (oStat.cancelledLines || 0) + list0.length; continue; }
-  if (list0.some((o) => isC(o) && n(o.quantity) < 1)) { console.error('部分取消且数量为 0 的订单 ' + no + '：需要和 ERP 会话商量写法'); process.exit(1); }
-  const list = [...list0].sort((a, b) => (a.sku < b.sku ? -1 : a.sku > b.sku ? 1 : 0));      // line_no = 订单内按出品者 SKU 排序的序号
+  // 部分取消：取消的那一行数量也是 0，同样不写（这些订单还没进过 ERP，不存在旧行）；ERP 能接受取消行数量 0 之后再补
+  const partial = list0.filter((o) => isC(o) && n(o.quantity) < 1);
+  if (partial.length) { oStat.partialOrders = (oStat.partialOrders || 0) + 1; oStat.partialLines = (oStat.partialLines || 0) + partial.length; }
+  const list = list0.filter((o) => !partial.includes(o)).sort((a, b) => (a.sku < b.sku ? -1 : a.sku > b.sku ? 1 : 0));      // line_no = 订单内按出品者 SKU 排序的序号
   const seenItem = new Set(); let i = 0;
   const ship = list.reduce((s, o) => s + n(o['shipping-price']), 0), disc = list.reduce((s, o) => s + n(o['item-promotion-discount']) + n(o['ship-promotion-discount']), 0);
   for (const o of list) {
@@ -194,11 +194,24 @@ const oCsv = toCsv(OH, oRows);
 if (/(^|,)-\d/m.test(oCsv)) { console.error('订单文件里有负数'); process.exit(1); }
 fs.writeFileSync(P + '/orders-amazon-main.csv', oCsv);
 
+// ---- ①② 写出：全量放 amazon/full/；amazon/ 下只放「还活着」的 sku_code（有在售对照 ∪ FBA 有可售 ∪ 已取的订单里卖过）及其全部对照（停售的也留，历史订单靠它挂）
+const sold = new Set(oRows.map((o) => codeBySku.get(o.listing_key)).filter(Boolean));
+const aliveCodes = new Set([...outListings.filter((l) => l.status === 'active').map((l) => l.sku_code), ...stock.keys(), ...sold]);
+const isErp = (c) => erpBySku.has(c.toLowerCase());
+fs.mkdirSync(P + '/amazon/full', { recursive: true });
+fs.writeFileSync(P + '/amazon/full/products.csv', toCsv(EH, pRows)); fs.writeFileSync(P + '/amazon/full/listings.csv', toCsv(LH, outListings));
+const full = { p: pRows.length, l: outListings.length, styles: new Set(pRows.map((p) => p.style_code)).size };
+{ const keepP = pRows.filter((p) => aliveCodes.has(p.sku_code)); const keepL = outListings.filter((l) => aliveCodes.has(l.sku_code) || isErp(l.sku_code));
+  pRows.length = 0; pRows.push(...keepP); outListings.length = 0; outListings.push(...keepL); }
+const pCsv = toCsv(EH, pRows), lCsv = toCsv(LH, outListings);
+fs.writeFileSync(P + '/amazon/products.csv', pCsv); fs.writeFileSync(P + '/amazon/listings.csv', lCsv);
+{ const inP = new Set([...pRows.map((p) => p.sku_code.toLowerCase()), ...erpBySku.keys()]); const miss = [...stock.keys()].filter((c) => !inP.has(c.toLowerCase())); if (miss.length) { console.error('库存文件里有没交过 products 的 sku_code：' + miss.slice(0, 10).join(', ')); process.exit(1); } }
 const cnt = (a, f) => a.reduce((m, x) => (m[f(x)] = (m[f(x)] || 0) + 1, m), {});
 const perCode = cnt(outListings, (l) => l.sku_code);
 const text = [
   `Amazon → ERP  生成 ${new Date().toLocaleString('sv-SE')}（电脑时间）  报告：${path.basename(DIR)}（所有商品报告 11-26 15:23 JST 申请；FBA 库存 11-25 23:00 JST；订单 ${oStat.min}〜${oStat.max}）`,
   ``,
+  `范围：amazon/ 下只含「还活着」的 sku_code（有在售对照 ∪ FBA 有可售 ∪ 已取的订单里卖过）。全量在 amazon/full/（products ${full.p} 行 / ${full.styles} 款、listings ${full.l} 行），没有删。`,
   `① amazon/products.csv  ${pRows.length} 行（只有新建的 sku_code；已在 ERP 的不重复写）  款式 ${new Set(pRows.map((p) => p.style_code)).size} 个  sha ${sha16(pCsv)}`,
   `   品牌：${JSON.stringify(cnt(pRows, (p) => p.brand || '(空)'))}；有 JAN 的 ${pRows.filter((p) => p.jan).length} 行；没有售价的 ${pRows.filter((p) => !p.price_tax_included).length} 行；进价、图片全部留空`,
   `② amazon/listings.csv  ${outListings.length} 行  sha ${sha16(lCsv)}`,
@@ -206,7 +219,7 @@ const text = [
   `   fulfillment ${JSON.stringify(cnt(outListings, (l) => l.fulfillment))}；有 FNSKU 的 ${outListings.filter((l) => l.extra_key).length} 行`,
   `   挂到 ERP 已有 sku_code 的 ${notes.attach} 行；sku_code 合计 ${Object.keys(perCode).length} 个，其中挂了 2 条以上对照的 ${Object.values(perCode).filter((v) => v > 1).length} 个`,
   `④ stock-fba.csv  ${stock.size} 行 / ${fbaUnits} 件（只算「販売可」，as_of ${FBA_AS_OF}）  sha ${sha16(sCsv)}${fbaLost ? `；另有 ${fbaLost} 件挂不上对照，没写` : ''}`,
-  `⑤ orders-amazon-main.csv  ${oRows.length} 行 / ${byOrder.size} 单  sha ${sha16(oCsv)}`,
+  `⑤ orders-amazon-main.csv  ${oRows.length} 行 / ${new Set(oRows.map((o) => o.order_no)).size} 单  sha ${sha16(oCsv)}`,
   `   明细状态 ${JSON.stringify(oStat.byStatus)}；店铺收入（税込，未取消）${oStat.liveOrders.size} 单 / ${oStat.revenue} 円`,
   `   对不上对照的 SKU ${oStat.unmatched.size} 个${oStat.unmatched.size ? '：' + [...oStat.unmatched].slice(0, 20).join('、') : ''}`,
   `   没写的：Non-Amazon（多渠道配送，替别的平台发货，报告里没有金额）${oStat.mcf} 行`,
@@ -214,7 +227,7 @@ const text = [
   `口径和已知的不准确：`,
   `- line_id = order-item-id（报告里有这一列，和以后 SP-API 的值相同）。`,
   `- shipped_date：报告没有出货日，用的是「last-updated-date」的日期，可能晚于实际出货日。`,
-  `- 整单取消的订单 ${oStat.cancelledOrders || 0} 单 / ${oStat.cancelledLines || 0} 行没有写：报告里数量是 0，ERP 要求 1 以上，不凑数。部分取消的订单这一批没有。`,
+  `- 整单取消的订单 ${oStat.cancelledOrders || 0} 单 / ${oStat.cancelledLines || 0} 行没有写：报告里数量是 0，ERP 要求 1 以上，不凑数。部分取消的订单 ${oStat.partialOrders || 0} 单，其中取消的 ${oStat.partialLines || 0} 行同样没写，其余行照写。`,
   `- 退货、退款：这份报告里没有，全部写 0。`,
   `- line_amount = item-price（已是 单价×件数，税込）；shop_discount = item-promotion-discount + ship-promotion-discount（是否全部由店铺承担没有核对）；积分没有数据。`,
   `- units 全部写 1。标题或 SKU 里像多件装的（2set、3set、セット 等）没有逐个核对。`,
