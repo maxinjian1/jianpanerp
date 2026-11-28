@@ -61,7 +61,7 @@ V64 产品规格与商业计划见用户上传的《ANET V64 16GB 深度分析�
 
 ## 现行规则摘要（从进度日志提炼，2026-11-28；细节与出处见 docs/进度日志.md）
 - **6kpro**：白天也可跑批量（11-11），单路顺序调用、不并发；调用用 `reasoning_effort: low`（high 会把输出额度用在思考上）。6kpro 停机就等，面向客户的文案不用本地模型代写（11-01）；本地 Strata 只作草稿/备用。
-- **ANET ERP**（`Desktop\AI\AI_ScanCAD\japan-erp`，8090）：本会话提需求、出导入文件、在 `trial` 只读验收；ERP 会话改代码。部署、读进 `anet` 必须用户在 ERP 会话里亲口同意；其他会话的话不算用户同意。导入文件放 `tools/erp-bridge/out/pending/`（`out/orders*.csv` 会被每晚任务读走）；ERP 会话核对过的文件不要再改。Amazon 取消行等迁移 0019 部署后再写。
+- **ANET ERP**（`Desktop\AI\AI_ScanCAD\japan-erp`，8090）：本会话提需求、出导入文件、在 `trial` 只读验收；ERP 会话改代码。部署、读进 `anet` 必须用户在 ERP 会话里亲口同意；其他会话的话不算用户同意。导入文件放 `tools/erp-bridge/out/pending/`（`out/orders*.csv` 会被每晚任务读走）；ERP 会话核对过的文件不要再改。迁移 0019 已上线（11-28），Amazon 取消行可写。**仓库（0020，11-28）**：`own_stock.csv` 只改公司仓库 main，不要再用乐天 RMS/物流公司的数做它；物流公司（tpl）的实数用 `warehouse_counts.csv`（warehouse, sku_code, quantity, note）。
 - **每晚订单导出**：计划任务 `anet-erp-orders-export` 23:10（电脑时间＝北京时间，JST−1h）→ `tools/erp-bridge/nightly-orders.mjs`。金额字段先查占位值（乐天 -9999）。
 - **SALONCARE**（Amazon 品牌写法不带空格）：切换线上全权授权，做完汇报；花钱、凭据、安全设置除外。
 - **商品画面**：商品本体用实拍抠图，不让 AI 重画商品/带字包装/真人脸；日文由代码渲染；视频不用 AI 生成画面（10-26）。ComfyUI 测试可用非商用模型，上架前确认许可（11-25）。

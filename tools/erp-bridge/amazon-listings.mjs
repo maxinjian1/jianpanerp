@@ -156,6 +156,7 @@ fs.writeFileSync(P + '/stock-fba.csv', sCsv);
 const OH = ['channel_code', 'order_no', 'line_id', 'line_no', 'order_date', 'status', 'shipped_date', 'parent_key', 'listing_key', 'item_name', 'quantity', 'line_amount_tax_included', 'tax_rate',
   'shipping_charged_tax_included', 'shop_discount_tax_included', 'platform_discount_tax_included', 'fulfillment', 'prefecture', 'returned_quantity', 'refund_tax_included', 'return_date'];
 const n = (v) => Math.round(Number(v) || 0);
+const WITH_C = process.argv.includes('--with-cancelled');   // 2026-11-28 ERP 迁移 0019 上线：取消行数量 0 可以读入
 const jst = (iso) => new Date(new Date(iso).getTime() + 9 * 3600e3).toISOString();
 const oStat = { mcf: 0, byStatus: {}, unmatched: new Set(), revenue: 0, liveOrders: new Set(), min: '', max: '' };
 const byOrder = new Map();
@@ -167,11 +168,13 @@ const oRows = [];
 for (const [no, list0] of byOrder) {
   // 整单取消的订单：报告里数量是 0，ERP 要求 1 以上，这一批不写（ERP 里本来也没有这些订单）。部分取消的订单目前没有；出现时按失败处理，不凑数。
   const isC = (o) => o['order-status'] === 'Cancelled' || o['item-status'] === 'Cancelled';
-  if (list0.every(isC)) { oStat.cancelledOrders = (oStat.cancelledOrders || 0) + 1; oStat.cancelledLines = (oStat.cancelledLines || 0) + list0.length; continue; }
+  if (list0.every(isC)) { oStat.cancelledOrders = (oStat.cancelledOrders || 0) + 1; oStat.cancelledLines = (oStat.cancelledLines || 0) + list0.length; if (!WITH_C) continue; }
   // 部分取消：取消的那一行数量也是 0，同样不写（这些订单还没进过 ERP，不存在旧行）；ERP 能接受取消行数量 0 之后再补
   const partial = list0.filter((o) => isC(o) && n(o.quantity) < 1);
   if (partial.length) { oStat.partialOrders = (oStat.partialOrders || 0) + 1; oStat.partialLines = (oStat.partialLines || 0) + partial.length; }
-  const list = list0.filter((o) => !partial.includes(o)).sort((a, b) => (a.sku < b.sku ? -1 : a.sku > b.sku ? 1 : 0));      // line_no = 订单内按出品者 SKU 排序的序号
+  const bySku = (a, b) => (a.sku < b.sku ? -1 : a.sku > b.sku ? 1 : 0);
+  // line_no = 订单内按出品者 SKU 排序的序号。--with-cancelled 时部分取消订单的取消行排在最后（已读入的行的 line_no 不变）
+  const list = list0.every(isC) ? [...list0].sort(bySku) : [...list0.filter((o) => !partial.includes(o)).sort(bySku), ...(WITH_C ? [...partial].sort(bySku) : [])];
   const seenItem = new Set(); let i = 0;
   const ship = list.reduce((s, o) => s + n(o['shipping-price']), 0), disc = list.reduce((s, o) => s + n(o['item-promotion-discount']) + n(o['ship-promotion-discount']), 0);
   for (const o of list) {
