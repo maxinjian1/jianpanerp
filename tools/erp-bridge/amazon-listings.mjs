@@ -143,7 +143,7 @@ if (errs.length) { console.error(errs.slice(0, 30).join('\n')); process.exit(1);
 const esc = (v) => { const s = String(v ?? ''); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
 const toCsv = (H, rows) => '\uFEFF' + [H, ...rows.map((r) => H.map((h) => r[h]))].map((r) => r.map(esc).join(',')).join('\r\n') + '\r\n';
 const LH = ['channel_code', 'sku_code', 'parent_key', 'listing_key', 'extra_key', 'units', 'fulfillment', 'price_tax_included', 'status'];
-const P = `${ROOT}/tools/erp-bridge/out/pending`; fs.mkdirSync(P + '/amazon', { recursive: true });
+const P = path.resolve(ROOT, arg('out', 'tools/erp-bridge/out/pending'));   // --out：写到别的目录（核对用，不动已交给 ERP 的文件） fs.mkdirSync(P + '/amazon', { recursive: true });
 
 // ---- ④ FBA 可售数 ----
 const codeBySku = new Map(outListings.map((l) => [l.listing_key, l.sku_code]));
